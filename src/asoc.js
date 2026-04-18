@@ -104,7 +104,7 @@ async function getApplicationName(applicationId) {
     return json.Name || applicationId;
 }
 
-function getIssues(scanId) {
+async function getIssues(scanId) {
 
     return new Promise((resolve, reject) => {
 
@@ -218,7 +218,17 @@ function getIssues(scanId) {
 
             const applicationId = process.env.INPUT_APPLICATION_ID;
 
-			const appName = await getApplicationName(applicationId);
+			let appName = applicationId;
+
+			try {
+
+				appName = await getApplicationName(applicationId);
+
+			} catch (e) {
+
+				console.log("Failed to fetch application name, using ID");
+
+			}
 
 			const appUrl =`${baseUrl}/main/myapps/${applicationId}`;
 
