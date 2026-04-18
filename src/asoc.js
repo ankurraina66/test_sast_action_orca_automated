@@ -79,6 +79,31 @@ function getScanResults(scanId) {
 
 }
 
+async function getApplicationName(applicationId) {
+
+    const url =
+        settings.getServiceUrl()
+        + `/Apps/${applicationId}`;
+
+    const res =
+        await got.get(url, {
+
+            headers: {
+
+                Authorization:
+                    "Bearer " + token,
+
+                Accept:
+                    "application/json"
+            }
+        });
+
+    const json =
+        JSON.parse(res.body);
+
+    return json.Name || applicationId;
+}
+
 function getIssues(scanId) {
 
     return new Promise((resolve, reject) => {
@@ -191,18 +216,25 @@ function getIssues(scanId) {
             const scanUrl =
                 `${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;
 
-            const appUrl =
-                `${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}`;
+            const applicationId = process.env.INPUT_APPLICATION_ID;
+
+			const appName = await getApplicationName(applicationId);
+
+			const appUrl =`${baseUrl}/main/myapps/${applicationId}`;
 
             const scanTime =
                 new Date()
                 .toISOString()
                 .replace("T"," ")
                 .substring(0,19);
+				
+			const isPR = process.env.GITHUB_EVENT_NAME === "pull_request";
+
+			const scanLabel = isPR ? "SAST PR Scan Summary" : "SAST Scan Summary";
 
             const md = `
 
-# HCL AppScan SAST Scan Summary
+#  HCL AppScan ${scanLabel}
 
 ### Scan Information
 
@@ -210,7 +242,7 @@ function getIssues(scanId) {
 |------|-------|
 | Scan Type | SAST |
 | Scan ID | [${scanId}](${scanUrl}) |
-| Application | [${process.env.INPUT_APPLICATION_ID}](${appUrl}) |
+| Application | [${appName}](${appUrl}) |
 | Repository | ${process.env.GITHUB_REPOSITORY} |
 | Scan Time | ${scanTime} |
 
