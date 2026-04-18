@@ -80,14 +80,16 @@ function getScanResults(scanId) {
 }
 
 async function getSastScanDetails(scanId) {
-
+console.log("---------------------- inside  getSastScanDetails->", scanId);
     const url =
         settings.getServiceUrl()
         + "/Scans/Sast/"
         + scanId;
 
-    try {
+	console.log(">>>>>>>>>>>>>>>>>>>>>>>>>DEBUG: Calling API ->", url);
 
+    try {
+	console.log("---------------------- inside  getSastScanDetails-> executing api call");
         const res =
             await got.get(url, {
 
@@ -258,7 +260,7 @@ try {
 			const isPR = process.env.GITHUB_EVENT_NAME === "pull_request";
 
 			const scanLabel = isPR ? "SAST PR Scan Summary" : "SAST Scan Summary";
-
+			console.log("?????????????????????????//----------------------DEBUG: Final AppName used in summary ->", appName);
             const md = `
 
 #  HCL AppScan ${scanLabel}
