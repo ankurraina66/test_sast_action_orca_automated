@@ -119,7 +119,9 @@ saclientutil.downloadClient()
 
             /*
              generate build summary + SARIF
+
              works for BOTH the push and PR
+
             */
             return asoc.getScanResults(scanId);
 
@@ -155,4 +157,8 @@ saclientutil.downloadClient()
 
     core.setFailed(error);
 
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> 53044b01849dc9c87e5f29a80ce1e125f1fbc1b2

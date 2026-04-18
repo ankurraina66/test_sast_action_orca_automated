@@ -260,8 +260,10 @@ try {
 			const isPR = process.env.GITHUB_EVENT_NAME === "pull_request";
 
 			const scanLabel = isPR ? "SAST PR Scan Summary" : "SAST Scan Summary";
+
 			console.log("?????????????????????????----------------------DEBUG: Final AppName used in summary ->", appName);
-            const md = `
+
+	            const md = `
 
 #  HCL AppScan ${scanLabel}
 
