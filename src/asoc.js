@@ -252,7 +252,7 @@ async function getIssues(scanId) {
 |------|-------|
 | Scan Type | SAST |
 | Scan ID | [${scanId}](${scanUrl}) |
-| Application | [${appName}](${appUrl}) |
+| Application Name | [${appName}](${appUrl}) |
 | Repository | ${process.env.GITHUB_REPOSITORY} |
 | Scan Time | ${scanTime} |
 
