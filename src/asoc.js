@@ -79,17 +79,12 @@ function getScanResults(scanId) {
 
 }
 
-async function getApplicationName(applicationId) {
+async function getScanMetadata(scanId) {
 
     const url =
         settings.getServiceUrl()
-        + "/Apps/"
-        + applicationId;
-
-	 console.log(
-            ">>>>>>>>>>>>>>>application name:>>>>>>>>>>>>",
-            url
-        );
+        + "/Scans/"
+        + scanId;
 
     try {
 
@@ -106,20 +101,16 @@ async function getApplicationName(applicationId) {
                 }
             });
 
-        const json =
-            JSON.parse(res.body);
+        return JSON.parse(res.body);
 
-        return json.Name || applicationId;
-
-    } catch(e){
+    } catch (e) {
 
         console.log(
-            "Could not fetch application name:",
+            "Could not fetch scan metadata:",
             e.message
         );
 
-        return applicationId;
-
+        return null;
     }
 }
 
@@ -235,18 +226,25 @@ async function getIssues(scanId) {
             const scanUrl =
                 `${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;
 
-            const applicationId = process.env.INPUT_APPLICATION_ID;
-
+		    const applicationId = process.env.INPUT_APPLICATION_ID;
+		
 			let appName = applicationId;
-
+		
 			try {
-
-				appName = await getApplicationName(applicationId);
-
-			} catch (e) {
-
-				console.log("Failed to fetch application name, using ID");
-
+			
+			    const scanMeta = await getScanMetadata(scanId);
+			
+			    if(scanMeta && scanMeta.AppName){
+			
+			        appName = scanMeta.AppName;
+			    }
+			
+			} catch(e){
+			
+			    console.log(
+			        "Failed to fetch AppName from scan metadata"
+			    );
+			
 			}
 
 			const appUrl =`${baseUrl}/main/myapps/${applicationId}`;
