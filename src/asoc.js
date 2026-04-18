@@ -83,8 +83,13 @@ async function getApplicationName(applicationId) {
 
     const url =
         settings.getServiceUrl()
-        + "/api/v4/Apps/"
+        + "/Apps/"
         + applicationId;
+
+	 console.log(
+            ">>>>>>>>>>>>>>>application name:>>>>>>>>>>>>",
+            url
+        );
 
     try {
 
