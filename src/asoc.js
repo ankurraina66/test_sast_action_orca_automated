@@ -153,7 +153,7 @@ async function getIssues(scanId) {
 
         })
 
-        .then(issues => {
+        .then(async issues => {
 
             issues =
                 issues || [];
@@ -224,7 +224,7 @@ async function getIssues(scanId) {
 
             const scanUrl =
                 `${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;
-
+			const applicationId =   process.env.INPUT_APPLICATION_ID;
 		    let appName =
     applicationId;
 
