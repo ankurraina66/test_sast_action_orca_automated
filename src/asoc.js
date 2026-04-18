@@ -83,25 +83,39 @@ async function getApplicationName(applicationId) {
 
     const url =
         settings.getServiceUrl()
-        + `/Apps/${applicationId}`;
+        + "/api/v4/Apps/"
+        + applicationId;
 
-    const res =
-        await got.get(url, {
+    try {
 
-            headers: {
+        const res =
+            await got.get(url, {
 
-                Authorization:
-                    "Bearer " + token,
+                headers: {
 
-                Accept:
-                    "application/json"
-            }
-        });
+                    Authorization:
+                        "Bearer " + token,
 
-    const json =
-        JSON.parse(res.body);
+                    Accept:
+                        "application/json"
+                }
+            });
 
-    return json.Name || applicationId;
+        const json =
+            JSON.parse(res.body);
+
+        return json.Name || applicationId;
+
+    } catch(e){
+
+        console.log(
+            "Could not fetch application name:",
+            e.message
+        );
+
+        return applicationId;
+
+    }
 }
 
 async function getIssues(scanId) {
