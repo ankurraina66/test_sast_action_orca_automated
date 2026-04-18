@@ -79,11 +79,11 @@ function getScanResults(scanId) {
 
 }
 
-async function getScanMetadata(scanId) {
+async function getSastScanDetails(scanId) {
 
     const url =
         settings.getServiceUrl()
-        + "/Scans/"
+        + "/Scans/Sast/"
         + scanId;
 
     try {
@@ -106,14 +106,13 @@ async function getScanMetadata(scanId) {
     } catch (e) {
 
         console.log(
-            "Could not fetch scan metadata:",
+            "Failed to fetch SAST scan details:",
             e.message
         );
 
         return null;
     }
 }
-
 async function getIssues(scanId) {
 
     return new Promise((resolve, reject) => {
@@ -226,26 +225,27 @@ async function getIssues(scanId) {
             const scanUrl =
                 `${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;
 
-		    const applicationId = process.env.INPUT_APPLICATION_ID;
-		
-			let appName = applicationId;
-		
-			try {
-			
-			    const scanMeta = await getScanMetadata(scanId);
-			
-			    if(scanMeta && scanMeta.AppName){
-			
-			        appName = scanMeta.AppName;
-			    }
-			
-			} catch(e){
-			
-			    console.log(
-			        "Failed to fetch AppName from scan metadata"
-			    );
-			
-			}
+		    let appName =
+    applicationId;
+
+try {
+
+    const scanDetails =
+        await getSastScanDetails(scanId);
+
+    if(scanDetails && scanDetails.AppName){
+
+        appName =
+            scanDetails.AppName;
+    }
+
+} catch (e) {
+
+    console.log(
+        "Failed to fetch AppName from scan details"
+    );
+
+}
 
 			const appUrl =`${baseUrl}/main/myapps/${applicationId}`;
 
