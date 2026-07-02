@@ -205,14 +205,15 @@ ${prSection}
 ${viewScanValue}
 
 `;
-				const mdFileName = isPR ? "appscan-pr-report.md": "appscan-build-summary-report.md";
+				const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md`: `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
 				fs.writeFileSync(mdFileName, md);
 				/*
 				 ADD HTML REPORT GENERATION HERE
 				*/
-				//const htmlReport = generateHtmlReport(issues, counts, scanUrl, appName, issueBaseUrl, scanId, appUrl, scanTime);			
-				//const fileName = isPR ? "appscan-pr-report.html": "appscan-build-summary-report.html";
-				//fs.writeFileSync(fileName, htmlReport);
+				const report = {total, counts, issues, scanId, scanUrl, appName, appUrl, scanTime, scanType};
+				const htmlReport = generateHtmlReport(report);			
+				const fileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.html`: `appscan-${scanType.toLowerCase()}-build-summary-report.html`;
+				fs.writeFileSync(fileName, htmlReport);
 				if (process.env.GITHUB_STEP_SUMMARY) {
 					fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
 				}
@@ -385,12 +386,23 @@ ${report.appName}
 </tr>
 </table>
 <h3>Issues</h3>
-<table>
+<div style="margin-bottom:15px;">
+    <b>Filter by Severity:</b>
+    <button onclick="selectAllSeverity()" style="margin-left:15px;">Select All</button>
+    <button onclick="clearAllSeverity()">Clear All</button>
+    <br/><br/>
+    <label><input type="checkbox" value="Critical" checked onchange="filterSeverity()"> Critical</label>
+    <label><input type="checkbox" value="High" checked onchange="filterSeverity()"> High</label>
+    <label><input type="checkbox" value="Medium" checked onchange="filterSeverity()"> Medium</label>
+    <label><input type="checkbox" value="Low" checked onchange="filterSeverity()"> Low</label>
+    <label><input type="checkbox" value="Informational" checked onchange="filterSeverity()"> Informational</label>
+</div>
+<table id="issuesTable">
 <tr>
-<th>Severity</th>
-<th>Issue type</th>
-<th>Location</th>
-<th>Line</th>
+<th onclick="sortTable(0)">Severity&#8645;</th>
+<th onclick="sortTable(1)>Issue type&#8645;</th>
+<th onclick="sortTable(2)>Location&#8645;</th>
+<th onclick="sortTable(3)>Line&#8645;</th>
 <th>How to fix</th>
 </tr>
 ${report.issues.map(i => `
@@ -437,6 +449,86 @@ Full scan:
 View in AppScan
 </a>
 </p>
+<script>
+let sortDirection = {};
+
+function sortTable(column) {
+
+    const table = document.getElementById("issuesTable");
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+
+    const severityOrder = {
+        "Critical": 5,
+        "High": 4,
+        "Medium": 3,
+        "Low": 2,
+        "Informational": 1
+    };
+
+    const asc = !sortDirection[column];
+    sortDirection[column] = asc;
+
+    rows.sort((a, b) => {
+
+        let valA = a.cells[column].innerText.trim();
+        let valB = b.cells[column].innerText.trim();
+
+        if (column === 0) {
+            valA = severityOrder[valA] || 0;
+            valB = severityOrder[valB] || 0;
+        }
+        else if (column === 3) {
+            valA = parseInt(valA) || 0;
+            valB = parseInt(valB) || 0;
+        }
+
+        if (valA < valB) return asc ? -1 : 1;
+        if (valA > valB) return asc ? 1 : -1;
+        return 0;
+    });
+
+    rows.forEach(r => tbody.appendChild(r));
+}
+
+function filterSeverity() {
+
+    const checked = Array.from(
+        document.querySelectorAll(
+            'input[type="checkbox"]:checked'
+        )
+    ).map(cb => cb.value);
+
+    const table = document.getElementById("issuesTable");
+    const rows = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < rows.length; i++) {
+
+        const severity =
+            rows[i].cells[0].innerText.trim();
+
+        rows[i].style.display =
+            checked.includes(severity) ? "" : "none";
+    }
+}
+
+function selectAllSeverity() {
+
+    document.querySelectorAll('input[type="checkbox"]')
+        .forEach(cb => cb.checked = true);
+
+    filterSeverity();
+}
+
+function clearAllSeverity() {
+
+    document.querySelectorAll('input[type="checkbox"]')
+        .forEach(cb => cb.checked = false);
+
+    filterSeverity();
+}
+
+</script>
 </body>
 </html>
 `;
