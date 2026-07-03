@@ -289,10 +289,11 @@ th, td {
 th {
  background: #f5f5f5;
 }
-.sev-critical { color: black; }
-.sev-high { color: black; }
-.sev-medium { color: black; }
-.sev-low { color: black; }
+.sev-critical { color: #b71c1c; font-weight: bold; }
+.sev-high { color: #d84315; font-weight: bold; }
+.sev-medium { color: #b71c1c; font-weight: bold; }
+.sev-low { color: #2e7d32; font-weight: bold; }
+.sev-informational { color: #1565c0; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -386,7 +387,7 @@ ${report.appName}
 </tr>
 </table>
 <h3>Issues</h3>
-<div style="margin-bottom:15px;">
+<div id="severityFilters" style="margin-bottom:15px;">
     <b>Filter by Severity:</b>
     <button onclick="selectAllSeverity()" style="margin-left:15px;">Select All</button>
     <button onclick="clearAllSeverity()">Clear All</button>
@@ -398,13 +399,16 @@ ${report.appName}
     <label><input type="checkbox" value="Informational" checked onchange="filterSeverity()"> Informational</label>
 </div>
 <table id="issuesTable">
+<thead>
 <tr>
-<th onclick="sortTable(0)">Severity&#8645;</th>
-<th onclick="sortTable(1)>Issue type&#8645;</th>
-<th onclick="sortTable(2)>Location&#8645;</th>
-<th onclick="sortTable(3)>Line&#8645;</th>
-<th>How to fix</th>
+    <th onclick="sortTable(0)">Severity &#8645;</th>
+    <th onclick="sortTable(1)">Issue Type &#8645;</th>
+    <th onclick="sortTable(2)">Location &#8645;</th>
+    <th onclick="sortTable(3)">Line &#8645;</th>
+    <th>How to fix</th>
 </tr>
+</thead>
+<tbody>
 ${report.issues.map(i => `
 <tr>
 <td class="sev-${i.Severity.toLowerCase()}">
@@ -415,11 +419,11 @@ ${i.IssueType}
 </td>
 <td>
 ${(() => {
-	const location = i.Location || "";
-	const parsed = parseLocation(location);
-	const filePath = parsed.filePath;
-	const lineNumber = parsed.lineNumber;
-	const githubFileUrl =`https://github.com/${repoName}/blob/${process.env.GITHUB_SHA}/${filePath}#L${lineNumber}`;
+    const location = i.Location || "";
+    const parsed = parseLocation(location);
+    const filePath = parsed.filePath;
+    const lineNumber = parsed.lineNumber;
+    const githubFileUrl =`https://github.com/${repoName}/blob/${process.env.GITHUB_SHA}/${filePath}#L${lineNumber}`;
     return `
         <a href="${githubFileUrl}" target="_blank">
             ${location}
@@ -432,7 +436,7 @@ ${(i.Location || "").split(":").pop()}
 </td>
 <td>
 ${(() => {
-    const issueDetailsUrl =`${settings.getServiceUrl().replace('/api/v4','')}` + `/main/myapps/${process.env.INPUT_APPLICATION_ID}` +`/issues/${i.Id}`;
+    const issueDetailsUrl = `${settings.getServiceUrl().replace('/api/v4','')}` + `/main/myapps/${process.env.INPUT_APPLICATION_ID}` + `/issues/${i.Id}`;
     return `
         <a href="${issueDetailsUrl}" target="_blank">
             View Issue Details
@@ -442,6 +446,7 @@ ${(() => {
 </td>
 </tr>
 `).join("")}
+</tbody>
 </table>
 <p>
 Full scan:
@@ -494,9 +499,7 @@ function sortTable(column) {
 function filterSeverity() {
 
     const checked = Array.from(
-        document.querySelectorAll(
-            'input[type="checkbox"]:checked'
-        )
+        document.querySelectorAll('#severityFilters input[type="checkbox"]:checked')
     ).map(cb => cb.value);
 
     const table = document.getElementById("issuesTable");
@@ -514,7 +517,7 @@ function filterSeverity() {
 
 function selectAllSeverity() {
 
-    document.querySelectorAll('input[type="checkbox"]')
+    document.querySelectorAll('#severityFilters input[type="checkbox"]')
         .forEach(cb => cb.checked = true);
 
     filterSeverity();
@@ -522,7 +525,7 @@ function selectAllSeverity() {
 
 function clearAllSeverity() {
 
-    document.querySelectorAll('input[type="checkbox"]')
+    document.querySelectorAll('#severityFilters input[type="checkbox"]')
         .forEach(cb => cb.checked = false);
 
     filterSeverity();
