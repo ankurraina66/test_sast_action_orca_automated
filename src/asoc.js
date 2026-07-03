@@ -291,7 +291,7 @@ th {
 }
 .sev-critical { color: #b71c1c; font-weight: bold; }
 .sev-high { color: #d84315; font-weight: bold; }
-.sev-medium { color: #b71c1c; font-weight: bold; }
+.sev-medium { color: #ef6c00; font-weight: bold; }
 .sev-low { color: #2e7d32; font-weight: bold; }
 .sev-informational { color: #1565c0; font-weight: bold; }
 </style>
@@ -503,9 +503,9 @@ function filterSeverity() {
     ).map(cb => cb.value);
 
     const table = document.getElementById("issuesTable");
-    const rows = table.getElementsByTagName("tr");
+    const rows = table.tBodies[0].rows;
 
-    for (let i = 1; i < rows.length; i++) {
+    for (let i = 0; i < rows.length; i++) {
 
         const severity =
             rows[i].cells[0].innerText.trim();
