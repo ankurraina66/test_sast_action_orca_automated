@@ -21,6 +21,7 @@ import * as constants from './constants.js';
 import settings from './settings.js';
 import utils from './utils.js';
 import FormData from 'form-data';
+import path from "path";
 
 let token = null
 const key = utils.sanitizeString(process.env.INPUT_ASOC_KEY);
@@ -86,9 +87,31 @@ async function getSastScanDetails(scanId) {
 					rejectUnauthorized: enableSSL
 				}
         });
-        return JSON.parse(res.body);
+        const responseJSON = JSON.parse(res.body);
+		return { AppName : responseJSON.Name, ExecutionId : responseJSON.LatestExecution?.Id };
     } catch (e) {
 		console.log("Failed to fetch SAST scan details:", e.message);
+        return null;
+    }
+}
+
+async function getScaScanDetails(scanId) {
+    const url = settings.getServiceUrl()+ "/api/v4/Scans/Sca/"+ scanId;
+    try {
+        const res = await got.get(url, {
+                headers: getRequestHeaders(),
+				retry: {
+					limit: 3,
+					methods: ["GET", "POST"]
+				},
+				https: {
+					rejectUnauthorized: enableSSL
+				}
+        });
+        const responseJSON = JSON.parse(res.body);
+		return { AppName : responseJSON.Name, ExecutionId : responseJSON.LatestExecution?.Id };
+    } catch (e) {
+		console.log("Failed to fetch SCA scan details:", e.message);
         return null;
     }
 }
@@ -100,10 +123,6 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
         got.get(url, { headers: getRequestHeaders(), retry: { limit: 3, methods: ['GET', 'POST'] }, https:{ rejectUnauthorized: enableSSL }})
         .then((response) => {
             let responseJson = JSON.parse(response.body);
-			console.log("=========== Items returned ==============", responseJson.Items?.length);
-			console.log("====== Total count ======", responseJson.TotalCount);
-			console.log("================== Keys =============", Object.keys(responseJson));
-			console.log("====== Next link ======", responseJson["@odata.nextLink"]);
 			// Use raw issue items for PR/build summary, HTML report, and SARIF generation.
 			// resultProcessor.processResults() returns aggregated data which is not iterable.
 			return responseJson.Items || [];
@@ -113,7 +132,6 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
         .then(async issues => {
             issues = issues || [];			
 			//const enableGithubSecurity = process.env.INPUT_ENABLE_GITHUB_SECURITY !== 'false';
-			console.log(JSON.stringify(issues[0], null, 2));
             const counts = {Critical: 0, High: 0, Medium: 0, Low: 0, Informational: 0};
             issues.forEach(i => {
                 if (
@@ -157,9 +175,7 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
 				const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
 				const prUrl =`https://github.com/${repoName}/pull/${prNumber}`;
 				const branchUrl =`https://github.com/${repoName}/tree/${branchName}`;
-				const commitUrl =`https://github.com/${repoName}/commit/${process.env.GITHUB_SHA}`;
-				const issueBaseUrl = scanType === 'SAST' ? `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}/scanIssues?executionId=${executionId}`:
-				                     `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}/scanIssues`;				
+				const commitUrl =`https://github.com/${repoName}/commit/${process.env.GITHUB_SHA}`;			
 				const prSection = isPR ? `
 
 ## Pull Request Information
@@ -207,17 +223,9 @@ ${viewScanValue}
 `;
 				const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md`: `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
 				fs.writeFileSync(mdFileName, md);
-				/*
-				 ADD HTML REPORT GENERATION HERE
-				*/
-				const report = {total, counts, issues, scanId, scanUrl, appName, appUrl, scanTime, scanType};
-				const htmlReport = generateHtmlReport(report);			
-				const fileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.html`: `appscan-${scanType.toLowerCase()}-build-summary-report.html`;
-				fs.writeFileSync(fileName, htmlReport);
 				if (process.env.GITHUB_STEP_SUMMARY) {
 					fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
 				}
-				//resolve({total, counts});
 				resolve({total, counts, issues, scanId, scanUrl, appName, appUrl, scanTime, scanType});
 		})
         .catch((error) => {
@@ -226,315 +234,90 @@ ${viewScanValue}
     });
 }
 
-/**
- * Parses an AppScan issue location string into a file path and line number.
- * Used by report generation to create source code links and
- * was originally introduced for SARIF result locations.
- */
-function parseLocation(location) {
-    if (!location) {
-        return {
-            filePath: "source",
-            lineNumber: 1
+function createSecurityReport(executionId, reportType) {
+    return new Promise((resolve, reject) => {
+        const url = settings.getServiceUrl() + constants.API_SECURITY_REPORT + executionId;
+        const today = new Date().toISOString().split('T')[0];
+		const repoName = process.env.GITHUB_REPOSITORY ? process.env.GITHUB_REPOSITORY.split("/")[1] : "UnknownRepo";
+		const reportTitle = `Report_${repoName}_${today}`;
+        const body = {
+            Configuration: {
+                Summary: true,
+                Details: true,
+                Discussion: false,
+                Overview: true,
+                TableOfContent: true,
+                ApplicationCustomFields: false,
+                ApplicationDetails: false,
+                Articles: false,
+                Coverage: false,
+                History: false,
+                IssueCustomFields: false,
+                Locale: "en",
+                MinimizeDetails: true,
+                Notes: "",
+				Title: reportTitle,
+                ReportFileType: "HTML"
+            },
+            OdataFilter: "((Status eq 'New') or (Status eq 'Open') or (Status eq 'InProgress') or (Status eq 'Reopened'))",
+			ApplyPolicies: "All",
+            SelectPolicyIds: []
         };
-    }
-    const lastColon = location.lastIndexOf(":");
-    if (lastColon === -1) {
-        return {
-            filePath: location,
-            lineNumber: 1
-        };
-    }
-    return {
-        filePath: location.substring(0, lastColon),
-        lineNumber: parseInt(location.substring(lastColon + 1)) || 1
-    };
-}
-
-function generateHtmlReport(report) {
-	const isPR = process.env.GITHUB_EVENT_NAME === 'pull_request';
-	const repoName = process.env.GITHUB_REPOSITORY || "";
-	const branchName = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
-	const commitSha = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0,7) : "";
-	let prNumber = "";
-	try {
-		if (process.env.GITHUB_EVENT_PATH && fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
-			const eventPayload = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
-			prNumber = eventPayload.pull_request?.number || "";
-		}
-	} catch (e) {
-		console.log("Failed to read PR information:", e.message);
-	}
-	const prUrl = `https://github.com/${repoName}/pull/${prNumber}`;
-	const branchUrl = `https://github.com/${repoName}/tree/${branchName}`;
-	const commitUrl = `https://github.com/${repoName}/commit/${process.env.GITHUB_SHA}`;	
-	return `
-
-<html>
-<head>
-<style>
-body {
- font-family: Arial;
- margin: 40px;
-}
-table {
- border-collapse: collapse;
- width: 100%;
- margin-bottom: 30px;
-}
-th, td {
- border: 1px solid #ddd;
- padding: 8px;
-}
-th {
- background: #f5f5f5;
-}
-.sev-critical { color: #b71c1c; font-weight: bold; }
-.sev-high { color: #d84315; font-weight: bold; }
-.sev-medium { color: #ef6c00; font-weight: bold; }
-.sev-low { color: #2e7d32; font-weight: bold; }
-.sev-informational { color: #1565c0; font-weight: bold; }
-</style>
-</head>
-<body>
-<h1>HCL AppScan ${report.scanType} ${isPR ? "PR Scan Summary" : "Scan Summary"}</h1>
-${isPR ? `
-<h3>Pull Request Information</h3>
-<table>
-<tr>
-<th>Field</th>
-<th>Value</th>
-</tr>
-<tr>
-<td>PR Number</td>
-<td>
-<a href="${prUrl}" target="_blank">
-#${prNumber}
-</a>
-</td>
-</tr>
-<tr>
-<td>Branch</td>
-<td>
-<a href="${branchUrl}" target="_blank">
-${branchName}
-</a>
-</td>
-</tr>
-<tr>
-<td>Commit</td>
-<td>
-<a href="${commitUrl}" target="_blank">
-${commitSha}
-</a>
-</td>
-</tr>
-</table>
-<br/>
-
-` : ""}
-<h3>Scan Information</h3>
-<table>
-<tr>
-<th>Field</th>
-<th>Value</th>
-</tr>
-<tr>
-<td>Scan Type</td>
-<td>${report.scanType}</td>
-</tr>
-<tr>
-<td>Scan ID</td>
-<td>
-<a href="${report.scanUrl}" target="_blank">
-${report.scanId}
-</a>
-</td>
-</tr>
-<tr>
-<td>Application Name</td>
-<td>
-<a href="${report.appUrl}" target="_blank">
-${report.appName}
-</a>
-</td>
-</tr>
-<tr>
-<td>Repository</td>
-<td>${process.env.GITHUB_REPOSITORY}</td>
-</tr>
-<tr>
-<td>Scan Time</td>
-<td>${report.scanTime}</td>
-</tr>
-</table>
-<h2>Application: ${report.appName}</h2>
-<h3>Summary</h3>
-<table>
-<tr>
-<th>Critical</th>
-<th>High</th>
-<th>Medium</th>
-<th>Low</th>
-<th>Info</th>
-</tr>
-<tr>
-<td>${report.counts.Critical}</td>
-<td>${report.counts.High}</td>
-<td>${report.counts.Medium}</td>
-<td>${report.counts.Low}</td>
-<td>${report.counts.Informational}</td>
-</tr>
-</table>
-<h3>Issues</h3>
-<div id="severityFilters" style="margin-bottom:15px;">
-    <b>Filter by Severity:</b>
-    <button onclick="selectAllSeverity()" style="margin-left:15px;">Select All</button>
-    <button onclick="clearAllSeverity()">Clear All</button>
-    <br/><br/>
-    <label><input type="checkbox" value="Critical" checked onchange="filterSeverity()"> Critical</label>
-    <label><input type="checkbox" value="High" checked onchange="filterSeverity()"> High</label>
-    <label><input type="checkbox" value="Medium" checked onchange="filterSeverity()"> Medium</label>
-    <label><input type="checkbox" value="Low" checked onchange="filterSeverity()"> Low</label>
-    <label><input type="checkbox" value="Informational" checked onchange="filterSeverity()"> Informational</label>
-</div>
-<table id="issuesTable">
-<thead>
-<tr>
-    <th onclick="sortTable(0)">Severity &#8645;</th>
-    <th onclick="sortTable(1)">Issue Type &#8645;</th>
-    <th onclick="sortTable(2)">Location &#8645;</th>
-    <th onclick="sortTable(3)">Line &#8645;</th>
-    <th>How to fix</th>
-</tr>
-</thead>
-<tbody>
-${report.issues.map(i => `
-<tr>
-<td class="sev-${i.Severity.toLowerCase()}">
-${i.Severity}
-</td>
-<td>
-${i.IssueType}
-</td>
-<td>
-${(() => {
-    const location = i.Location || "";
-    const parsed = parseLocation(location);
-    const filePath = parsed.filePath;
-    const lineNumber = parsed.lineNumber;
-    const githubFileUrl =`https://github.com/${repoName}/blob/${process.env.GITHUB_SHA}/${filePath}#L${lineNumber}`;
-    return `
-        <a href="${githubFileUrl}" target="_blank">
-            ${location}
-        </a>
-    `;
-})()}
-</td>
-<td>
-${(i.Location || "").split(":").pop()}
-</td>
-<td>
-${(() => {
-    const issueDetailsUrl = `${settings.getServiceUrl().replace('/api/v4','')}` + `/main/myapps/${process.env.INPUT_APPLICATION_ID}` + `/issues/${i.Id}`;
-    return `
-        <a href="${issueDetailsUrl}" target="_blank">
-            View Issue Details
-        </a>
-    `;
-})()}
-</td>
-</tr>
-`).join("")}
-</tbody>
-</table>
-<p>
-Full scan:
-<a href="${report.scanUrl}">
-View in AppScan
-</a>
-</p>
-<script>
-let sortDirection = {};
-
-function sortTable(column) {
-
-    const table = document.getElementById("issuesTable");
-    const tbody = table.tBodies[0];
-    const rows = Array.from(tbody.rows);
-
-    const severityOrder = {
-        "Critical": 5,
-        "High": 4,
-        "Medium": 3,
-        "Low": 2,
-        "Informational": 1
-    };
-
-    const asc = !sortDirection[column];
-    sortDirection[column] = asc;
-
-    rows.sort((a, b) => {
-
-        let valA = a.cells[column].innerText.trim();
-        let valB = b.cells[column].innerText.trim();
-
-        if (column === 0) {
-            valA = severityOrder[valA] || 0;
-            valB = severityOrder[valB] || 0;
-        }
-        else if (column === 3) {
-            valA = parseInt(valA) || 0;
-            valB = parseInt(valB) || 0;
-        }
-
-        if (valA < valB) return asc ? -1 : 1;
-        if (valA > valB) return asc ? 1 : -1;
-        return 0;
+		console.log("Security report request body: ");
+		console.log(JSON.stringify(body, null, 2));
+        got.post(url, { json: body, headers: getRequestHeaders(), retry: { limit: 3, methods: ["POST"] }, https: { rejectUnauthorized: enableSSL } })
+        .then((response) => {
+			console.log("Create report response >>>>>>>>", response.body);
+            const responseJson = JSON.parse(response.body);
+			console.log("Create report complete response >>>>>>>>", JSON.stringify(responseJson, null, 2));
+            resolve(responseJson.Id);
+        })
+        .catch((error) => {
+            reject(error);
+        });
     });
-
-    rows.forEach(r => tbody.appendChild(r));
 }
 
-function filterSeverity() {
+function getSecurityReport(reportId) {
+    return new Promise((resolve, reject) => {
+        const url = settings.getServiceUrl() + constants.API_REPORT + "?$filter=Id eq " + reportId;
+        got.get(url, { headers: getRequestHeaders(), retry: { limit: 3, methods: ["GET"] }, https: { rejectUnauthorized: enableSSL } })
+        .then((response) => {
+            const responseJson = JSON.parse(response.body);
+            if(responseJson.Items && responseJson.Items.length > 0) {
+                resolve(responseJson.Items[0]);
+            }else {
+                reject("Security report not found.");
+            }
+        })
+        .catch((error) => {
+            reject(error);
+        });
+    });
+}
 
-    const checked = Array.from(
-        document.querySelectorAll('#severityFilters input[type="checkbox"]:checked')
-    ).map(cb => cb.value);
-
-    const table = document.getElementById("issuesTable");
-    const rows = table.tBodies[0].rows;
-
-    for (let i = 0; i < rows.length; i++) {
-
-        const severity =
-            rows[i].cells[0].innerText.trim();
-
-        rows[i].style.display =
-            checked.includes(severity) ? "" : "none";
+async function downloadSecurityReport(report, reportType = "SAST") {
+    if (!report) {
+        return null;
     }
-}
-
-function selectAllSeverity() {
-
-    document.querySelectorAll('#severityFilters input[type="checkbox"]')
-        .forEach(cb => cb.checked = true);
-
-    filterSeverity();
-}
-
-function clearAllSeverity() {
-
-    document.querySelectorAll('#severityFilters input[type="checkbox"]')
-        .forEach(cb => cb.checked = false);
-
-    filterSeverity();
-}
-
-</script>
-</body>
-</html>
-`;
+	console.log("Complete report object >>>>>>>>", JSON.stringify(report, null, 2));
+	console.log("Report.Name >>>>>>>>", report.Name);
+	console.log("Report.DownloadLink >>>>>>>>", report.DownloadLink);
+	const downloadLink = report.DownloadLink;
+	//const reportName = report.Name + ".html";
+	const reportName = "Report_" + report.Id +".html";
+    try {
+        const response = await got.get(downloadLink, { headers: getRequestHeaders(), retry: { limit: 3, methods: ["GET"] }, https: { rejectUnauthorized: enableSSL } });
+		fs.writeFileSync(reportName, response.body);
+		console.log("Report file name >>>>>>>>", reportName);
+		console.log("Current working directory >>>>>>>>", process.cwd());
+		console.log("File exists after write >>>>>>>>", fs.existsSync(reportName));
+		console.log("Absolute path >>>>>>>>", path.resolve(reportName));
+        return response.body;
+    }catch (e) {
+        console.log("Failed to download security report:", e.message);
+        return null;
+    }
 }
 
 function getRequestHeaders() {
@@ -711,4 +494,4 @@ async function getScanStatus(url, scanId) {
     return responseJson.LatestExecution.Status;
 }
 
-export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues }
+export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues, getSastScanDetails, createSecurityReport, getSecurityReport,downloadSecurityReport, getScaScanDetails }
