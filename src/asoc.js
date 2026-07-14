@@ -1,3 +1,19 @@
+/*
+Copyright 2022, 2026 HCL America, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 import * as core from '@actions/core';
 import * as fs from 'fs';
 import got from 'got';
@@ -225,61 +241,6 @@ ${viewScanValue}
             reject(error);
         })
     });
-}
-
-async function generateMinimumSummary(scanId, scanType) {
-	return new Promise(async(resolve, reject)) => {
-		const serviceUrl = settings.getServiceUrl();
-		const baseUrl = serviceUrl.replace("/api/v4", "");
-		const scanUrl = `${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;
-		const applicationId = process.env.INPUT_APPLICATION_ID;
-		let appName = applicationId;
-		let executionId = "";
-		try {
-			let scanDetails = null;
-			if (scanType === "SAST") {
-				scanDetails = await getSastScanDetails(scanId);
-			} else if (scanType === "SCA") {
-				scanDetails = await getScaScanDetails(scanId);
-			}
-			if (scanDetails) {
-				appName = scanDetails.AppName || appName;
-				executionId = scanDetails.ExecutionId || "";
-			}
-		} catch (e) {
-				console.log("Failed to fetch AppName from scan details");
-		}
-		const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
-		const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
-		const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
-		const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
-		const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-		const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
-		const md = `
-# HCL AppScan ${scanType} Scan Summary
-
-### Scan Information
-
-| Field | Value |
-|--------|-------|
-| Scan Type | ${scanType} |
-| Scan ID | ${scanIdValue} |
-| Application Name | ${appNameValue} |
-| Repository | ${process.env.GITHUB_REPOSITORY} |
-| Scan Time | ${scanTime} |
-
----
-
-${viewScanValue}
-
-`;
-        const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
-        fs.writeFileSync(mdFileName, md);
-		if (process.env.GITHUB_STEP_SUMMARY) {
-			fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
-		}
-		resolve();
-	});
 }
 
 function createSecurityReport(executionId) {
@@ -530,4 +491,4 @@ async function getScanStatus(url, scanId) {
     return responseJson.LatestExecution.Status;
 }
 
-export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues, getSastScanDetails, createSecurityReport, getSecurityReport,downloadSecurityReport, getScaScanDetails, generateMinimumSummary }
+export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues, getSastScanDetails, createSecurityReport, getSecurityReport,downloadSecurityReport, getScaScanDetails }
