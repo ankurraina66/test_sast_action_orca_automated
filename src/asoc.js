@@ -1,19 +1,3 @@
-/*
-Copyright 2022, 2026 HCL America, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 import * as core from '@actions/core';
 import * as fs from 'fs';
 import got from 'got';
@@ -88,7 +72,7 @@ async function getSastScanDetails(scanId) {
 				}
         });
         const responseJSON = JSON.parse(res.body);
-		return { AppName : responseJSON.Name, ExecutionId : responseJSON.LatestExecution?.Id };
+		return { AppName : responseJSON.AppName, ExecutionId : responseJSON.LatestExecution?.Id };
     } catch (e) {
 		console.log("Failed to fetch SAST scan details:", e.message);
         return null;
@@ -109,7 +93,7 @@ async function getScaScanDetails(scanId) {
 				}
         });
         const responseJSON = JSON.parse(res.body);
-		return { AppName : responseJSON.Name, ExecutionId : responseJSON.LatestExecution?.Id };
+		return { AppName : responseJSON.AppName, ExecutionId : responseJSON.LatestExecution?.Id };
     } catch (e) {
 		console.log("Failed to fetch SCA scan details:", e.message);
         return null;
@@ -141,18 +125,22 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
                 }
             });
             const total = Object.values(counts).reduce((a,b)=>a+b, 0);
-            const baseUrl = settings.getServiceUrl().replace("/api/v4","");		
-            const scanUrl =`${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;			
+			const serviceUrl = settings.getServiceUrl();
+            const baseUrl = serviceUrl.replace("/api/v4","");		
+            const scanUrl =`${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;		
 			const applicationId = process.env.INPUT_APPLICATION_ID;
 		    let appName = applicationId;
 			let executionId = "";
 			try {
+				let scanDetails = null;
 				if(scanType === 'SAST') {
-					const scanDetails = await getSastScanDetails(scanId);	
-					if(scanDetails) {
+					scanDetails = await getSastScanDetails(scanId);	
+				} else if(scanType === 'SCA') {
+					scanDetails = await getScaScanDetails(scanId);
+				}
+				if(scanDetails) {
 						appName = scanDetails.AppName || appName;
 						executionId = scanDetails.ExecutionId || "";
-					}
 				}
 			} catch (e) {
 					console.log("Failed to fetch AppName from scan details");
@@ -188,10 +176,15 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
 
 ---`
     : "";
-				const isAppScan360 = !!process.env.INPUT_SERVICE_URL;
-				const scanIdValue = isAppScan360 ? scanId : `[${scanId}](${scanUrl})`;
-				const appNameValue = isAppScan360 ? appName : `[${appName}](${appUrl})`;
-				const viewScanValue = isAppScan360 ? "View scan details in downloadable HTML report" : `[View scan details in AppScan](${scanUrl})`;
+				//const isAppScan360 = !!process.env.INPUT_SERVICE_URL;
+				const inputServiceUrl = process.env.INPUT_SERVICE_URL;
+				const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
+				//const scanIdValue = isAppScan360 ? scanId : `[${scanId}](${scanUrl})`;
+				const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+				//const appNameValue = isAppScan360 ? appName : `[${appName}](${appUrl})`;
+				const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+				//const viewScanValue = isAppScan360 ? "View scan details in downloadable HTML report" : `[View scan details in AppScan](${scanUrl})`;
+				const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
 	            const md = `
 
 #  HCL AppScan ${scanLabel}
@@ -234,7 +227,62 @@ ${viewScanValue}
     });
 }
 
-function createSecurityReport(executionId, reportType) {
+async function generateMinimumSummary(scanId, scanType) {
+	return new Promise(async(resolve, reject)) => {
+		const serviceUrl = settings.getServiceUrl();
+		const baseUrl = serviceUrl.replace("/api/v4", "");
+		const scanUrl = `${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;
+		const applicationId = process.env.INPUT_APPLICATION_ID;
+		let appName = applicationId;
+		let executionId = "";
+		try {
+			let scanDetails = null;
+			if (scanType === "SAST") {
+				scanDetails = await getSastScanDetails(scanId);
+			} else if (scanType === "SCA") {
+				scanDetails = await getScaScanDetails(scanId);
+			}
+			if (scanDetails) {
+				appName = scanDetails.AppName || appName;
+				executionId = scanDetails.ExecutionId || "";
+			}
+		} catch (e) {
+				console.log("Failed to fetch AppName from scan details");
+		}
+		const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
+		const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
+		const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
+		const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+		const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+		const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
+		const md = `
+# HCL AppScan ${scanType} Scan Summary
+
+### Scan Information
+
+| Field | Value |
+|--------|-------|
+| Scan Type | ${scanType} |
+| Scan ID | ${scanIdValue} |
+| Application Name | ${appNameValue} |
+| Repository | ${process.env.GITHUB_REPOSITORY} |
+| Scan Time | ${scanTime} |
+
+---
+
+${viewScanValue}
+
+`;
+        const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
+        fs.writeFileSync(mdFileName, md);
+		if (process.env.GITHUB_STEP_SUMMARY) {
+			fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+		}
+		resolve();
+	});
+}
+
+function createSecurityReport(executionId) {
     return new Promise((resolve, reject) => {
         const url = settings.getServiceUrl() + constants.API_SECURITY_REPORT + executionId;
         const today = new Date().toISOString().split('T')[0];
@@ -263,13 +311,9 @@ function createSecurityReport(executionId, reportType) {
 			ApplyPolicies: "All",
             SelectPolicyIds: []
         };
-		console.log("Security report request body: ");
-		console.log(JSON.stringify(body, null, 2));
         got.post(url, { json: body, headers: getRequestHeaders(), retry: { limit: 3, methods: ["POST"] }, https: { rejectUnauthorized: enableSSL } })
         .then((response) => {
-			console.log("Create report response >>>>>>>>", response.body);
             const responseJson = JSON.parse(response.body);
-			console.log("Create report complete response >>>>>>>>", JSON.stringify(responseJson, null, 2));
             resolve(responseJson.Id);
         })
         .catch((error) => {
@@ -300,19 +344,11 @@ async function downloadSecurityReport(report, reportType = "SAST") {
     if (!report) {
         return null;
     }
-	console.log("Complete report object >>>>>>>>", JSON.stringify(report, null, 2));
-	console.log("Report.Name >>>>>>>>", report.Name);
-	console.log("Report.DownloadLink >>>>>>>>", report.DownloadLink);
 	const downloadLink = report.DownloadLink;
-	//const reportName = report.Name + ".html";
-	const reportName = "Report_" + report.Id +".html";
+	const reportName = `${report.Name}_${reportType}.html`;
     try {
         const response = await got.get(downloadLink, { headers: getRequestHeaders(), retry: { limit: 3, methods: ["GET"] }, https: { rejectUnauthorized: enableSSL } });
 		fs.writeFileSync(reportName, response.body);
-		console.log("Report file name >>>>>>>>", reportName);
-		console.log("Current working directory >>>>>>>>", process.cwd());
-		console.log("File exists after write >>>>>>>>", fs.existsSync(reportName));
-		console.log("Absolute path >>>>>>>>", path.resolve(reportName));
         return response.body;
     }catch (e) {
         console.log("Failed to download security report:", e.message);
@@ -494,4 +530,4 @@ async function getScanStatus(url, scanId) {
     return responseJson.LatestExecution.Status;
 }
 
-export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues, getSastScanDetails, createSecurityReport, getSecurityReport,downloadSecurityReport, getScaScanDetails }
+export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues, getSastScanDetails, createSecurityReport, getSecurityReport,downloadSecurityReport, getScaScanDetails, generateMinimumSummary }
