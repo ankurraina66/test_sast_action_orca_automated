@@ -244,32 +244,32 @@ ${viewScanValue}
 }
 
 async function generateMinimumSummary(scanId, scanType) {
-	return new Promise(async(resolve, reject) => {
-		const serviceUrl = settings.getServiceUrl();
-		const baseUrl = serviceUrl.replace("/api/v4", "");
-		const scanUrl = `${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;
-		const applicationId = process.env.INPUT_APPLICATION_ID;
-		let appName = applicationId;
-		try {
-			let scanDetails = null;
-			if (scanType === "SAST") {
-				scanDetails = await getSastScanDetails(scanId);
-			} else if (scanType === "SCA") {
-				scanDetails = await getScaScanDetails(scanId);
-			}
-			if (scanDetails) {
-				appName = scanDetails.AppName || appName;
-			}
-		} catch (e) {
-				console.log("Failed to fetch AppName from scan details");
-		}
-		const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
-		const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
-		const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
-		const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
-		const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-		const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
-		const md = `
+    const serviceUrl = settings.getServiceUrl();
+    const baseUrl = serviceUrl.replace("/api/v4", "");
+    const applicationId = process.env.INPUT_APPLICATION_ID;
+    const scanUrl = `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}`;
+    const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
+    let appName = applicationId;
+    try {
+        let scanDetails = null;
+        if (scanType === "SAST") {
+            scanDetails = await getSastScanDetails(scanId);
+        } else if (scanType === "SCA") {
+            scanDetails = await getScaScanDetails(scanId);
+        }
+        if (scanDetails) {
+            appName = scanDetails.AppName || appName;
+        }
+    }
+    catch (e) {
+        console.log("Failed to fetch AppName from scan details:", e.message);
+    }
+    const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
+    const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
+    const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+    const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+    const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
+    const md = `
 # HCL AppScan ${scanType} Scan Summary
 
 ### Scan Information
@@ -287,13 +287,12 @@ async function generateMinimumSummary(scanId, scanType) {
 ${viewScanValue}
 
 `;
-        const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
-        fs.writeFileSync(mdFileName, md);
-		if (process.env.GITHUB_STEP_SUMMARY) {
-			fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
-		}
-		resolve();
-	});
+
+    const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
+    fs.writeFileSync(mdFileName, md);
+    if (process.env.GITHUB_STEP_SUMMARY) {
+        fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+    }
 }
 
 function createSecurityReport(executionId) {
@@ -553,4 +552,4 @@ async function getScanStatus(url, scanId) {
     return responseJson.LatestExecution.Status;
 }
 
-export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues, getSastScanDetails, createSecurityReport, getSecurityReport,downloadSecurityReport, getScaScanDetails }
+export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues, getSastScanDetails, createSecurityReport, getSecurityReport,downloadSecurityReport, getScaScanDetails, generateMinimumSummary }
