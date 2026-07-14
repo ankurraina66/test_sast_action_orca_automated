@@ -243,6 +243,59 @@ ${viewScanValue}
     });
 }
 
+async function generateMinimumSummary(scanId, scanType) {
+	return new Promise(async(resolve, reject) => {
+		const serviceUrl = settings.getServiceUrl();
+		const baseUrl = serviceUrl.replace("/api/v4", "");
+		const scanUrl = `${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;
+		const applicationId = process.env.INPUT_APPLICATION_ID;
+		let appName = applicationId;
+		try {
+			let scanDetails = null;
+			if (scanType === "SAST") {
+				scanDetails = await getSastScanDetails(scanId);
+			} else if (scanType === "SCA") {
+				scanDetails = await getScaScanDetails(scanId);
+			}
+			if (scanDetails) {
+				appName = scanDetails.AppName || appName;
+			}
+		} catch (e) {
+				console.log("Failed to fetch AppName from scan details");
+		}
+		const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
+		const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
+		const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
+		const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+		const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+		const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
+		const md = `
+# HCL AppScan ${scanType} Scan Summary
+
+### Scan Information
+
+| Field | Value |
+|--------|-------|
+| Scan Type | ${scanType} |
+| Scan ID | ${scanIdValue} |
+| Application Name | ${appNameValue} |
+| Repository | ${process.env.GITHUB_REPOSITORY} |
+| Scan Time | ${scanTime} |
+
+---
+
+${viewScanValue}
+
+`;
+        const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
+        fs.writeFileSync(mdFileName, md);
+		if (process.env.GITHUB_STEP_SUMMARY) {
+			fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+		}
+		resolve();
+	});
+}
+
 function createSecurityReport(executionId) {
     return new Promise((resolve, reject) => {
         const url = settings.getServiceUrl() + constants.API_SECURITY_REPORT + executionId;
@@ -334,7 +387,16 @@ function runAnalysis(file) {
         .then((fileId) => {
             return submitScans(fileId);
         })
-        .then((scanIds) => {
+        .then(async (scanIds) => {
+			if (process.env.INPUT_WAIT_FOR_ANALYSIS !== 'true') {
+				core.info("Generating minimum summary..");
+				if (scanIds.sastScanId) {
+					await generateMinimumSummary(scanIds.sastScanId, "SAST");
+				}
+				if (scanIds.scaScanId) {
+					await generateMinimumSummary(scanIds.scaScanId, "SCA");
+				}
+			}
             resolve(scanIds);
         })
         .catch((error) => {
