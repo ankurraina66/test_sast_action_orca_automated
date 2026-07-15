@@ -1,19 +1,3 @@
-/*
-Copyright 2022, 2026 HCL America, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 import * as core from '@actions/core';
 import * as fs from 'fs';
 import got from 'got';
@@ -120,15 +104,7 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
     return new Promise((resolve, reject) => {
 		let queryString ='?applyPolicies=All&%24top=200&%24apply=filter%28Status%20eq%20%27Open%27%20or%20Status%20eq%20%27InProgress%27%20or%20Status%20eq%20%27Reopened%27%20or%20Status%20eq%20%27New%27%29';
         let url = settings.getServiceUrl() + constants.API_ISSUES + scanId + queryString;
-        got.get(url, { headers: getRequestHeaders(), retry: { limit: 3, methods: ['GET', 'POST'] }, https:{ rejectUnauthorized: enableSSL }})
-        .then((response) => {
-            let responseJson = JSON.parse(response.body);
-			// Use raw issue items for PR/build summary, HTML report, and SARIF generation.
-			// resultProcessor.processResults() returns aggregated data which is not iterable.
-			return responseJson.Items || [];
-        })
-		// Keep the async report/SARIF generation inside the same promise chain
-		// so the workflow completes only after all reports are fully written.
+        fetchAllIssues(scanId)
         .then(async issues => {
             issues = issues || [];			
 			//const enableGithubSecurity = process.env.INPUT_ENABLE_GITHUB_SECURITY !== 'false';
@@ -243,6 +219,25 @@ ${viewScanValue}
     });
 }
 
+async function fetchAllIssues(scanId) {
+    const pageSize = 5000;
+    let skip = 0;
+    let allIssues = [];
+    while (true) {
+        const queryString = `?applyPolicies=All` + `&%24top=${pageSize}` + `&%24skip=${skip}` +            `&%24apply=filter%28Status%20eq%20%27Open%27%20or%20Status%20eq%20%27InProgress%27%20or%20Status%20eq%20%27Reopened%27%20or%20Status%20eq%20%27New%27%29`;
+        const url = settings.getServiceUrl() + constants.API_ISSUES + scanId + queryString;
+        const response = await got.get(url, { headers: getRequestHeaders(), retry: { limit: 3, methods: ['GET','POST'] }, https: { rejectUnauthorized: enableSSL } });
+        const responseJson = JSON.parse(response.body);
+        const items = responseJson.Items || [];
+        allIssues.push(...items);
+        if (items.length < pageSize) {
+            break;
+        }
+        skip += pageSize;
+    }
+    return allIssues;
+}
+
 async function generateMinimumSummary(scanId, scanType) {
     const serviceUrl = settings.getServiceUrl();
     const baseUrl = serviceUrl.replace("/api/v4", "");
@@ -268,7 +263,13 @@ async function generateMinimumSummary(scanId, scanType) {
     const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
     const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
     const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-    const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
+	const waitForAnalysis = process.env.INPUT_WAIT_FOR_ANALYSIS === "true";
+	let viewScanValue;
+	if (waitForAnalysis) {
+		viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
+	} else {
+		viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "No downloadable report is available, view scan details in your AppScan application";
+	}
     const md = `
 # HCL AppScan ${scanType} Scan Summary
 
