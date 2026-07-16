@@ -102,7 +102,7 @@ async function getScaScanDetails(scanId) {
 
 async function getNonCompliantIssues(scanId, scanType = 'SAST') {
     return new Promise((resolve, reject) => {
-		const queryString = "?applyPolicies=All" + "&$filter=Status eq 'Open' or Status eq 'InProgress' or Status eq 'Reopened' or Status eq 'New'" +    "&$apply=groupby((Status,Severity),aggregate($count as N))";
+		const queryString = "?applyPolicies=All" + "&%24filter=Status%20eq%20%27Open%27%20or%20Status%20eq%20%27InProgress%27%20or%20Status%20eq%20%27Reopened%27%20or%20Status%20eq%20%27New%27" +    "&%24apply=groupby((Status,Severity),aggregate(%24count%20as%20N))";
 		const url = settings.getServiceUrl() + constants.API_ISSUES + scanId + queryString;
 		core.info(`Getting grouped issue counts for ${scanType} scan.`);
 		core.info(`Issues API URL: ${url}`);
@@ -116,7 +116,7 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
             groupedItems.forEach(item => {
 				core.info(`Status=${item.Status}, Severity=${item.Severity}, Count=${item.N}`);
                 if (counts[item.Severity] !== undefined) {
-                    counts[item.Severity] += item.N;
+                    counts[item.Severity] += Number(item.N || 0);
                 }
             });
             const total = Object.values(counts).reduce((a,b)=>a+b, 0);
@@ -128,7 +128,6 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
             const scanUrl =`${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;		
 			const applicationId = process.env.INPUT_APPLICATION_ID;
 		    let appName = applicationId;
-			let executionId = "";
 			try {
 				let scanDetails = null;
 				if(scanType === 'SAST') {
@@ -138,7 +137,6 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
 				}
 				if(scanDetails) {
 						appName = scanDetails.AppName || appName;
-						executionId = scanDetails.ExecutionId || "";
 				}
 			} catch (e) {
 					console.log("Failed to fetch AppName from scan details");
