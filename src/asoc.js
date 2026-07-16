@@ -102,8 +102,7 @@ async function getScaScanDetails(scanId) {
 
 async function getNonCompliantIssues(scanId, scanType = 'SAST') {
     return new Promise((resolve, reject) => {
-		let queryString ='?applyPolicies=All&%24top=200&%24apply=filter%28Status%20eq%20%27Open%27%20or%20Status%20eq%20%27InProgress%27%20or%20Status%20eq%20%27Reopened%27%20or%20Status%20eq%20%27New%27%29';
-        let url = settings.getServiceUrl() + constants.API_ISSUES + scanId + queryString;
+		// added a helper method to utilize pagination
         fetchAllIssues(scanId)
         .then(async issues => {
             issues = issues || [];			
@@ -168,8 +167,6 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
 
 ---`
     : "";
-				//const isAppScan360 = !!process.env.INPUT_SERVICE_URL;
-				const inputServiceUrl = process.env.INPUT_SERVICE_URL;
 				const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
 				//const scanIdValue = isAppScan360 ? scanId : `[${scanId}](${scanUrl})`;
 				const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
@@ -268,7 +265,7 @@ async function generateMinimumSummary(scanId, scanType) {
 	if (waitForAnalysis) {
 		viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
 	} else {
-		viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "No downloadable report is available, view scan details in your AppScan application";
+		viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "Downloadable reports are generated only when wait_for_analysis=true. View scan details in your AppScan application";
 	}
     const md = `
 # HCL AppScan ${scanType} Scan Summary
