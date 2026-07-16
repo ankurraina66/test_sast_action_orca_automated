@@ -102,20 +102,27 @@ async function getScaScanDetails(scanId) {
 
 async function getNonCompliantIssues(scanId, scanType = 'SAST') {
     return new Promise((resolve, reject) => {
-		// added a helper method to utilize pagination
-        fetchAllIssues(scanId)
-        .then(async issues => {
-            issues = issues || [];			
-			//const enableGithubSecurity = process.env.INPUT_ENABLE_GITHUB_SECURITY !== 'false';
+		const queryString = "?applyPolicies=All" + "&$filter=Status eq 'Open' or Status eq 'InProgress' or Status eq 'Reopened' or Status eq 'New'" +    "&$apply=groupby((Status,Severity),aggregate($count as N))";
+		const url = settings.getServiceUrl() + constants.API_ISSUES + scanId + queryString;
+		core.info(`Getting grouped issue counts for ${scanType} scan.`);
+		core.info(`Issues API URL: ${url}`);
+		got.get(url, { headers: getRequestHeaders(), retry: { limit: 3, methods: ['GET', 'POST'] }, https: { rejectUnauthorized: enableSSL } })
+		.then(async response => {
+			const responseJson = JSON.parse(response.body);
+			core.info("Grouped issues API response:");
+			core.info(JSON.stringify(responseJson, null, 2));
             const counts = {Critical: 0, High: 0, Medium: 0, Low: 0, Informational: 0};
-            issues.forEach(i => {
-                if (
-                    counts[i.Severity] !== undefined
-                ) {
-                    counts[i.Severity]++;
+			const groupedItems = responseJson.Items || [];
+            groupedItems.forEach(item => {
+				core.info(`Status=${item.Status}, Severity=${item.Severity}, Count=${item.N}`);
+                if (counts[item.Severity] !== undefined) {
+                    counts[item.Severity] += item.N;
                 }
             });
             const total = Object.values(counts).reduce((a,b)=>a+b, 0);
+			core.info("Calculated severity Counts:");
+			core.info(JSON.stringify(counts, null, 2));
+			core.info(`Total vulnerabilities = ${total}`);
 			const serviceUrl = settings.getServiceUrl();
             const baseUrl = serviceUrl.replace("/api/v4","");		
             const scanUrl =`${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;		
@@ -208,31 +215,12 @@ ${viewScanValue}
 				if (process.env.GITHUB_STEP_SUMMARY) {
 					fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
 				}
-				resolve({total, counts, issues, scanId, scanUrl, appName, appUrl, scanTime, scanType});
+				resolve({total, counts, issues: [], scanId, scanUrl, appName, appUrl, scanTime, scanType});
 		})
         .catch((error) => {
             reject(error);
         })
     });
-}
-
-async function fetchAllIssues(scanId) {
-    const pageSize = 5000;
-    let skip = 0;
-    let allIssues = [];
-    while (true) {
-        const queryString = `?applyPolicies=All` + `&%24top=${pageSize}` + `&%24skip=${skip}` +            `&%24apply=filter%28Status%20eq%20%27Open%27%20or%20Status%20eq%20%27InProgress%27%20or%20Status%20eq%20%27Reopened%27%20or%20Status%20eq%20%27New%27%29`;
-        const url = settings.getServiceUrl() + constants.API_ISSUES + scanId + queryString;
-        const response = await got.get(url, { headers: getRequestHeaders(), retry: { limit: 3, methods: ['GET','POST'] }, https: { rejectUnauthorized: enableSSL } });
-        const responseJson = JSON.parse(response.body);
-        const items = responseJson.Items || [];
-        allIssues.push(...items);
-        if (items.length < pageSize) {
-            break;
-        }
-        skip += pageSize;
-    }
-    return allIssues;
 }
 
 async function generateMinimumSummary(scanId, scanType) {
