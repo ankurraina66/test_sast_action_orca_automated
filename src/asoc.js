@@ -115,9 +115,8 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
                 }
             });
             const total = Object.values(counts).reduce((a,b)=>a+b, 0);
-			const serviceUrl = settings.getServiceUrl();
-            const baseUrl = serviceUrl.replace("/api/v4","");		
-            const scanUrl =`${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;		
+            const baseUrl = settings.getSummaryPortalUrl();	
+            const scanUrl =`${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;			
 			const applicationId = process.env.INPUT_APPLICATION_ID;
 		    let appName = applicationId;
 			try {
@@ -211,8 +210,7 @@ ${viewScanValue}
 }
 
 async function generateMinimumSummary(scanId, scanType) {
-    const serviceUrl = settings.getServiceUrl();
-    const baseUrl = serviceUrl.replace("/api/v4", "");
+    const baseUrl = settings.getSummaryPortalUrl();
     const applicationId = process.env.INPUT_APPLICATION_ID;
     const scanUrl = `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}`;
     const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
