@@ -1,6 +1,1 @@
-INPUT_SUMMARY_SERVICE_URL = ***
-Summary portal url = ***
-Generated scan url = ***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/59d1a447-0166-42ea-9096-4c5623d7bed0
-INPUT_SUMMARY_SERVICE_URL = ***
-Summary portal url = ***
-Generated scan url = ***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/276d1cdf-9c04-4cc0-8096-b8721a7ec571
+>>>>>>> Report download link <<<<<<<<<<  ***/api/v4/Reports/d20c2a18-b5b8-4334-8664-d232553f6e32/DownloadWithSignature?signature=rt%3Dreport%3Brid%3Dd20c2a18-b5b8-4334-8664-d232553f6e32%3Bse%3D2026-07-18T16%3A28%3A26Z%3Bsp%3Dr%3Bsig%3DtYyMuRb8i%2BTbWw6esIb8aQ%2F1SvTsOm0T%2FvGt0vNkAFY%3D
