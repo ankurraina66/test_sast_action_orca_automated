@@ -71,7 +71,7 @@ function processScanResults(sastScanId, scaScanId) {
 		.then((reportResult) => {
 			if(reportResult) {
 				sastDownloadLink = reportResult.downloadLink;
-				console.log("SAST security report downloaded successfully.");
+				console.log("Stored sast download link", sastDownloadLink);
 			}
 			return reportResult;
 		})
@@ -102,7 +102,7 @@ function processScanResults(sastScanId, scaScanId) {
 		.then((reportResult) => {
 			if(reportResult) {
 				scaDownloadLink = reportResult.downloadLink;
-				console.log("SCA security report downloaded successfully.");
+				console.log("Stored sca download link", scaDownloadLink);
 			}
 			return reportResult;
 		})
