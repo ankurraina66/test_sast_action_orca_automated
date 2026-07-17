@@ -1,1 +1,48 @@
->>>>>>> Report download link <<<<<<<<<<  ***/api/v4/Reports/d20c2a18-b5b8-4334-8664-d232553f6e32/DownloadWithSignature?signature=rt%3Dreport%3Brid%3Dd20c2a18-b5b8-4334-8664-d232553f6e32%3Bse%3D2026-07-18T16%3A28%3A26Z%3Bsp%3Dr%3Bsig%3DtYyMuRb8i%2BTbWw6esIb8aQ%2F1SvTsOm0T%2FvGt0vNkAFY%3D
+name: "HCL AppScan SAST for ASoC EU Instance"
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run AppScan SAST scan
+        uses: HCL-TECH-SOFTWARE/appscan-sast-action@ASA-13165_GitHub_PR_Scan_Summary
+        with:
+          asoc_key: ${{secrets.ASOC_KEY}}
+          asoc_secret: ${{secrets.ASOC_SECRET}}
+          application_id: 4b489cb2-ae9f-4aea-8079-9e37099ce87a
+          service_url: https://eu.cloud.appscan.com 
+          wait_for_analysis: true
+                   
+      # Upload PR HTML report
+      - name: Upload PR report
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: appscan-pr-report
+          path: | 
+            Report_*.html
+          if-no-files-found: ignore
+
+      # Upload build summary HTML report
+      - name: Upload Build report
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: appscan-build-report
+          path: | 
+             Report_*.html
+          if-no-files-found: ignore
