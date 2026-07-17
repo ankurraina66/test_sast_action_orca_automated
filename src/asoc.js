@@ -100,7 +100,8 @@ async function getScaScanDetails(scanId) {
     }
 }
 
-async function getNonCompliantIssues(scanId, scanType = 'SAST', reportDownloadLink = "") {
+async function getNonCompliantIssues(scanId, scanType = 'SAST') {
+	console.log("Received report download link:", reportDownloadLink);
     return new Promise((resolve, reject) => {
 		const queryString = "?applyPolicies=All" + "&%24filter=Status%20eq%20%27Open%27%20or%20Status%20eq%20%27InProgress%27%20or%20Status%20eq%20%27Reopened%27%20or%20Status%20eq%20%27New%27" +    "&%24apply=groupby((Status,Severity),aggregate(%24count%20as%20N))";
 		const url = settings.getServiceUrl() + constants.API_ISSUES + scanId + queryString;
@@ -167,8 +168,11 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST', reportDownloadLi
 				const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
 				const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
 				const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-				//const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
-				const reportValue = reportDownloadLink ? `[Download HTML Report](${reportDownloadLink})` : "HTML report unavailable";
+				let reportValue = "HTML report unavailable";
+				if (reportDownloadLink) {
+					const reportLabel = `Download ${scanType} HTML Report`;
+					reportValue = enableHyperlinks ? `[${reportLabel}](${reportDownloadLink})` : `${scanType} HTML Report Generated`;
+				}
 	            const md = `
 
 #  HCL AppScan ${scanLabel}
