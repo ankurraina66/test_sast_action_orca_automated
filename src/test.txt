@@ -1,48 +1,6 @@
-name: "HCL AppScan SAST for ASoC EU Instance"
-on:
-  workflow_dispatch:
-
-  push:
-    branches:
-      - main
-  pull_request:
-
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
-
-jobs:
-  scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Run AppScan SAST scan
-        uses: HCL-TECH-SOFTWARE/appscan-sast-action@ASA-13165_GitHub_PR_Scan_Summary
-        with:
-          asoc_key: ${{secrets.ASOC_KEY}}
-          asoc_secret: ${{secrets.ASOC_SECRET}}
-          application_id: 4b489cb2-ae9f-4aea-8079-9e37099ce87a
-          service_url: https://eu.cloud.appscan.com 
-          wait_for_analysis: true
-                   
-      # Upload PR HTML report
-      - name: Upload PR report
-        if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: appscan-pr-report
-          path: | 
-            Report_*.html
-          if-no-files-found: ignore
-
-      # Upload build summary HTML report
-      - name: Upload Build report
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: appscan-build-report
-          path: | 
-             Report_*.html
-          if-no-files-found: ignore
+Received report download link: 
+Received report download link: 
+Final report status:  Ready
+Stored sast download link https://eu.cloud.appscan.com/api/v4/Reports/c587ce76-85fe-437e-9e61-b1743bf24bee/DownloadWithSignature?signature=rt%3Dreport%3Brid%3Dc587ce76-85fe-437e-9e61-b1743bf24bee%3Bse%3D2026-07-18T17%3A57%3A04Z%3Bsp%3Dr%3Bsig%3DQy1gms2Xetz0CDNI3p6Es8J2l3iod4WHTH0rBNkgGHE%3D
+Final report status:  Ready
+Stored sca download link https://eu.cloud.appscan.com/api/v4/Reports/079155b3-8219-40ea-ae58-de08f65aad8c/DownloadWithSignature?signature=rt%3Dreport%3Brid%3D079155b3-8219-40ea-ae58-de08f65aad8c%3Bse%3D2026-07-18T17%3A57%3A35Z%3Bsp%3Dr%3Bsig%3DdrDTyaFJlsSQ1z05zI8SjS3hVlYkhhDRIonHd8op82k%3D
