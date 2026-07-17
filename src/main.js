@@ -90,19 +90,9 @@ saclientutil.downloadClient()
     core.info(constants.GETTING_RESULTS);
     return resultProcessor.processScanResults(sastScanId, scaScanId);
 })
-.then(async(results) => {
-	if(results === null) {
-		return;
-	}
+.then((results) => {
     if(results) {
         core.info(results);
-		//Generate markdown + html report
-		if(sastScanId) {
-			await asoc.getNonCompliantIssues(sastScanId, 'SAST', resultProcessor.getSastDownloadLink());
-		}
-		if(scaScanId) {
-			await asoc.getNonCompliantIssues(scaScanId, 'SCA', resultProcessor.getScaDownloadLink());
-		}
         core.info(constants.ANALYSIS_SUCCESS);
     }
 })
