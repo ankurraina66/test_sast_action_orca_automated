@@ -12,6 +12,8 @@ const failForNonCompliance = process.env.INPUT_FAIL_FOR_NONCOMPLIANCE === 'true'
 const failureThreshold = getSeverityValue(process.env.INPUT_FAILURE_THRESHOLD);
 let shouldFail = false;
 let summary = '';
+let sastDownloadLink = "";
+let scaDownloadLink = "";
 
 function processScanResults(sastScanId, scaScanId) {
     return new Promise((resolve, reject) => {
@@ -66,11 +68,12 @@ function processScanResults(sastScanId, scaScanId) {
 			}
 			return asoc.downloadSecurityReport(report, "SAST");
 		})
-		.then((reportHtml) => {
-			if(reportHtml) {
+		.then((reportResult) => {
+			if(reportResult) {
+				sastDownloadLink = reportResult.downloadLink;
 				console.log("SAST security report downloaded successfully.");
 			}
-			return reportHtml;
+			return reportResult;
 		})
 		.then(() => {
 			if(!scaScanId) {
@@ -96,11 +99,12 @@ function processScanResults(sastScanId, scaScanId) {
 			}
 			return asoc.downloadSecurityReport(report, "SCA");
 		})
-		.then((reportHtml) => {
-			if(reportHtml) {
+		.then((reportResult) => {
+			if(reportResult) {
+				scaDownloadLink = reportResult.downloadLink;
 				console.log("SCA security report downloaded successfully.");
 			}
-			return reportHtml;
+			return reportResult;
 		})
         .then(() => {
             if(shouldFail) {
@@ -204,4 +208,12 @@ function aggregateResults(result1, result2) {
     });
 }
 
-export default { processScanResults }
+function getSastDownloadLink() {
+	return sastDownloadLink;
+}
+
+function getScaDownloadLink() {
+	return scaDownloadLink;
+}
+
+export default { processScanResults, getSastDownloadLink, getScaDownloadLink }
