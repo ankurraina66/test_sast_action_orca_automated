@@ -1,0 +1,25 @@
+***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/c5cee87d-1294-4222-a45a-0a6b996716e4/scanOverview
+SCA Scan ID: 9b95a4b7-0a8e-4c46-bcf3-f98aea7ae542
+***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/9b95a4b7-0a8e-4c46-bcf3-f98aea7ae542/scanOverview
+Waiting for analysis to complete...
+Getting results...
+================================================
+INPUT_SERVICE_URL: ***
+settings.getServiceUrl(): ***
+baseUrl: ***
+scanUrl: ***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/c5cee87d-1294-4222-a45a-0a6b996716e4
+appUrl: ***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a
+================================================
+scanIdValue: [c5cee87d-1294-4222-a45a-0a6b996716e4](***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/c5cee87d-1294-4222-a45a-0a6b996716e4)
+appNameValue: [Test_Ankur](***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a)
+viewScanValue: [View scan details in AppScan](***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/c5cee87d-1294-4222-a45a-0a6b996716e4)
+================================================
+INPUT_SERVICE_URL: ***
+settings.getServiceUrl(): ***
+baseUrl: ***
+scanUrl: ***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/9b95a4b7-0a8e-4c46-bcf3-f98aea7ae542
+appUrl: ***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a
+================================================
+scanIdValue: [9b95a4b7-0a8e-4c46-bcf3-f98aea7ae542](***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/9b95a4b7-0a8e-4c46-bcf3-f98aea7ae542)
+appNameValue: [Test_Ankur](***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a)
+viewScanValue: [View scan details in AppScan](***/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/9b95a4b7-0a8e-4c46-bcf3-f98aea7ae542)
