@@ -36,6 +36,14 @@ function getServiceUrl() {
     return serviceUrl;
 }
 
+function getSummaryPortalUrl() {
+    const summaryUrl = process.env.INPUT_SUMMARY_SERVICE_URL;
+    if(summaryUrl && summaryUrl.trim() !== "") {
+        return summaryUrl.replace(/\/$/, "");
+    }
+    return getServiceUrl().replace("/api/v4", "");
+}
+
 function getScanUrl(scanId) {
     return `${getServiceUrl()}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}/scanOverview`;
 }
@@ -48,4 +56,4 @@ function isIncrementalScan() {
     return process.env.INPUT_INCREMENTAL_SCAN === 'true';
 }
 
-export default { getProxyUrl, getProxyPort, getProxyUser, getProxyPwd, getServiceUrl, getScanUrl, shouldDisableSSL, isIncrementalScan }
+export default { getProxyUrl, getProxyPort, getProxyUser, getProxyPwd, getServiceUrl, getScanUrl, shouldDisableSSL, isIncrementalScan, getSummaryPortalUrl }
