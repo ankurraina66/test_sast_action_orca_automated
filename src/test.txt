@@ -1,18 +1,45 @@
-IRX file generation successful.
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASA-13165_GitHub_PR_Scan_Summary/appscan-sast-action (ASA-13165_GitHub_PR_Scan_Summary)
+$ grep -RIn "getNonCompliantIssues" .
+./src/asoc.js:69:            return resolve(getNonCompliantIssues(scanId, scanType));
+./src/asoc.js:119:async function getNonCompliantIssues(scanId, scanType = 'SAST', reportDownloadLink = "") {
+./src/asoc.js:544:export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues, getSastScanDetails, createSecurityReport, getSecurityReport,downloadSecurityReport, getScaScanDetails, generateMinimumSummary }
+./src/main.js:119:                      await asoc.getNonCompliantIssues(sastScanId, 'SAST', resultProcessor.getSastDownloadLink());
+./src/main.js:123:                      await asoc.getNonCompliantIssues(scaScanId, 'SCA', resultProcessor.getScaDownloadLink());
 
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASA-13165_GitHub_PR_Scan_Summary/appscan-sast-action (ASA-13165_GitHub_PR_Scan_Summary)
+$ grep -RIn "getScanResults" .
+./src/asoc.js:61:function getScanResults(scanId, scanType = 'SAST') {
+./src/asoc.js:544:export default { getScanResults, runAnalysis, getSastScanStatus, getScaScanStatus, getNonCompliantIssues, getSastScanDetails, createSecurityReport, getSecurityReport,downloadSecurityReport, getScaScanDetails, generateMinimumSummary }
+./src/resultProcessor.js:39:        (sastScanId ? asoc.getScanResults(sastScanId, 'SAST') : Promise.resolve({Items: []}))
+./src/resultProcessor.js:45:            return scaScanId ? asoc.getScanResults(scaScanId, 'SCA') : Promise.resolve({Items: []});
 
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASA-13165_GitHub_PR_Scan_Summary/appscan-sast-action (ASA-13165_GitHub_PR_Scan_Summary)
+$ grep -RIn "processScanResults" .
+./src/main.js:107:    return resultProcessor.processScanResults(sastScanId, scaScanId);
+./src/resultProcessor.js:34:function processScanResults(sastScanId, scaScanId) {
+./src/resultProcessor.js:235:export default { processScanResults, getSastDownloadLink, getScaDownloadLink }
 
-Submitting the irx for analysis...
-Successfully submitted the irx to the AppScan service.
-SAST Scan ID: 03d01b12-5424-4a4b-8caa-64cab0402103
-https://eu.cloud.appscan.com/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/03d01b12-5424-4a4b-8caa-64cab0402103/scanOverview
-SCA Scan ID: 4417f52a-83e4-4c51-808c-66598633aace
-https://eu.cloud.appscan.com/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/4417f52a-83e4-4c51-808c-66598633aace/scanOverview
-Waiting for analysis to complete...
-Getting results...
-Received report download link: 
-Received report download link: 
-Final report status:  Ready
-Stored sast download link https://eu.cloud.appscan.com/api/v4/Reports/b05da253-af13-4899-9f6d-e5e83af64c24/DownloadWithSignature?signature=rt%3Dreport%3Brid%3Db05da253-af13-4899-9f6d-e5e83af64c24%3Bse%3D2026-07-18T18%3A08%3A42Z%3Bsp%3Dr%3Bsig%3DrRdn29HikDxHQrJ9RW1Sjh34dg%2FWEnTDJbXdLuWgmt0%3D
-Final report status:  Ready
-Stored sca download link https://eu.cloud.appscan.com/api/v4/Reports/dc9f7cb1-cd84-4472-bf77-26cfca4776f9/DownloadWithSignature?signature=rt%3Dreport%3Brid%3Ddc9f7cb1-cd84-4472-bf77-26cfca4776f9%3Bse%3D2026-07-18T18%3A09%3A14Z%3Bsp%3Dr%3Bsig%3DtEQtxm8BM3nycLm3LIRZL9Izvc9gAlDUZfixsHJdBqU%3D
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASA-13165_GitHub_PR_Scan_Summary/appscan-sast-action (ASA-13165_GitHub_PR_Scan_Summary)
+$ git rev-parse --abbrev-ref HEAD
+ASA-13165_GitHub_PR_Scan_Summary
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASA-13165_GitHub_PR_Scan_Summary/appscan-sast-action (ASA-13165_GitHub_PR_Scan_Summary)
+$ git status
+On branch ASA-13165_GitHub_PR_Scan_Summary
+Your branch is up to date with 'origin/ASA-13165_GitHub_PR_Scan_Summary'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   node_modules/.bin/extract-zip
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        node_modules/.bin/extract-zip.cmd
+        node_modules/.bin/extract-zip.ps1
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASA-13165_GitHub_PR_Scan_Summary/appscan-sast-action (ASA-13165_GitHub_PR_Scan_Summary)
+$ git log --oneline -1
+a834f74 (HEAD -> ASA-13165_GitHub_PR_Scan_Summary, origin/ASA-13165_GitHub_PR_Scan_Summary) Updating report generation
