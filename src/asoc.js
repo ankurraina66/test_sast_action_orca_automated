@@ -100,7 +100,7 @@ async function getScaScanDetails(scanId) {
     }
 }
 
-async function getNonCompliantIssues(scanId, scanType = 'SAST') {
+async function getNonCompliantIssues(scanId, scanType = 'SAST', reportDownloadLink = "") {
     return new Promise((resolve, reject) => {
 		const queryString = "?applyPolicies=All" + "&%24filter=Status%20eq%20%27Open%27%20or%20Status%20eq%20%27InProgress%27%20or%20Status%20eq%20%27Reopened%27%20or%20Status%20eq%20%27New%27" +    "&%24apply=groupby((Status,Severity),aggregate(%24count%20as%20N))";
 		const url = settings.getServiceUrl() + constants.API_ISSUES + scanId + queryString;
@@ -167,7 +167,8 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
 				const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
 				const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
 				const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-				const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
+				//const viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
+				const reportValue = reportDownloadLink ? `[Download HTML Report](${reportDownloadLink})` : "HTML report unavailable";
 	            const md = `
 
 #  HCL AppScan ${scanLabel}
@@ -194,7 +195,7 @@ ${prSection}
 
 ---
 
-${viewScanValue}
+${reportValue}
 
 `;
 				const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md`: `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
@@ -257,7 +258,7 @@ async function generateMinimumSummary(scanId, scanType) {
 
 ---
 
-${viewScanValue}
+${reportValue}
 
 `;
 
@@ -335,7 +336,7 @@ async function downloadSecurityReport(report, reportType = "SAST") {
     try {
         const response = await got.get(downloadLink, { headers: getRequestHeaders(), retry: { limit: 3, methods: ["GET"] }, https: { rejectUnauthorized: enableSSL } });
 		fs.writeFileSync(reportName, response.body);
-        return response.body;
+        return { html: response.body, downloadLink: downloadLink};
     }catch (e) {
         console.log("Failed to download security report:", e.message);
         return null;
