@@ -22,7 +22,10 @@ function processScanResults(sastScanId, scaScanId) {
 
         (sastScanId ? asoc.getScanResults(sastScanId, 'SAST') : Promise.resolve({Items: []}))
         .then((sastResults) => {
+			console.log("SAST results");
+			console.log(JSON.stringify(sastResults, null, 2));
             sastScanResults = sastResults.Items;
+			console.log("SAST SCAN Results: ", sastScanResults);
             return processResults(sastScanResults, 'SAST');
         })
         .then(() => {
