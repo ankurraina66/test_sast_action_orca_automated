@@ -236,13 +236,8 @@ async function generateMinimumSummary(scanId, scanType) {
     const enableHyperlinks = process.env.INPUT_SUMMARY_HYPERLINKS !== "false";
     const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
     const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-	const waitForAnalysis = process.env.INPUT_WAIT_FOR_ANALYSIS === "true";
-	let viewScanValue;
-	if (waitForAnalysis) {
-		viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "View scan details in downloadable HTML report";
-	} else {
-		viewScanValue = enableHyperlinks ? `[View scan details in AppScan](${scanUrl})` : "Downloadable reports are generated only when wait_for_analysis=true. View scan details in your AppScan application";
-	}
+	const viewScanValue = "Downloadable reports are generated only when wait_for_analysis=true. View scan details in your AppScan application";
+	
     const md = `
 # HCL AppScan ${scanType} Scan Summary
 
@@ -258,7 +253,7 @@ async function generateMinimumSummary(scanId, scanType) {
 
 ---
 
-${reportValue}
+${viewScanValue}
 
 `;
 
