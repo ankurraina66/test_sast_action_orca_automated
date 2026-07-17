@@ -1,14 +1,18 @@
+IRX file generation successful.
+
+
+
 Submitting the irx for analysis...
 Successfully submitted the irx to the AppScan service.
-SAST Scan ID: ff97fc8b-e1ed-4010-823f-6dd7463f99cf
-https://eu.cloud.appscan.com/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/ff97fc8b-e1ed-4010-823f-6dd7463f99cf/scanOverview
-SCA Scan ID: 98e2861d-9b0c-4200-9dab-416b52fbca56
-https://eu.cloud.appscan.com/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/98e2861d-9b0c-4200-9dab-416b52fbca56/scanOverview
+SAST Scan ID: 03d01b12-5424-4a4b-8caa-64cab0402103
+https://eu.cloud.appscan.com/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/03d01b12-5424-4a4b-8caa-64cab0402103/scanOverview
+SCA Scan ID: 4417f52a-83e4-4c51-808c-66598633aace
+https://eu.cloud.appscan.com/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/4417f52a-83e4-4c51-808c-66598633aace/scanOverview
 Waiting for analysis to complete...
 Getting results...
 Received report download link: 
 Received report download link: 
 Final report status:  Ready
-Stored sast download link https://eu.cloud.appscan.com/api/v4/Reports/c587ce76-85fe-437e-9e61-b1743bf24bee/DownloadWithSignature?signature=rt%3Dreport%3Brid%3Dc587ce76-85fe-437e-9e61-b1743bf24bee%3Bse%3D2026-07-18T17%3A57%3A04Z%3Bsp%3Dr%3Bsig%3DQy1gms2Xetz0CDNI3p6Es8J2l3iod4WHTH0rBNkgGHE%3D
+Stored sast download link https://eu.cloud.appscan.com/api/v4/Reports/b05da253-af13-4899-9f6d-e5e83af64c24/DownloadWithSignature?signature=rt%3Dreport%3Brid%3Db05da253-af13-4899-9f6d-e5e83af64c24%3Bse%3D2026-07-18T18%3A08%3A42Z%3Bsp%3Dr%3Bsig%3DrRdn29HikDxHQrJ9RW1Sjh34dg%2FWEnTDJbXdLuWgmt0%3D
 Final report status:  Ready
-Stored sca download link https://eu.cloud.appscan.com/api/v4/Reports/079155b3-8219-40ea-ae58-de08f65aad8c/DownloadWithSignature?signature=rt%3Dreport%3Brid%3D079155b3-8219-40ea-ae58-de08f65aad8c%3Bse%3D2026-07-18T17%3A57%3A35Z%3Bsp%3Dr%3Bsig%3DdrDTyaFJlsSQ1z05zI8SjS3hVlYkhhDRIonHd8op82k%3D
+Stored sca download link https://eu.cloud.appscan.com/api/v4/Reports/dc9f7cb1-cd84-4472-bf77-26cfca4776f9/DownloadWithSignature?signature=rt%3Dreport%3Brid%3Ddc9f7cb1-cd84-4472-bf77-26cfca4776f9%3Bse%3D2026-07-18T18%3A09%3A14Z%3Bsp%3Dr%3Bsig%3DtEQtxm8BM3nycLm3LIRZL9Izvc9gAlDUZfixsHJdBqU%3D
