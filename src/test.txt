@@ -1,3 +1,11 @@
+Submitting the irx for analysis...
+Successfully submitted the irx to the AppScan service.
+SAST Scan ID: ff97fc8b-e1ed-4010-823f-6dd7463f99cf
+https://eu.cloud.appscan.com/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/ff97fc8b-e1ed-4010-823f-6dd7463f99cf/scanOverview
+SCA Scan ID: 98e2861d-9b0c-4200-9dab-416b52fbca56
+https://eu.cloud.appscan.com/main/myapps/4b489cb2-ae9f-4aea-8079-9e37099ce87a/scans/98e2861d-9b0c-4200-9dab-416b52fbca56/scanOverview
+Waiting for analysis to complete...
+Getting results...
 Received report download link: 
 Received report download link: 
 Final report status:  Ready
