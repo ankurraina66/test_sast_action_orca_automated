@@ -100,7 +100,7 @@ async function getScaScanDetails(scanId) {
     }
 }
 
-async function getNonCompliantIssues(scanId, scanType = 'SAST') {
+async function getNonCompliantIssues(scanId, scanType = 'SAST', reportDownloadLink = "") {
 	console.log("Received report download link:", reportDownloadLink);
     return new Promise((resolve, reject) => {
 		const queryString = "?applyPolicies=All" + "&%24filter=Status%20eq%20%27Open%27%20or%20Status%20eq%20%27InProgress%27%20or%20Status%20eq%20%27Reopened%27%20or%20Status%20eq%20%27New%27" +    "&%24apply=groupby((Status,Severity),aggregate(%24count%20as%20N))";
