@@ -17,27 +17,27 @@ let scaDownloadLink = "";
 
 function processScanResults(sastScanId, scaScanId) {
     return new Promise((resolve, reject) => {
-        let sastScanResults = [];
-        let scaScanResults = [];
+        let sastSummary = null;
+        let scaSummary = null;
 
         (sastScanId ? asoc.getScanResults(sastScanId, 'SAST') : Promise.resolve({Items: []}))
         .then((sastResults) => {
 			console.log("SAST results");
 			console.log(JSON.stringify(sastResults, null, 2));
-            sastScanResults = sastResults.Items;
+            sastSummary = sastResults;
 			console.log("SAST SCAN Results: ", sastScanResults);
-            return processResults(sastScanResults, 'SAST');
+            return processResults(sastSummary, 'SAST');
         })
         .then(() => {
             return scaScanId ? asoc.getScanResults(scaScanId, 'SCA') : Promise.resolve({Items: []});
         })
         .then((scaResults) => {
-            scaScanResults = scaResults.Items;
-            return processResults(scaScanResults, 'SCA');
+            scaSummary = scaResults;
+            return processResults(scaSummary, 'SCA');
         })
         .then(() => {
 			if(sastScanId && scaScanId) {
-				return aggregateResults(sastScanResults, scaScanResults);
+				return aggregateResults(sastSummary, scaSummary);
 			}
             return null;
         })
