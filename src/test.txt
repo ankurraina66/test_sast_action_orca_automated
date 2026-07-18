@@ -148,23 +148,7 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
 			} catch (e) {
 					console.log("Failed to read PR information:", e.message);
 			}
-				const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
-				const prUrl =`https://github.com/${repoName}/pull/${prNumber}`;
-				const branchUrl =`https://github.com/${repoName}/tree/${branchName}`;
-				const commitUrl =`https://github.com/${repoName}/commit/${process.env.GITHUB_SHA}`;			
-				const prSection = isPR ? `
-
-## Pull Request Information
-
-| Field | Value |
-|------|------|
-| PR Number | [#${prNumber}](${prUrl}) |
-| Branch | [${branchName}](${branchUrl}) |
-| Commit | [${commitSha}](${commitUrl}) |
-
----`
-    : "";
-			resolve({total, counts, issues: [], scanId, scanUrl, appName, appUrl, scanTime, scanType, isPr, repoName, branchName, commitSha, prNumber});
+			resolve({total, counts, issues: [], scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber});
 		})
         .catch((error) => {
             reject(error);
