@@ -206,6 +206,11 @@ ${prSection}
 ${reportValue}
 
 `;
+     const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md` : `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
+	 fs.writeFileSync(mdFileName, md);
+	 if (process.env.GITHUB_STEP_SUMMARY) {
+		 fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+	}
 }
 
 async function generateMinimumSummary(scanId, scanType) {
