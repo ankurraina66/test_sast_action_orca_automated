@@ -25,7 +25,7 @@ function processScanResults(sastScanId, scaScanId) {
 			console.log("SAST results");
 			console.log(JSON.stringify(sastResults, null, 2));
             sastSummary = sastResults;
-			console.log("SAST SCAN Results: ", sastScanResults);
+			console.log("SAST SCAN Results: ", sastSummary);
             return processResults(sastSummary, 'SAST');
         })
         .then(() => {
@@ -123,27 +123,21 @@ function processScanResults(sastScanId, scaScanId) {
     })
 }
 
-function processResults(json, label) {
-    return new Promise((resolve, reject) => {
-        if(!json || json.length === 0) {
+function processResults(result, label) {
+    return new Promise((resolve) => {
+        if(!result || !result.counts) {
             return resolve();
         }
-
-        let totalFindings = 0;
-        let count = 0;
-        let output = '';
-
-        for(var i = 0; i < json.length; i++) {
-            let element = json[i];
-            totalFindings += element.Count;
-            output = '\t' + element.Severity + constants.ISSUES_COLON + element.Count + '\n' + output;
-            setShouldFail(element.Severity, element.Count);
-            if(++count === json.length) {
-                output = '\t' + constants.TOTAL_ISSUES + totalFindings + '\n' + output;
-                summary += label + ' Security Issues\n' + output + '\n';
-                return resolve();
-            }
-        }
+		const severityOrder =["Critical", "High", "Medium", "Low", "Informational"];
+        let output = "";
+		severityOrder.forEach((severity) => {
+            const count = result.counts[severity] || 0;
+            output += `\t${severity}${constants.ISSUES_COLON}${count}\n`;
+            setShouldFail(severity, count);
+        });
+        output += `\t${constants.TOTAL_ISSUES}${result.total}\n`;
+        summary += `${label} Security Issues\n${output}\n`;
+        resolve();
     });
 }
 
