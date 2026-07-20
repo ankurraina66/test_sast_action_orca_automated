@@ -151,7 +151,7 @@ async function getNonCompliantIssues(scanId, scanType = 'SAST') {
 			const appUrl =`${baseUrl}/main/myapps/${applicationId}`;
 			const scanTime = new Date().toISOString().replace("T"," ").substring(0,19);				
 			const githubContext = getGitHubContext();
-			resolve({total, counts, issues: [], scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber, githubContext});
+			resolve({total, counts, issues: [], scanId, scanUrl, appName, appUrl, scanTime, scanType, githubContext});
 		})
         .catch((error) => {
             reject(error);
@@ -275,7 +275,8 @@ async function generateMinimumSummary(scanId, scanType) {
 ---`
 : "";	
     const md = `
-# HCL AppScan ${scanType} Scan Summary
+# HCL AppScan ${scanType} ${isPR ? "PR" : ""}Scan Summary
+${prSection}
 
 ### Scan Information
 
