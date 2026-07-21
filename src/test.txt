@@ -1,168 +1,51 @@
 Summary
+Optimized the vulnerability summary generation logic by replacing client-side issue retrieval and aggregation with the AppScan Issues API server-side aggregation capability using OData groupby and aggregate($count). This eliminates the need to retrieve all issues or implement pagination solely for severity count calculation.
 
-Enhanced the AppScan GitHub Action to automatically generate and download HTML security reports based on the executed scan types (SAST and/or SCA) from ASoC/AS360, ensuring the reports are also available as GitHub workflow artifacts.
+Implementation Details
+Updated the Issues API request to use OData grouping:
 
-Background
+ApplyPolicies = All
 
-Previously, the GitHub Action generated scan summaries (Build Summary / PR Summary) but did not automatically generate or download the detailed AppScan HTML Security Reports from ASoC or AS360.
+Filtered only actionable issue statuses (Open, InProgress, Reopened, New)
 
-Problem Statement
+Applied groupby((Status,Severity),aggregate($count as N)) to retrieve aggregated counts directly from the server.
 
-The existing implementation had the following limitations:
+Removed the dependency on fetching individual issue records for summary generation.
 
-No automatic generation of AppScan HTML Security Reports.
+Parsed the grouped API response and accumulated counts for each severity level (Critical, High, Medium, Low, Informational).
 
-ASoC/AS360 downloaded reports were not available as GitHub workflow artifacts.
+Calculated the total vulnerability count by summing the aggregated severity counts.
 
-Solution Implemented
+Preserved the existing GitHub Build Summary and PR Summary format without functional changes.
 
-Implemented an end-to-end report generation workflow for both SAST and SCA scans.
+Added temporary diagnostic logging to capture:
 
-1. Added SCA Scan Details API
+Grouped Issues API request URL
 
-Implemented a new getScaScanDetails(scanId) method in asoc.js , similar to the existing getSastScanDetails() implementation.
+Raw grouped API response
 
-This method:
+Number of grouped records returned
 
-Retrieves the SCA Application Name.
+Status/Severity-wise aggregated counts
 
-Retrieves the latest Execution ID.
+Final calculated severity totals
 
-Enables SCA report generation using the same report APIs already used for SAST.
+Benefits
+Eliminates the need for pagination while generating vulnerability summaries.
 
-2. Extended Report Generation Flow
+Significantly reduces network traffic by retrieving only aggregated data instead of every issue.
 
-Enhanced resultProcessor.js to independently process report generation for each scan type.
+Improves performance and memory utilization, especially for scans containing a large number of vulnerabilities.
 
-The workflow now performs:
+Simplifies the implementation by leveraging AppScan's native server-side aggregation capabilities.
 
-For SAST
-
-Retrieve scan details.
-
-Obtain Execution ID.
-
-Create Security Report.
-
-Wait until report generation completes.
-
-Download HTML report.
-
-For SCA
-
-Retrieve scan details.
-
-Obtain Execution ID.
-
-Create Security Report.
-
-Wait until report generation completes.
-
-Download HTML report.
-
-Each report generation flow executes only when the corresponding scan exists.
-
-3. Conditional Report Generation
-
-Implemented conditional execution to support all scan combinations.
-
-Scan Configuration
-
-Reports Generated
-
-SAST only
-
-1 SAST HTML report
-
-SCA only
-
-1 SCA HTML report
-
-SAST + SCA
-
-2 HTML reports (one per scan)
-
-4. Preserved AppScan Report Naming
-
-Updated the report download logic to use the report name returned by the AppScan Report API instead of generating custom filenames.
-
-Downloaded reports now follow the same naming convention used within the AppScan UI, maintaining consistency between manually downloaded and GitHub-generated reports.
-
-To avoid filename collisions when both reports share the same AppScan report name, the scan type (_SAST / _SCA) is appended only to the locally downloaded filenames while preserving the original report title in AppScan.
-
-Examples:
-
-Report_sampleRepo_2026-07-09_SAST.html
-
-Report_sampleRepo_2026-07-09_SCA.html
-
-5. GitHub Artifact Support
-
-No workflow changes were required for artifact upload.
-
-The existing workflow configuration already uploads:
-
-path: |
-  Report_*.html
-
-Since the downloaded reports follow the Report_*.html naming convention, both reports are automatically collected and uploaded as GitHub artifacts.
-
-Files Modified
-
-asoc.js
-
-Added getScaScanDetails()
-
-Extended report generation support for SCA.
-
-Reused existing Security Report APIs for both scan types.
-
-Updated report download logic to support multiple reports.
-
-resultProcessor.js
-
-Added sequential report generation flow for:
-
-SAST
-
-SCA
-
-with appropriate conditional checks based on executed scan types.
+Maintains identical summary output while reducing API processing overhead.
 
 Validation Performed
+Successfully validated against SAST and SCA scans.
 
-Successfully validated all supported scenarios.
+Verified that the grouped API response returns the expected severity-wise counts.
 
-Scenario 1
+Confirmed that the calculated totals match the values displayed in the GitHub Build Summary.
 
-SAST + SCA
-
-Two reports generated.
-
-Two reports downloaded.
-
-Two reports uploaded as GitHub artifacts.
-
-Scenario 2
-
-SAST only
-
-Single report generated.
-
-Single report downloaded.
-
-Single report uploaded as GitHub artifact.
-
-Scenario 3
-
-SCA only
-
-Single report generated.
-
-Single report downloaded.
-
-Single report uploaded as GitHub artifact.
-
-Outcome
-
-The GitHub Action now automatically generates, downloads, and publishes AppScan HTML Security Reports from ASoC/AS360 for all supported scan configurations without requiring any manual interaction with the AppScan UI. Reports are preserved as workflow artifacts, making them readily available for download and archival directly from GitHub Actions.
+Verified that hyperlinks, scan metadata, and summary generation continue to function as expected after the implementation changes.
