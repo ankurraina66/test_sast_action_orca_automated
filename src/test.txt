@@ -46,7 +46,7 @@ function processScanResults(sastScanId, scaScanId) {
 			sastDownloadLink = downloadLink || "";
 		})
 		.then(() => {
-			return generateSecurityReport(sastScanId, "Sca", "SCA", scaSummary);
+			return generateSecurityReport(scaScanId, "Sca", "SCA", scaSummary);
 		})
 		.then((downloadLink) => {
 			scaDownloadLink = downloadLink || "";
