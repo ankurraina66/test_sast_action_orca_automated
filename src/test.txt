@@ -1,55 +1,177 @@
-Findings (ordered by severity)
-src/asoc.js / module-wide (login, runAnalysis, getScanResults, report helpers)
-Issue: This single module owns too many responsibilities: auth/session state, raw API transport, scan submission logic, result summarization input shaping, and report download/file persistence.
-Why design concern: It mixes service-layer concerns (HTTP API) with orchestration and presentation-prep responsibilities, making ownership unclear and increasing regression risk when touching unrelated behavior.
-Recommended refactoring: Keep asoc.js as API client only (existing pattern: service modules like settings.js/utils.js are utility-focused). Move summary-shaping (buildIssueSummary) to resultProcessor.js or summaryWriter.js; move report polling orchestration to resultProcessor.js; keep raw methods in asoc.js (createSecurityReport, getSecurityReport, download... as pure fetch).
-Expected impact: Clearer module ownership, easier test scoping, and safer PR reviews because API changes won’t implicitly alter summary/report behavior.
-src/resultProcessor.js / processScanResults
-Issue: Function orchestrates end-to-end workflow and owns mutable module-global state (shouldFail, summary, sastDownloadLink, scaDownloadLink).
-Why design concern: State leaks across invocations in long-lived runtimes and breaks SRP. It also couples domain decisions (threshold logic), report generation, and output formatting into one flow.
-Recommended refactoring: Keep orchestration here, but make state local to invocation and return a structured result object. Preserve existing behavior by exposing links from returned result rather than globals (getSastDownloadLink/getScaDownloadLink become unnecessary).
-Expected impact: Re-entrant behavior, deterministic tests, and reduced hidden coupling between steps.
-src/summaryWriter.js (generateMinimumSummary) vs src/asoc.js (buildIssueSummary)
-Issue: Duplicate logic for computing scan/app URLs, retrieving scan details for app name, timestamp formatting, and GitHub context fusion.
-Why design concern: Duplicated cross-module behavior drifts over time and produces inconsistent summaries depending on code path.
-Recommended refactoring: Consolidate “summary context builder” into one module (prefer summaryWriter.js, since it already owns markdown/output concerns). asoc.js should not construct presentation objects.
-Expected impact: Consistent summary metadata and fewer multi-file updates for future changes.
-src/statusChecker.js / waitForSastAnalysis, waitForScaAnalysis, module vars
-Issue: Duplicated polling loops plus shared module-level timer state (start) reused across operations.
-Why design concern: Tight coupling between logically separate waits; shared start can cause timeout behavior to depend on call order. Duplication increases divergence risk.
-Recommended refactoring: Extract a single waitForStatus(getStatusFn, id) helper and pass/initialize start-time per waitForAnalysis call; keep exported API unchanged.
-Expected impact: Predictable timeout semantics and smaller surface for polling-related defects.
-src/main.js / top-level promise chain
-Issue: Entry module contains orchestration plus business branching plus partial summary behavior, and has duplicated timeout branch (if(timedOut) appears twice, first one returns immediately).
-Why design concern: Main should be thin orchestration boundary; duplicated branch indicates flow ownership is blurred and error-prone.
-Recommended refactoring: Keep main.js as coordinator only, but move non-trivial flow into a single orchestrator function (likely in resultProcessor.js or a new workflow module consistent with existing modular style). Remove duplicated timeout branch.
-Expected impact: Easier reasoning for reviewers and fewer control-flow regressions.
-src/client.js / executeCommand
-Issue: Command execution layer also decides argument policy (-sco, -sao, -oso, -so) and handles workspace artifact discovery (getIrxFiles).
-Why design concern: Blends policy/config concern with process execution concern; increases coupling to env/input semantics.
-Recommended refactoring: Keep process spawning in one function; move argument composition to a dedicated helper and keep IRX discovery responsibility separate (still in same module if desired, but clearly partitioned).
-Expected impact: Lower cognitive load and safer future input-option changes.
-src/configGenerator.js (getModifiedFiles) and src/client.js (generateIrx)
-Issue: Incremental-scan precondition and generation are split across modules with implicit contract (generate() called but not awaited before command execution continues).
-Why design concern: Ownership boundary between “collect changed files” and “run IRX prepare” is unclear; async contract ambiguity can lead to race conditions.
-Recommended refactoring: Make generateIrx explicitly await configGenerator.generate() and document contract as “prepare prerequisites then execute client”. Keeps current architecture (client orchestrates local tooling) but hardens boundary.
-Expected impact: Deterministic incremental-scan behavior and fewer intermittent failures.
-src/asoc.js / auth/session handling (token global, login() called in many paths)
-Issue: Token is mutable global, and multiple functions call login() independently.
-Why design concern: Hidden coupling between call paths; difficult to reason about lifecycle, retries, and concurrent calls.
-Recommended refactoring: Retain module-scoped token but centralize login guarantee (e.g., ensureAuthenticated() wrapper used by all API calls) to avoid repeated flow logic.
-Expected impact: Simpler API-call codepaths and reduced auth-related duplication without changing public module structure.
-src/resultProcessor.js / repeated SAST and SCA report workflow blocks
-Issue: Near-identical multi-step chains duplicated for SAST and SCA report generation/download/summary writing.
-Why design concern: High-maintenance duplication in orchestration logic; fixes likely applied to one path only.
-Recommended refactoring: Extract a shared processReportForScan(scanId, type, summary) helper and invoke for both types.
-Expected impact: Smaller, easier-to-review orchestration and consistent behavior across scan types.
-src/saclientutil.js / client directory/version responsibilities
-Issue: Download/extract concerns are mixed with client-version discovery/comparison and script-resolution state.
-Why design concern: Module has multiple ownership domains (network/download, filesystem lifecycle, semantic version selection), making it harder to evolve safely.
-Recommended refactoring: Keep one module, but split internal helpers by responsibility (download, resolveInstalledClient, selectLatestVersion) and have getScript() depend only on resolver contract.
-Expected impact: Better internal cohesion and easier bug isolation without changing external API.
-Cross-module inconsistency highlights
-summaryWriter and asoc both construct scan summary context independently (scanUrl, appUrl, scanTime, app name lookup).
-Polling/report wait pattern appears in both statusChecker and resultProcessor orchestration, but ownership is split inconsistently.
-Promise style is inconsistent: many manual new Promise wrappers around already async-compatible flows (got, async funcs), which obscures layer intent and inflates orchestration complexity.
+import * as fs from 'fs';
+import * as core from '@actions/core';
+import settings from './settings.js';
+
+function getGitHubContext() {
+    const isPR = process.env.GITHUB_EVENT_NAME === 'pull_request';
+    const repoName = process.env.GITHUB_REPOSITORY || "";
+    const branchName = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
+    const commitSha = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0, 7) : "";
+    let prNumber = "";
+    try {
+        if (process.env.GITHUB_EVENT_PATH && fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
+            const eventPayload = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+            prNumber = eventPayload.pull_request?.number || "";
+        }
+    } catch (e) {
+        console.log("Failed to read PR information:", e.message);
+    }
+    return {isPR, repoName, branchName, commitSha, prNumber};
+}
+
+function writeSummaryMarkdown(summaryData, reportDownloadLink) {
+	const {total, counts, scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber} = summaryData;
+	const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
+	const prUrl = `https://github.com/${repoName}/pull/${prNumber}`;
+	const branchUrl = `https://github.com/${repoName}/tree/${branchName}`;
+	const commitUrl = `https://github.com/${repoName}/commit/${process.env.GITHUB_SHA}`;
+	const prSection = isPR ? `
+## Pull Request Information
+
+| Field | Value |
+|------|------|
+| PR Number | [#${prNumber}](${prUrl}) |
+| Branch | [${branchName}](${branchUrl}) |
+| Commit | [${commitSha}](${commitUrl}) |
+
+---`
+: "";
+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
+	const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+	const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+	const reportLabel = `Download ${scanType} HTML Report`;
+	const reportValue = enableHyperlinks ? `[${reportLabel}](${reportDownloadLink})` : "";
+	const md = `
+# HCL AppScan ${scanLabel}
+
+${prSection}
+
+### Scan Information
+
+| Field | Value |
+|------|-------|
+| Scan Type | ${scanType} |
+| Scan ID | ${scanIdValue} |
+| Application Name | ${appNameValue} |
+| Repository | ${repoName} |
+| Scan Time | ${scanTime} |
+
+---
+
+## Total Vulnerabilities: ${total}
+
+| Critical | High | Medium | Low | Info |
+|----------|------|--------|-----|------|
+| ${counts.Critical} | ${counts.High} | ${counts.Medium} | ${counts.Low} | ${counts.Informational} |
+
+---
+
+${reportValue}
+
+`;
+     const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md` : `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
+	 fs.writeFileSync(mdFileName, md);
+	 if (process.env.GITHUB_STEP_SUMMARY) {
+		 fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+	}
+}
+
+async function generateMinimumSummary(getScanDetails, scanId, scanType) {
+    const serviceUrl = settings.getServiceUrl();
+    const baseUrl = serviceUrl.replace("/api/v4", "");
+    const applicationId = process.env.INPUT_APPLICATION_ID;
+    const scanUrl = `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}`;
+    const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
+    let appName = applicationId;
+    try {
+        let scanDetails = null;
+        if (scanType === "SAST") {
+            scanDetails = await getScanDetails(scanId, "Sast");
+        } else if (scanType === "SCA") {
+            scanDetails = await getScanDetails(scanId, "Sca");
+        }
+        if (scanDetails) {
+            appName = scanDetails.AppName || appName;
+        }
+    }
+    catch (e) {
+        console.log("Failed to fetch AppName from scan details:", e.message);
+    }
+    const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
+	const githubContext = getGitHubContext();
+	const {isPR, repoName, branchName, commitSha, prNumber} = githubContext;
+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
+    const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+    const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+	const prUrl = `https://github.com/${repoName}/pull/${prNumber}`;
+	const branchUrl = `https://github.com/${repoName}/tree/${branchName}`;
+	const commitUrl = `https://github.com/${repoName}/commit/${process.env.GITHUB_SHA}`;
+	const prSection = isPR ? `
+## Pull Request Information
+
+| Field | Value |
+|------|------|
+| PR Number | [#${prNumber}](${prUrl}) |
+| Branch | [${branchName}](${branchUrl}) |
+| Commit | [${commitSha}](${commitUrl}) |
+
+---`
+: "";	
+    const md = `
+# HCL AppScan ${scanType} ${isPR ? "PR " : ""}Scan Summary
+
+${prSection}
+
+### Scan Information
+
+| Field | Value |
+|--------|-------|
+| Scan Type | ${scanType} |
+| Scan ID | ${scanIdValue} |
+| Application Name | ${appNameValue} |
+| Repository | ${repoName} |
+| Scan Time | ${scanTime} |
+
+---
+
+`;
+
+    const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
+    fs.writeFileSync(mdFileName, md);
+    if (process.env.GITHUB_STEP_SUMMARY) {
+        fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+    }
+}
+
+async function buildIssueSummary(groupedItems, scanId, scanType) {
+	const counts = {Critical: 0, High: 0, Medium: 0, Low: 0, Informational: 0};
+	groupedItems.forEach(item => {
+		if (counts[item.Severity] !== undefined) {
+			counts[item.Severity] += Number(item.N || 0);
+		}
+    });
+	const total = Object.values(counts).reduce((a,b)=>a+b, 0);
+	const serviceUrl = settings.getServiceUrl();
+	const baseUrl = serviceUrl.replace("/api/v4","");		
+	const scanUrl =`${baseUrl}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}`;
+	const applicationId = process.env.INPUT_APPLICATION_ID;
+	let appName = applicationId;
+	try {
+		let scanDetails = null;
+		if(scanType === "SAST") {
+			scanDetails = await getScanDetails(scanId, "Sast");	
+		} else if(scanType === 'SCA') {
+			scanDetails = await getScanDetails(scanId, "Sca");
+		} if(scanDetails) {
+			appName = scanDetails.AppName || appName;
+		}
+	} catch (e) {
+		console.log("Failed to fetch AppName from scan details");
+	}
+	const appUrl =`${baseUrl}/main/myapps/${applicationId}`;
+	const scanTime = new Date().toISOString().replace("T"," ").substring(0,19);	
+	const githubContext = summaryWriter.getGitHubContext();
+	return({total, counts, issues: [], scanId, scanUrl, appName, appUrl, scanTime, scanType, ...githubContext});
+}
+
+export default { generateMinimumSummary, writeSummaryMarkdown, getGitHubContext, buildIssueSummary }
