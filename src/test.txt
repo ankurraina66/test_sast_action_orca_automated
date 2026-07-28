@@ -1,79 +1,24 @@
-import * as core from '@actions/core';
-import * as constants from './constants.js';
-import client from './client.js';
-import saclientutil from './saclientutil.js';
-import asoc from './asoc.js';
-import settings from './settings.js';
-import statusChecker from './statusChecker.js';
-import resultProcessor from './resultProcessor.js';
-import summaryWriter from './summaryWriter.js';
-
-let sastScanId;
-let scaScanId;
-
-core.info(constants.DOWNLOADING_CLIENT);
-saclientutil.downloadClient()
-.then(() => {
-    core.info(constants.GENERATING_IRX);
-    return client.generateIrx();
-})
-.then((irx) => {
-    if(irx.length > 1) {
-        throw new Error(constants.ERROR_MULTIPLE_IRX);
-    }
-    else if(irx.length === 0) {
-        throw new Error(constants.ERROR_NO_IRX);
-    }
-    
-    core.info(constants.SUBMITTING_IRX);
-    return asoc.runAnalysis(irx[0]);
-})
-.then((scanIds) => {
-    core.info(constants.IRX_SUBMIT_SUCCESS);
-    sastScanId = scanIds.sastScanId;
-    scaScanId = scanIds.scaScanId;
-
-    if(sastScanId) {
-        core.info(`SAST Scan ID: ${sastScanId}`)
-        core.info(`${settings.getScanUrl(sastScanId)}`);
-    }
-
-    if(scaScanId) {
-        core.info(`SCA Scan ID: ${scaScanId}`)
-        core.info(`${settings.getScanUrl(scaScanId)}`);
-    }
-    
-    if(process.env.INPUT_WAIT_FOR_ANALYSIS !== 'true') {
-		const promises = [];
-		if(sastScanId) {
-			promises.push(summaryWriter.generateMinimumSummary(asoc.getScanDetails, sastScanId, "SAST"));
-		}
-		if(scaScanId) {
-			promises.push(summaryWriter.generateMinimumSummary(asoc.getScanDetails, scaScanId, "SCA"));
-		}
-		return Promise.all(promises).then(() => false);
-    }
-
-    core.info(constants.WAIT_FOR_ANALYSIS);
-    return statusChecker.waitForAnalysis(sastScanId, scaScanId);
-})
-.then((timedOut) => {
-    if(timedOut) {
-        core.warning(constants.ANALYSIS_TIMEOUT);
-        return;
-    }
-    core.info(constants.GETTING_RESULTS);
-    return resultProcessor.processScanResults(sastScanId, scaScanId);
-})
-.then((results) => {
-    if(results) {
-        core.info(results);
-        core.info(constants.ANALYSIS_SUCCESS);
-    }
-})
-.catch((error) => {
-    if(error.response && error.response.body) {
-        core.error(`Error: ${error.response.body}`);
-    }
-    core.setFailed(error);
-})
+{
+  "name": "appscan-static-analyzer-action",
+  "version": "1.0.8",
+  "description": "Runs HCL AppScan Static Analyzer.",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
+    "eol": "^0.9.1",
+    "extract-zip": "^2.0.1",
+    "form-data": "^4.0.6",
+    "got": "^12.5.3",
+    "https": "^1.0.0",
+    "https-proxy-agent": "^5.0.0"
+  },
+  "overrides": {
+    "yauzl": "^3.3.1"
+  }
+}
