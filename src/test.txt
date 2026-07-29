@@ -178,4 +178,7 @@ function combineMarkdown(sastMarkdown, scaMarkdown) {
 	return markdowns.join("\n\n---\n\n");
 }
 
-export default { generateMinimumSummary, generateSummaryMarkdown, writeSummaryMarkdown, getGitHubContext, buildIssueSummary }
+function generateCommentHeader(summaryData) {
+}
+
+export default { generateMinimumSummary, generateSummaryMarkdown, writeSummaryMarkdown, getGitHubContext, buildIssueSummary, combineMarkdown }
