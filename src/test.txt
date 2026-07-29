@@ -2,7 +2,6 @@ import asoc from './asoc.js';
 import * as constants from './constants.js';
 import statusChecker from './statusChecker.js';
 import summaryWriter from './summaryWriter.js';
-import { postComment } from './prCommentWriter.js';
 import * as core from '@actions/core';
 
 const failForNonCompliance = process.env.INPUT_FAIL_FOR_NONCOMPLIANCE === 'true';
@@ -175,12 +174,7 @@ function generateSecurityReport(scanId, apiScanType, reportType, summaryData) {
                 return null;
             }
             const markdown = summaryWriter.writeSummaryMarkdown(summaryData, reportResult.downloadLink);
-			core.info("===============PR COMMENTS MARKDOWN START==================");
-			core.info(markdown);
-			core.info("===============PR COMMENTS MARKDOWN END==================");
-            return postComment(markdown)
-			.catch(() => {})
-			.then(() => reportResult.downloadLink);
+			return { markdown, downloaddLink: reportResult.downloaddLink };
         });
 }
 
