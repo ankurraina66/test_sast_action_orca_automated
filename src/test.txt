@@ -7,6 +7,7 @@ import settings from './settings.js';
 import statusChecker from './statusChecker.js';
 import resultProcessor from './resultProcessor.js';
 import summaryWriter from './summaryWriter.js';
+import { postComment } from './prCommentWriter.js';
 
 let sastScanId;
 let scaScanId;
@@ -46,18 +47,23 @@ saclientutil.downloadClient()
     if(process.env.INPUT_WAIT_FOR_ANALYSIS !== 'true') {
 		const promises = [];
 		if(sastScanId) {
-			promises.push(summaryWriter.generateMinimumSummary(asoc.getScanDetails, sastScanId, "SAST"));
+			promises.push(summaryWriter.generateMinimumSummary(asoc.getScanDetails, sastScanId, "SAST")
+			.then((markdown) => postComment(markdown)));
 		}
 		if(scaScanId) {
-			promises.push(summaryWriter.generateMinimumSummary(asoc.getScanDetails, scaScanId, "SCA"));
+			promises.push(summaryWriter.generateMinimumSummary(asoc.getScanDetails, scaScanId, "SCA")
+			.then((markdown) => postComment(markdown)));
 		}
-		return Promise.all(promises).then(() => false);
+		return Promise.all(promises).then(() => true);
     }
 
     core.info(constants.WAIT_FOR_ANALYSIS);
     return statusChecker.waitForAnalysis(sastScanId, scaScanId);
 })
 .then((timedOut) => {
+	if(timedOut === true && process.env.INPUT_WAIT_FOR_ANALYSIS !== 'true') {
+		return;
+	}
     if(timedOut) {
         core.warning(constants.ANALYSIS_TIMEOUT);
         return;
