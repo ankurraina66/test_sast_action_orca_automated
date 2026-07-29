@@ -163,8 +163,13 @@ function generateSecurityReport(scanId, apiScanType, reportType, summaryData) {
             }
             return asoc.downloadSecurityReport(report, reportType);
         })
-        const markdown = summaryWriter.writeSummaryMarkdown(summaryData, reportResult: downloadLink);
-		return postComment(markdown);
+        .then((reportResult) => {
+            if (!reportResult) {
+                return null;
+            }
+            const markdown = summaryWriter.writeSummaryMarkdown(summaryData, reportResult.downloadLink);
+            return postComment(markdown).then(() => reportResult.downloadLink);
+        });
 }
 
 export default { processScanResults, getSastDownloadLink, getScaDownloadLink }
