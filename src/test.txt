@@ -7,10 +7,10 @@ async function postComment(markdown) {
 	}		
 	const token = process.env.GITHUB_TOKEN;
 	if (!token) {
-		core.info("GitHub token not available. Skipping PR comment creation.");
+		core.warning("GitHub token not available. Skipping PR comment creation.");
 		return;
 	}
-	const ocktokit = github.getOctokit(token);
+	const octokit = github.getOctokit(token);
 	const owner = github.context.repo.owner;
 	const repo = github.context.repo.repo;
 	const issueNumber = github.context.payload.pull_request.number;
@@ -19,11 +19,11 @@ async function postComment(markdown) {
 		return;
 	}
 	try {
-		await ocktokit.rest.issues.createComment({owner, repo, issueNumber, body: markdown});
+		await octokit.rest.issues.createComment({owner, repo, issue_number: issueNumber, body: markdown});
+		core.info(`Successfully created comment on PR number: ${issueNumber}`);
 	} catch (error) {
 		core.warning(`Failed to create PR comment: ${error.message}`);
 	}	
-	core.info(`Successfully created comment on PR number: ${issueNumber}`);
 }
 
 export { postComment }
