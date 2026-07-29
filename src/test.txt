@@ -168,17 +168,53 @@ async function getSummaryContext(getScanDetails, scanId, scanType) {
 }
 
 function combineMarkdown(sastMarkdown, scaMarkdown) {
-	const markdowns = [];
-	if (sastMarkdown) {
-		markdowns.push(sastMarkdown);
-	}
-	if (scaMarkdown) {
-		markdowns.push(scaMarkdown);
-	}
-	return markdowns.join("\n\n---\n\n");
-}
+    const markdowns = [];
 
-function generateCommentHeader(summaryData) {
+    if (sastMarkdown) {
+        markdowns.push(
+            sastMarkdown
+                .replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
+                .replace(/^# HCL AppScan SAST PR Scan Summary/m, "## SAST Scan Summary")
+                .replace(/^# HCL AppScan SAST Scan Summary/m, "## SAST Scan Summary")
+                .replace(/^## Pull Request Information[\s\S]*?---/m, "")
+        );
+    }
+
+    if (scaMarkdown) {
+        markdowns.push(
+            scaMarkdown
+                .replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
+                .replace(/^# HCL AppScan SCA PR Scan Summary/m, "## SCA Scan Summary")
+                .replace(/^# HCL AppScan SCA Scan Summary/m, "## SCA Scan Summary")
+                .replace(/^## Pull Request Information[\s\S]*?---/m, "")
+        );
+    }
+
+    const summaryContext = getGitHubContext();
+
+    const prUrl = `https://github.com/${summaryContext.repoName}/pull/${summaryContext.prNumber}`;
+    const branchUrl = `https://github.com/${summaryContext.repoName}/tree/${summaryContext.branchName}`;
+    const commitUrl = `https://github.com/${summaryContext.repoName}/commit/${process.env.GITHUB_SHA}`;
+
+    const prSection = summaryContext.isPR ? `
+## Pull Request Information
+
+| Field | Value |
+|------|------|
+| PR Number | [#${summaryContext.prNumber}](${prUrl}) |
+| Branch | [${summaryContext.branchName}](${branchUrl}) |
+| Commit | [${summaryContext.commitSha}](${commitUrl}) |
+
+---
+` : "";
+
+    return `<!-- HCL_APPSCAN_SUMMARY -->
+# HCL AppScan ${summaryContext.isPR ? "PR " : ""}Scan Summary
+
+${prSection}
+
+${markdowns.join("\n\n---\n\n")}
+`;
 }
 
 export default { generateMinimumSummary, generateSummaryMarkdown, writeSummaryMarkdown, getGitHubContext, buildIssueSummary, combineMarkdown }
