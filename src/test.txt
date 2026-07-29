@@ -6,7 +6,9 @@ async function postComment(markdown) {
 		core.warning("No markdown content available. Skipping PR comment creation.");
 		return;
 	}
-	if (process.env.GITHUB_EVENT_NAME !== "pull_request") {
+	const pullRequest = github.context.payload.pull_request;
+	if (!pullRequest) {
+		core.warning("Not a pull request event. Skipping PR comment creation.");
 		return;
 	}		
 	const token = process.env.INPUT_GITHUB_TOKEN;
@@ -17,7 +19,7 @@ async function postComment(markdown) {
 	const octokit = github.getOctokit(token);
 	const owner = github.context.repo.owner;
 	const repo = github.context.repo.repo;
-	const issueNumber = github.context.payload.pull_request.number;
+	const issueNumber = pullRequest.number;
 	if (!issueNumber) {
 		core.warning("Pull request number not found.");
 		return;
