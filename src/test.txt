@@ -28,14 +28,13 @@ async function postComment(markdown) {
 	}
 	try {
 		const { data: comments } = await octokit.rest.issues.listComments({owner, repo, issue_number: issueNumber});
-		const existingComment = comments.find(comment => comment.body?.includes("<!-- HCL_APPSCAN_SUMMARY -->"));
-		if (existingComment) {
-			await octokit.rest.issues.updateComment({owner, repo, comment_id: existingComment.id, body: markdown});
-			core.info(`Successfully updated comment on PR number: ${issueNumber}`);
-		} else {
-			await octokit.rest.issues.createComment({owner, repo, issue_number: issueNumber, body: markdown});
-			core.info(`Successfully created comment on PR number: ${issueNumber}`);
-		}
+		const existingComments = comments.filter(comment => comment.user?.type === "Bot" && comment.body?.includes("<!-- HCL_APPSCAN_SUMMARY -->"));
+		for (const comment of existingComments) {
+			await octokit.rest.issues.deleteComment({owner, repo, comment_id: existingComment.id, body: markdown});
+			core.info(`Successfully deleted previous comment on PR number: ${issueNumber}`);
+		} 
+		await octokit.rest.issues.createComment({owner, repo, issue_number: issueNumber, body: markdown});
+		core.info(`Successfully created comment on PR number: ${issueNumber}`);
 	} catch (error) {
 		core.warning(`Failed to create/update PR comment: ${error.message}`);
 	}	
