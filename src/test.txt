@@ -2,6 +2,7 @@ import asoc from './asoc.js';
 import * as constants from './constants.js';
 import statusChecker from './statusChecker.js';
 import summaryWriter from './summaryWriter.js';
+import { postComment } from './prCommentWriter.js';
 
 const failForNonCompliance = process.env.INPUT_FAIL_FOR_NONCOMPLIANCE === 'true';
 const failureThreshold = getSeverityValue(process.env.INPUT_FAILURE_THRESHOLD);
@@ -162,16 +163,8 @@ function generateSecurityReport(scanId, apiScanType, reportType, summaryData) {
             }
             return asoc.downloadSecurityReport(report, reportType);
         })
-        .then((reportResult) => {
-            if (!reportResult) {
-                return null;
-            }
-            summaryWriter.writeSummaryMarkdown(
-                summaryData,
-                reportResult.downloadLink
-            );
-            return reportResult.downloadLink;
-        });
+        const markdown = summaryWriter.writeSummaryMarkdown(summaryData, reportResult: downloadLink);
+		return postComment(markdown);
 }
 
 export default { processScanResults, getSastDownloadLink, getScaDownloadLink }
