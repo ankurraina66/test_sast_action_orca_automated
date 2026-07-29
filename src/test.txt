@@ -174,8 +174,8 @@ function combineMarkdown(sastMarkdown, scaMarkdown) {
         markdowns.push(
             sastMarkdown
                 .replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
-                .replace(/^# HCL AppScan SAST PR Scan Summary/m, "## SAST Scan Summary")
-                .replace(/^# HCL AppScan SAST Scan Summary/m, "## SAST Scan Summary")
+                .replace("# HCL AppScan SAST PR Scan Summary", "## SAST Scan Summary")
+                .replace("# HCL AppScan SAST Scan Summar", "## SAST Scan Summary")
                 .replace(/^## Pull Request Information[\s\S]*?---/m, "")
         );
     }
@@ -184,8 +184,8 @@ function combineMarkdown(sastMarkdown, scaMarkdown) {
         markdowns.push(
             scaMarkdown
                 .replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
-                .replace(/^# HCL AppScan SCA PR Scan Summary/m, "## SCA Scan Summary")
-                .replace(/^# HCL AppScan SCA Scan Summary/m, "## SCA Scan Summary")
+                .replace("# HCL AppScan SCA PR Scan Summary", "## SCA Scan Summary")
+                .replace("# HCL AppScan SCA Scan Summary", "## SCA Scan Summary")
                 .replace(/^## Pull Request Information[\s\S]*?---/m, "")
         );
     }
@@ -210,7 +210,6 @@ function combineMarkdown(sastMarkdown, scaMarkdown) {
 
     return `<!-- HCL_APPSCAN_SUMMARY -->
 # HCL AppScan ${summaryContext.isPR ? "PR " : ""}Scan Summary
-
 ${prSection}
 
 ${markdowns.join("\n\n---\n\n")}
