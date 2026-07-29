@@ -26,9 +26,9 @@ async function postComment(markdown) {
 		core.warning("Pull request number not found.");
 		return;
 	}
-	const { data: comments } = await octokit.rest.issues.listComments({owner, repo, issue_number: issueNumber});
-	const existingComment = comments.find(comment => comment.body?.includes("<!-- HCL_APPSCAN_SUMMARY -->"));
 	try {
+		const { data: comments } = await octokit.rest.issues.listComments({owner, repo, issue_number: issueNumber});
+		const existingComment = comments.find(comment => comment.body?.includes("<!-- HCL_APPSCAN_SUMMARY -->"));
 		if (existingComment) {
 			await octokit.rest.issues.updateComment({owner, repo, comment_id: existingComment.id, body: markdown});
 			core.info(`Successfully updated comment on PR number: ${issueNumber}`);
@@ -37,7 +37,7 @@ async function postComment(markdown) {
 			core.info(`Successfully created comment on PR number: ${issueNumber}`);
 		}
 	} catch (error) {
-		core.warning(`Failed to create PR comment: ${error.message}`);
+		core.warning(`Failed to create/update PR comment: ${error.message}`);
 	}	
 }
 
