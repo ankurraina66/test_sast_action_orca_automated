@@ -18,8 +18,8 @@ import asoc from './asoc.js';
 import * as constants from './constants.js';
 import statusChecker from './statusChecker.js';
 import summaryWriter from './summaryWriter.js';
-import * as core from '@actions/core';
 import { postComment } from './prCommentWriter.js';
+import * as core from '@actions/core';
 
 const failForNonCompliance = process.env.INPUT_FAIL_FOR_NONCOMPLIANCE === 'true';
 const failureThreshold = getSeverityValue(process.env.INPUT_FAILURE_THRESHOLD);
@@ -34,8 +34,6 @@ function processScanResults(sastScanId, scaScanId) {
         let sastSummary = null;
         let scaSummary = null;
 
-		let sastMarkdown = "";
-		let scaMarkdown = "";
         (sastScanId ? asoc.getScanResults(sastScanId, 'SAST') : Promise.resolve(null))
         .then((sastResults) => {
             sastSummary = sastResults;
@@ -63,33 +61,14 @@ function processScanResults(sastScanId, scaScanId) {
 		.then(() => {
 			return generateSecurityReport(sastScanId, "Sast", "SAST", sastSummary);
 		})
-		.then((reportData) => {
-			if(reportData) {
-				sastDownloadLink = reportData.downloadLink || "";
-				sastMarkdown = reportData.markdown || "";
-			}			
+		.then((downloadLink) => {
+			sastDownloadLink = downloadLink || "";
 		})
 		.then(() => {
 			return generateSecurityReport(scaScanId, "Sca", "SCA", scaSummary);
 		})
-		.then((reportData) => {
-			if(reportData) {
-				scaDownloadLink = reportData.downloadLink || "";
-				sacaMarkdown = reportData.markdown || "";
-			}	
-		})
-		.then(() => {
-			const markdowns = [];
-			if(sastMarkdown) {
-				markdowns.push(sastMarkdown);
-			}
-			if(scaMarkdown) {
-				markdowns.push(scaMarkdown);
-			}
-			if(markdowns.length > 0) {
-				return postComment(markdowns.join("\n\n---\n\n")).catch(() => {});
-			}
-			return Promise.resolve();
+		.then((downloadLink) => {
+			scaDownloadLink = downloadLink || "";
 		})
         .then(() => {
             if(shouldFail) {
@@ -212,7 +191,12 @@ function generateSecurityReport(scanId, apiScanType, reportType, summaryData) {
                 return null;
             }
             const markdown = summaryWriter.writeSummaryMarkdown(summaryData, reportResult.downloadLink);
-			return { markdown, downloadLink: reportResult.downloadLink };
+			core.info("===============PR COMMENTS MARKDOWN START==================");
+			core.info(markdown);
+			core.info("===============PR COMMENTS MARKDOWN END==================");
+            return postComment(markdown)
+			.catch(() => {})
+			.then(() => reportResult.downloadLink);
         });
 }
 
