@@ -48,11 +48,11 @@ saclientutil.downloadClient()
 		const promises = [];
 		if(sastScanId) {
 			promises.push(summaryWriter.generateMinimumSummary(asoc.getScanDetails, sastScanId, "SAST")
-			.then((markdown) => postComment(markdown)));
+			.then((markdown) => postComment(markdown).catch(() => {})));
 		}
 		if(scaScanId) {
 			promises.push(summaryWriter.generateMinimumSummary(asoc.getScanDetails, scaScanId, "SCA")
-			.then((markdown) => postComment(markdown)));
+			.then((markdown) => postComment(markdown).catch(() => {})));
 		}
 		return Promise.all(promises).then(() => true);
     }
