@@ -183,7 +183,7 @@ function combineMarkdown(sastMarkdown, scaMarkdown) {
     if (scaMarkdown) {
         markdowns.push(
             removePullRequestSection(
-				sastMarkdown
+				scaMarkdown
 				.replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
 				.replace("# HCL AppScan SCA PR Scan Summary", "## SCA Scan Summary")
 				.replace("# HCL AppScan SCA Scan Summary", "## SCA Scan Summary")
