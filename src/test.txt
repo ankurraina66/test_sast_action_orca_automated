@@ -1,62 +1,22 @@
-Pull Request Summary Generation
+Build Summary Generation
 
 Background
 
-The existing implementation generated identical summaries for Push and Pull Request workflows. Reviewers could not identify the associated Pull Request, repository branch, or commit directly from the generated summary.
+Previously, after a successful SAST/SCA scan, the GitHub Action only printed scan results to the workflow logs. Users had to navigate to the AppScan portal to view scan information, vulnerability counts, and other scan metadata.
 
-Support was added to enrich summaries generated during Pull Request executions.
+To improve visibility within GitHub Actions, Build Summary generation was introduced using GitHub Job Summary (GITHUB_STEP_SUMMARY).
 
 Files Modified:
 
-main.js
+resultProcessor.js
 
 asoc.js
 
 Technical Implementation
 
-PR context is determined at the start of the workflow in main.js.
+The implementation uses resultProcessor.processScanResults() as the entry point after scan completion.
 
-Actual Code
-
-const isPR =
-
-    process.env.INPUT_IS_PR_SCAN === "true" ||
-
-    process.env.GITHUB_EVENT_NAME === "pull_request";
-
-The workflow captures PR metadata.
-
-const prNumber = process.env.INPUT_PR_NUMBER || "";
-
-const branchName =
-
-    process.env.INPUT_BRANCH_NAME ||
-
-    process.env.GITHUB_HEAD_REF ||
-
-    process.env.GITHUB_REF_NAME ||
-
-    "";
-
-const repoName =
-
-    process.env.INPUT_REPO_NAME ||
-
-    process.env.GITHUB_REPOSITORY ||
-
-    "";
-
-const commitSha = process.env.GITHUB_SHA || "";
-
-The metadata is later propagated using
-
-const githubContext = getGitHubContext();
-
-resolve({ total, counts, issues: [], scanId, scanUrl, appName, appUrl, scanTime,   scanType, ...githubContext });
-
-Finally, the markdown is generated through
-
-writeSummaryMarkdown(summaryData, reportDownloadLink);
+Once the analysis completes successfully, the workflow retrieves the scan results, aggregates vulnerability statistics, generates the markdown summary, and finally publishes it to GitHub.
 
 Execution Flow
 
@@ -64,49 +24,84 @@ main.js
 
 │
 
-├── Detect Pull Request
+├── statusChecker.waitForAnalysis()
 
 │
 
-├── Collect GitHub Metadata
+└── resultProcessor.processScanResults()
 
-│
+      │
 
-└── processScanResults()
+      ├── asoc.getScanResults(scanId, "SAST")
+
+      │      │
+
+      │      └── asoc.getNonCompliantIssues()
+
+      │
+
+      ├── processResults()
+
+      │
+
+      ├── aggregateResults()
 
       │
 
       └── asoc.writeSummaryMarkdown()
 
-              │
+             │
 
-              ├── getGitHubContext()
+             ├── fs.writeFileSync(mdFileName, md)
 
-              │
+             └── fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md)
 
-              ├── Generate PR Section
+Actual Code Changes
 
-              │
+Processing begins once the scan completes.
 
-              └── Publish Summary
+return resultProcessor.processScanResults(sastScanId, scaScanId);
+
+Inside processScanResults() the workflow retrieves the vulnerability summary.
+
+(sastScanId ? asoc.getScanResults(sastScanId, "SAST"): Promise.resolve(null))
+
+The markdown summary is finally written using
+
+           asoc.writeSummaryMarkdown(sastSummary, reportResult.downloadLink);
+
+Inside writeSummaryMarkdown():
+
+                fs.writeFileSync(mdFileName, md);
+                     if (process.env.GITHUB_STEP_SUMMARY) {
+                           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+              }
 
 Summary Contents
 
-Additional PR-specific information:
+The generated Build Summary includes:
 
-Pull Request Number
+Scan Type
+
+Scan ID
+
+Application Name
 
 Repository
 
-Branch
+Scan Time
 
-Commit SHA
+Vulnerability Counts
+
+HTML Report Download Link
 
 Impact
 
-PR-specific summaries.
+Native GitHub Job Summary support.
 
-Shared markdown implementation.
+Eliminates dependency on workflow logs.
 
-No duplicate markdown generation logic.
+Standardized markdown generation through a reusable helper.
+
+Reused for both Build and Pull Request summaries.
 
