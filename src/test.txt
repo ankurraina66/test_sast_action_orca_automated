@@ -1,107 +1,152 @@
-Build Summary Generation
+Proposed Approach: Enhance GitHub Pull Request Comments with PR Scan Summary
 
 Background
 
-Previously, after a successful SAST/SCA scan, the GitHub Action only printed scan results to the workflow logs. Users had to navigate to the AppScan portal to view scan information, vulnerability counts, and other scan metadata.
+The current GitHub Action generates scan summaries as part of the GitHub Step Summary, allowing users to review scan results directly from the workflow execution.
 
-To improve visibility within GitHub Actions, Build Summary generation was introduced using GitHub Job Summary (GITHUB_STEP_SUMMARY).
+To improve the Pull Request review experience, I am evaluating an enhancement to surface the scan summary directly within the Pull Request conversation. This would allow reviewers to view the scan outcome without navigating to the workflow run.
 
-Files Modified:
+Proposed Solution
 
-resultProcessor.js
+The proposal is to automatically publish an AppScan scan summary as a comment on the Pull Request whenever the workflow is executed for a PR.
 
-asoc.js
+To avoid multiple AppScan comments accumulating over successive workflow executions, the solution would ensure that only a single AppScan-generated comment is maintained on the Pull Request. Each new workflow execution would refresh the existing summary so that reviewers always see the latest scan results.
 
-Technical Implementation
+High-Level Design
 
-The implementation uses resultProcessor.processScanResults() as the entry point after scan completion.
+The proposed implementation would include the following components:
 
-Once the analysis completes successfully, the workflow retrieves the scan results, aggregates vulnerability statistics, generates the markdown summary, and finally publishes it to GitHub.
+1. Introduce a dedicated PR Comment management component
 
-Execution Flow
+A separate module would be introduced to encapsulate all GitHub Pull Request comment operations.
 
-main.js
+Responsibilities would include:
 
-│
+Publishing scan summary comments to Pull Requests.
 
-├── statusChecker.waitForAnalysis()
+Identifying previously generated AppScan comments.
 
-│
+Removing outdated AppScan comments before publishing an updated summary.
 
-└── resultProcessor.processScanResults()
+Isolating GitHub API interactions from summary generation logic.
 
-      │
+This separation keeps summary generation independent from comment lifecycle management.
 
-      ├── asoc.getScanResults(scanId, "SAST")
+2. Separate summary generation from publishing
 
-      │      │
+The existing summary generation logic would be refactored so that markdown generation is independent of where the content is published.
 
-      │      └── asoc.getNonCompliantIssues()
+The generated markdown can then be reused for multiple destinations, including:
 
-      │
+GitHub Step Summary
 
-      ├── processResults()
+Pull Request comments
 
-      │
+This approach avoids maintaining multiple implementations for the same summary content.
 
-      ├── aggregateResults()
+3. Support a consolidated PR comment
 
-      │
+When multiple scan types (for example, SAST and SCA) are executed within the same workflow, the proposal is to publish a single consolidated Pull Request comment rather than multiple independent comments.
 
-      └── asoc.writeSummaryMarkdown()
+The consolidated comment would contain:
 
-             │
+Pull Request information
 
-             ├── fs.writeFileSync(mdFileName, md)
+SAST scan summary (if available)
 
-             └── fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md)
+SCA scan summary (if available)
 
-Actual Code Changes
+This provides reviewers with a single location to view all scan results while reducing comment noise.
 
-Processing begins once the scan completes.
+4. Preserve existing GitHub Step Summary behaviour
 
-return resultProcessor.processScanResults(sastScanId, scaScanId);
+The enhancement is intended only for Pull Request comments.
 
-Inside processScanResults() the workflow retrieves the vulnerability summary.
+The existing GitHub Step Summary functionality would remain unchanged so that current workflow behaviour is preserved for both PR and non-PR executions.
 
-(sastScanId ? asoc.getScanResults(sastScanId, "SAST"): Promise.resolve(null))
+5. Handle multiple workflow executions
 
-The markdown summary is finally written using
+Since Pull Request workflows may execute multiple times during the lifetime of a PR, the proposal includes replacing the previous AppScan comment instead of creating additional comments.
 
-           asoc.writeSummaryMarkdown(sastSummary, reportResult.downloadLink);
+Expected behaviour:
 
-Inside writeSummaryMarkdown():
+First PR execution creates an AppScan summary comment.
 
-                fs.writeFileSync(mdFileName, md);
-                     if (process.env.GITHUB_STEP_SUMMARY) {
-                           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
-              }
+Subsequent executions remove the previous AppScan summary comment.
 
-Summary Contents
+A new comment containing the latest scan results is published.
 
-The generated Build Summary includes:
+This ensures the Pull Request always displays the most recent security results while avoiding duplicate comments.
 
-Scan Type
+Files Expected to be Updated
 
-Scan ID
+The current implementation is expected to require changes in the following areas:
 
-Application Name
+Summary generation component
 
-Repository
+Refactor markdown generation for reuse across multiple output destinations.
 
-Scan Time
+Support generation of a consolidated PR summary.
 
-Vulnerability Counts
+Result processing workflow
 
-HTML Report Download Link
+Capture generated summaries.
 
-Impact
+Coordinate publication once scan processing is complete.
 
-Native GitHub Job Summary support.
+Workflow execution logic
 
-Eliminates dependency on workflow logs.
+Support scenarios where scan results are immediately available as well as asynchronous scan execution.
 
-Standardized markdown generation through a reusable helper.
+New PR Comment management component
 
-Reused for both Build and Pull Request summaries.
+Handle GitHub Pull Request comment lifecycle.
+
+Manage creation, replacement and cleanup of AppScan-generated comments.
+
+Expected Benefits
+
+Makes scan results immediately visible during Pull Request review.
+
+Eliminates the need to navigate to workflow logs to review scan status.
+
+Maintains a single up-to-date AppScan comment on the Pull Request.
+
+Avoids duplicate comments across multiple workflow executions.
+
+Reuses existing summary generation logic, minimizing duplication.
+
+Preserves current Step Summary behaviour and backward compatibility.
+
+Validation Plan
+
+The proposed implementation will be validated against the following scenarios:
+
+Pull Request workflows with SAST only.
+
+Pull Request workflows with SCA only.
+
+Pull Request workflows with both SAST and SCA.
+
+Multiple executions against the same Pull Request.
+
+wait_for_analysis=true
+
+wait_for_analysis=false
+
+Non-Pull Request build workflows to ensure existing Step Summary behaviour remains unchanged.
+
+Failure scenarios to verify graceful handling of GitHub comment operations.
+
+Review Points
+
+Feedback is requested on the proposed approach, particularly around:
+
+Maintaining a single AppScan comment per Pull Request.
+
+Consolidating multiple scan summaries into one comment.
+
+Separation of markdown generation and comment management responsibilities.
+
+Overall approach before implementation begins.
 
