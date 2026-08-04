@@ -1,152 +1,162 @@
-Proposed Approach: Enhance GitHub Pull Request Comments with PR Scan Summary
-
-Background
-
-The current GitHub Action generates scan summaries as part of the GitHub Step Summary, allowing users to review scan results directly from the workflow execution.
-
-To improve the Pull Request review experience, I am evaluating an enhancement to surface the scan summary directly within the Pull Request conversation. This would allow reviewers to view the scan outcome without navigating to the workflow run.
-
-Proposed Solution
-
-The proposal is to automatically publish an AppScan scan summary as a comment on the Pull Request whenever the workflow is executed for a PR.
-
-To avoid multiple AppScan comments accumulating over successive workflow executions, the solution would ensure that only a single AppScan-generated comment is maintained on the Pull Request. Each new workflow execution would refresh the existing summary so that reviewers always see the latest scan results.
-
-High-Level Design
-
-The proposed implementation would include the following components:
-
-1. Introduce a dedicated PR Comment management component
-
-A separate module would be introduced to encapsulate all GitHub Pull Request comment operations.
-
-Responsibilities would include:
-
-Publishing scan summary comments to Pull Requests.
-
-Identifying previously generated AppScan comments.
-
-Removing outdated AppScan comments before publishing an updated summary.
-
-Isolating GitHub API interactions from summary generation logic.
-
-This separation keeps summary generation independent from comment lifecycle management.
-
-2. Separate summary generation from publishing
-
-The existing summary generation logic would be refactored so that markdown generation is independent of where the content is published.
-
-The generated markdown can then be reused for multiple destinations, including:
-
-GitHub Step Summary
-
-Pull Request comments
-
-This approach avoids maintaining multiple implementations for the same summary content.
-
-3. Support a consolidated PR comment
-
-When multiple scan types (for example, SAST and SCA) are executed within the same workflow, the proposal is to publish a single consolidated Pull Request comment rather than multiple independent comments.
-
-The consolidated comment would contain:
-
-Pull Request information
-
-SAST scan summary (if available)
-
-SCA scan summary (if available)
-
-This provides reviewers with a single location to view all scan results while reducing comment noise.
-
-4. Preserve existing GitHub Step Summary behaviour
-
-The enhancement is intended only for Pull Request comments.
-
-The existing GitHub Step Summary functionality would remain unchanged so that current workflow behaviour is preserved for both PR and non-PR executions.
-
-5. Handle multiple workflow executions
-
-Since Pull Request workflows may execute multiple times during the lifetime of a PR, the proposal includes replacing the previous AppScan comment instead of creating additional comments.
-
-Expected behaviour:
-
-First PR execution creates an AppScan summary comment.
-
-Subsequent executions remove the previous AppScan summary comment.
-
-A new comment containing the latest scan results is published.
-
-This ensures the Pull Request always displays the most recent security results while avoiding duplicate comments.
-
-Files Expected to be Updated
-
-The current implementation is expected to require changes in the following areas:
-
-Summary generation component
-
-Refactor markdown generation for reuse across multiple output destinations.
-
-Support generation of a consolidated PR summary.
-
-Result processing workflow
-
-Capture generated summaries.
-
-Coordinate publication once scan processing is complete.
-
-Workflow execution logic
-
-Support scenarios where scan results are immediately available as well as asynchronous scan execution.
-
-New PR Comment management component
-
-Handle GitHub Pull Request comment lifecycle.
-
-Manage creation, replacement and cleanup of AppScan-generated comments.
-
-Expected Benefits
-
-Makes scan results immediately visible during Pull Request review.
-
-Eliminates the need to navigate to workflow logs to review scan status.
-
-Maintains a single up-to-date AppScan comment on the Pull Request.
-
-Avoids duplicate comments across multiple workflow executions.
-
-Reuses existing summary generation logic, minimizing duplication.
-
-Preserves current Step Summary behaviour and backward compatibility.
-
-Validation Plan
-
-The proposed implementation will be validated against the following scenarios:
-
-Pull Request workflows with SAST only.
-
-Pull Request workflows with SCA only.
-
-Pull Request workflows with both SAST and SCA.
-
-Multiple executions against the same Pull Request.
-
-wait_for_analysis=true
-
-wait_for_analysis=false
-
-Non-Pull Request build workflows to ensure existing Step Summary behaviour remains unchanged.
-
-Failure scenarios to verify graceful handling of GitHub comment operations.
-
-Review Points
-
-Feedback is requested on the proposed approach, particularly around:
-
-Maintaining a single AppScan comment per Pull Request.
-
-Consolidating multiple scan summaries into one comment.
-
-Separation of markdown generation and comment management responsibilities.
-
-Overall approach before implementation begins.
-
+import * as fs from 'fs';
+import * as core from '@actions/core';
+import settings from './settings.js';
+
+function getGitHubContext() {
+    const isPR = process.env.GITHUB_EVENT_NAME === 'pull_request';
+    const repoName = process.env.GITHUB_REPOSITORY || "";
+    const branchName = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
+    const commitSha = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0, 7) : "";
+    let prNumber = "";
+    try {
+        if (process.env.GITHUB_EVENT_PATH && fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
+            const eventPayload = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+            prNumber = eventPayload.pull_request?.number || "";
+        }
+    } catch (e) {
+        console.log("Failed to read PR information:", e.message);
+    }
+    return {isPR, repoName, branchName, commitSha, prNumber};
+}
+
+function writeSummaryMarkdown(summaryData, reportDownloadLink) {
+	const {total, counts, scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber} = summaryData;
+	const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
+	const prUrl = `https://github.com/${repoName}/pull/${prNumber}`;
+	const branchUrl = `https://github.com/${repoName}/tree/${branchName}`;
+	const commitUrl = `https://github.com/${repoName}/commit/${process.env.GITHUB_SHA}`;
+	const prSection = isPR ? `
+## Pull Request Information
+
+| Field | Value |
+|------|------|
+| PR Number | [#${prNumber}](${prUrl}) |
+| Branch | [${branchName}](${branchUrl}) |
+| Commit | [${commitSha}](${commitUrl}) |
+
+---`
+: "";
+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
+	const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+	const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+	const reportLabel = `Download ${scanType} HTML Report`;
+	const reportValue = enableHyperlinks ? `[${reportLabel}](${reportDownloadLink})` : "";
+	const md = `
+# HCL AppScan ${scanLabel}
+
+${prSection}
+
+### Scan Information
+
+| Field | Value |
+|------|-------|
+| Scan Type | ${scanType} |
+| Scan ID | ${scanIdValue} |
+| Application Name | ${appNameValue} |
+| Repository | ${repoName} |
+| Scan Time | ${scanTime} |
+
+---
+
+## Total Vulnerabilities: ${total}
+
+| Critical | High | Medium | Low | Info |
+|----------|------|--------|-----|------|
+| ${counts.Critical} | ${counts.High} | ${counts.Medium} | ${counts.Low} | ${counts.Informational} |
+
+---
+
+${reportValue}
+
+`;
+     const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md` : `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
+	 fs.writeFileSync(mdFileName, md);
+	 if (process.env.GITHUB_STEP_SUMMARY) {
+		 fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+	}
+}
+
+async function generateMinimumSummary(getScanDetails, scanId, scanType) {
+    const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
+	const {scanUrl, appUrl, appName, scanTime, isPR, repoName, branchName, commitSha, prNumber} = summaryContext;
+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
+    const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+    const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+	const prUrl = `https://github.com/${repoName}/pull/${prNumber}`;
+	const branchUrl = `https://github.com/${repoName}/tree/${branchName}`;
+	const commitUrl = `https://github.com/${repoName}/commit/${process.env.GITHUB_SHA}`;
+	const prSection = isPR ? `
+## Pull Request Information
+
+| Field | Value |
+|------|------|
+| PR Number | [#${prNumber}](${prUrl}) |
+| Branch | [${branchName}](${branchUrl}) |
+| Commit | [${commitSha}](${commitUrl}) |
+
+---`
+: "";	
+    const md = `
+# HCL AppScan ${scanType} ${isPR ? "PR " : ""}Scan Summary
+
+${prSection}
+
+### Scan Information
+
+| Field | Value |
+|--------|-------|
+| Scan Type | ${scanType} |
+| Scan ID | ${scanIdValue} |
+| Application Name | ${appNameValue} |
+| Repository | ${repoName} |
+| Scan Time | ${scanTime} |
+
+---
+
+`;
+
+    const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
+    fs.writeFileSync(mdFileName, md);
+    if (process.env.GITHUB_STEP_SUMMARY) {
+        fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+    }
+}
+
+async function buildIssueSummary(getScanDetails, groupedItems, scanId, scanType) {
+	const counts = {Critical: 0, High: 0, Medium: 0, Low: 0, Informational: 0};
+	groupedItems.forEach(item => {
+		if (counts[item.Severity] !== undefined) {
+			counts[item.Severity] += Number(item.N || 0);
+		}
+    });
+	const total = Object.values(counts).reduce((a,b)=>a+b, 0);
+	const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
+	return({total, counts, ...summaryContext});
+}
+
+async function getSummaryContext(getScanDetails, scanId, scanType) {
+    const serviceUrl = settings.getServiceUrl();
+    const baseUrl = serviceUrl.replace("/api/v4", "");
+    const applicationId = process.env.INPUT_APPLICATION_ID;
+    const scanUrl = `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}`;
+    const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
+    let appName = applicationId;
+    try {
+        let scanDetails = null;
+        if (scanType === "SAST") {
+            scanDetails = await getScanDetails(scanId, "Sast");
+        } else if (scanType === "SCA") {
+            scanDetails = await getScanDetails(scanId, "Sca");
+        }
+        if (scanDetails) {
+            appName = scanDetails.AppName || appName;
+        }
+    }
+    catch (e) {
+        console.log("Failed to fetch AppName from scan details:", e.message);
+    }
+    const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
+    return {scanId, scanUrl, appName, appUrl, scanTime, scanType, ...getGitHubContext()};
+}
+
+export default { generateMinimumSummary, writeSummaryMarkdown, getGitHubContext, buildIssueSummary }
