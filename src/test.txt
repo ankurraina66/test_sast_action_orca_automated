@@ -1,237 +1,190 @@
-import * as fs from 'fs';
-import * as core from '@actions/core';
-import settings from './settings.js';
+import asoc from './asoc.js';
+import * as constants from './constants.js';
+import statusChecker from './statusChecker.js';
+import summaryWriter from './summaryWriter.js';
+import { postComment } from './prCommentWriter.js';
 
-function getGitHubContext() {
-    const isPR = process.env.GITHUB_EVENT_NAME === 'pull_request';
-    const repoName = process.env.GITHUB_REPOSITORY || "";
-    const branchName = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
-    const commitSha = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0, 7) : "";
-	const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
-    let prNumber = "";
-    try {
-        if (process.env.GITHUB_EVENT_PATH && fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
-            const eventPayload = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
-            prNumber = eventPayload.pull_request?.number || "";
+const failForNonCompliance = process.env.INPUT_FAIL_FOR_NONCOMPLIANCE === 'true';
+const failureThreshold = getSeverityValue(process.env.INPUT_FAILURE_THRESHOLD);
+let shouldFail = false;
+let summary = '';
+let sastDownloadLink = "";
+let scaDownloadLink = "";
+
+function processScanResults(sastScanId, scaScanId) {
+    return new Promise((resolve, reject) => {
+        let sastSummary = null;
+        let scaSummary = null;
+		let sastMarkdown = null;
+		let scaMarkdown = null;
+
+        (sastScanId ? asoc.getScanResults(sastScanId, 'SAST') : Promise.resolve(null))
+        .then((sastResults) => {
+            sastSummary = sastResults;
+            return processResults(sastSummary, 'SAST');
+        })
+        .then(() => {
+            return scaScanId ? asoc.getScanResults(scaScanId, 'SCA') : Promise.resolve(null);
+        })
+        .then((scaResults) => {
+            scaSummary = scaResults;
+            return processResults(scaSummary, 'SCA');
+        })
+        .then(() => {
+			if(sastScanId && scaScanId) {
+				return aggregateResults(sastSummary, scaSummary);
+			}
+            return null;
+        })
+        .then((aggregatedResults) => {
+			if(aggregatedResults) {
+				return processResults(aggregatedResults, 'Combined');
+			}
+            return Promise.resolve();
+        })
+		.then(() => {
+			return generateSecurityReport(sastScanId, "Sast", "SAST", sastSummary);
+		})
+		.then((reportData) => {
+			if(reportData) {
+				sastDownloadLink = reportData.downloadLink || "";
+				sastMarkdown = reportData.markdown || "";
+			}
+		})
+		.then(() => {
+			return generateSecurityReport(scaScanId, "Sca", "SCA", scaSummary);
+		})
+		.then((reportData) => {
+			if(reportData) {
+				scaDownloadLink = reportData.downloadLink || "";
+				scaMarkdown = reportData.markdown || "";
+			}
+		})
+		.then(() => {
+			const markdown = summaryWriter.combineMarkdown(sastMarkdown, scaMarkdown);
+			if(markdown) {
+				return postComment(markdown).catch(() => {});
+			}
+			return Promise.resolve();
+		})
+        .then(() => {
+            if(shouldFail) {
+                return reject('\n' + summary + '\n' + constants.ERROR_NONCOMPLIANT_ISSUES);
+            }
+            else {
+                return resolve(summary);
+            }
+        })
+        .catch((error) => {
+            reject(error);
+        })
+    })
+}
+
+function processResults(result, label) {
+    return new Promise((resolve) => {
+        if(!result || !result.counts) {
+            return resolve();
         }
-    } catch (e) {
-        console.log("Failed to read PR information:", e.message);
-    }
-    return {isPR, repoName, branchName, commitSha, prNumber, serverUrl};
-}
-
-function generateSummaryMarkdown(summaryData, reportDownloadLink) {
-	const {total, counts, scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryData;
-	const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
-	const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
-	const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
-	const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
-	const prSection = isPR ? `
-## Pull Request Information
-
-| Field | Value |
-|------|------|
-| PR Number | [#${prNumber}](${prUrl}) |
-| Branch | [${branchName}](${branchUrl}) |
-| Commit | [${commitSha}](${commitUrl}) |
-
----`
-: "";
-    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
-	const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
-	const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-	const reportLabel = `Download ${scanType} HTML Report`;
-	const reportValue = enableHyperlinks ? `[${reportLabel}](${reportDownloadLink})` : "";
-	const md = `<!-- HCL_APPSCAN_SUMMARY -->
-# HCL AppScan ${scanLabel}
-
-${prSection}
-
-### Scan Information
-
-| Field | Value |
-|------|-------|
-| Scan Type | ${scanType} |
-| Scan ID | ${scanIdValue} |
-| Application Name | ${appNameValue} |
-| Repository | ${repoName} |
-| Scan Time | ${scanTime} |
-
----
-
-## Vulnerability Summary
-
-| Severity | Count |
-|----------|------:|
-| 🔴 Critical | **${counts.Critical}** |
-| 🟠 High | **${counts.High}** |
-| 🟠 Medium | **${counts.Medium}** |
-| 🟡 Low | **${counts.Low}** |
-| ⚪ Informational | **${counts.Informational}** |
-
-### 📊 **Total Vulnerabilities: ${total}**
-
----
-
-${reportValue}
-
-`;
-    return md;
-}
-
-function writeSummaryMarkdown(summaryData, reportDownloadLink) {
-	const md = generateSummaryMarkdown(summaryData, reportDownloadLink);
-	const {scanType, isPR} = summaryData;
-	const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md` : `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
-	fs.writeFileSync(mdFileName, md);
-	if (process.env.GITHUB_STEP_SUMMARY) {
-		fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
-	}
-	return md;
-}
-
-async function generateMinimumSummary(getScanDetails, scanId, scanType) {
-    const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
-	const {scanUrl, appUrl, appName, scanTime, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryContext;
-    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
-    const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
-    const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-	const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
-	const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
-	const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
-	const prSection = isPR ? `
-## Pull Request Information
-
-| Field | Value |
-|------|------|
-| PR Number | [#${prNumber}](${prUrl}) |
-| Branch | [${branchName}](${branchUrl}) |
-| Commit | [${commitSha}](${commitUrl}) |
-
----`
-: "";	
-    const md = `<!-- HCL_APPSCAN_SUMMARY -->
-# HCL AppScan ${scanType} ${isPR ? "PR " : ""}Scan Summary
-
-${prSection}
-
-### Scan Information
-
-| Field | Value |
-|--------|-------|
-| Scan Type | ${scanType} |
-| Scan ID | ${scanIdValue} |
-| Application Name | ${appNameValue} |
-| Repository | ${repoName} |
-| Scan Time | ${scanTime} |
-
----
-
-`;
-
-    const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
-    fs.writeFileSync(mdFileName, md);
-    if (process.env.GITHUB_STEP_SUMMARY) {
-        fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
-    }
-	return md;
-}
-
-async function buildIssueSummary(getScanDetails, groupedItems, scanId, scanType) {
-	const counts = {Critical: 0, High: 0, Medium: 0, Low: 0, Informational: 0};
-	groupedItems.forEach(item => {
-		if (counts[item.Severity] !== undefined) {
-			counts[item.Severity] += Number(item.N || 0);
-		}
+		const severityOrder =["Critical", "High", "Medium", "Low", "Informational"];
+        let output = "";
+		severityOrder.forEach((severity) => {
+            const count = result.counts[severity] || 0;
+            output += `\t${severity}${constants.ISSUES_COLON}${count}\n`;
+            setShouldFail(severity, count);
+        });
+        output += `\t${constants.TOTAL_ISSUES}${result.total}\n`;
+        summary += `${label} Security Issues\n${output}\n`;
+        resolve();
     });
-	const total = Object.values(counts).reduce((a,b)=>a+b, 0);
-	const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
-	return({total, counts, ...summaryContext});
 }
 
-async function getSummaryContext(getScanDetails, scanId, scanType) {
-    const serviceUrl = settings.getServiceUrl();
-    const baseUrl = serviceUrl.replace("/api/v4", "");
-    const applicationId = process.env.INPUT_APPLICATION_ID;
-    const scanUrl = `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}`;
-    const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
-    let appName = applicationId;
-    try {
-        let scanDetails = null;
-        if (scanType === "SAST") {
-            scanDetails = await getScanDetails(scanId, "Sast");
-        } else if (scanType === "SCA") {
-            scanDetails = await getScanDetails(scanId, "Sca");
+function setShouldFail(severity, numIssues) {
+    if(failForNonCompliance && numIssues > 0) {
+        shouldFail ||= getSeverityValue(severity) >= failureThreshold;
+    }
+}
+
+function getSeverityValue(severity) {
+    let severityValue = 1;
+
+    switch(severity) {
+        case 'Informational':
+            severityValue = 0;
+            break;
+        case 'Low':
+        default:
+            severityValue = 1;
+            break;
+        case 'Medium':
+            severityValue = 2;
+            break;
+        case 'High':
+            severityValue = 3;
+            break;
+        case 'Critical':
+            severityValue = 4;
+            break;
+    }
+
+    return severityValue;
+}
+
+function aggregateResults(result1, result2) {
+    return new Promise((resolve) => {
+        if (!result1 || !result2) {
+            return resolve(null);
         }
-        if (scanDetails) {
-            appName = scanDetails.AppName || appName;
-        }
-    }
-    catch (e) {
-        console.log("Failed to fetch AppName from scan details:", e.message);
-    }
-    const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
-    return {scanId, scanUrl, appName, appUrl, scanTime, scanType, ...getGitHubContext()};
+        const counts = {
+            Critical: (result1.counts?.Critical || 0) + (result2.counts?.Critical || 0),
+            High: (result1.counts?.High || 0) + (result2.counts?.High || 0),
+            Medium: (result1.counts?.Medium || 0) + (result2.counts?.Medium || 0),
+            Low: (result1.counts?.Low || 0) + (result2.counts?.Low || 0),
+            Informational: (result1.counts?.Informational || 0) + (result2.counts?.Informational || 0)
+        };
+        const total = Object.values(counts).reduce((sum, value) => sum + value, 0);
+        resolve({total, counts});
+    });
 }
 
-function combineMarkdown(sastMarkdown, scaMarkdown) {
-    const markdowns = [];
-
-    if (sastMarkdown) {
-        markdowns.push(
-            removePullRequestSection(
-				sastMarkdown
-				.replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
-				.replace("# HCL AppScan SAST PR Scan Summary", "## SAST Scan Summary")
-				.replace("# HCL AppScan SAST Scan Summary", "## SAST Scan Summary")
-			)
-        );
-    }
-    if (scaMarkdown) {
-        markdowns.push(
-            removePullRequestSection(
-				scaMarkdown
-				.replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
-				.replace("# HCL AppScan SCA PR Scan Summary", "## SCA Scan Summary")
-				.replace("# HCL AppScan SCA Scan Summary", "## SCA Scan Summary")
-			)
-        );
-    }
-    const summaryContext = getGitHubContext();
-    const prUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/pull/${summaryContext.prNumber}`;
-    const branchUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/tree/${summaryContext.branchName}`;
-    const commitUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/commit/${process.env.GITHUB_SHA}`;
-    const prSection = summaryContext.isPR ? `
-## Pull Request Information
-
-| Field | Value |
-|------|------|
-| PR Number | [#${summaryContext.prNumber}](${prUrl}) |
-| Branch | [${summaryContext.branchName}](${branchUrl}) |
-| Commit | [${summaryContext.commitSha}](${commitUrl}) |
-
----
-` : "";
-
-    return `<!-- HCL_APPSCAN_SUMMARY -->
-# HCL AppScan ${summaryContext.isPR ? "PR " : ""}Scan Summary
-${prSection}
-
-${markdowns.join("\n\n---\n\n")}
-`;
+function getSastDownloadLink() {
+	return sastDownloadLink;
 }
 
-function removePullRequestSection(markdown) {
-    const start = markdown.indexOf("## Pull Request Information");
-    if (start === -1) {
-        return markdown;
-    }
-    const end = markdown.indexOf("### Scan Information");
-    if (end === -1) {
-        return markdown;
-    }
-    return markdown.substring(0, start) + markdown.substring(end);
+function getScaDownloadLink() {
+	return scaDownloadLink;
 }
 
+function generateSecurityReport(scanId, apiScanType, reportType, summaryData) {
+    if (!scanId) {
+        return Promise.resolve(null);
+    }
+    return asoc.getScanDetails(scanId, apiScanType)
+        .then((scanDetails) => {
+            if (!scanDetails || !scanDetails.ExecutionId) {
+                return Promise.resolve();
+            }
+            return asoc.createSecurityReport(scanDetails.ExecutionId);
+        })
+        .then((reportId) => {
+            if (!reportId) {
+                return Promise.resolve();
+            }
+            return statusChecker.waitForSecurityReport(reportId);
+        })
+        .then((report) => {
+            if (!report || !report.DownloadLink) {
+                return Promise.resolve();
+            }
+            return asoc.downloadSecurityReport(report, reportType);
+        })
+        .then((reportResult) => {
+            if (!reportResult) {
+                return null;
+            }
+            const markdown = summaryWriter.writeSummaryMarkdown(summaryData, reportResult.downloadLink);
+            return { markdown, downloadLink: reportResult.downloadLink };
+        });
+}
 
-export default { generateMinimumSummary, generateSummaryMarkdown, writeSummaryMarkdown, getGitHubContext, buildIssueSummary, combineMarkdown }
+export default { processScanResults, getSastDownloadLink, getScaDownloadLink }
