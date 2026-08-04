@@ -58,11 +58,7 @@ ${prSection}
 
 ---
 
-## Total Vulnerabilities: ${total}
-
-| Critical | High | Medium | Low | Info |
-|----------|------|--------|-----|------|
-| ${counts.Critical} | ${counts.High} | ${counts.Medium} | ${counts.Low} | ${counts.Informational} |
+${generateSeverityDistribution(counts)}
 
 ---
 
@@ -159,4 +155,35 @@ async function getSummaryContext(getScanDetails, scanId, scanType) {
     return {scanId, scanUrl, appName, appUrl, scanTime, scanType, ...getGitHubContext()};
 }
 
-export default { generateMinimumSummary, writeSummaryMarkdown, getGitHubContext, buildIssueSummary }
+function generateSeverityDistribution(counts) {
+    const maxValue = Math.max(
+        counts.Critical || 0,
+        counts.High || 0,
+        counts.Medium || 0,
+        counts.Low || 0,
+        counts.Informational || 0
+    );
+    const maxAxis = maxValue === 0 ? 10 : Math.ceil(maxValue / 10) * 10;
+    return `
+## Vulnerability Distribution
+
+\`\`\`mermaid
+xychart-beta
+    title "Vulnerability Distribution"
+    x-axis ["Critical","High","Medium","Low","Info"]
+    y-axis "Issues" 0 --> ${maxAxis}
+    bar [${counts.Critical || 0}, ${counts.High || 0}, ${counts.Medium || 0}, ${counts.Low || 0}, ${counts.Informational || 0}]
+\`\`\`
+
+**Legend**
+
+🔴 Critical (${counts.Critical || 0}) &nbsp;&nbsp;
+🟠 High (${counts.High || 0}) &nbsp;&nbsp;
+🟡 Medium (${counts.Medium || 0}) &nbsp;&nbsp;
+🔵 Low (${counts.Low || 0}) &nbsp;&nbsp;
+⚪ Informational (${counts.Informational || 0})
+
+`;
+}
+
+export default { generateMinimumSummary, writeSummaryMarkdown, getGitHubContext, buildIssueSummary, generateSeverityDistribution }
