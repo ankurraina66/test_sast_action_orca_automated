@@ -1,237 +1,205 @@
 import * as fs from 'fs';
-import * as core from '@actions/core';
+import HttpsProxyAgent from 'https-proxy-agent';
+import { URL } from 'url';
+import * as path from 'path';
+import extract from 'extract-zip';
+import * as https from 'https';
+import * as os from 'os';
+import * as constants from './constants.js';
 import settings from './settings.js';
+import utils from './utils.js';
 
-function getGitHubContext() {
-    const isPR = process.env.GITHUB_EVENT_NAME === 'pull_request';
-    const repoName = process.env.GITHUB_REPOSITORY || "";
-    const branchName = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
-    const commitSha = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0, 7) : "";
-	const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
-    let prNumber = "";
-    try {
-        if (process.env.GITHUB_EVENT_PATH && fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
-            const eventPayload = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
-            prNumber = eventPayload.pull_request?.number || "";
+let parentDir = path.join(os.homedir(), '.appscan');
+if(!fs.existsSync(parentDir)) {
+    fs.mkdirSync(parentDir);
+}
+
+let scriptName = utils.getOS() === 'win' ? 'appscan.bat' : 'appscan.sh';
+let clientDir = getClientDir();
+let script = clientDir ? path.join(clientDir, 'bin', scriptName) : undefined;
+
+function downloadClient() {
+    return new Promise((resolve, reject) => {
+        let zipFile = path.join(parentDir, 'SAClientUtil.zip');
+        if(fs.existsSync(zipFile)) {
+            fs.unlinkSync(zipFile);
         }
-    } catch (e) {
-        console.log("Failed to read PR information:", e.message);
-    }
-    return {isPR, repoName, branchName, commitSha, prNumber, serverUrl};
-}
 
-function generateSummaryMarkdown(summaryData, reportDownloadLink) {
-	const {total, counts, scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryData;
-	const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
-	const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
-	const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
-	const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
-	const prSection = isPR ? `
-## 🔀 Pull Request Information
-
-| Field | Value |
-|------|------|
-| PR Number | [#${prNumber}](${prUrl}) |
-| Branch | [${branchName}](${branchUrl}) |
-| Commit | [${commitSha}](${commitUrl}) |
-
----`
-: "";
-    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
-	const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
-	const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-	const reportLabel = `Download ${scanType} HTML Report`;
-	const reportValue = enableHyperlinks ? `[${reportLabel}](${reportDownloadLink})` : "";
-	const md = `<!-- HCL_APPSCAN_SUMMARY -->
-# HCL AppScan ${scanLabel}
-
-${prSection}
-
-### Scan Information
-
-| Field | Value |
-|------|-------|
-| Scan Type | ${scanType} |
-| Scan ID | ${scanIdValue} |
-| Application Name | ${appNameValue} |
-| Repository | ${repoName} |
-| Scan Time | ${scanTime} |
-
----
-
-## Vulnerability Summary
-
-| Severity | Count |
-|----------|------:|
-| 🔴 Critical | **${counts.Critical}** |
-| 🟠 High | **${counts.High}** |
-| 🟠 Medium | **${counts.Medium}** |
-| 🟡 Low | **${counts.Low}** |
-| ⚪ Informational | **${counts.Informational}** |
-
-### 📊 **Total Vulnerabilities: ${total}**
-
----
-
-${reportValue}
-
-`;
-    return md;
-}
-
-function writeSummaryMarkdown(summaryData, reportDownloadLink) {
-	const md = generateSummaryMarkdown(summaryData, reportDownloadLink);
-	const {scanType, isPR} = summaryData;
-	const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md` : `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
-	fs.writeFileSync(mdFileName, md);
-	if (process.env.GITHUB_STEP_SUMMARY) {
-		fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
-	}
-	return md;
-}
-
-async function generateMinimumSummary(getScanDetails, scanId, scanType) {
-    const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
-	const {scanUrl, appUrl, appName, scanTime, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryContext;
-    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
-    const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
-    const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-	const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
-	const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
-	const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
-	const prSection = isPR ? `
-## 🔀 Pull Request Information
-
-| Field | Value |
-|------|------|
-| PR Number | [#${prNumber}](${prUrl}) |
-| Branch | [${branchName}](${branchUrl}) |
-| Commit | [${commitSha}](${commitUrl}) |
-
----`
-: "";	
-    const md = `<!-- HCL_APPSCAN_SUMMARY -->
-# 🛡️ HCL AppScan ${scanType} ${isPR ? "PR " : ""}Scan Summary
-
-${prSection}
-
-### Scan Information
-
-| Field | Value |
-|--------|-------|
-| Scan Type | ${scanType} |
-| Scan ID | ${scanIdValue} |
-| Application Name | ${appNameValue} |
-| Repository | ${repoName} |
-| Scan Time | ${scanTime} |
-
----
-
-`;
-
-    const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
-    fs.writeFileSync(mdFileName, md);
-    if (process.env.GITHUB_STEP_SUMMARY) {
-        fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
-    }
-	return md;
-}
-
-async function buildIssueSummary(getScanDetails, groupedItems, scanId, scanType) {
-	const counts = {Critical: 0, High: 0, Medium: 0, Low: 0, Informational: 0};
-	groupedItems.forEach(item => {
-		if (counts[item.Severity] !== undefined) {
-			counts[item.Severity] += Number(item.N || 0);
-		}
+        let zip = fs.createWriteStream(zipFile);
+        zip.on('finish', () => {
+            zip.close();
+        });
+        zip.on('error', (e) => {
+            reject(e);
+        });
+        zip.on('close', () => {
+            extractClient(zipFile)
+                .then(() => {
+                    script = path.join(getClientDir(), 'bin', scriptName);
+                    if(fs.existsSync(script)) {
+                        resolve(script);
+                    }
+                    else {
+                        reject(constants.ERROR_FILE_DOES_NOT_EXIST + script);
+                    }
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        });
+        
+    
+        getRequestOptions()
+        .then((options) => {
+            let req = https.get(options, (response) => {
+                if(response.statusCode >= 200 && response.statusCode < 300) {
+                    response.pipe(zip);
+                } 
+                else {
+                    reject(constants.ERROR_DOWNLOADING_CLIENT + response.statusCode);
+                }
+            });
+    
+            req.on('error', (e) =>  {
+                if(fs.existsSync(zipFile)) {
+                    fs.unlinkSync(zipFile);
+                }
+                reject(e);
+            });
+        })
+        .catch((error) => {
+            reject(error);
+        })
     });
-	const total = Object.values(counts).reduce((a,b)=>a+b, 0);
-	const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
-	return({total, counts, ...summaryContext});
 }
 
-async function getSummaryContext(getScanDetails, scanId, scanType) {
-    const serviceUrl = settings.getServiceUrl();
-    const baseUrl = serviceUrl.replace("/api/v4", "");
-    const applicationId = process.env.INPUT_APPLICATION_ID;
-    const scanUrl = `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}`;
-    const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
-    let appName = applicationId;
-    try {
-        let scanDetails = null;
-        if (scanType === "SAST") {
-            scanDetails = await getScanDetails(scanId, "Sast");
-        } else if (scanType === "SCA") {
-            scanDetails = await getScanDetails(scanId, "Sca");
+function extractClient(zipFile) {
+    return new Promise((resolve, reject) => {
+        if(!fs.existsSync(zipFile)) {
+            reject(constants.ERROR_FILE_DOES_NOT_EXIST + zipFile);
+            return;
         }
-        if (scanDetails) {
-            appName = scanDetails.AppName || appName;
+
+        extract(zipFile, {dir: path.dirname(zipFile)})
+        .then(() => {
+            resolve();
+        })
+        .catch((error) => {
+            reject(error);
+        })
+    });
+}
+
+function getRequestOptions() {
+    return new Promise((resolve) => {
+        let endpoint = settings.getServiceUrl() + constants.SACLIENT_PATH + utils.getOS();
+        let options = null;
+        let proxyHost = settings.getProxyUrl();
+        let proxyPort = settings.getProxyPort();
+        let proxyUser = settings.getProxyUser();
+        let proxyPwd  = settings.getProxyPwd();
+
+        if (proxyHost && proxyPort) {  //Connection through proxy
+            let proxy = null;
+
+            if (proxyUser && proxyPwd) {
+                let auth = 'Basic ' + Buffer.from(proxyUser + ':' + proxyPwd).toString('base64');
+                proxy = {
+                    protocol: 'https:',
+                    host: proxyHost, 
+                    port: proxyPort,
+                    username: proxyUser,
+                    password: proxyPwd,
+                    headers: {
+                        'Proxy-Authorization': auth
+                    }
+                }
+            } else {
+                proxy = {
+                    protocol: 'https:',
+                    host: proxyHost, 
+                    port: proxyPort
+                }
+            }			
+            options = new URL(endpoint);
+            options.agent = new HttpsProxyAgent(proxy);
+        } else { // Normal connection without proxy
+            options = new URL(endpoint);
         }
-    }
-    catch (e) {
-        console.log("Failed to fetch AppName from scan details:", e.message);
-    }
-    const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
-    return {scanId, scanUrl, appName, appUrl, scanTime, scanType, ...getGitHubContext()};
+
+        if (settings.shouldDisableSSL()) {
+            options.rejectUnauthorized = false;
+        }
+
+        resolve(options);
+    });
 }
 
-function combineMarkdown(sastMarkdown, scaMarkdown) {
-    const markdowns = [];
+function getClientDir() {
+    let files = fs.readdirSync(parentDir);
+    let clientDirs = new Array();
 
-    if (sastMarkdown) {
-        markdowns.push(
-            removePullRequestSection(
-				sastMarkdown
-				.replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
-				.replace("# HCL AppScan SAST PR Scan Summary", "## SAST Scan Summary")
-				.replace("# HCL AppScan SAST Scan Summary", "## SAST Scan Summary")
-			)
-        );
+    files.forEach((file) => {
+        try {
+            if(fs.lstatSync(parentDir + path.sep + file).isDirectory() && file.startsWith("SAClientUtil"))
+                clientDirs.push(parentDir + path.sep + file);
+        } catch(e) {
+            //ignore and continue
+        }
+    });
+
+    if(clientDirs.length > 1) {
+        let clientDir = clientDirs[0];
+        for(let iter = 1; iter < clientDirs.length; iter++) {
+            if(compareVersions(clientDir, clientDirs[iter])) {
+                clientDir = clientDirs[iter];
+            }	
+        }
+
+        return clientDir;
     }
-    if (scaMarkdown) {
-        markdowns.push(
-            removePullRequestSection(
-				scaMarkdown
-				.replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
-				.replace("# HCL AppScan SCA PR Scan Summary", "## SCA Scan Summary")
-				.replace("# HCL AppScan SCA Scan Summary", "## SCA Scan Summary")
-			)
-        );
+    else {
+        return clientDirs.length === 0 ? undefined : clientDirs[0];
     }
-    const summaryContext = getGitHubContext();
-    const prUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/pull/${summaryContext.prNumber}`;
-    const branchUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/tree/${summaryContext.branchName}`;
-    const commitUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/commit/${process.env.GITHUB_SHA}`;
-    const prSection = summaryContext.isPR ? `
-## 🔀 Pull Request Information
-
-| Field | Value |
-|------|------|
-| PR Number | [#${summaryContext.prNumber}](${prUrl}) |
-| Branch | [${summaryContext.branchName}](${branchUrl}) |
-| Commit | [${summaryContext.commitSha}](${commitUrl}) |
-
----
-` : "";
-
-    return `<!-- HCL_APPSCAN_SUMMARY -->
-# 🛡️ HCL AppScan ${summaryContext.isPR ? "PR " : ""}Scan Summary
-${prSection}
-
-${markdowns.join("\n\n---\n\n")}
-`;
 }
 
-function removePullRequestSection(markdown) {
-    const start = markdown.indexOf("## Pull Request Information");
-    if (start === -1) {
-        return markdown;
+function compareVersions(oldVersion, newVersion) {
+    if(oldVersion === undefined || newVersion === undefined)
+        return true;
+    
+    //Trim down to just SAClientUtil.x.x.x
+    oldVersion = oldVersion.substring(oldVersion.indexOf("SAClientUtil"), oldVersion.length);
+    newVersion = newVersion.substring(newVersion.indexOf("SAClientUtil"), newVersion.length);
+    let old = oldVersion.split('.');
+    let next = newVersion.split('.');
+
+    //Format of version is SAClientUtil.A.B.C
+    for(let iter = 1; iter < old.length && iter < next.length; iter++) {
+        if(iter === 1 && old[iter] < next[iter] ||
+            iter === 2 && old[iter] < next[iter] ||
+            iter === 3 && old[iter] < next[iter]) {
+                return true;
+            }
     }
-    const end = markdown.indexOf("### Scan Information");
-    if (end === -1) {
-        return markdown;
-    }
-    return markdown.substring(0, start) + markdown.substring(end);
+
+    return false;
 }
 
+function getScript() {
+    return new Promise((resolve, reject) => {
+        if(!fs.existsSync(script)) {
+            downloadClient()
+            .then(() => {
+                resolve(script);
+            })
+            .catch((error) => {
+                reject(error);
+            })
+        }
+        else {
+            resolve(script);
+        }
+    })
+}
 
-export default { generateMinimumSummary, generateSummaryMarkdown, writeSummaryMarkdown, getGitHubContext, buildIssueSummary, combineMarkdown }
+export default { downloadClient, getScript }
