@@ -1,263 +1,205 @@
-####################################################################
-# WhiteSource Unified-Agent configuration file
-####################################################################
-#REM# means in original version
-##################################
-# Organization tokens:
-##################################
-# Change the below URL to your WhiteSource server.
-# Use the 'WhiteSource Server URL' which can be retrieved
-# from your 'Profile' page on the 'Server URLs' panel.
-# Then, add the '/agent' path to it.
-# example: wss.url=https://saas.whitesourcesoftware.com/agent
-wss.url=https://saas.whitesourcesoftware.com/agent
-#wss.connectionTimeoutMinutes=60
-apiKey=
+import * as fs from 'fs';
+import HttpsProxyAgent from 'https-proxy-agent';
+import { URL } from 'url';
+import * as path from 'path';
+import extract from 'extract-zip';
+import * as https from 'https';
+import * as os from 'os';
+import * as constants from './constants.js';
+import settings from './settings.js';
+import utils from './utils.js';
 
-#userKey is required if WhiteSource administrator has enabled "Enforce user level access" option
-#userKey=
+let parentDir = path.join(os.homedir(), '.appscan');
+if(!fs.existsSync(parentDir)) {
+    fs.mkdirSync(parentDir);
+}
 
-##################################
-# Product section
-##################################
-productName=AppScan_SAST_GitHub_Action
-#productToken=PRODUCTS_TOKEN
-#productVersion=<currently disabled>
+let scriptName = utils.getOS() === 'win' ? 'appscan.bat' : 'appscan.sh';
+let clientDir = getClientDir();
+let script = clientDir ? path.join(clientDir, 'bin', scriptName) : undefined;
 
-##################################
-# Project section
-##################################
-projectName=v1.1.1
-#projectToken=PROJECTS_TOKEN
-#projectVersion=<currently disabled>
-#projectPerFolder=true
-#projectPerFolderIncludes=
-#projectPerFolderExcludes=
+function downloadClient() {
+    return new Promise((resolve, reject) => {
+        let zipFile = path.join(parentDir, 'SAClientUtil.zip');
+        if(fs.existsSync(zipFile)) {
+            fs.unlinkSync(zipFile);
+        }
 
-#updateType=APPEND
-#requesterEmail=user@provider.com
+        let zip = fs.createWriteStream(zipFile);
+        zip.on('finish', () => {
+            zip.close();
+        });
+        zip.on('error', (e) => {
+            reject(e);
+        });
+        zip.on('close', () => {
+            extractClient(zipFile)
+                .then(() => {
+                    script = path.join(getClientDir(), 'bin', scriptName);
+                    if(fs.existsSync(script)) {
+                        resolve(script);
+                    }
+                    else {
+                        reject(constants.ERROR_FILE_DOES_NOT_EXIST + script);
+                    }
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        });
+        
+    
+        getRequestOptions()
+        .then((options) => {
+            let req = https.get(options, (response) => {
+                if(response.statusCode >= 200 && response.statusCode < 300) {
+                    response.pipe(zip);
+                } 
+                else {
+                    reject(constants.ERROR_DOWNLOADING_CLIENT + response.statusCode);
+                }
+            });
+    
+            req.on('error', (e) =>  {
+                if(fs.existsSync(zipFile)) {
+                    fs.unlinkSync(zipFile);
+                }
+                reject(e);
+            });
+        })
+        .catch((error) => {
+            reject(error);
+        })
+    });
+}
 
-#########################################################################################
-# Includes/Excludes Glob patterns - PLEASE USE ONLY ONE EXCLUDE LINE AND ONE INCLUDE LINE
-#########################################################################################
-includes=**/**
-#REM#includes=**/*.c **/*.cc **/*.cp **/*.cpp **/*.cxx **/*.c++ **/*.h **/*.hpp **/*.hxx
-#includes=**/*.m **/*.mm  **/*.js **/*.php
-#includes=**/*.jar
-#includes=**/*.gem **/*.rb
-#includes=**/*.dll **/*.cs **/*.nupkg
-#includes=**/*.tgz **/*.deb **/*.gzip **/*.rpm **/*.tar.bz2
-#includes=**/*.zip **/*.tar.gz **/*.egg **/*.whl **/*.py
+function extractClient(zipFile) {
+    return new Promise((resolve, reject) => {
+        if(!fs.existsSync(zipFile)) {
+            reject(constants.ERROR_FILE_DOES_NOT_EXIST + zipFile);
+            return;
+        }
 
-## Exclude file extensions or specific directories by adding **/*.<extension> or **/<excluded_dir>/**
-#excludes=PRODUCTS_EXCLUDES
-#REM#excludes=**/*sources.jar **/*javadoc.jar
-# Exclude first-party build artifacts from scan
-#excludes=**/instrumented-intellij-plugin*.jar **/searchableOptions*.jar
+        extract(zipFile, {dir: path.dirname(zipFile)})
+        .then(() => {
+            resolve();
+        })
+        .catch((error) => {
+            reject(error);
+        })
+    });
+}
 
-case.sensitive.glob=false
-followSymbolicLinks=true
+function getRequestOptions() {
+    return new Promise((resolve) => {
+        let endpoint = settings.getServiceUrl() + constants.SACLIENT_PATH + utils.getOS();
+        let options = null;
+        let proxyHost = settings.getProxyUrl();
+        let proxyPort = settings.getProxyPort();
+        let proxyUser = settings.getProxyUser();
+        let proxyPwd  = settings.getProxyPwd();
 
-##########################################
-# General Scan settings
-##########################################
-checkPolicies=false
-forceCheckAllDependencies=false
-#forceUpdate=false
-#forceUpdate.failBuildOnPolicyViolation=false
-offline=false
-#ignoreSourceFiles=true
-#scanComment=
-#updateInventory=false
-#resolveAllDependencies=false
-#failErrorLevel=ALL
-#requireKnownSha1=false
-#generateProjectDetailsJson=true
-#generateScanReport=true
-#scanReportTimeoutMinutes=10
-#scanReportFilenameFormat=
-#excludeDependenciesFromNodes=.*commons-io.*,.*maven-model
+        if (proxyHost && proxyPort) {  //Connection through proxy
+            let proxy = null;
 
-#analyzeFrameworks=true
-#analyzeFrameworksReference=
+            if (proxyUser && proxyPwd) {
+                let auth = 'Basic ' + Buffer.from(proxyUser + ':' + proxyPwd).toString('base64');
+                proxy = {
+                    protocol: 'https:',
+                    host: proxyHost, 
+                    port: proxyPort,
+                    username: proxyUser,
+                    password: proxyPwd,
+                    headers: {
+                        'Proxy-Authorization': auth
+                    }
+                }
+            } else {
+                proxy = {
+                    protocol: 'https:',
+                    host: proxyHost, 
+                    port: proxyPort
+                }
+            }			
+            options = new URL(endpoint);
+            options.agent = new HttpsProxyAgent(proxy);
+        } else { // Normal connection without proxy
+            options = new URL(endpoint);
+        }
 
-##################################
-# Archive properties
-##################################
-archiveExtractionDepth=7
-archiveIncludes=**/*.zip **/*.jar **/*.vsix **/*.war **/*.ear
-#archiveExcludes=PRODUCTS_ARCHIVEEXCLUDES
-#REM#archiveExtractionDepth=2
-#REM#archiveIncludes=**/*.war **/*.ear
-#REM#archiveExcludes=**/*sources.jar
+        if (settings.shouldDisableSSL()) {
+            options.rejectUnauthorized = false;
+        }
 
-##########################################
-# Files and Package Managers
-##########################################
-bower.resolveDependencies=false
-#bower.ignoreSourceFiles=true
-#bower.runPreStep=true
+        resolve(options);
+    });
+}
 
-#cocoapods.resolveDependencies=false
-#cocoapods.runPreStep=true
-#cocoapods.ignoreSourceFiles=false
+function getClientDir() {
+    let files = fs.readdirSync(parentDir);
+    let clientDirs = new Array();
 
-#go.resolveDependencies=false
-#go.collectDependenciesAtRuntime=true
-#go.dependencyManager=
-#go.ignoreSourceFiles=true
-#go.glide.ignoreTestPackages=false
-#go.gogradle.enableTaskAlias=true
+    files.forEach((file) => {
+        try {
+            if(fs.lstatSync(parentDir + path.sep + file).isDirectory() && file.startsWith("SAClientUtil"))
+                clientDirs.push(parentDir + path.sep + file);
+        } catch(e) {
+            //ignore and continue
+        }
+    });
 
-#gradle.ignoredScopes=
-#gradle.resolveDependencies=true
-#gradle.runAssembleCommand=false
-#gradle.runPreStep=true
-#gradle.ignoreSourceFiles=true
-#gradle.aggregateModules=true
-#gradle.preferredEnvironment=wrapper
-#gradle.localRepositoryPath=C:\Users\ankur.raina\.gradle
+    if(clientDirs.length > 1) {
+        let clientDir = clientDirs[0];
+        for(let iter = 1; iter < clientDirs.length; iter++) {
+            if(compareVersions(clientDir, clientDirs[iter])) {
+                clientDir = clientDirs[iter];
+            }	
+        }
 
-#hex.resolveDependencies=false
-#hex.runPreStep=true
-#hex.ignoreSourceFiles=false
-#hex.aggregateModules=true
+        return clientDir;
+    }
+    else {
+        return clientDirs.length === 0 ? undefined : clientDirs[0];
+    }
+}
 
-html.resolveDependencies=false
+function compareVersions(oldVersion, newVersion) {
+    if(oldVersion === undefined || newVersion === undefined)
+        return true;
+    
+    //Trim down to just SAClientUtil.x.x.x
+    oldVersion = oldVersion.substring(oldVersion.indexOf("SAClientUtil"), oldVersion.length);
+    newVersion = newVersion.substring(newVersion.indexOf("SAClientUtil"), newVersion.length);
+    let old = oldVersion.split('.');
+    let next = newVersion.split('.');
 
-#maven.ignoredScopes=test provided
-maven.resolveDependencies=false
-#maven.ignoreSourceFiles=true
-#maven.aggregateModules=true
-#maven.ignorePomModules=false
-#maven.runPreStep=true
-#maven.ignoreMvnTreeErrors=true
-#maven.environmentPath=
-#maven.m2RepositoryPath=
+    //Format of version is SAClientUtil.A.B.C
+    for(let iter = 1; iter < old.length && iter < next.length; iter++) {
+        if(iter === 1 && old[iter] < next[iter] ||
+            iter === 2 && old[iter] < next[iter] ||
+            iter === 3 && old[iter] < next[iter]) {
+                return true;
+            }
+    }
 
-#npm.resolveDependencies=true
-#npm.ignoreSourceFiles=true
-#npm.includeDevDependencies=true
-#npm.runPreStep=true
-#npm.ignoreNpmLsErrors=true
-#npm.ignoreScripts=true
-#npm.yarnProject=true
-#npm.accessToken=
-#npm.identifyByNameAndVersion=true
-#npm.yarn.frozenLockfile=true
-#npm.resolveMainPackageJsonOnly=true
+    return false;
+}
 
-#nuget.resolvePackagesConfigFiles=false
-#nuget.resolveCsProjFiles=false
-#nuget.resolveDependencies=false
-#nuget.restoreDependencies=true
-#nuget.preferredEnvironment=
-#nuget.packagesDirectory=
-#nuget.ignoreSourceFiles=true
-#nuget.runPreStep=true
-#nuget.resolveNuspecFiles=false
+function getScript() {
+    return new Promise((resolve, reject) => {
+        if(!fs.existsSync(script)) {
+            downloadClient()
+            .then(() => {
+                resolve(script);
+            })
+            .catch((error) => {
+                reject(error);
+            })
+        }
+        else {
+            resolve(script);
+        }
+    })
+}
 
-#paket.resolveDependencies=false
-#paket.ignoredGroups=
-#paket.ignoreSourceFiles=false
-#paket.runPreStep=true
-#paket.exePath=
-
-#php.resolveDependencies=false
-#php.runPreStep=true
-#php.includeDevDependencies=true
-
-#python.resolveDependencies=false
-#python.ignoreSourceFiles=false
-#python.ignorePipInstallErrors=true
-#python.installVirtualenv=true
-#python.resolveHierarchyTree=false
-#python.requirementsFileIncludes=requirements.txt
-#python.resolveSetupPyFiles=true
-#python.runPipenvPreStep=true
-#python.pipenvDevDependencies=true
-#python.IgnorePipenvInstallErrors=true
-
-#ruby.resolveDependencies=false
-#ruby.ignoreSourceFiles=false
-#ruby.installMissingGems=true
-#ruby.runBundleInstall=true
-#ruby.overwriteGemFile=true
-
-#sbt.resolveDependencies=false
-#sbt.ignoreSourceFiles=true
-#sbt.aggregateModules=true
-#sbt.runPreStep=true
-#sbt.targetFolder=
-
-##################################
-# Proxy settings
-##################################
-#proxy.host=
-#proxy.port=
-#proxy.user=
-#proxy.pass=
-
-##################################
-# SCM settings
-##################################
-#scm.type=
-#scm.user=
-#scm.pass=
-#scm.ppk=
-#scm.url=
-#scm.branch=
-#scm.tag=
-#scm.npmInstall=
-#scm.npmInstallTimeoutMinutes=
-#scm.repositoriesFile=
-
-##############################################
-# SCAN MODE: Linux package manager settings
-##############################################
-#scanPackageManager=true
-
-##################################
-# SCAN MODE: Docker images
-##################################
-#docker.scanImages=true
-#docker.includes=.*.*
-#docker.excludes=
-#docker.pull.enable=true
-#docker.pull.images=.*.*
-#docker.pull.maxImages=10
-#docker.pull.tags=.*.*
-#docker.pull.digest=
-#docker.delete.force=true
-#docker.login.sudo=false
-
-#docker.aws.enable=true
-#docker.aws.registryIds=
-
-#docker.azure.enable=true
-#docker.azure.userName=
-#docker.azure.userPassword=
-#docker.azure.registryNames=
-
-#docker.artifactory.enable=true
-#docker.artifactory.url=
-#docker.artifactory.userName=
-#docker.artifactory.userPassword=
-#docker.artifactory.repositoriesNames=
-
-##################################
-# SCAN MODE: Docker containers
-##################################
-#docker.scanContainers=true
-#docker.containerIncludes=.*.*
-#docker.containerExcludes=
-
-################################
-# Serverless settings
-################################
-#serverless.provider=
-#serverless.scanFunctions=true
-#serverless.includes=
-#serverless.excludes=
-#serverless.region=
-#serverless.maxFunctions=10
+export default { downloadClient, getScript }
