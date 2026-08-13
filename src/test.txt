@@ -1,1 +1,171 @@
-Test file
+Run echo "===== REPOSITORY DIAGNOSTICS ====="
+  echo "===== REPOSITORY DIAGNOSTICS ====="
+  echo "GITHUB_SHA: $GITHUB_SHA"
+  echo "GITHUB_REF: $GITHUB_REF"
+  echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+  echo "RUNNER_OS: $RUNNER_OS"
+  echo "RUNNER_ARCH: $RUNNER_ARCH"
+  echo "RUNNER_NAME: $RUNNER_NAME"
+  echo "===== GIT ====="
+  git --version
+  git status
+  git rev-parse HEAD
+  git log -1 --oneline
+  echo "===== FILE COUNT ====="
+  git ls-files | wc -l     
+  echo "===== SOURCE FILES ====="
+  git ls-files
+  echo "================================"
+  shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+===== REPOSITORY DIAGNOSTICS =====
+GITHUB_SHA: bee6c17d85c556af2fc0e42c861ec27de404855e
+GITHUB_REF: refs/heads/main
+GITHUB_REPOSITORY: ankurraina66/sast_action_test_repo
+RUNNER_OS: Windows
+RUNNER_ARCH: X64
+RUNNER_NAME: GitHub Actions 1000001039
+===== GIT =====
+git version 2.55.0.windows.3
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	sast_action_test_repo_2026-08-13_04-15-49.irx
+	sast_action_test_repo_2026-08-13_04-15-49_logs.zip
+
+nothing added to commit but untracked files present (use "git add" to track)
+bee6c17d85c556af2fc0e42c861ec27de404855e
+bee6c17 REPOSITORY DIAGNOSTICS for windows 2022 for v1.1.1
+===== FILE COUNT =====
+42
+===== SOURCE FILES =====
+.github/workflows/eu_sast_github_action.yml
+.github/workflows/sast_github_action.yml
+.github/workflows/sast_github_action_main.yml
+.gitignore
+README.md
+ScreenShots/01_diagram.png
+ScreenShots/02_diagram.png
+ScreenShots/03_diagram.png
+ScreenShots/04_diagram.png
+ScreenShots/05_test.png
+ScreenShots/06_list.png
+ScreenShots/07_create_input.png
+ScreenShots/08_create_input_test.png
+ScreenShots/09_retrieve_test.png
+ScreenShots/10_update_input.png
+ScreenShots/11_update_input_test.png
+ScreenShots/12_delete_sample.png
+ScreenShots/13_delete_sample_test.png
+ScreenShots/14_standalone_test.png
+config/application.properties
+config/implementation.properties
+dependency-reduced-pom.xml
+misc/Consultant_API.postman_collection.json
+pom.xml
+src/main/java/com/levent/consultantapi/EntryPoint.java
+src/main/java/com/levent/consultantapi/config/AppConfig.java
+src/main/java/com/levent/consultantapi/config/XSSVulnerableServlet.java
+src/main/java/com/levent/consultantapi/controller/ConsultantController.java
+src/main/java/com/levent/consultantapi/model/Consultant.java
+src/main/java/com/levent/consultantapi/repository/ConsultantRepository.java
+src/main/java/com/levent/consultantapi/repository/impl/ConsultantJPARepository.java
+src/main/java/com/levent/consultantapi/repository/impl/ConsultantJPARepositoryImpl.java
+src/main/java/com/levent/consultantapi/repository/impl/ConsultantStubImpl.java
+src/main/java/com/levent/consultantapi/service/ConsultantService.java
+src/main/java/com/levent/consultantapi/service/InfoService.java
+src/main/java/com/levent/consultantapi/service/consultant/impl/ConsultantServiceImpl.java
+src/main/java/com/levent/consultantapi/service/info/impl/InfoServiceImpl1.java
+src/main/java/com/levent/consultantapi/service/info/impl/InfoServiceImpl2.java
+src/main/java/com/levent/consultantapi/service/info/impl/InfoServiceImpl3.java
+src/main/java/com/levent/consultantapi/service/info/impl/InfoServiceImpl4.java
+src/main/resources/consultant.sql
+src/test/java/com/levent/consultantapi/AppTest.java
+================================REPOSITORY DIAGNOSTICS for windows 2022 for v1.1.1================================================
+Run echo "===== REPOSITORY DIAGNOSTICS ====="
+  echo "===== REPOSITORY DIAGNOSTICS ====="
+  echo "GITHUB_SHA: $GITHUB_SHA"
+  echo "GITHUB_REF: $GITHUB_REF"
+  echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+  echo "RUNNER_OS: $RUNNER_OS"
+  echo "RUNNER_ARCH: $RUNNER_ARCH"
+  echo "RUNNER_NAME: $RUNNER_NAME"
+  echo "===== GIT ====="
+  git --version
+  git status
+  git rev-parse HEAD
+  git log -1 --oneline
+  echo "===== FILE COUNT ====="
+  git ls-files | wc -l     
+  echo "===== SOURCE FILES ====="
+  git ls-files
+  echo "================================"
+  shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+===== REPOSITORY DIAGNOSTICS =====
+GITHUB_SHA: 62550fcf8215a1a5794b608cd12250bea37444a4
+GITHUB_REF: refs/heads/main
+GITHUB_REPOSITORY: ankurraina66/sast_action_test_repo
+RUNNER_OS: Linux
+RUNNER_ARCH: X64
+RUNNER_NAME: GitHub Actions 1000001041
+===== GIT =====
+git version 2.54.0
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	sast_action_test_repo_2026-08-13_04-23-25.irx
+	sast_action_test_repo_2026-08-13_04-23-25_logs.zip
+
+nothing added to commit but untracked files present (use "git add" to track)
+62550fcf8215a1a5794b608cd12250bea37444a4
+62550fc REPOSITORY DIAGNOSTICS on ubuntu latest for v1.1.1
+===== FILE COUNT =====
+42
+===== SOURCE FILES =====
+.github/workflows/eu_sast_github_action.yml
+.github/workflows/sast_github_action.yml
+.github/workflows/sast_github_action_main.yml
+.gitignore
+README.md
+ScreenShots/01_diagram.png
+ScreenShots/02_diagram.png
+ScreenShots/03_diagram.png
+ScreenShots/04_diagram.png
+ScreenShots/05_test.png
+ScreenShots/06_list.png
+ScreenShots/07_create_input.png
+ScreenShots/08_create_input_test.png
+ScreenShots/09_retrieve_test.png
+ScreenShots/10_update_input.png
+ScreenShots/11_update_input_test.png
+ScreenShots/12_delete_sample.png
+ScreenShots/13_delete_sample_test.png
+ScreenShots/14_standalone_test.png
+config/application.properties
+config/implementation.properties
+dependency-reduced-pom.xml
+misc/Consultant_API.postman_collection.json
+pom.xml
+src/main/java/com/levent/consultantapi/EntryPoint.java
+src/main/java/com/levent/consultantapi/config/AppConfig.java
+src/main/java/com/levent/consultantapi/config/XSSVulnerableServlet.java
+src/main/java/com/levent/consultantapi/controller/ConsultantController.java
+src/main/java/com/levent/consultantapi/model/Consultant.java
+src/main/java/com/levent/consultantapi/repository/ConsultantRepository.java
+src/main/java/com/levent/consultantapi/repository/impl/ConsultantJPARepository.java
+src/main/java/com/levent/consultantapi/repository/impl/ConsultantJPARepositoryImpl.java
+src/main/java/com/levent/consultantapi/repository/impl/ConsultantStubImpl.java
+src/main/java/com/levent/consultantapi/service/ConsultantService.java
+src/main/java/com/levent/consultantapi/service/InfoService.java
+src/main/java/com/levent/consultantapi/service/consultant/impl/ConsultantServiceImpl.java
+src/main/java/com/levent/consultantapi/service/info/impl/InfoServiceImpl1.java
+src/main/java/com/levent/consultantapi/service/info/impl/InfoServiceImpl2.java
+src/main/java/com/levent/consultantapi/service/info/impl/InfoServiceImpl3.java
+src/main/java/com/levent/consultantapi/service/info/impl/InfoServiceImpl4.java
+src/main/resources/consultant.sql
+src/test/java/com/levent/consultantapi/AppTest.java
+================================REPOSITORY DIAGNOSTICS for ubuntu latest for v1.1.1================================================
+
