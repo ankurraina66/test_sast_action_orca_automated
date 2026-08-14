@@ -40,8 +40,10 @@ function generateSummaryMarkdown(summaryData, reportDownloadLink, reportName) {
     const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
 	const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
 	const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
-	const reportLabel = `📥 ${reportName} ${scanType}`;
-	const reportValue = enableHyperlinks ? `[${reportLabel}](${reportDownloadLink})` : "";
+	const reportLabel = `${reportName} ${scanType}`;
+	const showReport = enableHyperlinks && Boolean(reportDownloadLink);
+	const reportValue = showReport ? `[${reportLabel}](${reportDownloadLink})` : "";
+	const reportRow = showReport ? `<tr><td>Report</td><td>${reportValue}</td></tr>` : "";
 	const md = `<!-- HCL_APPSCAN_SUMMARY -->
 # 🛡️ HCL AppScan ${scanLabel}
 
@@ -49,14 +51,14 @@ ${prSection}
 
 ## 🔍 Scan Information
 
-| Property | Details |
-|------|-------|
-| Scan Type | ${scanType} |
-| Scan ID | ${scanIdValue} |
-| Application Name | ${appNameValue} |
-| Repository | ${repoName} |
-| Scan Time | ${scanTime} |
-| Report | ${reportValue} |
+<table>
+<tr><td>Scan Type</td><td>${scanType}</td></tr>
+<tr><td>Scan ID</td><td>${scanIdValue}</td></tr>
+<tr><td>Application Name</td><td>${appNameValue}</td></tr>
+<tr><td>Repository</td><td>${repoName}</td></tr>
+<tr><td>Scan Time</td><td>${scanTime}</td></tr>
+${reportRow}
+</table>
 
 
 ## 🚨 Vulnerability Summary
@@ -100,11 +102,11 @@ async function generateMinimumSummary(getScanDetails, scanId, scanType) {
 	const prSection = isPR ? `
 ## Pull Request Information
 
-| Property | Details |
-|------|------|
-| PR Number | [#${prNumber}](${prUrl}) |
-| Branch | [${branchName}](${branchUrl}) |
-| Commit | [${commitSha}](${commitUrl}) |
+<table>
+<tr><td>PR Number</td><td><a href="${prUrl}">#${prNumber}</a></td></tr>
+<tr><td>Branch</td><td><a href="${branchUrl}">${branchName}</a></td></tr>
+<tr><td>Commit</td><td><a href="${commitUrl}">${commitSha}</a></td></tr>
+</table>
 
 ---`
 : "";	
@@ -115,13 +117,13 @@ ${prSection}
 
 ## 🔍 Scan Information
 
-| Property | Details |
-|--------|-------|
-| Scan Type | ${scanType} |
-| Scan ID | ${scanIdValue} |
-| Application Name | ${appNameValue} |
-| Repository | ${repoName} |
-| Scan Time | ${scanTime} |
+<table>
+<tr><td>Scan Type</td><td>${scanType}</td></tr>
+<tr><td>Scan ID</td><td>${scanIdValue}</td></tr>
+<tr><td>Application Name</td><td>${appNameValue}</td></tr>
+<tr><td>Repository</td><td>${repoName}</td></tr>
+<tr><td>Scan Time</td><td>${scanTime}</td></tr>
+</table>
 
 ---
 
@@ -202,11 +204,11 @@ function combineMarkdown(sastMarkdown, scaMarkdown) {
     const prSection = summaryContext.isPR ? `
 ## Pull Request Information
 
-| Property | Details |
-|------|------|
-| PR Number | [#${summaryContext.prNumber}](${prUrl}) |
-| Branch | [${summaryContext.branchName}](${branchUrl}) |
-| Commit | [${summaryContext.commitSha}](${commitUrl}) |
+<table>
+<tr><td>PR Number</td><td><a href="${prUrl}">#${summaryContext.prNumber}</a></td></tr>
+<tr><td>Branch</td><td><a href="${branchUrl}">${summaryContext.branchName}</a></td></tr>
+<tr><td>Commit</td><td><a href="${commitUrl}">${summaryContext.commitSha}</a></td></tr>
+</table>
 
 ---
 ` : "";
@@ -220,7 +222,7 @@ ${markdowns.join("\n\n---\n\n")}
 }
 
 function removePullRequestSection(markdown) {
-    const start = markdown.indexOf("## 🔀 Pull Request Information");
+    const start = markdown.indexOf("## Pull Request Information");
     if (start === -1) {
         return markdown;
     }
