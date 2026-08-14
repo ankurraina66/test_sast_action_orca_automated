@@ -1,191 +1,235 @@
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/Test_ASPL_2090/appscan-sast-action (Test_ASPL_2090)
-$ git add package.json package-lock.json src/saclientutil.js
+import * as fs from 'fs';
+import * as core from '@actions/core';
+import settings from './settings.js';
 
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/Test_ASPL_2090/appscan-sast-action (Test_ASPL_2090)
-$ git status --short
- D node_modules/.bin/extract-zip
- M node_modules/.package-lock.json
- D node_modules/@types/node/LICENSE
- D node_modules/@types/node/README.md
- D node_modules/@types/node/assert.d.ts
- D node_modules/@types/node/assert/strict.d.ts
- D node_modules/@types/node/async_hooks.d.ts
- D node_modules/@types/node/buffer.d.ts
- D node_modules/@types/node/child_process.d.ts
- D node_modules/@types/node/cluster.d.ts
- D node_modules/@types/node/console.d.ts
- D node_modules/@types/node/constants.d.ts
- D node_modules/@types/node/crypto.d.ts
- D node_modules/@types/node/dgram.d.ts
- D node_modules/@types/node/diagnostics_channel.d.ts
- D node_modules/@types/node/dns.d.ts
- D node_modules/@types/node/dns/promises.d.ts
- D node_modules/@types/node/dom-events.d.ts
- D node_modules/@types/node/domain.d.ts
- D node_modules/@types/node/events.d.ts
- D node_modules/@types/node/fs.d.ts
- D node_modules/@types/node/fs/promises.d.ts
- D node_modules/@types/node/globals.d.ts
- D node_modules/@types/node/globals.global.d.ts
- D node_modules/@types/node/http.d.ts
- D node_modules/@types/node/http2.d.ts
- D node_modules/@types/node/https.d.ts
- D node_modules/@types/node/index.d.ts
- D node_modules/@types/node/inspector.d.ts
- D node_modules/@types/node/module.d.ts
- D node_modules/@types/node/net.d.ts
- D node_modules/@types/node/os.d.ts
- D node_modules/@types/node/package.json
- D node_modules/@types/node/path.d.ts
- D node_modules/@types/node/perf_hooks.d.ts
- D node_modules/@types/node/process.d.ts
- D node_modules/@types/node/punycode.d.ts
- D node_modules/@types/node/querystring.d.ts
- D node_modules/@types/node/readline.d.ts
- D node_modules/@types/node/readline/promises.d.ts
- D node_modules/@types/node/repl.d.ts
- D node_modules/@types/node/stream.d.ts
- D node_modules/@types/node/stream/consumers.d.ts
- D node_modules/@types/node/stream/promises.d.ts
- D node_modules/@types/node/stream/web.d.ts
- D node_modules/@types/node/string_decoder.d.ts
- D node_modules/@types/node/test.d.ts
- D node_modules/@types/node/timers.d.ts
- D node_modules/@types/node/timers/promises.d.ts
- D node_modules/@types/node/tls.d.ts
- D node_modules/@types/node/trace_events.d.ts
- D node_modules/@types/node/ts4.8/assert.d.ts
- D node_modules/@types/node/ts4.8/assert/strict.d.ts
- D node_modules/@types/node/ts4.8/async_hooks.d.ts
- D node_modules/@types/node/ts4.8/buffer.d.ts
- D node_modules/@types/node/ts4.8/child_process.d.ts
- D node_modules/@types/node/ts4.8/cluster.d.ts
- D node_modules/@types/node/ts4.8/console.d.ts
- D node_modules/@types/node/ts4.8/constants.d.ts
- D node_modules/@types/node/ts4.8/crypto.d.ts
- D node_modules/@types/node/ts4.8/dgram.d.ts
- D node_modules/@types/node/ts4.8/diagnostics_channel.d.ts
- D node_modules/@types/node/ts4.8/dns.d.ts
- D node_modules/@types/node/ts4.8/dns/promises.d.ts
- D node_modules/@types/node/ts4.8/dom-events.d.ts
- D node_modules/@types/node/ts4.8/domain.d.ts
- D node_modules/@types/node/ts4.8/events.d.ts
- D node_modules/@types/node/ts4.8/fs.d.ts
- D node_modules/@types/node/ts4.8/fs/promises.d.ts
- D node_modules/@types/node/ts4.8/globals.d.ts
- D node_modules/@types/node/ts4.8/globals.global.d.ts
- D node_modules/@types/node/ts4.8/http.d.ts
- D node_modules/@types/node/ts4.8/http2.d.ts
- D node_modules/@types/node/ts4.8/https.d.ts
- D node_modules/@types/node/ts4.8/index.d.ts
- D node_modules/@types/node/ts4.8/inspector.d.ts
- D node_modules/@types/node/ts4.8/module.d.ts
- D node_modules/@types/node/ts4.8/net.d.ts
- D node_modules/@types/node/ts4.8/os.d.ts
- D node_modules/@types/node/ts4.8/path.d.ts
- D node_modules/@types/node/ts4.8/perf_hooks.d.ts
- D node_modules/@types/node/ts4.8/process.d.ts
- D node_modules/@types/node/ts4.8/punycode.d.ts
- D node_modules/@types/node/ts4.8/querystring.d.ts
- D node_modules/@types/node/ts4.8/readline.d.ts
- D node_modules/@types/node/ts4.8/readline/promises.d.ts
- D node_modules/@types/node/ts4.8/repl.d.ts
- D node_modules/@types/node/ts4.8/stream.d.ts
- D node_modules/@types/node/ts4.8/stream/consumers.d.ts
- D node_modules/@types/node/ts4.8/stream/promises.d.ts
- D node_modules/@types/node/ts4.8/stream/web.d.ts
- D node_modules/@types/node/ts4.8/string_decoder.d.ts
- D node_modules/@types/node/ts4.8/test.d.ts
- D node_modules/@types/node/ts4.8/timers.d.ts
- D node_modules/@types/node/ts4.8/timers/promises.d.ts
- D node_modules/@types/node/ts4.8/tls.d.ts
- D node_modules/@types/node/ts4.8/trace_events.d.ts
- D node_modules/@types/node/ts4.8/tty.d.ts
- D node_modules/@types/node/ts4.8/url.d.ts
- D node_modules/@types/node/ts4.8/util.d.ts
- D node_modules/@types/node/ts4.8/v8.d.ts
- D node_modules/@types/node/ts4.8/vm.d.ts
- D node_modules/@types/node/ts4.8/wasi.d.ts
- D node_modules/@types/node/ts4.8/worker_threads.d.ts
- D node_modules/@types/node/ts4.8/zlib.d.ts
- D node_modules/@types/node/tty.d.ts
- D node_modules/@types/node/url.d.ts
- D node_modules/@types/node/util.d.ts
- D node_modules/@types/node/v8.d.ts
- D node_modules/@types/node/vm.d.ts
- D node_modules/@types/node/wasi.d.ts
- D node_modules/@types/node/worker_threads.d.ts
- D node_modules/@types/node/zlib.d.ts
- D node_modules/@types/yauzl/LICENSE
- D node_modules/@types/yauzl/README.md
- D node_modules/@types/yauzl/index.d.ts
- D node_modules/@types/yauzl/package.json
- D node_modules/end-of-stream/LICENSE
- D node_modules/end-of-stream/README.md
- D node_modules/end-of-stream/index.js
- D node_modules/end-of-stream/package.json
- D node_modules/extract-zip/LICENSE
- D node_modules/extract-zip/cli.js
- D node_modules/extract-zip/index.d.ts
- D node_modules/extract-zip/index.js
- D node_modules/extract-zip/package.json
- D node_modules/extract-zip/readme.md
- D node_modules/get-stream/buffer-stream.js
- D node_modules/get-stream/index.d.ts
- D node_modules/get-stream/index.js
- D node_modules/get-stream/license
- D node_modules/get-stream/package.json
- D node_modules/get-stream/readme.md
- D node_modules/once/LICENSE
- D node_modules/once/README.md
- D node_modules/once/once.js
- D node_modules/once/package.json
- D node_modules/pump/.travis.yml
- D node_modules/pump/LICENSE
- D node_modules/pump/README.md
- D node_modules/pump/index.js
- D node_modules/pump/package.json
- D node_modules/pump/test-browser.js
- D node_modules/pump/test-node.js
- D node_modules/undici-types/README.md
- D node_modules/undici-types/agent.d.ts
- D node_modules/undici-types/api.d.ts
- D node_modules/undici-types/balanced-pool.d.ts
- D node_modules/undici-types/cache.d.ts
- D node_modules/undici-types/client.d.ts
- D node_modules/undici-types/connector.d.ts
- D node_modules/undici-types/content-type.d.ts
- D node_modules/undici-types/cookies.d.ts
- D node_modules/undici-types/diagnostics-channel.d.ts
- D node_modules/undici-types/dispatcher.d.ts
- D node_modules/undici-types/errors.d.ts
- D node_modules/undici-types/fetch.d.ts
- D node_modules/undici-types/file.d.ts
- D node_modules/undici-types/filereader.d.ts
- D node_modules/undici-types/formdata.d.ts
- D node_modules/undici-types/global-dispatcher.d.ts
- D node_modules/undici-types/global-origin.d.ts
- D node_modules/undici-types/handlers.d.ts
- D node_modules/undici-types/header.d.ts
- D node_modules/undici-types/index.d.ts
- D node_modules/undici-types/interceptors.d.ts
- D node_modules/undici-types/mock-agent.d.ts
- D node_modules/undici-types/mock-client.d.ts
- D node_modules/undici-types/mock-errors.d.ts
- D node_modules/undici-types/mock-interceptor.d.ts
- D node_modules/undici-types/mock-pool.d.ts
- D node_modules/undici-types/package.json
- D node_modules/undici-types/patch.d.ts
- D node_modules/undici-types/pool-stats.d.ts
- D node_modules/undici-types/pool.d.ts
- D node_modules/undici-types/proxy-agent.d.ts
- D node_modules/undici-types/readable.d.ts
- D node_modules/undici-types/webidl.d.ts
- D node_modules/undici-types/websocket.d.ts
- D node_modules/wrappy/LICENSE
- D node_modules/wrappy/README.md
- D node_modules/wrappy/package.json
- D node_modules/wrappy/wrappy.js
-M  package-lock.json
-M  package.json
-M  src/saclientutil.js
+function getGitHubContext() {
+    const isPR = process.env.GITHUB_EVENT_NAME === 'pull_request';
+    const repoName = process.env.GITHUB_REPOSITORY || "";
+    const branchName = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
+    const commitSha = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0, 7) : "";
+	const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
+    let prNumber = "";
+    try {
+        if (process.env.GITHUB_EVENT_PATH && fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
+            const eventPayload = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+            prNumber = eventPayload.pull_request?.number || "";
+        }
+    } catch (e) {
+        console.log("Failed to read PR information:", e.message);
+    }
+    return {isPR, repoName, branchName, commitSha, prNumber, serverUrl};
+}
+
+function generateSummaryMarkdown(summaryData, reportDownloadLink, reportName) {
+	const {total, counts, scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryData;
+	const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
+	const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
+	const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
+	const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
+	const prSection = isPR ? `
+## Pull Request Information
+
+| Property | Details |
+|------|------|
+| PR Number | [#${prNumber}](${prUrl}) |
+| Branch | [${branchName}](${branchUrl}) |
+| Commit | [${commitSha}](${commitUrl}) |
+
+---`
+: "";
+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
+	const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+	const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+	const reportLabel = `📥 ${reportName} ${scanType}`;
+	const reportValue = enableHyperlinks ? `[${reportLabel}](${reportDownloadLink})` : "";
+	const md = `<!-- HCL_APPSCAN_SUMMARY -->
+# 🛡️ HCL AppScan ${scanLabel}
+
+${prSection}
+
+## 🔍 Scan Information
+
+| Property | Details |
+|------|-------|
+| Scan Type | ${scanType} |
+| Scan ID | ${scanIdValue} |
+| Application Name | ${appNameValue} |
+| Repository | ${repoName} |
+| Scan Time | ${scanTime} |
+| Report | ${reportValue} |
+
+
+## 🚨 Vulnerability Summary
+
+| Severity | Count |
+|----------|------:|
+| 🔴 Critical | **${counts.Critical}** |
+| 🟠 High | **${counts.High}** |
+| 🟠 Medium | **${counts.Medium}** |
+| 🟡 Low | **${counts.Low}** |
+| ⚪ Informational | **${counts.Informational}** |
+
+### 📊 **Total Vulnerabilities: ${total}**
+
+---
+
+`;
+    return md;
+}
+
+function writeSummaryMarkdown(summaryData, reportDownloadLink, reportName) {
+	const md = generateSummaryMarkdown(summaryData, reportDownloadLink, reportName);
+	const {scanType, isPR} = summaryData;
+	const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md` : `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
+	fs.writeFileSync(mdFileName, md);
+	if (process.env.GITHUB_STEP_SUMMARY) {
+		fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+	}
+	return md;
+}
+
+async function generateMinimumSummary(getScanDetails, scanId, scanType) {
+    const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
+	const {scanUrl, appUrl, appName, scanTime, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryContext;
+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
+    const scanIdValue = enableHyperlinks ? `[${scanId}](${scanUrl})` : scanId;
+    const appNameValue = enableHyperlinks ? `[${appName}](${appUrl})` : appName;
+	const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
+	const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
+	const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
+	const prSection = isPR ? `
+## Pull Request Information
+
+| Property | Details |
+|------|------|
+| PR Number | [#${prNumber}](${prUrl}) |
+| Branch | [${branchName}](${branchUrl}) |
+| Commit | [${commitSha}](${commitUrl}) |
+
+---`
+: "";	
+    const md = `<!-- HCL_APPSCAN_SUMMARY -->
+# HCL AppScan ${scanType} ${isPR ? "PR " : ""}Scan Summary
+
+${prSection}
+
+## 🔍 Scan Information
+
+| Property | Details |
+|--------|-------|
+| Scan Type | ${scanType} |
+| Scan ID | ${scanIdValue} |
+| Application Name | ${appNameValue} |
+| Repository | ${repoName} |
+| Scan Time | ${scanTime} |
+
+---
+
+`;
+
+    const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
+    fs.writeFileSync(mdFileName, md);
+    if (process.env.GITHUB_STEP_SUMMARY) {
+        fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+    }
+	return md;
+}
+
+async function buildIssueSummary(getScanDetails, groupedItems, scanId, scanType) {
+	const counts = {Critical: 0, High: 0, Medium: 0, Low: 0, Informational: 0};
+	groupedItems.forEach(item => {
+		if (counts[item.Severity] !== undefined) {
+			counts[item.Severity] += Number(item.N || 0);
+		}
+    });
+	const total = Object.values(counts).reduce((a,b)=>a+b, 0);
+	const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
+	return({total, counts, ...summaryContext});
+}
+
+async function getSummaryContext(getScanDetails, scanId, scanType) {
+    const serviceUrl = settings.getServiceUrl();
+    const baseUrl = serviceUrl.replace("/api/v4", "");
+    const applicationId = process.env.INPUT_APPLICATION_ID;
+    const scanUrl = `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}`;
+    const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
+    let appName = applicationId;
+    try {
+        let scanDetails = null;
+        if (scanType === "SAST") {
+            scanDetails = await getScanDetails(scanId, "Sast");
+        } else if (scanType === "SCA") {
+            scanDetails = await getScanDetails(scanId, "Sca");
+        }
+        if (scanDetails) {
+            appName = scanDetails.AppName || appName;
+        }
+    }
+    catch (e) {
+        console.log("Failed to fetch AppName from scan details:", e.message);
+    }
+    const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
+    return {scanId, scanUrl, appName, appUrl, scanTime, scanType, ...getGitHubContext()};
+}
+
+function combineMarkdown(sastMarkdown, scaMarkdown) {
+    const markdowns = [];
+
+    if (sastMarkdown) {
+        markdowns.push(
+            removePullRequestSection(
+				sastMarkdown
+				.replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
+				.replace("# 🛡️ HCL AppScan SAST PR Scan Summary", "## 🛡️ SAST Scan Summary")
+				.replace("# 🛡️ HCL AppScan SAST Scan Summary", "## 🛡️ SAST Scan Summary")
+			)
+        );
+    }
+    if (scaMarkdown) {
+        markdowns.push(
+            removePullRequestSection(
+				scaMarkdown
+				.replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
+				.replace("# 🛡️ HCL AppScan SCA PR Scan Summary", "## 🛡️ SCA Scan Summary")
+				.replace("# 🛡️ HCL AppScan SCA Scan Summary", "## 🛡️ SCA Scan Summary")
+			)
+        );
+    }
+    const summaryContext = getGitHubContext();
+    const prUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/pull/${summaryContext.prNumber}`;
+    const branchUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/tree/${summaryContext.branchName}`;
+    const commitUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/commit/${process.env.GITHUB_SHA}`;
+    const prSection = summaryContext.isPR ? `
+## Pull Request Information
+
+| Property | Details |
+|------|------|
+| PR Number | [#${summaryContext.prNumber}](${prUrl}) |
+| Branch | [${summaryContext.branchName}](${branchUrl}) |
+| Commit | [${summaryContext.commitSha}](${commitUrl}) |
+
+---
+` : "";
+
+    return `<!-- HCL_APPSCAN_SUMMARY -->
+# HCL AppScan ${summaryContext.isPR ? "PR " : ""}Scan Summary
+${prSection}
+
+${markdowns.join("\n\n---\n\n")}
+`;
+}
+
+function removePullRequestSection(markdown) {
+    const start = markdown.indexOf("## 🔀 Pull Request Information");
+    if (start === -1) {
+        return markdown;
+    }
+    const end = markdown.indexOf("## 🔍 Scan Information");
+    if (end === -1) {
+        return markdown;
+    }
+    return markdown.substring(0, start) + markdown.substring(end);
+}
+
+
+export default { generateMinimumSummary, generateSummaryMarkdown, writeSummaryMarkdown, getGitHubContext, buildIssueSummary, combineMarkdown }
