@@ -1,56 +1,22 @@
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ npm ls yauzl extract-zip @types/yauzl @types/node end-of-stream get-stream once pump wrappy
-appscan-static-analyzer-action@1.0.8 C:\Users\ankur.raina\Downloads\sast_github_action_workspace\ASPL-2090\appscan-sast-action
-├─┬ got@12.6.1
-│ ├─┬ cacheable-request@10.2.14
-│ │ └── get-stream@6.0.1
-│ └── get-stream@6.0.1
-└── yauzl@3.4.0
-
+$ git diff -- node_modules/@actions/core/package.json
+warning: in the working copy of 'node_modules/@actions/core/package.json', LF will be replaced by CRLF the next time Git touches it
 
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ git diff -- package.json
-diff --git a/package.json b/package.json
-index 0444997..27d024a 100644
---- a/package.json
-+++ b/package.json
-@@ -12,13 +12,10 @@
-     "@actions/core": "^3.0.0",
-     "@actions/github": "^9.0.0",
-     "eol": "^0.9.1",
--    "extract-zip": "^2.0.1",
-+    "yauzl": "^3.4.0",
-     "form-data": "^4.0.6",
-     "got": "^12.5.3",
-     "https": "^1.0.0",
-     "https-proxy-agent": "^5.0.0"
--  },
--  "overrides": {
--    "yauzl": "^3.3.1"
-   }
- }
+$ git diff -- node_modules/got/package.json
+warning: in the working copy of 'node_modules/got/package.json', LF will be replaced by CRLF the next time Git touches it
 
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ git diff -- package-lock.json
-diff --git a/package-lock.json b/package-lock.json
-index c7d63e5..ade0660 100644
---- a/package-lock.json
-+++ b/package-lock.json
-@@ -12,11 +12,11 @@
-         "@actions/core": "^3.0.0",
-         "@actions/github": "^9.0.0",
-         "eol": "^0.9.1",
--        "extract-zip": "^2.0.1",
-         "form-data": "^4.0.6",
-         "got": "^12.5.3",
-         "https": "^1.0.0",
--        "https-proxy-agent": "^5.0.0"
-+        "https-proxy-agent": "^5.0.0",
-+        "yauzl": "^3.4.0"
-       }
-     },
-     "node_modules/@actions/core": {
-@@ -234,24 +234,6 @@
+$ git diff -- node_modules/yauzl/package.json
+warning: in the working copy of 'node_modules/yauzl/package.json', LF will be replaced by CRLF the next time Git touches it
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
+$ git diff -- node_modules/.package-lock.json
+diff --git a/node_modules/.package-lock.json b/node_modules/.package-lock.json
+index ad78588..44afbec 100644
+--- a/node_modules/.package-lock.json
++++ b/node_modules/.package-lock.json
+@@ -219,24 +219,6 @@
        "resolved": "https://registry.npmjs.org/@types/http-cache-semantics/-/http-cache-semantics-4.0.3.tgz",
        "integrity": "sha512-V46MYLFp08Wf2mmaBhvgjStM3tPa+2GAdy/iqoX+noX1//zje2x4XmrIU0cAwyClATsTmahbtoQ2EwP7I5WSiA=="
      },
@@ -75,7 +41,7 @@ index c7d63e5..ade0660 100644
      "node_modules/agent-base": {
        "version": "6.0.2",
        "resolved": "https://registry.npmjs.org/agent-base/-/agent-base-6.0.2.tgz",
-@@ -408,14 +390,6 @@
+@@ -393,14 +375,6 @@
          "node": ">= 0.4"
        }
      },
@@ -90,7 +56,7 @@ index c7d63e5..ade0660 100644
      "node_modules/eol": {
        "version": "0.9.1",
        "resolved": "https://registry.npmjs.org/eol/-/eol-0.9.1.tgz",
-@@ -466,25 +440,6 @@
+@@ -451,25 +425,6 @@
          "node": ">= 0.4"
        }
      },
@@ -116,7 +82,7 @@ index c7d63e5..ade0660 100644
      "node_modules/fast-content-type-parse": {
        "version": "3.0.0",
        "resolved": "https://registry.npmjs.org/fast-content-type-parse/-/fast-content-type-parse-3.0.0.tgz",
-@@ -571,20 +526,6 @@
+@@ -556,20 +511,6 @@
          "node": ">= 0.4"
        }
      },
@@ -137,7 +103,7 @@ index c7d63e5..ade0660 100644
      "node_modules/gopd": {
        "version": "1.2.0",
        "resolved": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
-@@ -792,14 +733,6 @@
+@@ -777,14 +718,6 @@
          "url": "https://github.com/sponsors/sindresorhus"
        }
      },
@@ -152,7 +118,7 @@ index c7d63e5..ade0660 100644
      "node_modules/p-cancelable": {
        "version": "3.0.0",
        "resolved": "https://registry.npmjs.org/p-cancelable/-/p-cancelable-3.0.0.tgz",
-@@ -814,15 +747,6 @@
+@@ -799,15 +732,6 @@
        "integrity": "sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==",
        "license": "MIT"
      },
@@ -168,7 +134,7 @@ index c7d63e5..ade0660 100644
      "node_modules/quick-lru": {
        "version": "5.1.1",
        "resolved": "https://registry.npmjs.org/quick-lru/-/quick-lru-5.1.1.tgz",
-@@ -871,23 +795,12 @@
+@@ -856,23 +780,12 @@
          "node": ">=18.17"
        }
      },
@@ -194,7 +160,5 @@ index c7d63e5..ade0660 100644
        "resolved": "https://registry.npmjs.org/yauzl/-/yauzl-3.4.0.tgz",
 
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ git status --short | grep '^??'
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$
+$ git status --short node_modules | wc -l
+1147
