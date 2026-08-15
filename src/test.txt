@@ -1,133 +1,193 @@
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ git diff --cached -- src/saclientutil.js
-diff --git a/src/saclientutil.js b/src/saclientutil.js
-index 700b7bd..f7bc5fe 100644
---- a/src/saclientutil.js
-+++ b/src/saclientutil.js
-@@ -18,12 +18,13 @@ import * as fs from 'fs';
- import HttpsProxyAgent from 'https-proxy-agent';
- import { URL } from 'url';
- import * as path from 'path';
--import extract from 'extract-zip';
-+import * as yauzl from 'yauzl';
- import * as https from 'https';
- import * as os from 'os';
- import * as constants from './constants.js';
- import settings from './settings.js';
- import utils from './utils.js';
-+import { pipeline } from 'stream/promises';
-
- let parentDir = path.join(os.homedir(), '.appscan');
- if(!fs.existsSync(parentDir)) {
-@@ -89,21 +90,45 @@ function downloadClient() {
-     });
- }
-
--function extractClient(zipFile) {
--    return new Promise((resolve, reject) => {
--        if(!fs.existsSync(zipFile)) {
--            reject(constants.ERROR_FILE_DOES_NOT_EXIST + zipFile);
--            return;
-+async function extractClient(zipFile) {
-+    if(!fs.existsSync(zipFile)) {
-+        throw new Error(constants.ERROR_FILE_DOES_NOT_EXIST + zipFile);
-+    }
-+    const extractDir = path.dirname(zipFile);
-+    const resolvedExtractDir = path.resolve(extractDir);
-+    const zipfile = await yauzl.openPromise(zipFile, { autoClose: false });
-+    try {
-+        for await (const entry of zipfile.eachEntry()) {
-+            const entryPath = path.resolve(extractDir, entry.fileName);
-+            // Prevent ZIP path traversal (Zip Slip)
-+            if(entryPath !== resolvedExtractDir && !entryPath.startsWith(resolvedExtractDir + path.sep)) {
-+                throw new Error('Unsafe ZIP entry path: ' + entry.fileName);
-+            }
-+            // Directory entry
-+            if(entry.fileName.endsWith('/')) {
-+                await fs.promises.mkdir(entryPath, { recursive: true });
-+                continue;
-+            }
-+            // Ensure the parent directory exists
-+            const entryDir = path.dirname(entryPath);
-+            await fs.promises.mkdir(entryDir, { recursive: true });
-+            // Extract the file sequentially
-+            const readStream = await zipfile.openReadStreamPromise(entry);
-+                       const writeStream = fs.createWriteStream(entryPath);
-+                       await pipeline(readStream, writeStream);
-+                       // Preserve Unix file permissions stored in the ZIP entry.
-+                       if((entry.versionMadeBy >>> 8) === 3) {
-+                               const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
-+                               const permissionBits = mode & 0o777;
-+                               if (permissionBits !== 0) {
-+                                       await fs.promises.chmod(entryPath, permissionBits);
-+                               }
-+                       }
-         }
--
+$ git diff --cached --check
 
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ git diff --cached -- src/summaryWriter.js src/prCommentWriter.js
-diff --git a/src/prCommentWriter.js b/src/prCommentWriter.js
-index dcd309d..d0de968 100644
---- a/src/prCommentWriter.js
-+++ b/src/prCommentWriter.js
-@@ -24,7 +24,6 @@ async function postComment(markdown) {
-        }
-        const pullRequest = github.context.payload.pull_request;
-        if (!pullRequest) {
--               core.warning("Not a pull request event. Skipping PR comment creation.");
-                return;
-        }
-        const token = process.env.INPUT_GITHUB_TOKEN;
-diff --git a/src/summaryWriter.js b/src/summaryWriter.js
-index fdfeb62..6753f6f 100644
---- a/src/summaryWriter.js
-+++ b/src/summaryWriter.js
-@@ -15,7 +15,6 @@ limitations under the License.
- */
-
- import * as fs from 'fs';
--import * as core from '@actions/core';
- import settings from './settings.js';
-
- function getGitHubContext() {
-@@ -23,7 +22,7 @@ function getGitHubContext() {
-     const repoName = process.env.GITHUB_REPOSITORY || "";
-     const branchName = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
-     const commitSha = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0, 7) : "";
--       const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
-+    const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
-     let prNumber = "";
-     try {
-         if (process.env.GITHUB_EVENT_PATH && fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
-@@ -37,42 +36,63 @@ function getGitHubContext() {
- }
-
- function generateSummaryMarkdown(summaryData, reportDownloadLink, reportName) {
--       const {total, counts, scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryData;
--       const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
--       const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
--       const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
--       const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
--       const prSection = isPR ? `
-+    const {total, counts, scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryData;
-+    const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
-+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
-+    const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
-+    const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
-+    const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
-+    const prNumberValue = enableHyperlinks
-+        ? `<a href="${prUrl}">#${prNumber}</a>`
-+        : `#${prNumber}`;
-+    const branchValue = enableHyperlinks
-+        ? `<a href="${branchUrl}">${branchName}</a>`
-+        : branchName;
-+    const commitValue = enableHyperlinks
-+        ? `<a href="${commitUrl}">${commitSha}</a>`
-+        : commitSha;
-+    const prSection = isPR
-+        ? `
- ## Pull Request Information
-
--| | |
--|------|------|
+$ git status --short
+D  node_modules/.bin/extract-zip
+M  node_modules/.package-lock.json
+D  node_modules/@types/node/LICENSE
+D  node_modules/@types/node/README.md
+D  node_modules/@types/node/assert.d.ts
+D  node_modules/@types/node/assert/strict.d.ts
+D  node_modules/@types/node/async_hooks.d.ts
+D  node_modules/@types/node/buffer.d.ts
+D  node_modules/@types/node/child_process.d.ts
+D  node_modules/@types/node/cluster.d.ts
+D  node_modules/@types/node/console.d.ts
+D  node_modules/@types/node/constants.d.ts
+D  node_modules/@types/node/crypto.d.ts
+D  node_modules/@types/node/dgram.d.ts
+D  node_modules/@types/node/diagnostics_channel.d.ts
+D  node_modules/@types/node/dns.d.ts
+D  node_modules/@types/node/dns/promises.d.ts
+D  node_modules/@types/node/dom-events.d.ts
+D  node_modules/@types/node/domain.d.ts
+D  node_modules/@types/node/events.d.ts
+D  node_modules/@types/node/fs.d.ts
+D  node_modules/@types/node/fs/promises.d.ts
+D  node_modules/@types/node/globals.d.ts
+D  node_modules/@types/node/globals.global.d.ts
+D  node_modules/@types/node/http.d.ts
+D  node_modules/@types/node/http2.d.ts
+D  node_modules/@types/node/https.d.ts
+D  node_modules/@types/node/index.d.ts
+D  node_modules/@types/node/inspector.d.ts
+D  node_modules/@types/node/module.d.ts
+D  node_modules/@types/node/net.d.ts
+D  node_modules/@types/node/os.d.ts
+D  node_modules/@types/node/package.json
+D  node_modules/@types/node/path.d.ts
+D  node_modules/@types/node/perf_hooks.d.ts
+D  node_modules/@types/node/process.d.ts
+D  node_modules/@types/node/punycode.d.ts
+D  node_modules/@types/node/querystring.d.ts
+D  node_modules/@types/node/readline.d.ts
+D  node_modules/@types/node/readline/promises.d.ts
+D  node_modules/@types/node/repl.d.ts
+D  node_modules/@types/node/stream.d.ts
+D  node_modules/@types/node/stream/consumers.d.ts
+D  node_modules/@types/node/stream/promises.d.ts
+D  node_modules/@types/node/stream/web.d.ts
+D  node_modules/@types/node/string_decoder.d.ts
+D  node_modules/@types/node/test.d.ts
+D  node_modules/@types/node/timers.d.ts
+D  node_modules/@types/node/timers/promises.d.ts
+D  node_modules/@types/node/tls.d.ts
+D  node_modules/@types/node/trace_events.d.ts
+D  node_modules/@types/node/ts4.8/assert.d.ts
+D  node_modules/@types/node/ts4.8/assert/strict.d.ts
+D  node_modules/@types/node/ts4.8/async_hooks.d.ts
+D  node_modules/@types/node/ts4.8/buffer.d.ts
+D  node_modules/@types/node/ts4.8/child_process.d.ts
+D  node_modules/@types/node/ts4.8/cluster.d.ts
+D  node_modules/@types/node/ts4.8/console.d.ts
+D  node_modules/@types/node/ts4.8/constants.d.ts
+D  node_modules/@types/node/ts4.8/crypto.d.ts
+D  node_modules/@types/node/ts4.8/dgram.d.ts
+D  node_modules/@types/node/ts4.8/diagnostics_channel.d.ts
+D  node_modules/@types/node/ts4.8/dns.d.ts
+D  node_modules/@types/node/ts4.8/dns/promises.d.ts
+D  node_modules/@types/node/ts4.8/dom-events.d.ts
+D  node_modules/@types/node/ts4.8/domain.d.ts
+D  node_modules/@types/node/ts4.8/events.d.ts
+D  node_modules/@types/node/ts4.8/fs.d.ts
+D  node_modules/@types/node/ts4.8/fs/promises.d.ts
+D  node_modules/@types/node/ts4.8/globals.d.ts
+D  node_modules/@types/node/ts4.8/globals.global.d.ts
+D  node_modules/@types/node/ts4.8/http.d.ts
+D  node_modules/@types/node/ts4.8/http2.d.ts
+D  node_modules/@types/node/ts4.8/https.d.ts
+D  node_modules/@types/node/ts4.8/index.d.ts
+D  node_modules/@types/node/ts4.8/inspector.d.ts
+D  node_modules/@types/node/ts4.8/module.d.ts
+D  node_modules/@types/node/ts4.8/net.d.ts
+D  node_modules/@types/node/ts4.8/os.d.ts
+D  node_modules/@types/node/ts4.8/path.d.ts
+D  node_modules/@types/node/ts4.8/perf_hooks.d.ts
+D  node_modules/@types/node/ts4.8/process.d.ts
+D  node_modules/@types/node/ts4.8/punycode.d.ts
+D  node_modules/@types/node/ts4.8/querystring.d.ts
+D  node_modules/@types/node/ts4.8/readline.d.ts
+D  node_modules/@types/node/ts4.8/readline/promises.d.ts
+D  node_modules/@types/node/ts4.8/repl.d.ts
+D  node_modules/@types/node/ts4.8/stream.d.ts
+D  node_modules/@types/node/ts4.8/stream/consumers.d.ts
+D  node_modules/@types/node/ts4.8/stream/promises.d.ts
+D  node_modules/@types/node/ts4.8/stream/web.d.ts
+D  node_modules/@types/node/ts4.8/string_decoder.d.ts
+D  node_modules/@types/node/ts4.8/test.d.ts
+D  node_modules/@types/node/ts4.8/timers.d.ts
+D  node_modules/@types/node/ts4.8/timers/promises.d.ts
+D  node_modules/@types/node/ts4.8/tls.d.ts
+D  node_modules/@types/node/ts4.8/trace_events.d.ts
+D  node_modules/@types/node/ts4.8/tty.d.ts
+D  node_modules/@types/node/ts4.8/url.d.ts
+D  node_modules/@types/node/ts4.8/util.d.ts
+D  node_modules/@types/node/ts4.8/v8.d.ts
+D  node_modules/@types/node/ts4.8/vm.d.ts
+D  node_modules/@types/node/ts4.8/wasi.d.ts
+D  node_modules/@types/node/ts4.8/worker_threads.d.ts
+D  node_modules/@types/node/ts4.8/zlib.d.ts
+D  node_modules/@types/node/tty.d.ts
+D  node_modules/@types/node/url.d.ts
+D  node_modules/@types/node/util.d.ts
+D  node_modules/@types/node/v8.d.ts
+D  node_modules/@types/node/vm.d.ts
+D  node_modules/@types/node/wasi.d.ts
+D  node_modules/@types/node/worker_threads.d.ts
+D  node_modules/@types/node/zlib.d.ts
+D  node_modules/@types/yauzl/LICENSE
+D  node_modules/@types/yauzl/README.md
+D  node_modules/@types/yauzl/index.d.ts
+D  node_modules/@types/yauzl/package.json
+D  node_modules/end-of-stream/LICENSE
+D  node_modules/end-of-stream/README.md
+D  node_modules/end-of-stream/index.js
+D  node_modules/end-of-stream/package.json
+D  node_modules/extract-zip/LICENSE
+D  node_modules/extract-zip/cli.js
+D  node_modules/extract-zip/index.d.ts
+D  node_modules/extract-zip/index.js
+D  node_modules/extract-zip/package.json
+D  node_modules/extract-zip/readme.md
+D  node_modules/get-stream/buffer-stream.js
+D  node_modules/get-stream/index.d.ts
+D  node_modules/get-stream/index.js
+D  node_modules/get-stream/license
+D  node_modules/get-stream/package.json
+D  node_modules/get-stream/readme.md
+D  node_modules/once/LICENSE
+D  node_modules/once/README.md
+D  node_modules/once/once.js
+D  node_modules/once/package.json
+D  node_modules/pump/.travis.yml
+D  node_modules/pump/LICENSE
+D  node_modules/pump/README.md
+D  node_modules/pump/index.js
+D  node_modules/pump/package.json
+D  node_modules/pump/test-browser.js
+D  node_modules/pump/test-node.js
+D  node_modules/undici-types/README.md
+D  node_modules/undici-types/agent.d.ts
+D  node_modules/undici-types/api.d.ts
+D  node_modules/undici-types/balanced-pool.d.ts
+D  node_modules/undici-types/cache.d.ts
+D  node_modules/undici-types/client.d.ts
+D  node_modules/undici-types/connector.d.ts
+D  node_modules/undici-types/content-type.d.ts
+D  node_modules/undici-types/cookies.d.ts
+D  node_modules/undici-types/diagnostics-channel.d.ts
+D  node_modules/undici-types/dispatcher.d.ts
+D  node_modules/undici-types/errors.d.ts
+D  node_modules/undici-types/fetch.d.ts
+D  node_modules/undici-types/file.d.ts
+D  node_modules/undici-types/filereader.d.ts
+D  node_modules/undici-types/formdata.d.ts
+D  node_modules/undici-types/global-dispatcher.d.ts
+D  node_modules/undici-types/global-origin.d.ts
+D  node_modules/undici-types/handlers.d.ts
+D  node_modules/undici-types/header.d.ts
+D  node_modules/undici-types/index.d.ts
+D  node_modules/undici-types/interceptors.d.ts
+D  node_modules/undici-types/mock-agent.d.ts
+D  node_modules/undici-types/mock-client.d.ts
+D  node_modules/undici-types/mock-errors.d.ts
+D  node_modules/undici-types/mock-interceptor.d.ts
+D  node_modules/undici-types/mock-pool.d.ts
+D  node_modules/undici-types/package.json
+D  node_modules/undici-types/patch.d.ts
+D  node_modules/undici-types/pool-stats.d.ts
+D  node_modules/undici-types/pool.d.ts
+D  node_modules/undici-types/proxy-agent.d.ts
+D  node_modules/undici-types/readable.d.ts
+D  node_modules/undici-types/webidl.d.ts
+D  node_modules/undici-types/websocket.d.ts
+D  node_modules/wrappy/LICENSE
+D  node_modules/wrappy/README.md
+D  node_modules/wrappy/package.json
+D  node_modules/wrappy/wrappy.js
+M  package-lock.json
+M  package.json
+M  src/prCommentWriter.js
+M  src/saclientutil.js
+M  src/summaryWriter.js
