@@ -1,5 +1,8 @@
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ npm install --package-lock-only
+$ git checkout -- package-lock.json
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
+$ npm install --package-lock-only --legacy-peer-deps
 
 up to date, audited 74 packages in 2s
 
@@ -16,7 +19,7 @@ Run `npm audit` for details.
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
 $ git diff -- package-lock.json
 diff --git a/package-lock.json b/package-lock.json
-index c7d63e5..75d6148 100644
+index c7d63e5..ade0660 100644
 --- a/package-lock.json
 +++ b/package-lock.json
 @@ -12,11 +12,11 @@
@@ -33,15 +36,7 @@ index c7d63e5..75d6148 100644
        }
      },
      "node_modules/@actions/core": {
-@@ -93,6 +93,7 @@
-       "resolved": "https://registry.npmjs.org/@octokit/core/-/core-7.0.6.tgz",
-       "integrity": "sha512-DhGl4xMVFGVIyMwswXeyzdL4uXD5OGILGX5N8Y+f6W7LhC1Ze2poSNrkF/fedpVDHEEZ+PHFW0vL14I+mm8K3Q==",
-       "license": "MIT",
-+      "peer": true,
-       "dependencies": {
-         "@octokit/auth-token": "^6.0.0",
-         "@octokit/graphql": "^9.0.3",
-@@ -234,24 +235,6 @@
+@@ -234,24 +234,6 @@
        "resolved": "https://registry.npmjs.org/@types/http-cache-semantics/-/http-cache-semantics-4.0.3.tgz",
        "integrity": "sha512-V46MYLFp08Wf2mmaBhvgjStM3tPa+2GAdy/iqoX+noX1//zje2x4XmrIU0cAwyClATsTmahbtoQ2EwP7I5WSiA=="
      },
@@ -66,7 +61,7 @@ index c7d63e5..75d6148 100644
      "node_modules/agent-base": {
        "version": "6.0.2",
        "resolved": "https://registry.npmjs.org/agent-base/-/agent-base-6.0.2.tgz",
-@@ -408,14 +391,6 @@
+@@ -408,14 +390,6 @@
          "node": ">= 0.4"
        }
      },
@@ -81,7 +76,7 @@ index c7d63e5..75d6148 100644
      "node_modules/eol": {
        "version": "0.9.1",
        "resolved": "https://registry.npmjs.org/eol/-/eol-0.9.1.tgz",
-@@ -466,25 +441,6 @@
+@@ -466,25 +440,6 @@
          "node": ">= 0.4"
        }
      },
@@ -107,7 +102,7 @@ index c7d63e5..75d6148 100644
      "node_modules/fast-content-type-parse": {
        "version": "3.0.0",
        "resolved": "https://registry.npmjs.org/fast-content-type-parse/-/fast-content-type-parse-3.0.0.tgz",
-@@ -571,20 +527,6 @@
+@@ -571,20 +526,6 @@
          "node": ">= 0.4"
        }
      },
@@ -128,7 +123,7 @@ index c7d63e5..75d6148 100644
      "node_modules/gopd": {
        "version": "1.2.0",
        "resolved": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
-@@ -792,14 +734,6 @@
+@@ -792,14 +733,6 @@
          "url": "https://github.com/sponsors/sindresorhus"
        }
      },
@@ -143,7 +138,7 @@ index c7d63e5..75d6148 100644
      "node_modules/p-cancelable": {
        "version": "3.0.0",
        "resolved": "https://registry.npmjs.org/p-cancelable/-/p-cancelable-3.0.0.tgz",
-@@ -814,15 +748,6 @@
+@@ -814,15 +747,6 @@
        "integrity": "sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==",
        "license": "MIT"
      },
@@ -159,7 +154,7 @@ index c7d63e5..75d6148 100644
      "node_modules/quick-lru": {
        "version": "5.1.1",
        "resolved": "https://registry.npmjs.org/quick-lru/-/quick-lru-5.1.1.tgz",
-@@ -871,23 +796,12 @@
+@@ -871,23 +795,12 @@
          "node": ">=18.17"
        }
      },
