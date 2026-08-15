@@ -1,47 +1,567 @@
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ ls node_modules/extract-zip
-LICENSE  cli.js*  index.d.ts  index.js  package.json  readme.md
+$ git status --short
+ M node_modules/.bin/extract-zip
+ M node_modules/.package-lock.json
+ D node_modules/@types/node/LICENSE
+ D node_modules/@types/node/README.md
+ D node_modules/@types/node/assert.d.ts
+ D node_modules/@types/node/assert/strict.d.ts
+ D node_modules/@types/node/async_hooks.d.ts
+ D node_modules/@types/node/buffer.d.ts
+ D node_modules/@types/node/child_process.d.ts
+ D node_modules/@types/node/cluster.d.ts
+ D node_modules/@types/node/console.d.ts
+ D node_modules/@types/node/constants.d.ts
+ D node_modules/@types/node/crypto.d.ts
+ D node_modules/@types/node/dgram.d.ts
+ D node_modules/@types/node/diagnostics_channel.d.ts
+ D node_modules/@types/node/dns.d.ts
+ D node_modules/@types/node/dns/promises.d.ts
+ D node_modules/@types/node/dom-events.d.ts
+ D node_modules/@types/node/domain.d.ts
+ D node_modules/@types/node/events.d.ts
+ D node_modules/@types/node/fs.d.ts
+ D node_modules/@types/node/fs/promises.d.ts
+ D node_modules/@types/node/globals.d.ts
+ D node_modules/@types/node/globals.global.d.ts
+ D node_modules/@types/node/http.d.ts
+ D node_modules/@types/node/http2.d.ts
+ D node_modules/@types/node/https.d.ts
+ D node_modules/@types/node/index.d.ts
+ D node_modules/@types/node/inspector.d.ts
+ D node_modules/@types/node/module.d.ts
+ D node_modules/@types/node/net.d.ts
+ D node_modules/@types/node/os.d.ts
+ D node_modules/@types/node/package.json
+ D node_modules/@types/node/path.d.ts
+ D node_modules/@types/node/perf_hooks.d.ts
+ D node_modules/@types/node/process.d.ts
+ D node_modules/@types/node/punycode.d.ts
+ D node_modules/@types/node/querystring.d.ts
+ D node_modules/@types/node/readline.d.ts
+ D node_modules/@types/node/readline/promises.d.ts
+ D node_modules/@types/node/repl.d.ts
+ D node_modules/@types/node/stream.d.ts
+ D node_modules/@types/node/stream/consumers.d.ts
+ D node_modules/@types/node/stream/promises.d.ts
+ D node_modules/@types/node/stream/web.d.ts
+ D node_modules/@types/node/string_decoder.d.ts
+ D node_modules/@types/node/test.d.ts
+ D node_modules/@types/node/timers.d.ts
+ D node_modules/@types/node/timers/promises.d.ts
+ D node_modules/@types/node/tls.d.ts
+ D node_modules/@types/node/trace_events.d.ts
+ D node_modules/@types/node/ts4.8/assert.d.ts
+ D node_modules/@types/node/ts4.8/assert/strict.d.ts
+ D node_modules/@types/node/ts4.8/async_hooks.d.ts
+ D node_modules/@types/node/ts4.8/buffer.d.ts
+ D node_modules/@types/node/ts4.8/child_process.d.ts
+ D node_modules/@types/node/ts4.8/cluster.d.ts
+ D node_modules/@types/node/ts4.8/console.d.ts
+ D node_modules/@types/node/ts4.8/constants.d.ts
+ D node_modules/@types/node/ts4.8/crypto.d.ts
+ D node_modules/@types/node/ts4.8/dgram.d.ts
+ D node_modules/@types/node/ts4.8/diagnostics_channel.d.ts
+ D node_modules/@types/node/ts4.8/dns.d.ts
+ D node_modules/@types/node/ts4.8/dns/promises.d.ts
+ D node_modules/@types/node/ts4.8/dom-events.d.ts
+ D node_modules/@types/node/ts4.8/domain.d.ts
+ D node_modules/@types/node/ts4.8/events.d.ts
+ D node_modules/@types/node/ts4.8/fs.d.ts
+ D node_modules/@types/node/ts4.8/fs/promises.d.ts
+ D node_modules/@types/node/ts4.8/globals.d.ts
+ D node_modules/@types/node/ts4.8/globals.global.d.ts
+ D node_modules/@types/node/ts4.8/http.d.ts
+ D node_modules/@types/node/ts4.8/http2.d.ts
+ D node_modules/@types/node/ts4.8/https.d.ts
+ D node_modules/@types/node/ts4.8/index.d.ts
+ D node_modules/@types/node/ts4.8/inspector.d.ts
+ D node_modules/@types/node/ts4.8/module.d.ts
+ D node_modules/@types/node/ts4.8/net.d.ts
+ D node_modules/@types/node/ts4.8/os.d.ts
+ D node_modules/@types/node/ts4.8/path.d.ts
+ D node_modules/@types/node/ts4.8/perf_hooks.d.ts
+ D node_modules/@types/node/ts4.8/process.d.ts
+ D node_modules/@types/node/ts4.8/punycode.d.ts
+ D node_modules/@types/node/ts4.8/querystring.d.ts
+ D node_modules/@types/node/ts4.8/readline.d.ts
+ D node_modules/@types/node/ts4.8/readline/promises.d.ts
+ D node_modules/@types/node/ts4.8/repl.d.ts
+ D node_modules/@types/node/ts4.8/stream.d.ts
+ D node_modules/@types/node/ts4.8/stream/consumers.d.ts
+ D node_modules/@types/node/ts4.8/stream/promises.d.ts
+ D node_modules/@types/node/ts4.8/stream/web.d.ts
+ D node_modules/@types/node/ts4.8/string_decoder.d.ts
+ D node_modules/@types/node/ts4.8/test.d.ts
+ D node_modules/@types/node/ts4.8/timers.d.ts
+ D node_modules/@types/node/ts4.8/timers/promises.d.ts
+ D node_modules/@types/node/ts4.8/tls.d.ts
+ D node_modules/@types/node/ts4.8/trace_events.d.ts
+ D node_modules/@types/node/ts4.8/tty.d.ts
+ D node_modules/@types/node/ts4.8/url.d.ts
+ D node_modules/@types/node/ts4.8/util.d.ts
+ D node_modules/@types/node/ts4.8/v8.d.ts
+ D node_modules/@types/node/ts4.8/vm.d.ts
+ D node_modules/@types/node/ts4.8/wasi.d.ts
+ D node_modules/@types/node/ts4.8/worker_threads.d.ts
+ D node_modules/@types/node/ts4.8/zlib.d.ts
+ D node_modules/@types/node/tty.d.ts
+ D node_modules/@types/node/url.d.ts
+ D node_modules/@types/node/util.d.ts
+ D node_modules/@types/node/v8.d.ts
+ D node_modules/@types/node/vm.d.ts
+ D node_modules/@types/node/wasi.d.ts
+ D node_modules/@types/node/worker_threads.d.ts
+ D node_modules/@types/node/zlib.d.ts
+ D node_modules/@types/yauzl/LICENSE
+ D node_modules/@types/yauzl/README.md
+ D node_modules/@types/yauzl/index.d.ts
+ D node_modules/@types/yauzl/package.json
+ D node_modules/end-of-stream/LICENSE
+ D node_modules/end-of-stream/README.md
+ D node_modules/end-of-stream/index.js
+ D node_modules/end-of-stream/package.json
+ D node_modules/extract-zip/LICENSE
+ D node_modules/extract-zip/cli.js
+ D node_modules/extract-zip/index.d.ts
+ D node_modules/extract-zip/index.js
+ D node_modules/extract-zip/package.json
+ D node_modules/extract-zip/readme.md
+ D node_modules/get-stream/buffer-stream.js
+ D node_modules/get-stream/index.d.ts
+ D node_modules/get-stream/index.js
+ D node_modules/get-stream/license
+ D node_modules/get-stream/package.json
+ D node_modules/get-stream/readme.md
+ D node_modules/once/LICENSE
+ D node_modules/once/README.md
+ D node_modules/once/once.js
+ D node_modules/once/package.json
+ D node_modules/pump/.travis.yml
+ D node_modules/pump/LICENSE
+ D node_modules/pump/README.md
+ D node_modules/pump/index.js
+ D node_modules/pump/package.json
+ D node_modules/pump/test-browser.js
+ D node_modules/pump/test-node.js
+ D node_modules/undici-types/README.md
+ D node_modules/undici-types/agent.d.ts
+ D node_modules/undici-types/api.d.ts
+ D node_modules/undici-types/balanced-pool.d.ts
+ D node_modules/undici-types/cache.d.ts
+ D node_modules/undici-types/client.d.ts
+ D node_modules/undici-types/connector.d.ts
+ D node_modules/undici-types/content-type.d.ts
+ D node_modules/undici-types/cookies.d.ts
+ D node_modules/undici-types/diagnostics-channel.d.ts
+ D node_modules/undici-types/dispatcher.d.ts
+ D node_modules/undici-types/errors.d.ts
+ D node_modules/undici-types/fetch.d.ts
+ D node_modules/undici-types/file.d.ts
+ D node_modules/undici-types/filereader.d.ts
+ D node_modules/undici-types/formdata.d.ts
+ D node_modules/undici-types/global-dispatcher.d.ts
+ D node_modules/undici-types/global-origin.d.ts
+ D node_modules/undici-types/handlers.d.ts
+ D node_modules/undici-types/header.d.ts
+ D node_modules/undici-types/index.d.ts
+ D node_modules/undici-types/interceptors.d.ts
+ D node_modules/undici-types/mock-agent.d.ts
+ D node_modules/undici-types/mock-client.d.ts
+ D node_modules/undici-types/mock-errors.d.ts
+ D node_modules/undici-types/mock-interceptor.d.ts
+ D node_modules/undici-types/mock-pool.d.ts
+ D node_modules/undici-types/package.json
+ D node_modules/undici-types/patch.d.ts
+ D node_modules/undici-types/pool-stats.d.ts
+ D node_modules/undici-types/pool.d.ts
+ D node_modules/undici-types/proxy-agent.d.ts
+ D node_modules/undici-types/readable.d.ts
+ D node_modules/undici-types/webidl.d.ts
+ D node_modules/undici-types/websocket.d.ts
+ D node_modules/wrappy/LICENSE
+ D node_modules/wrappy/README.md
+ D node_modules/wrappy/package.json
+ D node_modules/wrappy/wrappy.js
+ M package-lock.json
+ M package.json
+ M src/prCommentWriter.js
+ M src/saclientutil.js
+ M src/summaryWriter.js
+?? .idea/
+?? node_modules/.bin/extract-zip.cmd
+?? node_modules/.bin/extract-zip.ps1
 
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ ls node_modules/@types/yauzl
-LICENSE  README.md  index.d.ts  package.json
+$ git diff --stat
+warning: in the working copy of 'node_modules/.bin/extract-zip', LF will be replaced by CRLF the next time Git touches it
+ node_modules/.bin/extract-zip                      |   17 +-
+ node_modules/.package-lock.json                    |   87 -
+ node_modules/@types/node/LICENSE                   |   21 -
+ node_modules/@types/node/README.md                 |   15 -
+ node_modules/@types/node/assert.d.ts               |  996 -----
+ node_modules/@types/node/assert/strict.d.ts        |    8 -
+ node_modules/@types/node/async_hooks.d.ts          |  539 ---
+ node_modules/@types/node/buffer.d.ts               | 2362 -----------
+ node_modules/@types/node/child_process.d.ts        | 1540 -------
+ node_modules/@types/node/cluster.d.ts              |  432 --
+ node_modules/@types/node/console.d.ts              |  415 --
+ node_modules/@types/node/constants.d.ts            |   19 -
+ node_modules/@types/node/crypto.d.ts               | 4456 --------------------
+ node_modules/@types/node/dgram.d.ts                |  586 ---
+ node_modules/@types/node/diagnostics_channel.d.ts  |  191 -
+ node_modules/@types/node/dns.d.ts                  |  809 ----
+ node_modules/@types/node/dns/promises.d.ts         |  417 --
+ node_modules/@types/node/dom-events.d.ts           |  122 -
+ node_modules/@types/node/domain.d.ts               |  170 -
+ node_modules/@types/node/events.d.ts               |  844 ----
+ node_modules/@types/node/fs.d.ts                   | 4289 -------------------
+ node_modules/@types/node/fs/promises.d.ts          | 1232 ------
+ node_modules/@types/node/globals.d.ts              |  381 --
+ node_modules/@types/node/globals.global.d.ts       |    1 -
+ node_modules/@types/node/http.d.ts                 | 1888 ---------
+ node_modules/@types/node/http2.d.ts                | 2381 -----------
+ node_modules/@types/node/https.d.ts                |  550 ---
+ node_modules/@types/node/index.d.ts                |   88 -
+ node_modules/@types/node/inspector.d.ts            | 2747 ------------
+ node_modules/@types/node/module.d.ts               |  297 --
+ node_modules/@types/node/net.d.ts                  |  943 -----
+ node_modules/@types/node/os.d.ts                   |  477 ---
+ node_modules/@types/node/package.json              |  230 -
+ node_modules/@types/node/path.d.ts                 |  191 -
+ node_modules/@types/node/perf_hooks.d.ts           |  639 ---
+ node_modules/@types/node/process.d.ts              | 1532 -------
+ node_modules/@types/node/punycode.d.ts             |  117 -
+ node_modules/@types/node/querystring.d.ts          |  141 -
+ node_modules/@types/node/readline.d.ts             |  539 ---
+ node_modules/@types/node/readline/promises.d.ts    |  150 -
+ node_modules/@types/node/repl.d.ts                 |  430 --
+ node_modules/@types/node/stream.d.ts               | 1701 --------
+ node_modules/@types/node/stream/consumers.d.ts     |   12 -
+ node_modules/@types/node/stream/promises.d.ts      |   83 -
+ node_modules/@types/node/stream/web.d.ts           |  350 --
+ node_modules/@types/node/string_decoder.d.ts       |   67 -
+ node_modules/@types/node/test.d.ts                 | 1382 ------
+ node_modules/@types/node/timers.d.ts               |  240 --
+ node_modules/@types/node/timers/promises.d.ts      |   93 -
+ node_modules/@types/node/tls.d.ts                  | 1210 ------
+ node_modules/@types/node/trace_events.d.ts         |  182 -
+ node_modules/@types/node/ts4.8/assert.d.ts         |  996 -----
+ node_modules/@types/node/ts4.8/assert/strict.d.ts  |    8 -
+ node_modules/@types/node/ts4.8/async_hooks.d.ts    |  539 ---
+ node_modules/@types/node/ts4.8/buffer.d.ts         | 2362 -----------
+ node_modules/@types/node/ts4.8/child_process.d.ts  | 1540 -------
+ node_modules/@types/node/ts4.8/cluster.d.ts        |  432 --
+ node_modules/@types/node/ts4.8/console.d.ts        |  415 --
+ node_modules/@types/node/ts4.8/constants.d.ts      |   19 -
+ node_modules/@types/node/ts4.8/crypto.d.ts         | 4455 -------------------
+ node_modules/@types/node/ts4.8/dgram.d.ts          |  586 ---
+ .../@types/node/ts4.8/diagnostics_channel.d.ts     |  191 -
+ node_modules/@types/node/ts4.8/dns.d.ts            |  809 ----
+ node_modules/@types/node/ts4.8/dns/promises.d.ts   |  417 --
+ node_modules/@types/node/ts4.8/dom-events.d.ts     |  122 -
+ node_modules/@types/node/ts4.8/domain.d.ts         |  170 -
+ node_modules/@types/node/ts4.8/events.d.ts         |  796 ----
+ node_modules/@types/node/ts4.8/fs.d.ts             | 4289 -------------------
+ node_modules/@types/node/ts4.8/fs/promises.d.ts    | 1232 ------
+ node_modules/@types/node/ts4.8/globals.d.ts        |  381 --
+ node_modules/@types/node/ts4.8/globals.global.d.ts |    1 -
+ node_modules/@types/node/ts4.8/http.d.ts           | 1888 ---------
+ node_modules/@types/node/ts4.8/http2.d.ts          | 2381 -----------
+ node_modules/@types/node/ts4.8/https.d.ts          |  550 ---
+ node_modules/@types/node/ts4.8/index.d.ts          |   88 -
+ node_modules/@types/node/ts4.8/inspector.d.ts      | 2747 ------------
+ node_modules/@types/node/ts4.8/module.d.ts         |  297 --
+ node_modules/@types/node/ts4.8/net.d.ts            |  943 -----
+ node_modules/@types/node/ts4.8/os.d.ts             |  477 ---
+ node_modules/@types/node/ts4.8/path.d.ts           |  191 -
+ node_modules/@types/node/ts4.8/perf_hooks.d.ts     |  639 ---
+ node_modules/@types/node/ts4.8/process.d.ts        | 1532 -------
+ node_modules/@types/node/ts4.8/punycode.d.ts       |  117 -
+ node_modules/@types/node/ts4.8/querystring.d.ts    |  141 -
+ node_modules/@types/node/ts4.8/readline.d.ts       |  539 ---
+ .../@types/node/ts4.8/readline/promises.d.ts       |  150 -
+ node_modules/@types/node/ts4.8/repl.d.ts           |  430 --
+ node_modules/@types/node/ts4.8/stream.d.ts         | 1701 --------
+ .../@types/node/ts4.8/stream/consumers.d.ts        |   12 -
+ .../@types/node/ts4.8/stream/promises.d.ts         |   83 -
+ node_modules/@types/node/ts4.8/stream/web.d.ts     |  350 --
+ node_modules/@types/node/ts4.8/string_decoder.d.ts |   67 -
+ node_modules/@types/node/ts4.8/test.d.ts           | 1382 ------
+ node_modules/@types/node/ts4.8/timers.d.ts         |  240 --
+ .../@types/node/ts4.8/timers/promises.d.ts         |   93 -
+ node_modules/@types/node/ts4.8/tls.d.ts            | 1210 ------
+ node_modules/@types/node/ts4.8/trace_events.d.ts   |  182 -
+ node_modules/@types/node/ts4.8/tty.d.ts            |  208 -
+ node_modules/@types/node/ts4.8/url.d.ts            |  927 ----
+ node_modules/@types/node/ts4.8/util.d.ts           | 2186 ----------
+ node_modules/@types/node/ts4.8/v8.d.ts             |  635 ---
+ node_modules/@types/node/ts4.8/vm.d.ts             |  901 ----
+ node_modules/@types/node/ts4.8/wasi.d.ts           |  152 -
+ node_modules/@types/node/ts4.8/worker_threads.d.ts |  691 ---
+ node_modules/@types/node/ts4.8/zlib.d.ts           |  517 ---
+ node_modules/@types/node/tty.d.ts                  |  208 -
+ node_modules/@types/node/url.d.ts                  |  927 ----
+ node_modules/@types/node/util.d.ts                 | 2186 ----------
+ node_modules/@types/node/v8.d.ts                   |  635 ---
+ node_modules/@types/node/vm.d.ts                   |  901 ----
+ node_modules/@types/node/wasi.d.ts                 |  152 -
+ node_modules/@types/node/worker_threads.d.ts       |  691 ---
+ node_modules/@types/node/zlib.d.ts                 |  517 ---
+ node_modules/@types/yauzl/LICENSE                  |   21 -
+ node_modules/@types/yauzl/README.md                |   15 -
+ node_modules/@types/yauzl/index.d.ts               |  110 -
+ node_modules/@types/yauzl/package.json             |   27 -
+ node_modules/end-of-stream/LICENSE                 |   21 -
+ node_modules/end-of-stream/README.md               |   54 -
+ node_modules/end-of-stream/index.js                |   94 -
+ node_modules/end-of-stream/package.json            |   37 -
+ node_modules/extract-zip/LICENSE                   |   23 -
+ node_modules/extract-zip/cli.js                    |   19 -
+ node_modules/extract-zip/index.d.ts                |   21 -
+ node_modules/extract-zip/index.js                  |  173 -
+ node_modules/extract-zip/package.json              |   80 -
+ node_modules/extract-zip/readme.md                 |   57 -
+ node_modules/get-stream/buffer-stream.js           |   52 -
+ node_modules/get-stream/index.d.ts                 |  108 -
+ node_modules/get-stream/index.js                   |   60 -
+ node_modules/get-stream/license                    |    9 -
+ node_modules/get-stream/package.json               |   50 -
+ node_modules/get-stream/readme.md                  |  124 -
+ node_modules/once/LICENSE                          |   15 -
+ node_modules/once/README.md                        |   79 -
+ node_modules/once/once.js                          |   42 -
+ node_modules/once/package.json                     |   33 -
+ node_modules/pump/.travis.yml                      |    5 -
+ node_modules/pump/LICENSE                          |   21 -
+ node_modules/pump/README.md                        |   65 -
+ node_modules/pump/index.js                         |   82 -
+ node_modules/pump/package.json                     |   24 -
+ node_modules/pump/test-browser.js                  |   66 -
+ node_modules/pump/test-node.js                     |   53 -
+ node_modules/undici-types/README.md                |    6 -
+ node_modules/undici-types/agent.d.ts               |   31 -
+ node_modules/undici-types/api.d.ts                 |   43 -
+ node_modules/undici-types/balanced-pool.d.ts       |   18 -
+ node_modules/undici-types/cache.d.ts               |   36 -
+ node_modules/undici-types/client.d.ts              |   97 -
+ node_modules/undici-types/connector.d.ts           |   34 -
+ node_modules/undici-types/content-type.d.ts        |   21 -
+ node_modules/undici-types/cookies.d.ts             |   28 -
+ node_modules/undici-types/diagnostics-channel.d.ts |   67 -
+ node_modules/undici-types/dispatcher.d.ts          |  241 --
+ node_modules/undici-types/errors.d.ts              |  128 -
+ node_modules/undici-types/fetch.d.ts               |  209 -
+ node_modules/undici-types/file.d.ts                |   39 -
+ node_modules/undici-types/filereader.d.ts          |   54 -
+ node_modules/undici-types/formdata.d.ts            |  108 -
+ node_modules/undici-types/global-dispatcher.d.ts   |    9 -
+ node_modules/undici-types/global-origin.d.ts       |    7 -
+ node_modules/undici-types/handlers.d.ts            |    9 -
+ node_modules/undici-types/header.d.ts              |    4 -
+ node_modules/undici-types/index.d.ts               |   63 -
+ node_modules/undici-types/interceptors.d.ts        |    5 -
+ node_modules/undici-types/mock-agent.d.ts          |   50 -
+ node_modules/undici-types/mock-client.d.ts         |   25 -
+ node_modules/undici-types/mock-errors.d.ts         |   12 -
+ node_modules/undici-types/mock-interceptor.d.ts    |   93 -
+ node_modules/undici-types/mock-pool.d.ts           |   25 -
+ node_modules/undici-types/package.json             |   55 -
+ node_modules/undici-types/patch.d.ts               |   71 -
+ node_modules/undici-types/pool-stats.d.ts          |   19 -
+ node_modules/undici-types/pool.d.ts                |   28 -
+ node_modules/undici-types/proxy-agent.d.ts         |   30 -
+ node_modules/undici-types/readable.d.ts            |   61 -
+ node_modules/undici-types/webidl.d.ts              |  220 -
+ node_modules/undici-types/websocket.d.ts           |  131 -
+ node_modules/wrappy/LICENSE                        |   15 -
+ node_modules/wrappy/README.md                      |   36 -
+ node_modules/wrappy/package.json                   |   29 -
+ node_modules/wrappy/wrappy.js                      |   33 -
+ package-lock.json                                  |   91 +-
+ package.json                                       |    5 +-
+ src/prCommentWriter.js                             |    1 -
+ src/saclientutil.js                                |   55 +-
+ src/summaryWriter.js                               |  224 +-
+ 188 files changed, 193 insertions(+), 93246 deletions(-)
 
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ ls node_modules/@types/node
-LICENSE           child_process.d.ts  diagnostics_channel.d.ts  fs/                  https.d.ts      package.json      readline/            test.d.ts          tty.d.ts   worker_threads.d.ts
-README.md         cluster.d.ts        dns/                      fs.d.ts              index.d.ts      path.d.ts         readline.d.ts        timers/            url.d.ts   zlib.d.ts
-assert/           console.d.ts        dns.d.ts                  globals.d.ts         inspector.d.ts  perf_hooks.d.ts   repl.d.ts            timers.d.ts        util.d.ts
-assert.d.ts       constants.d.ts      dom-events.d.ts           globals.global.d.ts  module.d.ts     process.d.ts      stream/              tls.d.ts           v8.d.ts
-async_hooks.d.ts  crypto.d.ts         domain.d.ts               http.d.ts            net.d.ts        punycode.d.ts     stream.d.ts          trace_events.d.ts  vm.d.ts
-buffer.d.ts       dgram.d.ts          events.d.ts               http2.d.ts           os.d.ts         querystring.d.ts  string_decoder.d.ts  ts4.8/             wasi.d.ts
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ cat node_modules/get-stream/package.json | grep '"version"'
-        "version": "5.2.0",
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ ls node_modules/pump
-LICENSE  README.md  index.js  package.json  test-browser.js  test-node.js
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ ls node_modules/end-of-stream
-LICENSE  README.md  index.js  package.json
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ ls node_modules/once
-LICENSE  README.md  once.js  package.json
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ ls node_modules/wrappy
-LICENSE  README.md  package.json  wrappy.js
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ ls node_modules/undici-types
-README.md           cache.d.ts         cookies.d.ts              fetch.d.ts       global-dispatcher.d.ts  index.d.ts         mock-errors.d.ts       patch.d.ts        readable.d.ts
-agent.d.ts          client.d.ts        diagnostics-channel.d.ts  file.d.ts        global-origin.d.ts      interceptors.d.ts  mock-interceptor.d.ts  pool-stats.d.ts   webidl.d.ts
-api.d.ts            connector.d.ts     dispatcher.d.ts           filereader.d.ts  handlers.d.ts           mock-agent.d.ts    mock-pool.d.ts         pool.d.ts         websocket.d.ts
-balanced-pool.d.ts  content-type.d.ts  errors.d.ts               formdata.d.ts    header.d.ts             mock-client.d.ts   package.json           proxy-agent.d.ts
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ cat node_modules/yauzl/package.json | grep '"version"'
-  "version": "3.4.0",
+$ git diff -- package.json package-lock.json
+diff --git a/package-lock.json b/package-lock.json
+index c7d63e5..ade0660 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -12,11 +12,11 @@
+         "@actions/core": "^3.0.0",
+         "@actions/github": "^9.0.0",
+         "eol": "^0.9.1",
+-        "extract-zip": "^2.0.1",
+         "form-data": "^4.0.6",
+         "got": "^12.5.3",
+         "https": "^1.0.0",
+-        "https-proxy-agent": "^5.0.0"
++        "https-proxy-agent": "^5.0.0",
++        "yauzl": "^3.4.0"
+       }
+     },
+     "node_modules/@actions/core": {
+@@ -234,24 +234,6 @@
+       "resolved": "https://registry.npmjs.org/@types/http-cache-semantics/-/http-cache-semantics-4.0.3.tgz",
+       "integrity": "sha512-V46MYLFp08Wf2mmaBhvgjStM3tPa+2GAdy/iqoX+noX1//zje2x4XmrIU0cAwyClATsTmahbtoQ2EwP7I5WSiA=="
+     },
+-    "node_modules/@types/node": {
+-      "version": "20.8.9",
+-      "resolved": "https://registry.npmjs.org/@types/node/-/node-20.8.9.tgz",
+-      "integrity": "sha512-UzykFsT3FhHb1h7yD4CA4YhBHq545JC0YnEz41xkipN88eKQtL6rSgocL5tbAP6Ola9Izm/Aw4Ora8He4x0BHg==",
+-      "optional": true,
+-      "dependencies": {
+-        "undici-types": "~5.26.4"
+-      }
+-    },
+-    "node_modules/@types/yauzl": {
+-      "version": "2.10.2",
+-      "resolved": "https://registry.npmjs.org/@types/yauzl/-/yauzl-2.10.2.tgz",
+-      "integrity": "sha512-Km7XAtUIduROw7QPgvcft0lIupeG8a8rdKL8RiSyKvlE7dYY31fEn41HVuQsRFDuROA8tA4K2UVL+WdfFmErBA==",
+-      "optional": true,
+-      "dependencies": {
+-        "@types/node": "*"
+-      }
+-    },
+     "node_modules/agent-base": {
+       "version": "6.0.2",
+       "resolved": "https://registry.npmjs.org/agent-base/-/agent-base-6.0.2.tgz",
+@@ -408,14 +390,6 @@
+         "node": ">= 0.4"
+       }
+     },
+-    "node_modules/end-of-stream": {
+-      "version": "1.4.4",
+-      "resolved": "https://registry.npmjs.org/end-of-stream/-/end-of-stream-1.4.4.tgz",
+-      "integrity": "sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==",
+-      "dependencies": {
+-        "once": "^1.4.0"
+-      }
+-    },
+     "node_modules/eol": {
+       "version": "0.9.1",
+       "resolved": "https://registry.npmjs.org/eol/-/eol-0.9.1.tgz",
+@@ -466,25 +440,6 @@
+         "node": ">= 0.4"
+       }
+     },
+-    "node_modules/extract-zip": {
+-      "version": "2.0.1",
+-      "resolved": "https://registry.npmjs.org/extract-zip/-/extract-zip-2.0.1.tgz",
+-      "integrity": "sha512-GDhU9ntwuKyGXdZBUgTIe+vXnWj0fppUEtMDL0+idd5Sta8TGpHssn/eusA9mrPr9qNDym6SxAYZjNvCn/9RBg==",
+-      "dependencies": {
+-        "debug": "^4.1.1",
+-        "get-stream": "^5.1.0",
+-        "yauzl": "^2.10.0"
+-      },
+-      "bin": {
+-        "extract-zip": "cli.js"
+-      },
+-      "engines": {
+-        "node": ">= 10.17.0"
+-      },
+-      "optionalDependencies": {
+-        "@types/yauzl": "^2.9.1"
+-      }
+-    },
+     "node_modules/fast-content-type-parse": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/fast-content-type-parse/-/fast-content-type-parse-3.0.0.tgz",
+@@ -571,20 +526,6 @@
+         "node": ">= 0.4"
+       }
+     },
+-    "node_modules/get-stream": {
+-      "version": "5.2.0",
+-      "resolved": "https://registry.npmjs.org/get-stream/-/get-stream-5.2.0.tgz",
+-      "integrity": "sha512-nBF+F1rAZVCu/p7rjzgA+Yb4lfYXrpl7a6VmJrU8wF9I1CKvP/QwPNZHnOlwbTkY6dvtFIzFMSyQXbLoTQPRpA==",
+-      "dependencies": {
+-        "pump": "^3.0.0"
+-      },
+-      "engines": {
+-        "node": ">=8"
+-      },
+-      "funding": {
+-        "url": "https://github.com/sponsors/sindresorhus"
+-      }
+-    },
+     "node_modules/gopd": {
+       "version": "1.2.0",
+       "resolved": "https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz",
+@@ -792,14 +733,6 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
+-    "node_modules/once": {
+-      "version": "1.4.0",
+-      "resolved": "https://registry.npmjs.org/once/-/once-1.4.0.tgz",
+-      "integrity": "sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==",
+-      "dependencies": {
+-        "wrappy": "1"
+-      }
+-    },
+     "node_modules/p-cancelable": {
+       "version": "3.0.0",
+       "resolved": "https://registry.npmjs.org/p-cancelable/-/p-cancelable-3.0.0.tgz",
+@@ -814,15 +747,6 @@
+       "integrity": "sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==",
+       "license": "MIT"
+     },
+-    "node_modules/pump": {
+-      "version": "3.0.0",
+-      "resolved": "https://registry.npmjs.org/pump/-/pump-3.0.0.tgz",
+-      "integrity": "sha512-LwZy+p3SFs1Pytd/jYct4wpv49HiYCqd9Rlc5ZVdk0V+8Yzv6jR5Blk3TRmPL1ft69TxP0IMZGJ+WPFU2BFhww==",
+-      "dependencies": {
+-        "end-of-stream": "^1.1.0",
+-        "once": "^1.3.1"
+-      }
+-    },
+     "node_modules/quick-lru": {
+       "version": "5.1.1",
+       "resolved": "https://registry.npmjs.org/quick-lru/-/quick-lru-5.1.1.tgz",
+@@ -871,23 +795,12 @@
+         "node": ">=18.17"
+       }
+     },
+-    "node_modules/undici-types": {
+-      "version": "5.26.5",
+-      "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-5.26.5.tgz",
+-      "integrity": "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==",
+-      "optional": true
+-    },
+     "node_modules/universal-user-agent": {
+       "version": "7.0.3",
+       "resolved": "https://registry.npmjs.org/universal-user-agent/-/universal-user-agent-7.0.3.tgz",
+       "integrity": "sha512-TmnEAEAsBJVZM/AADELsK76llnwcf9vMKuPz8JflO1frO8Lchitr0fNaN9d+Ap0BjKtqWqd/J17qeDnXh8CL2A==",
+       "license": "ISC"
+     },
+-    "node_modules/wrappy": {
+-      "version": "1.0.2",
+-      "resolved": "https://registry.npmjs.org/wrappy/-/wrappy-1.0.2.tgz",
+-      "integrity": "sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ=="
+-    },
+     "node_modules/yauzl": {
+       "version": "3.4.0",
+       "resolved": "https://registry.npmjs.org/yauzl/-/yauzl-3.4.0.tgz",
+diff --git a/package.json b/package.json
+index 0444997..27d024a 100644
+--- a/package.json
++++ b/package.json
+@@ -12,13 +12,10 @@
+     "@actions/core": "^3.0.0",
+     "@actions/github": "^9.0.0",
+     "eol": "^0.9.1",
+-    "extract-zip": "^2.0.1",
++    "yauzl": "^3.4.0",
+     "form-data": "^4.0.6",
+     "got": "^12.5.3",
+     "https": "^1.0.0",
+     "https-proxy-agent": "^5.0.0"
+-  },
+-  "overrides": {
+-    "yauzl": "^3.3.1"
+   }
+ }
