@@ -1,51 +1,60 @@
-import * as constants from './constants.js';
+2026-08-19 16:11:56,333 INFO Starting with server=localhost:61642 database=1bdbca56-81a5-41f8-8f6d-f593c70ecda3
+2026-08-19 16:12:05,348 ERROR Generation failed
+Traceback (most recent call last):
+  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'Total Sales'
 
-let serviceUrl = null;
+The above exception was the direct cause of the following exception:
 
-function getProxyUrl() {
-    return process.env.INPUT_PROXY_URL;
-}
+Traceback (most recent call last):
+  File "C:\PowerBIAIPresenter\app\main.py", line 54, in main
+    insights = analyzer.generate_insights(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\PowerBIAIPresenter\app\analyzer.py", line 69, in generate_insights
+    total_sales = float(row["Total Sales"])
+                        ~~~^^^^^^^^^^^^^^^
+  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1133, in __getitem__
+    return self._get_value(key)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1249, in _get_value
+    loc = self.index.get_loc(label)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Total Sales'
+2026-08-19 16:12:43,854 INFO Starting with server=localhost:61642 database=1bdbca56-81a5-41f8-8f6d-f593c70ecda3
+2026-08-19 16:12:46,697 ERROR Generation failed
+Traceback (most recent call last):
+  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
+    return self._engine.get_loc(casted_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
+  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
+KeyError: 'Total Sales'
 
-function getProxyPort() {
-    return process.env.INPUT_PROXY_PORT;
-}
+The above exception was the direct cause of the following exception:
 
-function getProxyUser() {
-    return process.env.INPUT_PROXY_USER;
-}
-
-function getProxyPwd() {
-    return process.env.INPUT_PROXY_PWD;
-}
-
-function getServiceUrl() {
-    if(!serviceUrl) {
-        if(process.env.INPUT_SERVICE_URL) {
-            serviceUrl = process.env.INPUT_SERVICE_URL;
-        }
-        else {
-            let asoc_key = process.env.INPUT_ASOC_KEY;
-            if(asoc_key && asoc_key.startsWith('eu-central')) {
-                serviceUrl = constants.EU_SERVICE_URL
-            }
-            else {
-                serviceUrl = constants.SERVICE_URL;
-            }
-        }
-    }
-    return serviceUrl;
-}
-
-function getScanUrl(scanId) {
-    return `${getServiceUrl()}/main/myapps/${process.env.INPUT_APPLICATION_ID}/scans/${scanId}/scanOverview`;
-}
-
-function shouldDisableSSL() {
-    return process.env.INPUT_ACCEPTSSL === 'true';
-}
-
-function isIncrementalScan() {
-    return process.env.INPUT_INCREMENTAL_SCAN === 'true';
-}
-
-export default { getProxyUrl, getProxyPort, getProxyUser, getProxyPwd, getServiceUrl, getScanUrl, shouldDisableSSL, isIncrementalScan }
+Traceback (most recent call last):
+  File "C:\PowerBIAIPresenter\app\main.py", line 54, in main
+    insights = analyzer.generate_insights(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\PowerBIAIPresenter\app\analyzer.py", line 69, in generate_insights
+    total_sales = float(row["Total Sales"])
+                        ~~~^^^^^^^^^^^^^^^
+  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1133, in __getitem__
+    return self._get_value(key)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1249, in _get_value
+    loc = self.index.get_loc(label)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
+    raise KeyError(key) from err
+KeyError: 'Total Sales'
