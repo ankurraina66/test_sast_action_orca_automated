@@ -1,92 +1,230 @@
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ git grep -n "extract-zip" -- ':!package-lock.json'
+import * as fs from 'fs';
+import HttpsProxyAgent from 'https-proxy-agent';
+import { URL } from 'url';
+import * as path from 'path';
+import * as yauzl from 'yauzl';
+import * as https from 'https';
+import * as os from 'os';
+import * as constants from './constants.js';
+import settings from './settings.js';
+import utils from './utils.js';
+import { pipeline } from 'stream/promises';
 
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/ASPL-2090/appscan-sast-action (ASPL-2090)
-$ git grep -n "yauzl"
-node_modules/.package-lock.json:789:    "node_modules/yauzl": {
-node_modules/.package-lock.json:791:      "resolved": "https://registry.npmjs.org/yauzl/-/yauzl-3.4.0.tgz",
-node_modules/yauzl/README.md:1:# yauzl
-node_modules/yauzl/README.md:26:const yauzl = require("yauzl");
-node_modules/yauzl/README.md:30:    const zipfile = await yauzl.openPromise("path/to/file.zip");
-node_modules/yauzl/README.md:53:var yauzl = require("yauzl");
-node_modules/yauzl/README.md:55:yauzl.open("path/to/file.zip", {lazyEntries: true}, function(err, zipfile) {
-node_modules/yauzl/README.md:108:See [issue #22](https://github.com/thejoshwolfe/yauzl/issues/22).
-node_modules/yauzl/README.md:112:`decodeStrings` is the default and causes yauzl to decode strings with `CP437` or `UTF-8` as required by the spec.
-node_modules/yauzl/README.md:225:*Deprecated*. Since yauzl 3.2.0, it is highly recommended to call [`entry.getLastModDate()`](#getlastmoddateoptions)
-node_modules/yauzl/README.md:228:[open an issue against yauzl](https://github.com/thejoshwolfe/yauzl/issues/new)
-node_modules/yauzl/README.md:231:This function only remains exported in order to maintain compatibility with older versions of yauzl.
-node_modules/yauzl/README.md:232:It will be removed in yauzl 4.0.0 unless someone asks for it to remain supported.
-node_modules/yauzl/README.md:237:This function is effectively used internally by yauzl to populate the `entry.fileName` field when `decodeStrings` is `true`.
-node_modules/yauzl/README.md:263:var errorMessage = yauzl.validateFileName(fileName);
-node_modules/yauzl/README.md:272:This function is used internally by yauzl to compute [`entry.extraFields`](#extrafields).
-node_modules/yauzl/README.md:393:When `decodeFileData` is `true` (or `null` or omitted), yauzl will attempt to decode the file data using a zlib inflate transform when appropriate.
-node_modules/yauzl/README.md:407:For compatibility with versions of yauzl prior to 3.3.x, `start` and `end` can also be used
-node_modules/yauzl/README.md:410:https://github.com/thejoshwolfe/yauzl/blob/c4695215b05c6adffda613b9051a2a85429b33fe/README.md#openreadstreamentry-options-callback
-node_modules/yauzl/README.md:416:yauzl notices this false information and emits an error from the `readStream`
-node_modules/yauzl/README.md:454:and yauzl internally effectively uses the `{minimal: true}` option as part of `openReadStream()`.
-node_modules/yauzl/README.md:591:This field is automatically validated by `validateFileName()` before yauzl emits an "entry" event.
-node_modules/yauzl/README.md:592:If this field would contain unsafe characters, yauzl emits an error instead of an entry.
-node_modules/yauzl/README.md:623:Prior to yauzl version 2.7.0, this field was erroneously documented as `comment` instead of `fileComment`.
-node_modules/yauzl/README.md:625:yauzl creates an alias field named `comment` which is identical to `fileComment`.
-node_modules/yauzl/README.md:634:yauzl supports these encodings:
-node_modules/yauzl/README.md:640:If both the Info-ZIP "universal timestamp" and NTFS extended fields are found, yauzl uses one of them, but which one is unspecified.
-node_modules/yauzl/README.md:641:If neither are found, yauzl falls back to the built-in DOS `lastModFileDate` and `lastModFileTime`.
-node_modules/yauzl/README.md:654:Set `forceDosFormat` to `true` (and do not set `timezone`) to enable pre-yauzl 3.2.0 behavior
-node_modules/yauzl/README.md:669:Returns `true` if and only if the metadata for this entry specifies an encoding that yauzl can automatically decode as part of `openReadStream()`.
-node_modules/yauzl/README.md:681:yauzl provides no functionality to decrypt file data.
-node_modules/yauzl/README.md:688:This implementation is maintained for backward compatibility with yauzl versions prior to 3.3.x.
-node_modules/yauzl/README.md:785:For a lengthy discussion, see [issue #69](https://github.com/thejoshwolfe/yauzl/issues/69).
-node_modules/yauzl/README.md:858:but yauzl will not help you decrypt it.
-node_modules/yauzl/README.md:861:If a zip file contains file entries encrypted with "Strong Encryption", yauzl emits an error.
-node_modules/yauzl/README.md:863:If the central directory is encrypted or compressed, yauzl emits an error.
-node_modules/yauzl/README.md:870:Aside from checking the signature, yauzl ignores the content of the Local File Header.
-node_modules/yauzl/README.md:909:* The `.ZIP file comment` must not contain the `end of central dir signature` bytes `50 4b 05 06`. This corresponds to the text `"PK☺☻"` in CP437. While this is allowed by the specification, yauzl will hopefully reject this situation with an "Invalid comment length" error. However, in some situations unpredictable incorrect behavior will ensue, which will probably manifest in either an invalid signature error or some kind of bounds check error, such as "Unexpected EOF".
-node_modules/yauzl/README.md:915:   * Add wrapper functions that give Promise semantics: `openPromise()`, `fromFdPromise()`, `fromBufferPromise()`, `fromRandomAccessReaderPromise()`, `openReadStreamPromise()`, `readLocalFileHeaderPromise()`, `openReadStreamLowLevelPromise()`. [pull #171](https://github.com/thejoshwolfe/yauzl/pull/171)
-node_modules/yauzl/README.md:920:   * Vendor and simplify `buffer-crc` dependency and prefer `zlib.crc32()` when available. [issue #172](https://github.com/thejoshwolfe/yauzl/issues/172) [pull #173](https://github.com/thejoshwolfe/yauzl/pull/173)
-node_modules/yauzl/README.md:921:   * Fixed typo in error handling for obscure IO errors. Raised in [issue #174](https://github.com/thejoshwolfe/yauzl/issues/174).
-node_modules/yauzl/README.md:923:   * Fixed bugs related to interrupting streams with `destroy()` and with async iteration on read streams. [issue #169](https://github.com/thejoshwolfe/yauzl/issues/169) [pull #170](https://github.com/thejoshwolfe/yauzl/pull/170)
-node_modules/yauzl/README.md:925:   * Added `entry.canDecodeFileData()` and option `decodeFileData` for `entry.openReadStream()`, and marked as deprecated `isCompressed()` and options `decompress` and `decrypt`. [issue #80](https://github.com/thejoshwolfe/yauzl/issues/80) [pull #81](https://github.com/thejoshwolfe/yauzl/pull/81) [pull #82](https://github.com/thejoshwolfe/yauzl/pull/82) [issue #166](https://github.com
-/thejoshwolfe/yauzl/issues/166)
-node_modules/yauzl/README.md:929:   * Added support for reading third-party extensions for timestamps: Info-ZIP "universal timestamp" extra field and NTFS extra field. [pull #160](https://github.com/thejoshwolfe/yauzl/pull/160)
-node_modules/yauzl/README.md:933:   * Fixed a crash when using `fromBuffer()` to read corrupt zip files that specify out of bounds file offsets. [issue #156](https://github.com/thejoshwolfe/yauzl/pull/156)
-node_modules/yauzl/README.md:936:   * Fixed handling non-64 bit entries (similar to the version 3.1.1 fix) that actually have exactly 0xffffffff values in the fields. This fixes erroneous "expected zip64 extended information extra field" errors. [issue #109](https://github.com/thejoshwolfe/yauzl/pull/109)
-node_modules/yauzl/README.md:938:   * Fixed handling non-64 bit files that actually have exactly 0xffff or 0xffffffff values in End of Central Directory Record. This fixes erroneous "invalid zip64 end of central directory locator signature" errors. [issue #108](https://github.com/thejoshwolfe/yauzl/pull/108)
-node_modules/yauzl/README.md:939:   * Fixed handling of 64-bit zip files that put 0xffff or 0xffffffff in every field overridden in the Zip64 end of central directory record even if the value would have fit without overflow. In particular, this fixes an incorrect "multi-disk zip files are not supported" error. [pull #118](https://github.com/thejoshwolfe/yauzl/pull/118)
-node_modules/yauzl/README.md:949:   * BREAKING CHANGE: implementations of [RandomAccessReader](#class-randomaccessreader) that implement a `destroy` method must instead implement `_destroy` in accordance with the node standard https://nodejs.org/api/stream.html#writable_destroyerr-callback (note the error and callback parameters). If you continue to override `destory` instead, some error handling may be subtly broken. Additionally, this is required for async iterators to work correctly in some versions of node. [issue #110](https://github.com/thejoshwolfe/yauzl/issues/110)
-node_modules/yauzl/README.md:951:   * Maintenance: Fix buffer deprecation warning by bundling `fd-slicer` with a 1-line change, rather than depending on it. [issue #114](https://github.com/thejoshwolfe/yauzl/issues/114)
-node_modules/yauzl/README.md:952:   * Maintenance: Upgrade `bl` dependency; add `package-lock.json`; drop deprecated istanbul dependency. This resolves all security warnings for this project. [pull #125](https://github.com/thejoshwolfe/yauzl/pull/125)
-node_modules/yauzl/README.md:953:   * Maintenance: Replace broken Travis CI with GitHub Actions. [pull #148](https://github.com/thejoshwolfe/yauzl/pull/148)
-node_modules/yauzl/README.md:955:   * Officially gave up on supporting Mac Archive Utility corruption in order to rescue my motivation for this project. [issue #69](https://github.com/thejoshwolfe/yauzl/issues/69)
-node_modules/yauzl/README.md:958:   * Added support for non-conformant zipfiles created by Microsoft, and added option `strictFileNames` to disable the workaround. [issue #66](https://github.com/thejoshwolfe/yauzl/issues/66), [issue #88](https://github.com/thejoshwolfe/yauzl/issues/88)
-node_modules/yauzl/README.md:961:   * Worked around performance problem with zlib when using `fromBuffer()` and `readStream.destroy()` for large compressed files. [issue #87](https://github.com/thejoshwolfe/yauzl/issues/87)
-node_modules/yauzl/README.md:963:   * Removed `console.log()` accidentally introduced in 2.9.0. [issue #64](https://github.com/thejoshwolfe/yauzl/issues/64)
-node_modules/yauzl/README.md:965:   * Throw an exception if `readEntry()` is called without `lazyEntries:true`. Previously this caused undefined behavior. [issue #63](https://github.com/thejoshwolfe/yauzl/issues/63)
-node_modules/yauzl/README.md:967:   * Added option `validateEntrySizes`. [issue #53](https://github.com/thejoshwolfe/yauzl/issues/53)
-node_modules/yauzl/README.md:969:   * Added ability to read raw file data via `decompress` and `decrypt` options. [issue #11](https://github.com/thejoshwolfe/yauzl/issues/11), [issue #38](https://github.com/thejoshwolfe/yauzl/issues/38), [pull #39](https://github.com/thejoshwolfe/yauzl/pull/39)
-node_modules/yauzl/README.md:970:   * Added `start` and `end` options to `openReadStream()`. [issue #38](https://github.com/thejoshwolfe/yauzl/issues/38)
-node_modules/yauzl/README.md:972:   * Added option `decodeStrings`. [issue #42](https://github.com/thejoshwolfe/yauzl/issues/42)
-node_modules/yauzl/README.md:973:   * Fixed documentation for `entry.fileComment` and added compatibility alias. [issue #47](https://github.com/thejoshwolfe/yauzl/issues/47)
-node_modules/yauzl/README.md:975:   * Support Info-ZIP Unicode Path Extra Field, used by WinRAR for Chinese file names. [issue #33](https://github.com/thejoshwolfe/yauzl/issues/33)
-node_modules/yauzl/README.md:977:   * Ignore malformed Extra Field that is common in Android .apk files. [issue #31](https://github.com/thejoshwolfe/yauzl/issues/31)
-node_modules/yauzl/README.md:979:   * Fix crash when parsing malformed Extra Field buffers. [issue #31](https://github.com/thejoshwolfe/yauzl/issues/31)
-node_modules/yauzl/README.md:985:   * Add ZIP64 support. [issue #6](https://github.com/thejoshwolfe/yauzl/issues/6)
-node_modules/yauzl/README.md:986:   * Add `lazyEntries` option. [issue #22](https://github.com/thejoshwolfe/yauzl/issues/22)
-node_modules/yauzl/README.md:987:   * Add `readStream.destroy()` method. [issue #26](https://github.com/thejoshwolfe/yauzl/issues/26)
-node_modules/yauzl/README.md:988:   * Add `fromRandomAccessReader()`. [issue #14](https://github.com/thejoshwolfe/yauzl/issues/14)
-node_modules/yauzl/README.md:993:   * Check that `uncompressedSize` is correct, or else emit an error. [issue #13](https://github.com/thejoshwolfe/yauzl/issues/13)
-node_modules/yauzl/fd-slicer.js:158:  // See https://github.com/thejoshwolfe/yauzl/issues/87
-node_modules/yauzl/index.js:368:      // Maintain API compatibility. See https://github.com/thejoshwolfe/yauzl/issues/47
-node_modules/yauzl/index.js:564:  // or were introduced in a minor version of yauzl,
-node_modules/yauzl/index.js:623:    // this is part of yauzl's API, so implement this function on the client-visible stream
-node_modules/yauzl/index.js:831:  // see https://github.com/thejoshwolfe/yauzl/issues/33
-node_modules/yauzl/index.js:1059:  // but yauzl hasn't been updated to depend on BigInt (yet?).
-node_modules/yauzl/package.json:2:  "name": "yauzl",
-node_modules/yauzl/package.json:14:    "url": "git+https://github.com/thejoshwolfe/yauzl.git"
-node_modules/yauzl/package.json:26:    "url": "https://github.com/thejoshwolfe/yauzl/issues"
-node_modules/yauzl/package.json:28:  "homepage": "https://github.com/thejoshwolfe/yauzl",
-package-lock.json:19:        "yauzl": "^3.4.0"
-package-lock.json:804:    "node_modules/yauzl": {
-package-lock.json:806:      "resolved": "https://registry.npmjs.org/yauzl/-/yauzl-3.4.0.tgz",
-package.json:15:    "yauzl": "^3.4.0",
-src/saclientutil.js:21:import * as yauzl from 'yauzl';
-src/saclientutil.js:99:    const zipfile = await yauzl.openPromise(zipFile, { autoClose: false });
+let parentDir = path.join(os.homedir(), '.appscan');
+if(!fs.existsSync(parentDir)) {
+    fs.mkdirSync(parentDir);
+}
+
+let scriptName = utils.getOS() === 'win' ? 'appscan.bat' : 'appscan.sh';
+let clientDir = getClientDir();
+let script = clientDir ? path.join(clientDir, 'bin', scriptName) : undefined;
+
+function downloadClient() {
+    return new Promise((resolve, reject) => {
+        let zipFile = path.join(parentDir, 'SAClientUtil.zip');
+        if(fs.existsSync(zipFile)) {
+            fs.unlinkSync(zipFile);
+        }
+
+        let zip = fs.createWriteStream(zipFile);
+        zip.on('finish', () => {
+            zip.close();
+        });
+        zip.on('error', (e) => {
+            reject(e);
+        });
+        zip.on('close', () => {
+            extractClient(zipFile)
+                .then(() => {
+                    script = path.join(getClientDir(), 'bin', scriptName);
+                    if(fs.existsSync(script)) {
+                        resolve(script);
+                    }
+                    else {
+                        reject(constants.ERROR_FILE_DOES_NOT_EXIST + script);
+                    }
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        });
+        
+    
+        getRequestOptions()
+        .then((options) => {
+            let req = https.get(options, (response) => {
+                if(response.statusCode >= 200 && response.statusCode < 300) {
+                    response.pipe(zip);
+                } 
+                else {
+                    reject(constants.ERROR_DOWNLOADING_CLIENT + response.statusCode);
+                }
+            });
+    
+            req.on('error', (e) =>  {
+                if(fs.existsSync(zipFile)) {
+                    fs.unlinkSync(zipFile);
+                }
+                reject(e);
+            });
+        })
+        .catch((error) => {
+            reject(error);
+        })
+    });
+}
+
+async function extractClient(zipFile) {
+    if(!fs.existsSync(zipFile)) {
+        throw new Error(constants.ERROR_FILE_DOES_NOT_EXIST + zipFile);
+    }
+    const extractDir = path.dirname(zipFile);
+    const resolvedExtractDir = path.resolve(extractDir);
+    const zipfile = await yauzl.openPromise(zipFile, { autoClose: false });
+    try {
+        for await (const entry of zipfile.eachEntry()) {
+            const entryPath = path.resolve(extractDir, entry.fileName);
+            // Prevent ZIP path traversal (Zip Slip)
+            if(entryPath !== resolvedExtractDir && !entryPath.startsWith(resolvedExtractDir + path.sep)) {
+                throw new Error('Unsafe ZIP entry path: ' + entry.fileName);
+            }
+            // Directory entry
+            if(entry.fileName.endsWith('/')) {
+                await fs.promises.mkdir(entryPath, { recursive: true });
+                continue;
+            }
+            // Ensure the parent directory exists
+            const entryDir = path.dirname(entryPath);
+            await fs.promises.mkdir(entryDir, { recursive: true });
+            // Extract the file sequentially
+            const readStream = await zipfile.openReadStreamPromise(entry);
+			const writeStream = fs.createWriteStream(entryPath);
+			await pipeline(readStream, writeStream);
+			// Preserve Unix file permissions stored in the ZIP entry.
+			if((entry.versionMadeBy >>> 8) === 3) {
+				const mode = (entry.externalFileAttributes >>> 16) & 0xffff;
+				const permissionBits = mode & 0o777;
+				if (permissionBits !== 0) {
+					await fs.promises.chmod(entryPath, permissionBits);
+				}
+			}
+        }
+    }
+    finally {
+        zipfile.close();
+    }
+}
+
+function getRequestOptions() {
+    return new Promise((resolve) => {
+        let endpoint = settings.getServiceUrl() + constants.SACLIENT_PATH + utils.getOS();
+        let options = null;
+        let proxyHost = settings.getProxyUrl();
+        let proxyPort = settings.getProxyPort();
+        let proxyUser = settings.getProxyUser();
+        let proxyPwd  = settings.getProxyPwd();
+
+        if (proxyHost && proxyPort) {  //Connection through proxy
+            let proxy = null;
+
+            if (proxyUser && proxyPwd) {
+                let auth = 'Basic ' + Buffer.from(proxyUser + ':' + proxyPwd).toString('base64');
+                proxy = {
+                    protocol: 'https:',
+                    host: proxyHost, 
+                    port: proxyPort,
+                    username: proxyUser,
+                    password: proxyPwd,
+                    headers: {
+                        'Proxy-Authorization': auth
+                    }
+                }
+            } else {
+                proxy = {
+                    protocol: 'https:',
+                    host: proxyHost, 
+                    port: proxyPort
+                }
+            }			
+            options = new URL(endpoint);
+            options.agent = new HttpsProxyAgent(proxy);
+        } else { // Normal connection without proxy
+            options = new URL(endpoint);
+        }
+
+        if (settings.shouldDisableSSL()) {
+            options.rejectUnauthorized = false;
+        }
+
+        resolve(options);
+    });
+}
+
+function getClientDir() {
+    let files = fs.readdirSync(parentDir);
+    let clientDirs = new Array();
+
+    files.forEach((file) => {
+        try {
+            if(fs.lstatSync(parentDir + path.sep + file).isDirectory() && file.startsWith("SAClientUtil"))
+                clientDirs.push(parentDir + path.sep + file);
+        } catch(e) {
+            //ignore and continue
+        }
+    });
+
+    if(clientDirs.length > 1) {
+        let clientDir = clientDirs[0];
+        for(let iter = 1; iter < clientDirs.length; iter++) {
+            if(compareVersions(clientDir, clientDirs[iter])) {
+                clientDir = clientDirs[iter];
+            }	
+        }
+
+        return clientDir;
+    }
+    else {
+        return clientDirs.length === 0 ? undefined : clientDirs[0];
+    }
+}
+
+function compareVersions(oldVersion, newVersion) {
+    if(oldVersion === undefined || newVersion === undefined)
+        return true;
+    
+    //Trim down to just SAClientUtil.x.x.x
+    oldVersion = oldVersion.substring(oldVersion.indexOf("SAClientUtil"), oldVersion.length);
+    newVersion = newVersion.substring(newVersion.indexOf("SAClientUtil"), newVersion.length);
+    let old = oldVersion.split('.');
+    let next = newVersion.split('.');
+
+    //Format of version is SAClientUtil.A.B.C
+    for(let iter = 1; iter < old.length && iter < next.length; iter++) {
+        if(iter === 1 && old[iter] < next[iter] ||
+            iter === 2 && old[iter] < next[iter] ||
+            iter === 3 && old[iter] < next[iter]) {
+                return true;
+            }
+    }
+
+    return false;
+}
+
+function getScript() {
+    return new Promise((resolve, reject) => {
+        if(!fs.existsSync(script)) {
+            downloadClient()
+            .then(() => {
+                resolve(script);
+            })
+            .catch((error) => {
+                reject(error);
+            })
+        }
+        else {
+            resolve(script);
+        }
+    })
+}
+
+export default { downloadClient, getScript }
