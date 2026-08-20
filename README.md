@@ -27,7 +27,10 @@ If you don't have an account, register on [HCL AppScan on Cloud (ASoC)](https://
 | service_url | The url for connections to AppScan 360. Not required for connections to AppScan on Cloud (ASoC) | https://cloud.appscan.com |
 | acceptssl | Allow connections to an AppScan 360 service with an untrusted certificate. Recommended for testing purposes only. | false |
 | scan_name | The name of the scan created in ASoC. | The GitHub repository name |
+| incremental_scan | Only scan files that were added or modified in a pull request. | false |
 | personal_scan | Make this a [personal scan](https://help.hcltechsw.com/appscan/ASoC/appseccloud_scans_personal.html). | false |
+| sast_scan_id | The ID of an existing SAST scan to use for running a rescan. | null |
+| sca_scan_id | The ID of an existing SCA scan to use for running a rescan. | null |
 | static_analysis_only | Only run static analysis. Do not run SCA (Software Composition Analysis). | false |
 | open_source_only | Only run SCA (Software Composition Analysis). Do not run static analysis. | false |
 | secrets_only | Only scan for secrets. Do not run static analysis or software composition analysis. | false |
@@ -36,6 +39,8 @@ If you don't have an account, register on [HCL AppScan on Cloud (ASoC)](https://
 | analysis_timeout_minutes | If **wait_for_analysis** is true, the number of minutes to wait for analysis to complete. | 30 minutes |
 | fail_for_noncompliance | If **wait_for_analysis** is true, fail the job if any non-compliant issues are found in the scan. | false |
 | failure_threshold | If **fail_for_noncompliance** is enabled, the severity that indicates a failure. Lesser severities will not be considered a failure. For example, if **failure_threshold** is set to Medium, Informational and/or Low severity issues will not cause a failure. Medium, High, and/or Critical issues will cause a failure. | Low |
+| scan_info_hyperlinks | **Note:** If `service_url` is configured in GitHub Actions secrets, `scan_info_hyperlinks` must be set to `false`. | true |
+| github_token | \*\*Note:\*\* To view the PR scan summary directly in the PR comment section when triggered, set the value to \`{{github.token}}\`. | github.token|
 
 # Examples
 ```yaml
@@ -47,9 +52,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Run AppScan SAST scan
-        uses: HCL-TECH-SOFTWARE/appscan-sast-action@v1.0.7
+        uses: HCL-TECH-SOFTWARE/appscan-sast-action@v1.1.1
         with:
           asoc_key: ${{secrets.ASOC_KEY}}
           asoc_secret: ${{secrets.ASOC_SECRET}}
