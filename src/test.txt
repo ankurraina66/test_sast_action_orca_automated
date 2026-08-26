@@ -1,158 +1,295 @@
-2026-08-19 16:11:56,333 INFO Starting with server=localhost:61642 database=1bdbca56-81a5-41f8-8f6d-f593c70ecda3
-2026-08-19 16:12:05,348 ERROR Generation failed
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
-    return self._engine.get_loc(casted_key)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
-KeyError: 'Total Sales'
+/*
+Copyright 2026 HCL America, Inc.
 
-The above exception was the direct cause of the following exception:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\app\main.py", line 54, in main
-    insights = analyzer.generate_insights(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\app\analyzer.py", line 69, in generate_insights
-    total_sales = float(row["Total Sales"])
-                        ~~~^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1133, in __getitem__
-    return self._get_value(key)
-           ^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1249, in _get_value
-    loc = self.index.get_loc(label)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
-    raise KeyError(key) from err
-KeyError: 'Total Sales'
-2026-08-19 16:12:43,854 INFO Starting with server=localhost:61642 database=1bdbca56-81a5-41f8-8f6d-f593c70ecda3
-2026-08-19 16:12:46,697 ERROR Generation failed
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
-    return self._engine.get_loc(casted_key)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
-KeyError: 'Total Sales'
+    http://www.apache.org/licenses/LICENSE-2.0
 
-The above exception was the direct cause of the following exception:
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\app\main.py", line 54, in main
-    insights = analyzer.generate_insights(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\app\analyzer.py", line 69, in generate_insights
-    total_sales = float(row["Total Sales"])
-                        ~~~^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1133, in __getitem__
-    return self._get_value(key)
-           ^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1249, in _get_value
-    loc = self.index.get_loc(label)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
-    raise KeyError(key) from err
-KeyError: 'Total Sales'
-2026-08-19 16:22:10,933 INFO Starting with server=localhost:64966 database=503806d1-4b94-4da5-b6c7-da7f7b7063c6
-2026-08-19 16:22:23,937 ERROR Generation failed
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
-    return self._engine.get_loc(casted_key)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
-KeyError: 'Total Sales'
+import * as fs from 'fs';
+import settings from './settings.js';
 
-The above exception was the direct cause of the following exception:
+function getGitHubContext() {
+    const isPR = process.env.GITHUB_EVENT_NAME === 'pull_request';
+    const repoName = process.env.GITHUB_REPOSITORY || "";
+    const branchName = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || "";
+    const commitSha = process.env.GITHUB_SHA ? process.env.GITHUB_SHA.substring(0, 7) : "";
+    const serverUrl = process.env.GITHUB_SERVER_URL;
+    let prNumber = "";
+    try {
+        if (process.env.GITHUB_EVENT_PATH && fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
+            const eventPayload = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"));
+            prNumber = eventPayload.pull_request?.number || "";
+        }
+    } catch (e) {
+        console.log("Failed to read PR information:", e.message);
+    }
+    return {isPR, repoName, branchName, commitSha, prNumber, serverUrl};
+}
 
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\app\main.py", line 54, in main
-    insights = analyzer.generate_insights(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\app\analyzer.py", line 69, in generate_insights
-    total_sales = float(row["Total Sales"])
-                        ~~~^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1133, in __getitem__
-    return self._get_value(key)
-           ^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1249, in _get_value
-    loc = self.index.get_loc(label)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
-    raise KeyError(key) from err
-KeyError: 'Total Sales'
-2026-08-19 16:23:56,030 INFO Starting with server=localhost:64966 database=503806d1-4b94-4da5-b6c7-da7f7b7063c6
-2026-08-19 16:24:11,796 ERROR Generation failed
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
-    return self._engine.get_loc(casted_key)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
-KeyError: 'Total Sales'
+function generateSummaryMarkdown(summaryData, reportDownloadLink, reportName) {
+    const {total, counts, scanId, scanUrl, appName, appUrl, scanTime, scanType, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryData;
+    const scanLabel = isPR ? `${scanType} PR Scan Summary` : `${scanType} Scan Summary`;
+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
+    const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
+    const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
+    const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
+    const prNumberValue = enableHyperlinks
+        ? `<a href="${prUrl}">#${prNumber}</a>`
+        : `#${prNumber}`;
+    const branchValue = enableHyperlinks
+        ? `<a href="${branchUrl}">${branchName}</a>`
+        : branchName;
+    const commitValue = enableHyperlinks
+        ? `<a href="${commitUrl}">${commitSha}</a>`
+        : commitSha;
+    const prSection = isPR
+        ? `
+## Pull Request Information
 
-The above exception was the direct cause of the following exception:
+<table>
+<tr><td>PR Number</td><td>${prNumberValue}</td></tr>
+<tr><td>Branch</td><td>${branchValue}</td></tr>
+<tr><td>Commit</td><td>${commitValue}</td></tr>
+</table>
 
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\app\main.py", line 54, in main
-    insights = analyzer.generate_insights(
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\app\analyzer.py", line 69, in generate_insights
-    total_sales = float(row["Total Sales"])
-                        ~~~^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1133, in __getitem__
-    return self._get_value(key)
-           ^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\series.py", line 1249, in _get_value
-    loc = self.index.get_loc(label)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
-    raise KeyError(key) from err
-KeyError: 'Total Sales'
-2026-08-19 16:28:28,343 INFO Starting with server=localhost:62785 database=b81b93a5-8527-4c65-a873-0165d378ad6e
-2026-08-19 16:28:33,527 ERROR Generation failed
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3812, in get_loc
-    return self._engine.get_loc(casted_key)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "pandas/_libs/index.pyx", line 167, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/index.pyx", line 196, in pandas._libs.index.IndexEngine.get_loc
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7088, in pandas._libs.hashtable.PyObjectHashTable.get_item
-  File "pandas/_libs/hashtable_class_helper.pxi", line 7096, in pandas._libs.hashtable.PyObjectHashTable.get_item
-KeyError: 'Sales[Region]'
+---`
+        : "";
 
-The above exception was the direct cause of the following exception:
+    const scanIdValue = enableHyperlinks
+        ? `<a href="${scanUrl}">${scanId}</a>`
+        : scanId;
+    const appNameValue = enableHyperlinks
+        ? `<a href="${appUrl}">${appName}</a>`
+        : appName;
+    const showReport = enableHyperlinks && Boolean(reportDownloadLink);
+    const reportLabel = `${reportName} ${scanType}`;
+    const reportValue = showReport
+        ? `<a href="${reportDownloadLink}">${reportLabel}</a>`
+        : "";
+    const reportRow = showReport
+        ? `<tr><td>Report</td><td>${reportValue}</td></tr>`
+        : "";
+    const md = `<!-- HCL_APPSCAN_SUMMARY -->
+# HCL AppScan ${scanLabel}
 
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\app\main.py", line 63, in main
-    builder.add_region_slide(region_data)
-  File "C:\PowerBIAIPresenter\app\presentation.py", line 90, in add_region_slide
-    chart_data.categories = region_data["Sales[Region]"].astype(str).tolist()
-                            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\frame.py", line 4113, in __getitem__
-    indexer = self.columns.get_loc(key)
-              ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\.venv\Lib\site-packages\pandas\core\indexes\base.py", line 3819, in get_loc
-    raise KeyError(key) from err
-KeyError: 'Sales[Region]'
-2026-08-20 15:45:37,830 INFO Starting with server=localhost:62785 database=b81b93a5-8527-4c65-a873-0165d378ad6e
-2026-08-20 15:45:49,674 ERROR Generation failed
-Traceback (most recent call last):
-  File "C:\PowerBIAIPresenter\app\main.py", line 63, in main
-    builder.add_region_slide(region_data)
-  File "C:\PowerBIAIPresenter\app\presentation.py", line 347, in add_region_slide
-    region_col = self._get_column(
-                 ^^^^^^^^^^^^^^^^^
-  File "C:\PowerBIAIPresenter\app\presentation.py", line 35, in _get_column
-    raise KeyError(
-KeyError: "None of the expected columns were found: ('Region', 'Sales[Region]'). Available columns: ['salesRegion', 'Total Sales', 'Total Profit', 'Total Units']"
-********************** new error: None of the expected columns were found....*************************************
+${prSection}
+
+## 🔍 Scan Information
+
+<table>
+<tr><td>Scan Type</td><td>${scanType}</td></tr>
+<tr><td>Scan ID</td><td>${scanIdValue}</td></tr>
+<tr><td>Application Name</td><td>${appNameValue}</td></tr>
+<tr><td>Repository</td><td>${repoName}</td></tr>
+<tr><td>Scan Time</td><td>${scanTime}</td></tr>
+${reportRow}
+</table>
+
+
+## 🚨 Vulnerability Summary
+
+| Severity | Count |
+|----------|------:|
+| 🔴 Critical | **${counts.Critical}** |
+| 🟠 High | **${counts.High}** |
+| 🟠 Medium | **${counts.Medium}** |
+| 🟡 Low | **${counts.Low}** |
+| ⚪ Informational | **${counts.Informational}** |
+
+### 📊 **Total Vulnerabilities: ${total}**
+
+---
+
+`;
+    return md;
+}
+
+function writeSummaryMarkdown(summaryData, reportDownloadLink, reportName) {
+    const md = generateSummaryMarkdown(summaryData, reportDownloadLink, reportName);
+    const {scanType, isPR} = summaryData;
+    const mdFileName = isPR ? `appscan-${scanType.toLowerCase()}-pr-report.md` : `appscan-${scanType.toLowerCase()}-build-summary-report.md`;
+    fs.writeFileSync(mdFileName, md);
+    if (process.env.GITHUB_STEP_SUMMARY) {
+        fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+    }
+    return md;
+}
+
+async function generateMinimumSummary(getScanDetails, scanId, scanType) {
+    const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
+    const {scanUrl, appUrl, appName, scanTime, isPR, repoName, branchName, commitSha, prNumber, serverUrl} = summaryContext;
+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
+    const scanIdValue = enableHyperlinks
+        ? `<a href="${scanUrl}">${scanId}</a>`
+        : scanId;
+    const appNameValue = enableHyperlinks
+        ? `<a href="${appUrl}">${appName}</a>`
+        : appName;
+    const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
+    const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
+    const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
+    const prNumberValue = enableHyperlinks
+        ? `<a href="${prUrl}">#${prNumber}</a>`
+        : `#${prNumber}`;
+    const branchValue = enableHyperlinks
+        ? `<a href="${branchUrl}">${branchName}</a>`
+        : branchName;
+    const commitValue = enableHyperlinks
+        ? `<a href="${commitUrl}">${commitSha}</a>`
+        : commitSha;
+    const prSection = isPR
+        ? `
+## Pull Request Information
+
+<table>
+<tr><td>PR Number</td><td>${prNumberValue}</td></tr>
+<tr><td>Branch</td><td>${branchValue}</td></tr>
+<tr><td>Commit</td><td>${commitValue}</td></tr>
+</table>
+
+---`
+        : "";
+
+    const md = `<!-- HCL_APPSCAN_SUMMARY -->
+# HCL AppScan ${scanType} ${isPR ? "PR " : ""}Scan Summary
+
+${prSection}
+
+## 🔍 Scan Information
+
+<table>
+<tr><td>Scan Type</td><td>${scanType}</td></tr>
+<tr><td>Scan ID</td><td>${scanIdValue}</td></tr>
+<tr><td>Application Name</td><td>${appNameValue}</td></tr>
+<tr><td>Repository</td><td>${repoName}</td></tr>
+<tr><td>Scan Time</td><td>${scanTime}</td></tr>
+</table>
+
+---
+
+`;
+
+    const mdFileName = `appscan-${scanType.toLowerCase()}-minimum-summary.md`;
+    fs.writeFileSync(mdFileName, md);
+    if (process.env.GITHUB_STEP_SUMMARY) {
+        fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+    }
+    return md;
+}
+
+async function buildIssueSummary(getScanDetails, groupedItems, scanId, scanType) {
+    const counts = {Critical: 0, High: 0, Medium: 0, Low: 0, Informational: 0};
+    groupedItems.forEach(item => {
+        if (counts[item.Severity] !== undefined) {
+            counts[item.Severity] += Number(item.N || 0);
+        }
+    });
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    const summaryContext = await getSummaryContext(getScanDetails, scanId, scanType);
+    return {total, counts, ...summaryContext};
+}
+
+async function getSummaryContext(getScanDetails, scanId, scanType) {
+    const serviceUrl = settings.getServiceUrl();
+    const baseUrl = serviceUrl.replace("/api/v4", "");
+    const applicationId = process.env.INPUT_APPLICATION_ID;
+    const scanUrl = `${baseUrl}/main/myapps/${applicationId}/scans/${scanId}`;
+    const appUrl = `${baseUrl}/main/myapps/${applicationId}`;
+    let appName = applicationId;
+    try {
+        let scanDetails = null;
+        if (scanType === "SAST") {
+            scanDetails = await getScanDetails(scanId, "Sast");
+        } else if (scanType === "SCA") {
+            scanDetails = await getScanDetails(scanId, "Sca");
+        }
+        if (scanDetails) {
+            appName = scanDetails.AppName || appName;
+        }
+    } catch (e) {
+        console.log("Failed to fetch AppName from scan details:", e.message);
+    }
+    const scanTime = new Date().toISOString().replace("T", " ").substring(0, 19);
+    return {scanId, scanUrl, appName, appUrl, scanTime, scanType, ...getGitHubContext()};
+}
+
+function combineMarkdown(sastMarkdown, scaMarkdown) {
+    const markdowns = [];
+    if (sastMarkdown) {
+        markdowns.push(
+            removePullRequestSection(
+                sastMarkdown
+                    .replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
+                    .replace("# HCL AppScan SAST PR Scan Summary", "## SAST Scan Summary")
+                    .replace("# HCL AppScan SAST Scan Summary", "## SAST Scan Summary")
+            )
+        );
+    }
+    if (scaMarkdown) {
+        markdowns.push(
+            removePullRequestSection(
+                scaMarkdown
+                    .replace("<!-- HCL_APPSCAN_SUMMARY -->", "")
+                    .replace("# HCL AppScan SCA PR Scan Summary", "## SCA Scan Summary")
+                    .replace("# HCL AppScan SCA Scan Summary", "## SCA Scan Summary")
+            )
+        );
+    }
+    const summaryContext = getGitHubContext();
+    const enableHyperlinks = process.env.INPUT_SCAN_INFO_HYPERLINKS !== "false";
+    const prUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/pull/${summaryContext.prNumber}`;
+    const branchUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/tree/${summaryContext.branchName}`;
+    const commitUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/commit/${process.env.GITHUB_SHA}`;
+    const prNumberValue = enableHyperlinks
+        ? `<a href="${prUrl}">#${summaryContext.prNumber}</a>`
+        : `#${summaryContext.prNumber}`;
+    const branchValue = enableHyperlinks
+        ? `<a href="${branchUrl}">${summaryContext.branchName}</a>`
+        : summaryContext.branchName;
+    const commitValue = enableHyperlinks
+        ? `<a href="${commitUrl}">${summaryContext.commitSha}</a>`
+        : summaryContext.commitSha;
+    const prSection = summaryContext.isPR
+        ? `
+## Pull Request Information
+
+<table>
+<tr><td>PR Number</td><td>${prNumberValue}</td></tr>
+<tr><td>Branch</td><td>${branchValue}</td></tr>
+<tr><td>Commit</td><td>${commitValue}</td></tr>
+</table>
+
+---
+`
+        : "";
+
+    return `<!-- HCL_APPSCAN_SUMMARY -->
+# HCL AppScan ${summaryContext.isPR ? "PR " : ""}Scan Summary
+${prSection}
+
+${markdowns.join("\n\n")}
+`;
+}
+
+function removePullRequestSection(markdown) {
+    const start = markdown.indexOf("## Pull Request Information");
+    if (start === -1) {
+        return markdown;
+    }
+    const end = markdown.indexOf("## 🔍 Scan Information");
+    if (end === -1) {
+        return markdown;
+    }
+    return (markdown.substring(0, start) + markdown.substring(end));
+}
+
+export default {generateMinimumSummary, generateSummaryMarkdown, writeSummaryMarkdown, getGitHubContext, buildIssueSummary, combineMarkdown};
