@@ -1,19 +1,3 @@
-/*
-Copyright 2026 HCL America, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 import * as fs from 'fs';
 import settings from './settings.js';
 
@@ -42,14 +26,11 @@ function generateSummaryMarkdown(summaryData, reportDownloadLink, reportName) {
     const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
     const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
     const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
-    const prNumberValue = enableHyperlinks
-        ? `<a href="${prUrl}">#${prNumber}</a>`
+    const prNumberValue = `<a href="${prUrl}">#${prNumber}</a>`
         : `#${prNumber}`;
-    const branchValue = enableHyperlinks
-        ? `<a href="${branchUrl}">${branchName}</a>`
+    const branchValue = `<a href="${branchUrl}">${branchName}</a>`
         : branchName;
-    const commitValue = enableHyperlinks
-        ? `<a href="${commitUrl}">${commitSha}</a>`
+    const commitValue = `<a href="${commitUrl}">${commitSha}</a>`
         : commitSha;
     const prSection = isPR
         ? `
@@ -137,14 +118,11 @@ async function generateMinimumSummary(getScanDetails, scanId, scanType) {
     const prUrl = `${serverUrl}/${repoName}/pull/${prNumber}`;
     const branchUrl = `${serverUrl}/${repoName}/tree/${branchName}`;
     const commitUrl = `${serverUrl}/${repoName}/commit/${process.env.GITHUB_SHA}`;
-    const prNumberValue = enableHyperlinks
-        ? `<a href="${prUrl}">#${prNumber}</a>`
+    const prNumberValue = `<a href="${prUrl}">#${prNumber}</a>`
         : `#${prNumber}`;
-    const branchValue = enableHyperlinks
-        ? `<a href="${branchUrl}">${branchName}</a>`
+    const branchValue = `<a href="${branchUrl}">${branchName}</a>`
         : branchName;
-    const commitValue = enableHyperlinks
-        ? `<a href="${commitUrl}">${commitSha}</a>`
+    const commitValue = `<a href="${commitUrl}">${commitSha}</a>`
         : commitSha;
     const prSection = isPR
         ? `
@@ -249,14 +227,11 @@ function combineMarkdown(sastMarkdown, scaMarkdown) {
     const prUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/pull/${summaryContext.prNumber}`;
     const branchUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/tree/${summaryContext.branchName}`;
     const commitUrl = `${summaryContext.serverUrl}/${summaryContext.repoName}/commit/${process.env.GITHUB_SHA}`;
-    const prNumberValue = enableHyperlinks
-        ? `<a href="${prUrl}">#${summaryContext.prNumber}</a>`
+    const prNumberValue = `<a href="${prUrl}">#${summaryContext.prNumber}</a>`
         : `#${summaryContext.prNumber}`;
-    const branchValue = enableHyperlinks
-        ? `<a href="${branchUrl}">${summaryContext.branchName}</a>`
+    const branchValue = `<a href="${branchUrl}">${summaryContext.branchName}</a>`
         : summaryContext.branchName;
-    const commitValue = enableHyperlinks
-        ? `<a href="${commitUrl}">${summaryContext.commitSha}</a>`
+    const commitValue = `<a href="${commitUrl}">${summaryContext.commitSha}</a>`
         : summaryContext.commitSha;
     const prSection = summaryContext.isPR
         ? `
