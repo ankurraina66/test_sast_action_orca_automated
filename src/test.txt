@@ -1,22 +1,41 @@
-C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew dependencyInsight --dependency json4j --configuration compileClasspath
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew dependencyInsight --dependency com.hcl.appscan.common --configuration runtimeClasspath
 
 > Task :dependencyInsight
-org.apache.wink:wink-json4j:1.4
-  Variant compile:
-    | Attribute Name                 | Provided | Requested    |
-    |--------------------------------|----------|--------------|
-    | org.gradle.status              | release  |              |
-    | org.gradle.category            | library  | library      |
-    | org.gradle.libraryelements     | jar      | classes      |
-    | org.gradle.usage               | java-api | java-api     |
-    | org.gradle.dependency.bundling |          | external     |
-    | org.gradle.jvm.environment     |          | standard-jvm |
-    | org.gradle.jvm.version         |          | 17           |
+com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT:20260910.231956-2587
+  Variant runtimeElements:
+    | Attribute Name                 | Provided     | Requested    |
+    |--------------------------------|--------------|--------------|
+    | org.gradle.status              | integration  |              |
+    | org.gradle.category            | library      | library      |
+    | org.gradle.dependency.bundling | external     | external     |
+    | org.gradle.jvm.version         | 8            | 17           |
+    | org.gradle.libraryelements     | jar          | jar          |
+    | org.gradle.usage               | java-runtime | java-runtime |
+    | org.gradle.jvm.environment     |              | standard-jvm |
 
-org.apache.wink:wink-json4j:1.4
-+--- compileClasspath
-\--- com.hcl:appscan.sdk:1.1.0
-     \--- compileClasspath
+com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT
++--- com.hcl.appscan:assessment:1.0-SNAPSHOT:20260910.231956-2590
+|    +--- runtimeClasspath
+|    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260910.231956-2586
+|    |    \--- runtimeClasspath
+|    +--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260910.231956-2587
+|    |    +--- runtimeClasspath
+|    |    \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260910.231956-2586 (*)
+|    +--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260910.231956-2580
+|    |    +--- runtimeClasspath
+|    |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260910.231956-2586 (*)
+|    |    \--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260910.231956-2587 (*)
+|    \--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260910.231956-2587
+|         \--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260910.231956-2585
+|              +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260910.231956-2586 (*)
+|              \--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260910.231956-2580 (*)
++--- com.hcl.appscan:com.hcl.appscan.kb:1.0-SNAPSHOT:20260910.231956-2586
+|    \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260910.231956-2586 (*)
++--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260910.231956-2586 (*)
++--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260910.231956-2587 (*)
++--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260910.231956-2580 (*)
++--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260910.231956-2585 (*)
+\--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260910.231956-2587 (*)
 
 (*) - Indicates repeated occurrences of a transitive dependency subtree. Gradle expands transitive dependency subtrees only once per project; repeat occurrences only display the root of the subtree, followed by this annotation.                                                                                                                                       
 
