@@ -1,76 +1,23 @@
-plugins {
-    id 'org.jetbrains.intellij' version '1.17.2'
-}
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradle runIde
 
-group 'com.hcl.appscan'
-version '2.13'
+> Task :verifyPluginConfiguration
+[gradle-intellij-plugin :verifyPluginConfiguration] The following plugin configuration issues were found:
+- The 'since-build' property is lower than the target IntelliJ Platform major version: 222 < 233.
+See: https://jb.gg/intellij-platform-versions
 
+> Task :runIde FAILED
 
-repositories {
-    maven {
-        url 'http://10.134.67.41:8081/nexus/content/repositories/releases/'
-        allowInsecureProtocol = true
-    }
-    maven {
-        url 'http://10.134.67.41:8081/nexus/content/repositories/snapshots/'
-        allowInsecureProtocol = true
-    }
-    //added the below call to access nexus repo to pull the custom-scanners-service jar
-    maven {
-        url 'http://10.134.67.41:8081/nexus/content/repositories/appscan-common/'
-        allowInsecureProtocol = true
-    }
-    mavenCentral()
-}
+FAILURE: Build failed with an exception.
 
-configurations {
-//    compile
-//    runtime
-}
+* What went wrong:
+Execution failed for task ':runIde'.
+> Index: 1, Size: 1
 
-dependencies {
-    implementation 'com.hcl:appscan.sdk:1.1.0'
-    implementation 'com.hcl.appscan:assessment:1.0-SNAPSHOT'
-    implementation 'com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT'
-    implementation 'com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT'
-    implementation 'commons-io:commons-io:2.10.0'
-    implementation 'com.hcl.appscan:combiner:1.0-SNAPSHOT'
-    implementation 'com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT'
-    implementation 'org.apache.json4j:json4j:1.1'
-    //Removed manual copy of custom-scanners-service jar and added the below line to pull it from nexus repo
-    implementation('custom-scanners-service.production:custom-scanners-service:1.1.14')
-    implementation files('dataflow')
-    implementation files('licenses')
-    compileOnly('com.oracle:jfxrt:1.8') { transitive = false }
-    implementation 'org.apache.wink:wink-json4j:1.4'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-}
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
 
-// See https://github.com/JetBrains/gradle-intellij-plugin/
-intellij {
-    version.set(ideaVersion)
-    updateSinceUntilBuild.value(false)
-    plugins = ['com.intellij.java']
-}
-
-// This is the configuration of Client Plugin Project
-/*intellij {
-    version 'IC-15.0'
-    plugins 'coverage'
-    pluginName 'com.hcl.appscan.intellij.plugin'
-}*/
-
-/*patchPluginXml {
-    changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
-}*/
-runIde {
-    ideDir = file("C:/Program Files/JetBrains/IntelliJ IDEA 2026.2.2")
-}
-
-test {
-    useJUnitPlatform()
-}
-
+BUILD FAILED in 2s
+10 actionable tasks: 3 executed, 7 up-to-date
