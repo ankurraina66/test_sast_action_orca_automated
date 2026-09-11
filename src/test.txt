@@ -1,68 +1,353 @@
-Unhandled exception in EDT
+package com.hcl.appscan.intellij.plugin.ui;
 
-com.intellij.openapi.diagnostic.UnhandledException: com/intellij/ui/jcef/JBCefBrowserBase
-	at com.intellij.openapi.application.impl.ExceptionsKt.processUnhandledException(exceptions.kt:56)
-	at com.intellij.platform.ide.bootstrap.StartupErrorReporter.processException(StartupErrorReporter.java:349)
-	at com.intellij.ide.IdeEventQueue.processException(IdeEventQueue.kt:476)
-	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:738)
-	at com.intellij.ide.IdeEventQueue.dispatchMouseEvent(IdeEventQueue.kt:637)
-	at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:568)
-	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$0$0$0$0(IdeEventQueue.kt:388)
-	at com.intellij.openapi.progress.impl.CoreProgressManager.computePrioritized(CoreProgressManager.java:941)
-	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$0$0$0(IdeEventQueue.kt:387)
-	at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$0(IdeEventQueue.kt:1122)
-	at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:114)
-	at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:1122)
-	at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$0(IdeEventQueue.kt:382)
-	at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:422)
-	at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
-	at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
-	at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117)
-	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113)
-	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105)
-	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92)
-Caused by: java.lang.NoClassDefFoundError: com/intellij/ui/jcef/JBCefBrowserBase
-	at com.hcl.appscan.intellij.plugin.ui.IssueDetailsToolWindow.createHowToFixToolWindowContent(IssueDetailsToolWindow.java:31)
-	at com.hcl.appscan.intellij.plugin.ui.IssueDetailsToolWindowFactory.createToolWindowContent(IssueDetailsToolWindowFactory.java:37)
-	at com.intellij.openapi.wm.impl.ToolWindowImpl.createContentIfNeeded(ToolWindowImpl.kt:775)
-	at com.intellij.openapi.wm.impl.ToolWindowImpl.scheduleContentInitializationIfNeeded$intellij_platform_ide_impl(ToolWindowImpl.kt:752)
-	at com.intellij.openapi.wm.impl.ToolWindowManagerImpl.doShowWindow(ToolWindowManagerImpl.kt:1008)
-	at com.intellij.openapi.wm.impl.ToolWindowManagerImpl.showToolWindowImpl(ToolWindowManagerImpl.kt:939)
-	at com.intellij.openapi.wm.impl.ToolWindowManagerImpl.activateToolWindow$intellij_platform_ide_impl(ToolWindowManagerImpl.kt:636)
-	at com.intellij.openapi.wm.impl.ToolWindowManagerImpl.activateToolWindow$intellij_platform_ide_impl$default(ToolWindowManagerImpl.kt:603)
-	at com.intellij.openapi.wm.impl.ToolWindowManagerImpl.activated$intellij_platform_ide_impl(ToolWindowManagerImpl.kt:1898)
-	at com.intellij.openapi.wm.impl.SquareAnActionButton.setSelected(SquareStripeButton.kt:391)
-	at com.intellij.openapi.actionSystem.ToggleAction.actionPerformed(ToggleAction.java:62)
-	at com.intellij.openapi.actionSystem.impl.ActionButton.actionPerformed(ActionButton.java:283)
-	at com.intellij.openapi.actionSystem.impl.ActionButton.lambda$performAction$0(ActionButton.java:262)
-	at com.intellij.openapi.actionSystem.impl.ActionManagerImpl.performWithActionCallbacks$lambda$1$0(ActionManagerImpl.kt:623)
-	at com.intellij.openapi.application.WriteIntentReadAction.lambda$run$0(WriteIntentReadAction.java:24)
-	at com.intellij.openapi.application.ThrowableComputableToLambda.invoke(coroutines.kt:351)
-	at com.intellij.platform.locking.impl.NestedLocksThreadingSupport.runWriteIntentReadAction(NestedLocksThreadingSupport.kt:710)
-	at com.intellij.openapi.application.impl.ApplicationImpl.runWriteIntentReadAction(ApplicationImpl.java:1226)
-	at com.intellij.openapi.application.WriteIntentReadAction.computeThrowable(WriteIntentReadAction.java:55)
-	at com.intellij.openapi.application.WriteIntentReadAction.run(WriteIntentReadAction.java:23)
-	at com.intellij.openapi.actionSystem.impl.ActionManagerImpl.performWithActionCallbacks$lambda$1(ActionManagerImpl.kt:812)
-	at com.intellij.concurrency.ThreadContext.installThreadContext(threadContext.kt:307)
-	at com.intellij.openapi.actionSystem.impl.ActionManagerImpl.performWithActionCallbacks(ActionManagerImpl.kt:620)
-	at com.intellij.openapi.actionSystem.impl.ActionButton.performAction(ActionButton.java:262)
-	at com.intellij.openapi.actionSystem.impl.ActionButton.processMouseEvent(ActionButton.java:578)
-	at java.desktop/java.awt.Component.processEvent(Component.java:6396)
-	at java.desktop/java.awt.Container.processEvent(Container.java:2260)
-	at java.desktop/java.awt.Component.dispatchEventImpl(Component.java:5008)
-	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2318)
-	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4836)
-	at java.desktop/java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4932)
-	at java.desktop/java.awt.LightweightDispatcher.processMouseEvent(Container.java:4562)
-	at java.desktop/java.awt.LightweightDispatcher.dispatchEvent(Container.java:4503)
-	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2304)
-	at java.desktop/java.awt.Window.dispatchEventImpl(Window.java:2713)
-	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4836)
-	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:734)
-	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:711)
-	at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:731)
-	... 16 more
-Caused by: java.lang.ClassNotFoundException: com.intellij.ui.jcef.JBCefBrowserBase PluginClassLoader(plugin=PluginMainDescriptor(name=HCL AppScan, id=com.ibm.appscan.intellij.plugin, version=2.13, isBundled=false, path=~\AppData\Roaming\JetBrains\IntelliJIdea2026.2\plugins\intellij-plugin), packagePrefix=null, state=active, parents=ContentModuleDescriptor(id=intellij.java.bookmarks, package=com.intellij.java.bookmarks) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.libraries.groovy, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Groovy Scripting, id=com.intellij.groovy.scripting, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\groovy-scripting), ContentModuleDescriptor(id=intellij.platform.vcs.log.graph) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.xml.emmet) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.ssh.core, loadingRule=REQUIRED) <- PluginMainDescriptor(name=SSH, id=intellij.ssh.plugin, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\platform-ssh-plugin), ContentModuleDescriptor(id=intellij.platform.ssh, loadingRule=REQUIRED) <- PluginMainDescriptor(name=SSH, id=intellij.ssh.plugin, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\platform-ssh-plugin), ContentModuleDescriptor(id=intellij.platform.ssh.attach) <- PluginMainDescriptor(name=SSH, id=intellij.ssh.plugin, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\platform-ssh-plugin), ContentModuleDescriptor(id=intellij.platform.vcs.log) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.smRunner, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Test Runner, id=intellij.testRunner.plugin, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\platform-testRunner-plugin), ContentModuleDescriptor(id=intellij.platform.structureView) <- PluginMainDescriptor(name=Structure View, id=intellij.structureView.plugin, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\platform-structureView-plugin), ContentModuleDescriptor(id=intellij.platform.todo) <- PluginMainDescriptor(name=TODO Comments, id=intellij.todo.plugin, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\platform-todo-plugin), ContentModuleDescriptor(id=intellij.platform.bookmarks, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Bookmarks Manager, id=intellij.bookmarks.plugin, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\platform-bookmarks-plugin), ContentModuleDescriptor(id=intellij.platform.vcs.dvcs) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.structuralSearch) <- PluginMainDescriptor(name=Structural Search, id=intellij.structuralSearch.plugin, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\platform-structuralSearch-plugin), ContentModuleDescriptor(id=intellij.relaxng) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.vcs.impl) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.vcs.log.impl) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.vcs.dvcs.impl) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.spellchecker) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.java.backend, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.spellchecker.xml) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.scriptDebugger.protocolReaderRuntime) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.scriptDebugger.backend) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.scriptDebugger.ui) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.tasks) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.tasks.impl) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.collaborationTools.auth.base) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.collaborationTools.auth) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.platform.collaborationTools) <- PluginMainDescriptor(name=IDEA CORE, id=com.intellij, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\lib), ContentModuleDescriptor(id=intellij.java.syntax, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.frontback.psi, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.frontback.psi.impl, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.psi, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.psi.impl, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.frontback.impl, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.indexing, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.platform.uast, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.platform.uast.ide, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.uast, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.compiler, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.analysis, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.execution, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.remoteServers) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.jvm.analysis, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.jsp, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.debugger, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.codeserver.core, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.codeserver.highlighting, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.jsp.spi, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.indexing.impl, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.analysis.impl, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.structureView, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.impl, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.xml.dom.impl) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.impl.refactorings, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.compiler.impl, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.typeMigration, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.impl.inspections, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.jvm.analysis.refactoring, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.jvm.analysis.quickFix, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.uiDesigner, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.manifest, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.ui, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.execution.impl) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.debugger.impl) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.debugger.memory.agent, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.remoteServers.impl) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.uast.ide, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.platform.jps.build, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.platform.jps.build.dependencyGraph, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.platform.jps.build.javac.rt, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.guiForms.compiler, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.compiler.antTasks, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.compiler.instrumentationUtil, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.compiler.instrumentationUtil.java8, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.backend, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.frontend, loadingRule=REQUIRED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.backend.split) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.debugger.impl.shared, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.execution.impl.shared, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.structuralSearch) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.featuresTrainer) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.performancePlugin) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.unscramble) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.vcs) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.terminal.shared) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.terminal.backend) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.terminal.frontend) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.jvm.analysis.impl) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.debugger.impl.frontend) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.debugger.impl.backend) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.execution.impl.frontend) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.execution.impl.backend) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.ultimate.icons) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.langInjection) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.langInjection.jps) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.jam.impl) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.jam) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.debugger.jvm.advanced.java) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.debugger.logpoints.shared) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.debugger.logpoints.backend) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.debugger.logpoints.frontend) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.debugger.jvm.advanced.java.logpoints) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.debugger.logpoints.java) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.java.copyright) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), ContentModuleDescriptor(id=intellij.libraries.test.discovery, loadingRule=EMBEDDED) <- PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), PluginMainDescriptor(name=Java, id=com.intellij.java, version=262.10315.125, isBundled=true, path=C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.2\plugins\java), )
-	at com.intellij.ide.plugins.cl.PluginClassLoader.loadClass(PluginClassLoader.kt:154)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:490)
-	... 55 more
+import com.hcl.appscan.intellij.plugin.auth.asoc.LoginUtility;
+import com.hcl.appscan.sdk.auth.IAuthenticationProvider;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.components.JBScrollPane;
+import javax.swing.*;
+
+public class IssueDetailsToolWindow {
+    private HowToFixPanel howToFixPanel;
+    private DataFlowPanel dataFlowPanel;
+    private IAuthenticationProvider authenticationHandler;
+
+    public IssueDetailsToolWindow(Project project) {
+        authenticationHandler = LoginUtility.getASoCHandler();
+    }
+
+    public SimpleToolWindowPanel createHowToFixToolWindowContent(final Project project) {
+        howToFixPanel = new HowToFixPanel(project);
+        SimpleToolWindowPanel mainPanel = new SimpleToolWindowPanel(true, true);
+        JPanel fixGroupPanelComponent = howToFixPanel.getComponent();
+        JBScrollPane scrollPane = new JBScrollPane(fixGroupPanelComponent, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setViewportView(fixGroupPanelComponent);
+        mainPanel.add(scrollPane);
+        return mainPanel;
+    }
+
+    public SimpleToolWindowPanel createDataFlowToolWindowContent(final Project project) {
+        dataFlowPanel = new DataFlowPanel(project);
+        SimpleToolWindowPanel mainPanel = new SimpleToolWindowPanel(true, true);
+        JPanel fixGroupPanelComponent = dataFlowPanel.getComponent();
+        JBScrollPane scrollPane = new JBScrollPane(fixGroupPanelComponent, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setViewportView(fixGroupPanelComponent);
+        mainPanel.add(scrollPane);
+        return mainPanel;
+    }
+}
+
+******************************************************************************************************************************
+package com.hcl.appscan.intellij.plugin.ui;
+
+import com.hcl.appscan.intellij.plugin.MessagesBundle;
+import com.hcl.appscan.intellij.plugin.util.AndroidStudioUtil;
+import com.hcl.appscan.intellij.plugin.util.UIComponentsUtil;
+import com.intellij.openapi.project.DumbAware;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.impl.content.ToolWindowContentUi;
+import com.intellij.ui.content.Content;
+import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.content.ContentManager;
+import org.jetbrains.annotations.NotNull;
+
+public class IssueDetailsToolWindowFactory implements ToolWindowFactory, DumbAware {
+
+	@Override
+	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+		if (!AndroidStudioUtil.isAndroidStudio()) {
+			UIComponentsUtil.setDetailsToolwindow(toolWindow);
+			IssueDetailsToolWindow issueDetailsToolWindow = new IssueDetailsToolWindow(project);
+
+			toolWindow.getComponent().putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true");
+			ContentManager contentManager = toolWindow.getContentManager();
+			SimpleToolWindowPanel howToFixToolWindowContent = issueDetailsToolWindow.createHowToFixToolWindowContent(project);
+			Content howToFixGroupContent = ContentFactory.SERVICE.getInstance().createContent(howToFixToolWindowContent, MessagesBundle.message("toolwindow.issuedetails.howtofix.title"), false);
+			contentManager.addContent(howToFixGroupContent);
+
+			SimpleToolWindowPanel dataFlowToolWindowContent = issueDetailsToolWindow.createDataFlowToolWindowContent(project);
+			Content dataFlowContent = ContentFactory.SERVICE.getInstance().createContent(dataFlowToolWindowContent, MessagesBundle.message("toolwindow.issuedetails.dataflow.title"), false);
+			contentManager.addContent(dataFlowContent);
+
+			contentManager.setSelectedContent(howToFixGroupContent);
+			toolWindow.hide();
+		}
+	}
+}
+******************************************************************************************************************************
+build.gradle
+
+plugins {
+    id 'org.jetbrains.intellij' version '1.17.2'
+}
+
+group 'com.hcl.appscan'
+version '2.13'
+
+
+repositories {
+    maven {
+        url 'http://10.134.67.41:8081/nexus/content/repositories/releases/'
+        allowInsecureProtocol = true
+    }
+    maven {
+        url 'http://10.134.67.41:8081/nexus/content/repositories/snapshots/'
+        allowInsecureProtocol = true
+    }
+    //added the below call to access nexus repo to pull the custom-scanners-service jar
+    maven {
+        url 'http://10.134.67.41:8081/nexus/content/repositories/appscan-common/'
+        allowInsecureProtocol = true
+    }
+    mavenCentral()
+}
+
+configurations {
+//    compile
+//    runtime
+}
+
+dependencies {
+    implementation 'com.hcl:appscan.sdk:1.1.0'
+    implementation 'com.hcl.appscan:assessment:1.0-SNAPSHOT'
+    implementation 'com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT'
+    implementation 'com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT'
+    implementation 'commons-io:commons-io:2.10.0'
+    implementation 'com.hcl.appscan:combiner:1.0-SNAPSHOT'
+    //Removed manual copy of custom-scanners-service jar and added the below line to pull it from nexus repo
+    implementation('custom-scanners-service.production:custom-scanners-service:1.1.14')
+    implementation files('dataflow')
+    implementation files('licenses')
+    compileOnly('com.oracle:jfxrt:1.8') { transitive = false }
+    implementation 'org.apache.wink:wink-json4j:1.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version.set(ideaVersion)
+    updateSinceUntilBuild.value(false)
+    plugins = ['com.intellij.java']
+}
+
+// This is the configuration of Client Plugin Project
+/*intellij {
+    version 'IC-15.0'
+    plugins 'coverage'
+    pluginName 'com.hcl.appscan.intellij.plugin'
+}*/
+
+/*patchPluginXml {
+    changeNotes """
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>"""
+}*/
+
+test {
+    useJUnitPlatform()
+}
+*************************************************************************************************************************
+plugin.xml
+
+<idea-plugin require-restart="true">
+    <id>com.ibm.appscan.intellij.plugin</id>
+    <name>HCL AppScan</name>
+
+    <vendor url="https://cloud.appscan.com">HCL</vendor>
+
+    <description>
+        <![CDATA[<b>HCL AppScan Plugin</b><br /><br />The HCL AppScan JetBrains plugin allows developers to build secure applications directly within their JetBrains IDE. It combines the strengths of Static Application Security Testing (SAST) for early code analysis and Interactive Application Security Testing (IAST) for runtime vulnerability detection.<br /><br />Integrating HCL CodeSweep with the HCL AppScan JetBrains plugin lets you scan source code early in the development lifecycle:
+                <ul>
+                    <li>Mark CodeSweep scan results as noise or remediate using the quick-fix feature.</li>
+                    <li>View all supported rules, and enable or disable rules, in the rules panel.</li>
+                    <li>View fix groups and scan data from HCL AppScan on Cloud applications.</li>
+                    <li>Import results of executed scans from AppScan Source.</li>
+                    <li>Triage fix groups or their underlying issues within the IDE.</li>
+                    <li>Add comments during a status change.</li>
+                </ul>
+        <br /><br />The HCL AppScan JetBrains plugin offers seamless integration with IAST, enabling you to leverage its capabilities within your JetBrains IDE. This integration enhances the "shift-left" strategy by allowing swift identification of vulnerabilities early in the development process. Seamlessly analyze new and existing code sections as soon as they are debugged, thereby strengthening the overall security of your applications.<br /><br />Not yet an HCL AppScan customer? Start a <a href="https://www.hcltechsw.com/appscan/appscan-make-the-switch-to-appscan-on-cloud">free trial.</a>]]>
+    </description>
+    <change-notes><![CDATA[
+        <ul>
+            <li>2.13 -
+                 <ul>
+                     <li>Added support for displaying CMD+CTRL training links under Issue overview within How To Fix articles.</li>
+                     <li>Bug Fixes.</li>
+                 </ul>
+            </li>
+            <li>2.12 -
+                <ul>
+                    <li>Secret Scanner support in CodeSweep.</li>
+                </ul>
+            </li>
+            <li>2.11 -
+                <ul>
+                    <li>Bug Fixes.</li>
+                </ul>
+            </li>
+            <li>2.10 -
+                <ul>
+                    <li>Now compatible with Android Studio IDE.</li>
+                    <li>Minor enhancements and Bug Fixes.</li>
+                </ul>
+            </li>
+            <li>2.9 -
+                <ul>
+                    <li>View fix groups and scans data from HCL AppScan 360°.</li>
+                    <li>Update the status of Fix groups and Issues imported from HCL AppScan 360°.</li>
+                    <li>Minor enhancements and Bug Fixes.</li>
+                </ul>
+            </li>
+            <li>2.8 -
+                <ul>
+                    <li>Migration to version 4 of ASoC REST APIs.</li>
+                    <li>Support to import SCA scans information from HCL AppScan on Cloud applications.</li>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
+            <li>2.7 -
+                <ul>
+                    <li>Support for IAST.</li>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
+            <li>2.6 -
+                <ul>
+                    <li>Enable application of Auto-fix suggestions without ASoC login.</li>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
+            <li>2.5 -
+                <ul>
+                    <li>Deprecation of "New" Issue Status in ASoC scans. <a href="https://help.hcltechsw.com/appscan/ASoC/ent_issue_class_settings.html">Learn more</a></li>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
+            <li>2.4 -
+                <ul>
+                    <li>Enhancements in user interface.</li>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
+            <li>2.3 -
+                <ul>
+                    <li>Set As Noise enhanced for ease of use.</li>
+                    <li>Multi-select enabled in CodeSweep Rules panel.</li>
+                    <li>Support for Critical severity findings in ASoC scans.</li>
+                    <li>Adhere to user permissions for status/comments updates in ASoC findings.</li>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
+            <li>2.2 - 
+                <ul>
+                    <li>CodeSweep integration for scanning source code.</li>
+                    <li>Ability to switch between ASoC (AppScan On Cloud) applications.</li>
+                    <li>Ability to switch between AppScan Source assessment (.ozasmt) files.</li>
+                    <li>Support for ASoC EU Production server.</li>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
+            <li>2.1 -
+                <ul>
+                    <li>Support for IDE background themes.</li>
+                    <li>Bug fixes.</li>
+                </ul>
+            </li>
+            <li>2.0.2 - Security fix update: CVE-2021-45046</li>
+            <li>2.0.1 - Security fix update: CVE-2021-44228</li>
+            <li>2.0 - 
+                <ul>
+                    <li>View fix groups and scans data from HCL AppScan On Cloud applications.</li>
+                    <li>Import results of executed scans from AppScan Source.</li>
+                    <li>Triage the fix groups or underlying issues within the IDE, with comments during a status change.</li>
+                </ul>
+            </li>   
+    ]]>
+    </change-notes>
+
+    <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+    <idea-version since-build="222"/>
+
+    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!--    <depends>com.intellij.modules.platform</depends>-->
+    <depends>com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="plugin-java.xml">com.intellij.modules.java</depends>
+    <depends optional="true" config-file="plugin-python.xml">com.intellij.modules.python</depends>
+
+
+    <resource-bundle>messages.AppScanBundle</resource-bundle>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="AppScan" icon="/icons/appScan-logo-shape.svg" anchor="bottom"
+                    factoryClass="com.hcl.appscan.intellij.plugin.ui.PluginToolWindowFactory"/>
+        <toolWindow id="AppScan Details" icon="/icons/appScan-logo-shape.svg" anchor="right"
+                    factoryClass="com.hcl.appscan.intellij.plugin.ui.IssueDetailsToolWindowFactory"/>
+        <applicationService serviceImplementation="com.hcl.appscan.intellij.plugin.auth.asoc.CloudAuthenticationHandler"/>
+        <applicationService serviceImplementation="com.hcl.appscan.intellij.plugin.auth.asoc.CodeSweepASoCHandler"/>
+
+        <projectService serviceInterface="com.hcl.appscan.intellij.plugin.ui.PluginToolWindowFactory$ProjectService"
+                        serviceImplementation="com.hcl.appscan.intellij.plugin.ui.PluginToolWindowFactory$ProjectService"/>
+        <projectService serviceInterface="com.hcl.appscan.intellij.plugin.handler.asoc.ApplicationHandler"
+                        serviceImplementation="com.hcl.appscan.intellij.plugin.handler.asoc.ApplicationHandler"/>
+        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.handler.codesweep.CodeSweepHandler"/>
+        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.handler.codesweep.CodeSweepNoiseHandler"/>
+        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsState"/>
+        <projectConfigurable displayName="AppScan" parentId="tools" instance="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable"
+                        id="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable" nonDefaultProject="false"/>
+        <projectConfigurable displayName="CodeSweep" parentId="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable" instance="com.hcl.appscan.intellij.plugin.handler.codesweep.CodeSweepSettingsConfigurable"
+                             id="com.hcl.appscan.intellij.plugin.handler.codesweep.CodeSweepSettingsConfigurable" nonDefaultProject="false"/>
+
+        <projectConfigurable displayName="ASoC/AppScan 360°" parentId="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable" instance="com.hcl.appscan.intellij.plugin.handler.AsocA360Configurable"
+                             id="com.hcl.appscan.intellij.plugin.handler.AsocA360Configurable" nonDefaultProject="false"/>
+
+        <projectConfigurable displayName="Login" parentId="com.hcl.appscan.intellij.plugin.handler.AsocA360Configurable" instance="com.hcl.appscan.intellij.plugin.handler.login.config.LoginConfigurable"
+                             id="com.hcl.appscan.intellij.plugin.handler.login.config.LoginConfigurable" nonDefaultProject="false"/>
+        <notificationGroup id="AppScan Notification" displayType="BALLOON" key="notification.group.name"/>
+        <applicationService serviceImplementation="com.hcl.appscan.intellij.plugin.service.ApplicationLevelStartupActivity"/>
+        <applicationService serviceImplementation="com.hcl.appscan.intellij.plugin.handler.ApplicationSettingsState"/>
+        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.service.FileContentProvider"/>
+        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.service.IASTIssueProvider"/>
+        <!--        <themeProvider id="df9ed47d-1794-49e6-a3c5-6cd620502bae" path="/intellij_plugin.theme.json"/>-->
+    </extensions>
+
+    <project-components>
+    </project-components>
+
+    <application-components>
+        <component>
+            <implementation-class>com.hcl.appscan.intellij.plugin.service.InvokeCustomScannerService</implementation-class>
+        </component>
+    </application-components>
+    <projectListeners>
+        <listener class="com.hcl.appscan.intellij.plugin.listener.codesweep.VFSaveListener"
+                  topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
+        <listener class="com.hcl.appscan.intellij.plugin.listener.iast.XDebuggerManagerListenerImpl"
+                  topic="com.intellij.xdebugger.XDebuggerManagerListener"/>
+        <listener
+                class="com.hcl.appscan.intellij.plugin.listener.asoc.ApplicationLogOutEventListenerImpl"
+                topic="com.hcl.appscan.intellij.plugin.listener.asoc.IApplicationLogOutEventListener"/>
+    </projectListeners>
+
+    <actions>
+        <!-- Add your actions here -->
+
+        <group id="appscan.toolwindow.actions" >
+            <action id="com.hcl.appscan.intellij.plugin.ui.action.OpenHelpLinkAction"
+                    class="com.hcl.appscan.intellij.plugin.ui.action.OpenHelpLinkAction"/>
+        </group>
+
+        <group id="appscan.codesweep.actions" >
+            <action id="com.hcl.appscan.intellij.plugin.ui.action.OpenCommunityLinkAction"
+                    class="com.hcl.appscan.intellij.plugin.ui.action.OpenCommunityLinkAction"/>
+            <action id="com.hcl.appscan.intellij.plugin.ui.action.OpenCodeSweepRulesAction"
+                    class="com.hcl.appscan.intellij.plugin.ui.action.OpenCodeSweepRulesAction"/>
+        </group>
+    </actions>
+</idea-plugin>
+
