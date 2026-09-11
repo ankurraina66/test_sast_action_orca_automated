@@ -1,5 +1,4 @@
-
-C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew build
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew buildPlugin
 
 > Task :verifyPluginConfiguration
 [gradle-intellij-plugin :verifyPluginConfiguration] The following plugin configuration issues were found:
@@ -8,16 +7,15 @@ See: https://jb.gg/intellij-platform-versions
 
 > Task :buildSearchableOptions
 CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
-2026-09-11 12:30:01,706 [   2480]   WARN - #c.i.s.ComponentManagerImpl - `preload=true` must be used only for core services (service=com.intellij.ae.database.core.baseEvents.fus.AddStatisticsEventLogListenerTemporary, plugin=com.jetbrains.ae.database)
-2026-09-11 12:30:01,707 [   2481]   WARN - #c.i.s.ComponentManagerImpl - `preload=true` must be used only for core services (service=com.jetbrains.rdserver.statistics.BackendStatisticsManager, plugin=com.jetbrains.codeWithMe)
-2026-09-11 12:30:02,271 [   3045]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.search.FilenameIndex initializer requests com.intellij.ide.plugins.PluginUtil instance
-2026-09-11 12:30:03,403 [   4177]   WARN - #c.i.o.v.n.p.d.e.DurableEnumeratorFactory - [enumerator.mmapped]: .valueToId map is out-of-sync with .valuesLog data -> rebuilding it
-2026-09-11 12:30:04,151 [   4925]   WARN - #c.i.s.ComponentManagerImpl - org.zmlx.hg4idea.provider.HgChangeProvider initializer requests com.intellij.openapi.vcs.FileStatusFactory instance
-2026-09-11 12:30:09,011 [   9785]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.codeInsight.daemon.LineMarkerProviders initializer requests com.intellij.codeInsight.daemon.LineMarkerProviders instance
-2026-09-11 12:30:11,933 [  12707]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.LanguageSubstitutors initializer requests com.intellij.psi.LanguageSubstitutors instance
-2026-09-11 12:30:16,144 [  16918]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable initializer requests com.intellij.util.LocaleSensitiveApplicationCacheService instance
-2026-09-11 12:30:18,791 [  19565]   WARN - #c.i.u.j.JBCefApp - JCEF is manually disabled in headless env via 'ide.browser.jcef.headless.enabled=false'
-2026-09-11 12:30:18,963 [  19737] SEVERE - #c.i.c.ComponentStoreImpl - Cannot init component state (componentName=GradleJvmSupportMatrix, componentClass=GradleJvmSupportMatrix) [Plugin: com.intellij.gradle]
+2026-09-11 12:34:14,289 [   2371]   WARN - #c.i.s.ComponentManagerImpl - `preload=true` must be used only for core services (service=com.intellij.ae.database.core.baseEvents.fus.AddStatisticsEventLogListenerTemporary, plugin=com.jetbrains.ae.database)
+2026-09-11 12:34:14,290 [   2372]   WARN - #c.i.s.ComponentManagerImpl - `preload=true` must be used only for core services (service=com.jetbrains.rdserver.statistics.BackendStatisticsManager, plugin=com.jetbrains.codeWithMe)
+2026-09-11 12:34:14,894 [   2976]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.search.FilenameIndex initializer requests com.intellij.ide.plugins.PluginUtil instance
+2026-09-11 12:34:16,681 [   4763]   WARN - #c.i.s.ComponentManagerImpl - org.zmlx.hg4idea.provider.HgChangeProvider initializer requests com.intellij.openapi.vcs.FileStatusFactory instance
+2026-09-11 12:34:21,912 [   9994]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.codeInsight.daemon.LineMarkerProviders initializer requests com.intellij.codeInsight.daemon.LineMarkerProviders instance
+2026-09-11 12:34:24,938 [  13020]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.LanguageSubstitutors initializer requests com.intellij.psi.LanguageSubstitutors instance
+2026-09-11 12:34:29,163 [  17245]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable initializer requests com.intellij.util.LocaleSensitiveApplicationCacheService instance
+2026-09-11 12:34:31,711 [  19793]   WARN - #c.i.u.j.JBCefApp - JCEF is manually disabled in headless env via 'ide.browser.jcef.headless.enabled=false'
+2026-09-11 12:34:31,932 [  20014] SEVERE - #c.i.c.ComponentStoreImpl - Cannot init component state (componentName=GradleJvmSupportMatrix, componentClass=GradleJvmSupportMatrix) [Plugin: com.intellij.gradle]
 com.intellij.diagnostic.PluginException: Cannot init component state (componentName=GradleJvmSupportMatrix, componentClass=GradleJvmSupportMatrix) [Plugin: com.intellij.gradle]
         at com.intellij.configurationStore.ComponentStoreImpl.initComponent(ComponentStoreImpl.kt:174)
         at com.intellij.configurationStore.ComponentStoreWithExtraComponents.initComponent(ComponentStoreWithExtraComponents.kt:48)
@@ -114,10 +112,10 @@ Caused by: java.lang.IllegalArgumentException: 25
         at com.intellij.configurationStore.ComponentStoreImpl.initComponent(ComponentStoreImpl.kt:409)
         at com.intellij.configurationStore.ComponentStoreImpl.initComponent(ComponentStoreImpl.kt:131)
         ... 78 more
-2026-09-11 12:30:18,968 [  19742] SEVERE - #c.i.c.ComponentStoreImpl - IntelliJ IDEA 2023.3.6  Build #IC-233.15026.9
-2026-09-11 12:30:18,968 [  19742] SEVERE - #c.i.c.ComponentStoreImpl - JDK: 17.0.10; VM: OpenJDK 64-Bit Server VM; Vendor: JetBrains s.r.o.
-2026-09-11 12:30:18,969 [  19743] SEVERE - #c.i.c.ComponentStoreImpl - OS: Windows 11
-2026-09-11 12:30:18,970 [  19744] SEVERE - #c.i.c.ComponentStoreImpl - Last Action: 
+2026-09-11 12:34:31,937 [  20019] SEVERE - #c.i.c.ComponentStoreImpl - IntelliJ IDEA 2023.3.6  Build #IC-233.15026.9
+2026-09-11 12:34:31,939 [  20021] SEVERE - #c.i.c.ComponentStoreImpl - JDK: 17.0.10; VM: OpenJDK 64-Bit Server VM; Vendor: JetBrains s.r.o.
+2026-09-11 12:34:31,939 [  20021] SEVERE - #c.i.c.ComponentStoreImpl - OS: Windows 11
+2026-09-11 12:34:31,939 [  20021] SEVERE - #c.i.c.ComponentStoreImpl - Last Action: 
 Found 209 configurables
 Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\textmate.jar\search\textmate.jar.searchableOptions.xml
 Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\markdown.jar\search\markdown.jar.searchableOptions.xml
@@ -188,5 +186,5 @@ Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intell
 Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\settingsSync.jar\search\settingsSync.jar.searchableOptions.xml
 Searchable options index builder completed
 
-BUILD SUCCESSFUL in 37s
-14 actionable tasks: 5 executed, 9 up-to-date
+BUILD SUCCESSFUL in 36s
+12 actionable tasks: 4 executed, 8 up-to-date
