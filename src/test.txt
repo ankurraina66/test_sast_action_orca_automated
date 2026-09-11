@@ -1,2 +1,26 @@
-C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>for /r "%USERPROFILE%\.gradle\caches\modules-2\files-2.1" %f in (*.jar) do @jar tf "%f" 2>nul | findstr /x /c:"org/apache/commons/json/JSONObject.class" >nul && echo %f
-C:\Users\ankur.raina\.gradle\caches\modules-2\files-2.1\org.apache.json4j\json4j\1.1\90c5a42d34823270343d0ca7cc5fcd67a7d9990b\json4j-1.1.jar
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew dependencyInsight --dependency json4j --configuration compileClasspath
+
+> Task :dependencyInsight
+org.apache.wink:wink-json4j:1.4
+  Variant compile:
+    | Attribute Name                 | Provided | Requested    |
+    |--------------------------------|----------|--------------|
+    | org.gradle.status              | release  |              |
+    | org.gradle.category            | library  | library      |
+    | org.gradle.libraryelements     | jar      | classes      |
+    | org.gradle.usage               | java-api | java-api     |
+    | org.gradle.dependency.bundling |          | external     |
+    | org.gradle.jvm.environment     |          | standard-jvm |
+    | org.gradle.jvm.version         |          | 17           |
+
+org.apache.wink:wink-json4j:1.4
++--- compileClasspath
+\--- com.hcl:appscan.sdk:1.1.0
+     \--- compileClasspath
+
+(*) - Indicates repeated occurrences of a transitive dependency subtree. Gradle expands transitive dependency subtrees only once per project; repeat occurrences only display the root of the subtree, followed by this annotation.                                                                                                                                       
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed
