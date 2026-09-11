@@ -1,89 +1,76 @@
-C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew build
+plugins {
+    id 'org.jetbrains.intellij' version '1.17.2'
+}
 
-> Task :verifyPluginConfiguration
-[gradle-intellij-plugin :verifyPluginConfiguration] The following plugin configuration issues were found:
-- The 'since-build' property is lower than the target IntelliJ Platform major version: 222 < 233.
-See: https://jb.gg/intellij-platform-versions
+group 'com.hcl.appscan'
+version '2.13'
 
-> Task :buildSearchableOptions
-CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
-2026-09-11 12:13:19,707 [   2436]   WARN - #c.i.s.ComponentManagerImpl - `preload=true` must be used only for core services (service=com.intellij.ae.database.core.baseEvents.fus.AddStatisticsEventLogListenerTemporary, plugin=com.jetbrains.ae.database)
-2026-09-11 12:13:19,708 [   2437]   WARN - #c.i.s.ComponentManagerImpl - `preload=true` must be used only for core services (service=com.jetbrains.rdserver.statistics.BackendStatisticsManager, plugin=com.jetbrains.codeWithMe)
-2026-09-11 12:13:20,247 [   2976]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.search.FilenameIndex initializer requests com.intellij.ide.plugins.PluginUtil instance
-2026-09-11 12:13:22,068 [   4797]   WARN - #c.i.s.ComponentManagerImpl - org.zmlx.hg4idea.provider.HgChangeProvider initializer requests com.intellij.openapi.vcs.FileStatusFactory instance
-2026-09-11 12:13:27,373 [  10102]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.codeInsight.daemon.LineMarkerProviders initializer requests com.intellij.codeInsight.daemon.LineMarkerProviders instance
-2026-09-11 12:13:30,531 [  13260]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.LanguageSubstitutors initializer requests com.intellij.psi.LanguageSubstitutors instance
-2026-09-11 12:13:34,887 [  17616]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable initializer requests com.intellij.util.LocaleSensitiveApplicationCacheService instance
-2026-09-11 12:13:37,943 [  20672]   WARN - #c.i.u.j.JBCefApp - JCEF is manually disabled in headless env via 'ide.browser.jcef.headless.enabled=false'
-Found 209 configurables
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\textmate.jar\search\textmate.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\markdown.jar\search\markdown.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\IntelliLang.jar\search\IntelliLang.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\eclipse.jar\search\eclipse.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\tasks-core.jar\search\tasks-core.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\sh.jar\search\sh.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-coverage.jar\search\java-coverage.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-impl.jar!\search\java-impl.jar!.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\javaFX.jar!\search\javaFX.jar!.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\searchEverywhereMl.jar\search\searchEverywhereMl.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\idea-junit.jar!\search\idea-junit.jar!.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\uiDesigner.jar\search\uiDesigner.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\javaFX.jar\search\javaFX.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\dev.jar\search\dev.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\space.jar\search\space.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\cwm-plugin-terminal.jar\search\cwm-plugin-terminal.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-svn.jar\search\vcs-svn.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\byteCodeViewer.jar\search\byteCodeViewer.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\testng-plugin.jar!\search\testng-plugin.jar!.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\marketplace.jar\search\marketplace.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\maven.jar\search\maven.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\copyright.jar\search\copyright.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\maven.jar!\search\maven.jar!.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\Groovy.jar\search\Groovy.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\instrumented-intellij-plugin-2.13.jar\search\instrumented-intellij-plugin-2.13.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\terminal.jar\search\terminal.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\gradle-java.jar\search\gradle-java.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\performanceTesting-async.jar\search\performanceTesting-async.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\properties.jar\search\properties.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-impl.jar\search\java-impl.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\app-client.jar\search\app-client.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\html-tools.jar\search\html-tools.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-perforce.jar\search\vcs-perforce.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-debugger-streams.jar\search\java-debugger-streams.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\gradle.jar\search\gradle.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\testng-plugin.jar\search\testng-plugin.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\grazie.jar\search\grazie.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\qodana.jar\search\qodana.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\app.jar\search\app.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\completionMlRanking.jar\search\completionMlRanking.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-decompiler.jar\search\java-decompiler.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-hg.jar\search\vcs-hg.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\performanceTesting.jar\search\performanceTesting.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-gitlab.jar\search\vcs-gitlab.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\cwm-common.jar\search\cwm-common.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-i18n.jar\search\java-i18n.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\Groovy.jar!\search\Groovy.jar!.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\emojipicker.jar\search\emojipicker.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\toml.jar\search\toml.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\platform-ijent-impl.jar\search\platform-ijent-impl.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\idea-junit.jar\search\idea-junit.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\yaml.jar\search\yaml.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\packageChecker.jar\search\packageChecker.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\platform-tracing-ide.jar\search\platform-tracing-ide.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\editorconfig.jar\search\editorconfig.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-github.jar\search\vcs-github.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\platform-langInjection.jar\search\platform-langInjection.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\platform-images.jar\search\platform-images.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-git.jar\search\vcs-git.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\kotlin-plugin.jar\search\kotlin-plugin.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\modules.jar\search\modules.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\indexing-shared.jar\search\indexing-shared.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\featuresTrainer.jar\search\featuresTrainer.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\kotlin-plugin.jar!\search\kotlin-plugin.jar!.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\cwm-host.jar\search\cwm-host.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\gradle-java-maven.jar\search\gradle-java-maven.jar.searchableOptions.xml
-Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\settingsSync.jar\search\settingsSync.jar.searchableOptions.xml
-Searchable options index builder completed
 
-BUILD SUCCESSFUL in 44s
-14 actionable tasks: 11 executed, 3 up-to-date
+repositories {
+    maven {
+        url 'http://10.134.67.41:8081/nexus/content/repositories/releases/'
+        allowInsecureProtocol = true
+    }
+    maven {
+        url 'http://10.134.67.41:8081/nexus/content/repositories/snapshots/'
+        allowInsecureProtocol = true
+    }
+    //added the below call to access nexus repo to pull the custom-scanners-service jar
+    maven {
+        url 'http://10.134.67.41:8081/nexus/content/repositories/appscan-common/'
+        allowInsecureProtocol = true
+    }
+    mavenCentral()
+}
+
+configurations {
+//    compile
+//    runtime
+}
+
+dependencies {
+    implementation 'com.hcl:appscan.sdk:1.1.0'
+    implementation 'com.hcl.appscan:assessment:1.0-SNAPSHOT'
+    implementation 'com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT'
+    implementation 'com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT'
+    implementation 'commons-io:commons-io:2.10.0'
+    implementation 'com.hcl.appscan:combiner:1.0-SNAPSHOT'
+    implementation 'com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT'
+    implementation 'org.apache.json4j:json4j:1.1'
+    //Removed manual copy of custom-scanners-service jar and added the below line to pull it from nexus repo
+    implementation('custom-scanners-service.production:custom-scanners-service:1.1.14')
+    implementation files('dataflow')
+    implementation files('licenses')
+    compileOnly('com.oracle:jfxrt:1.8') { transitive = false }
+    implementation 'org.apache.wink:wink-json4j:1.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version.set(ideaVersion)
+    updateSinceUntilBuild.value(false)
+    plugins = ['com.intellij.java']
+}
+
+// This is the configuration of Client Plugin Project
+/*intellij {
+    version 'IC-15.0'
+    plugins 'coverage'
+    pluginName 'com.hcl.appscan.intellij.plugin'
+}*/
+
+/*patchPluginXml {
+    changeNotes """
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>"""
+}*/
+runIde {
+    ideDir = file("C:/Program Files/JetBrains/IntelliJ IDEA 2026.2.2")
+}
+
+test {
+    useJUnitPlatform()
+}
+
