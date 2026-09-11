@@ -1,353 +1,155 @@
 package com.hcl.appscan.intellij.plugin.ui;
 
-import com.hcl.appscan.intellij.plugin.auth.asoc.LoginUtility;
-import com.hcl.appscan.sdk.auth.IAuthenticationProvider;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.ui.components.JBScrollPane;
-import javax.swing.*;
-
-public class IssueDetailsToolWindow {
-    private HowToFixPanel howToFixPanel;
-    private DataFlowPanel dataFlowPanel;
-    private IAuthenticationProvider authenticationHandler;
-
-    public IssueDetailsToolWindow(Project project) {
-        authenticationHandler = LoginUtility.getASoCHandler();
-    }
-
-    public SimpleToolWindowPanel createHowToFixToolWindowContent(final Project project) {
-        howToFixPanel = new HowToFixPanel(project);
-        SimpleToolWindowPanel mainPanel = new SimpleToolWindowPanel(true, true);
-        JPanel fixGroupPanelComponent = howToFixPanel.getComponent();
-        JBScrollPane scrollPane = new JBScrollPane(fixGroupPanelComponent, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setViewportView(fixGroupPanelComponent);
-        mainPanel.add(scrollPane);
-        return mainPanel;
-    }
-
-    public SimpleToolWindowPanel createDataFlowToolWindowContent(final Project project) {
-        dataFlowPanel = new DataFlowPanel(project);
-        SimpleToolWindowPanel mainPanel = new SimpleToolWindowPanel(true, true);
-        JPanel fixGroupPanelComponent = dataFlowPanel.getComponent();
-        JBScrollPane scrollPane = new JBScrollPane(fixGroupPanelComponent, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setViewportView(fixGroupPanelComponent);
-        mainPanel.add(scrollPane);
-        return mainPanel;
-    }
-}
-
-******************************************************************************************************************************
-package com.hcl.appscan.intellij.plugin.ui;
-
+import com.google.common.io.Resources;
 import com.hcl.appscan.intellij.plugin.MessagesBundle;
-import com.hcl.appscan.intellij.plugin.util.AndroidStudioUtil;
+import com.hcl.appscan.intellij.plugin.auth.asoc.LoginUtility;
+import com.hcl.appscan.intellij.plugin.handler.ProjectSettingsState;
+import com.hcl.appscan.intellij.plugin.handler.asoc.ApplicationHandler;
+import com.hcl.appscan.intellij.plugin.listener.asoc.IMessageTopics;
+import com.hcl.appscan.intellij.plugin.util.CodeSweepUtils;
+import com.hcl.appscan.intellij.plugin.util.OmniaUtil;
 import com.hcl.appscan.intellij.plugin.util.UIComponentsUtil;
-import com.intellij.openapi.project.DumbAware;
+import com.hcl.appscan.sdk.auth.IAuthenticationProvider;
+import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.openapi.wm.impl.content.ToolWindowContentUi;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
-import com.intellij.ui.content.ContentManager;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.ui.JBColor;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.jcef.JBCefBrowser;
+import com.intellij.ui.jcef.JBCefBrowserBase;
+import com.intellij.ui.jcef.JBCefJSQuery;
+import com.intellij.util.ui.UIUtil;
+import org.cef.browser.CefBrowser;
+import org.cef.handler.CefLoadHandler;
+import org.cef.handler.CefLoadHandlerAdapter;
 
-public class IssueDetailsToolWindowFactory implements ToolWindowFactory, DumbAware {
+import javax.swing.*;
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-	@Override
-	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-		if (!AndroidStudioUtil.isAndroidStudio()) {
-			UIComponentsUtil.setDetailsToolwindow(toolWindow);
-			IssueDetailsToolWindow issueDetailsToolWindow = new IssueDetailsToolWindow(project);
+public class HowToFixPanel implements PropertyChangeListener {
+	private Object tempObject;
+	private Object tempIssueObject;
+	private JBCefBrowser browser;
+	private ProjectSettingsState settingsState;
+	protected JPanel panel;
+	protected ApplicationHandler applicationHandler;
+	protected IAuthenticationProvider authenticationHandler;
+	protected Project project;
+	protected static String issueTypeId = null;
+	private static Logger logger = Logger.getInstance(HowToFixPanel.class);
+	private JBCefJSQuery myJSQueryOpenInBrowser;
+	private static String ourJSCodeToInject;
+	private CefLoadHandler myCefLoadHandler;
 
-			toolWindow.getComponent().putClientProperty(ToolWindowContentUi.HIDE_ID_LABEL, "true");
-			ContentManager contentManager = toolWindow.getContentManager();
-			SimpleToolWindowPanel howToFixToolWindowContent = issueDetailsToolWindow.createHowToFixToolWindowContent(project);
-			Content howToFixGroupContent = ContentFactory.SERVICE.getInstance().createContent(howToFixToolWindowContent, MessagesBundle.message("toolwindow.issuedetails.howtofix.title"), false);
-			contentManager.addContent(howToFixGroupContent);
+	public HowToFixPanel(final Project project) {
+		this.project = project;
+		this.authenticationHandler = LoginUtility.getASoCHandler();
+		this.applicationHandler = ApplicationHandler.getASoCApplicationHandler(project);
+		this.settingsState = ProjectSettingsState.getInstance(project);
 
-			SimpleToolWindowPanel dataFlowToolWindowContent = issueDetailsToolWindow.createDataFlowToolWindowContent(project);
-			Content dataFlowContent = ContentFactory.SERVICE.getInstance().createContent(dataFlowToolWindowContent, MessagesBundle.message("toolwindow.issuedetails.dataflow.title"), false);
-			contentManager.addContent(dataFlowContent);
+		createUIComponents();
+		refreshUIComponents(null, null);
+		subscribeToListener();
+		UIManager.addPropertyChangeListener(this);
+	}
 
-			contentManager.setSelectedContent(howToFixGroupContent);
-			toolWindow.hide();
+	static {
+		try {
+			ourJSCodeToInject = Resources.toString(HowToFixPanel.class.getResource("/js/howtofix_script.js"), StandardCharsets.UTF_8);
+		}
+		catch (IOException e) {
+			logger.warn("Failed to load script.js.", e);
 		}
 	}
-}
-******************************************************************************************************************************
-build.gradle
 
-plugins {
-    id 'org.jetbrains.intellij' version '1.17.2'
-}
+	public static String getIssueTypeId() {
+		return issueTypeId;
+	}
 
-group 'com.hcl.appscan'
-version '2.13'
+	private void subscribeToListener() {
+		project.getMessageBus().connect().subscribe(IMessageTopics.APPSCAN_DETAILS_LISTENER_TOPIC, this::refreshUIComponents);
+	}
 
+	private void createUIComponents() {
+		this.panel = UIComponentsUtil.getDefaultXAxisPanel();
+		this.browser = new JBCefBrowser();
 
-repositories {
-    maven {
-        url 'http://10.134.67.41:8081/nexus/content/repositories/releases/'
-        allowInsecureProtocol = true
-    }
-    maven {
-        url 'http://10.134.67.41:8081/nexus/content/repositories/snapshots/'
-        allowInsecureProtocol = true
-    }
-    //added the below call to access nexus repo to pull the custom-scanners-service jar
-    maven {
-        url 'http://10.134.67.41:8081/nexus/content/repositories/appscan-common/'
-        allowInsecureProtocol = true
-    }
-    mavenCentral()
-}
+		browser.getComponent().setPreferredSize(new Dimension(10, 10));
+		browser.setPageBackgroundColor(UIComponentsUtil.getHtmlHexadecimalColorCode(JBColor.background()));
 
-configurations {
-//    compile
-//    runtime
-}
+		myJSQueryOpenInBrowser = JBCefJSQuery.create((JBCefBrowserBase) browser);
+		browser.getJBCefClient().addLoadHandler(myCefLoadHandler = new CefLoadHandlerAdapter() {
+			@Override
+			public void onLoadingStateChange(CefBrowser cefBrowser, boolean isLoading, boolean canGoBack, boolean canGoForward) {
+				if (ourJSCodeToInject != null) {
+					cefBrowser.executeJavaScript(ourJSCodeToInject, browser.getCefBrowser().getURL(), 0);
+					cefBrowser.executeJavaScript("window.__Appscan.openInBrowserCallback = link => {"
+									+ myJSQueryOpenInBrowser.inject("link") + "}",
+							browser.getCefBrowser().getURL(), 0);
+				}
+			}
+		}, browser.getCefBrowser());
+		myJSQueryOpenInBrowser.addHandler((link) -> {
+			if (link != null)
+				BrowserUtil.browse(link);
+			return null;
+		});
 
-dependencies {
-    implementation 'com.hcl:appscan.sdk:1.1.0'
-    implementation 'com.hcl.appscan:assessment:1.0-SNAPSHOT'
-    implementation 'com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT'
-    implementation 'com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT'
-    implementation 'commons-io:commons-io:2.10.0'
-    implementation 'com.hcl.appscan:combiner:1.0-SNAPSHOT'
-    //Removed manual copy of custom-scanners-service jar and added the below line to pull it from nexus repo
-    implementation('custom-scanners-service.production:custom-scanners-service:1.1.14')
-    implementation files('dataflow')
-    implementation files('licenses')
-    compileOnly('com.oracle:jfxrt:1.8') { transitive = false }
-    implementation 'org.apache.wink:wink-json4j:1.4'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-}
+		JPanel appPanel = new JPanel();
+		appPanel.setLayout(new BoxLayout(appPanel, BoxLayout.X_AXIS));
+		JBScrollPane scrollPane = new JBScrollPane(browser.getComponent(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setViewportView(browser.getComponent());
+		appPanel.add(scrollPane);
+		panel.add(appPanel);
+		panel.updateUI();
+	}
 
-// See https://github.com/JetBrains/gradle-intellij-plugin/
-intellij {
-    version.set(ideaVersion)
-    updateSinceUntilBuild.value(false)
-    plugins = ['com.intellij.java']
-}
+	public JPanel getComponent() {
+		return panel;
+	}
 
-// This is the configuration of Client Plugin Project
-/*intellij {
-    version 'IC-15.0'
-    plugins 'coverage'
-    pluginName 'com.hcl.appscan.intellij.plugin'
-}*/
+	protected void refreshUIComponents(Object object, Object issueObject) {
+		this.tempObject = object;
+		this.tempIssueObject = issueObject;
+		File libFolder = OmniaUtil.getLibFolder();
+		String templatePath = (UIUtil.isUnderDarcula() ? UIConstants.DARK_TEMPLATE_FOLDER : UIConstants.TEMPLATE_FOLDER);
+		File templateDir = new File(libFolder, templatePath);
+		String omniaUrl = templateDir.getAbsolutePath() + (UIUtil.isUnderDarcula() ? UIConstants.HOW_TO_FIX_HTML_DARK : UIConstants.HOW_TO_FIX_HTML);
+		if (object instanceof String && CodeSweepUtils.SHOW_CODESWEEP_RULES_INFO.equals(object)) {
+			omniaUrl = templateDir.getAbsolutePath() + (UIUtil.isUnderDarcula() ? UIConstants.CODESWEEP_RULES_HTML_DARK : UIConstants.CODESWEEP_RULES_HTML);
+			object = null;
+		}
+		String mode = UIUtil.isUnderDarcula() ? UIConstants.DARK_MODE : UIConstants.LIGHT_MODE;
+		if(object != null) {
+			HowToFixPanel.issueTypeId = OmniaUtil.extractIssueTypeId(object, project);
+			omniaUrl = OmniaUtil.getOmniaUrl(object, omniaUrl, mode, issueTypeId);
+			browser.loadURL(omniaUrl);
+		} else {
+			try {
+				Path path = Paths.get(omniaUrl);
+				String fileContent = Files.readString(path);
+				browser.loadHTML(fileContent);
+			} catch (Exception e) {
+				logger.error(MessagesBundle.message("toolwindow.issuedetails.dataflow.templatefilenotfound"), e);
+			}
+		}
+	}
 
-/*patchPluginXml {
-    changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
-}*/
-
-test {
-    useJUnitPlatform()
-}
-*************************************************************************************************************************
-plugin.xml
-
-<idea-plugin require-restart="true">
-    <id>com.ibm.appscan.intellij.plugin</id>
-    <name>HCL AppScan</name>
-
-    <vendor url="https://cloud.appscan.com">HCL</vendor>
-
-    <description>
-        <![CDATA[<b>HCL AppScan Plugin</b><br /><br />The HCL AppScan JetBrains plugin allows developers to build secure applications directly within their JetBrains IDE. It combines the strengths of Static Application Security Testing (SAST) for early code analysis and Interactive Application Security Testing (IAST) for runtime vulnerability detection.<br /><br />Integrating HCL CodeSweep with the HCL AppScan JetBrains plugin lets you scan source code early in the development lifecycle:
-                <ul>
-                    <li>Mark CodeSweep scan results as noise or remediate using the quick-fix feature.</li>
-                    <li>View all supported rules, and enable or disable rules, in the rules panel.</li>
-                    <li>View fix groups and scan data from HCL AppScan on Cloud applications.</li>
-                    <li>Import results of executed scans from AppScan Source.</li>
-                    <li>Triage fix groups or their underlying issues within the IDE.</li>
-                    <li>Add comments during a status change.</li>
-                </ul>
-        <br /><br />The HCL AppScan JetBrains plugin offers seamless integration with IAST, enabling you to leverage its capabilities within your JetBrains IDE. This integration enhances the "shift-left" strategy by allowing swift identification of vulnerabilities early in the development process. Seamlessly analyze new and existing code sections as soon as they are debugged, thereby strengthening the overall security of your applications.<br /><br />Not yet an HCL AppScan customer? Start a <a href="https://www.hcltechsw.com/appscan/appscan-make-the-switch-to-appscan-on-cloud">free trial.</a>]]>
-    </description>
-    <change-notes><![CDATA[
-        <ul>
-            <li>2.13 -
-                 <ul>
-                     <li>Added support for displaying CMD+CTRL training links under Issue overview within How To Fix articles.</li>
-                     <li>Bug Fixes.</li>
-                 </ul>
-            </li>
-            <li>2.12 -
-                <ul>
-                    <li>Secret Scanner support in CodeSweep.</li>
-                </ul>
-            </li>
-            <li>2.11 -
-                <ul>
-                    <li>Bug Fixes.</li>
-                </ul>
-            </li>
-            <li>2.10 -
-                <ul>
-                    <li>Now compatible with Android Studio IDE.</li>
-                    <li>Minor enhancements and Bug Fixes.</li>
-                </ul>
-            </li>
-            <li>2.9 -
-                <ul>
-                    <li>View fix groups and scans data from HCL AppScan 360°.</li>
-                    <li>Update the status of Fix groups and Issues imported from HCL AppScan 360°.</li>
-                    <li>Minor enhancements and Bug Fixes.</li>
-                </ul>
-            </li>
-            <li>2.8 -
-                <ul>
-                    <li>Migration to version 4 of ASoC REST APIs.</li>
-                    <li>Support to import SCA scans information from HCL AppScan on Cloud applications.</li>
-                    <li>Bug fixes.</li>
-                </ul>
-            </li>
-            <li>2.7 -
-                <ul>
-                    <li>Support for IAST.</li>
-                    <li>Bug fixes.</li>
-                </ul>
-            </li>
-            <li>2.6 -
-                <ul>
-                    <li>Enable application of Auto-fix suggestions without ASoC login.</li>
-                    <li>Bug fixes.</li>
-                </ul>
-            </li>
-            <li>2.5 -
-                <ul>
-                    <li>Deprecation of "New" Issue Status in ASoC scans. <a href="https://help.hcltechsw.com/appscan/ASoC/ent_issue_class_settings.html">Learn more</a></li>
-                    <li>Bug fixes.</li>
-                </ul>
-            </li>
-            <li>2.4 -
-                <ul>
-                    <li>Enhancements in user interface.</li>
-                    <li>Bug fixes.</li>
-                </ul>
-            </li>
-            <li>2.3 -
-                <ul>
-                    <li>Set As Noise enhanced for ease of use.</li>
-                    <li>Multi-select enabled in CodeSweep Rules panel.</li>
-                    <li>Support for Critical severity findings in ASoC scans.</li>
-                    <li>Adhere to user permissions for status/comments updates in ASoC findings.</li>
-                    <li>Bug fixes.</li>
-                </ul>
-            </li>
-            <li>2.2 - 
-                <ul>
-                    <li>CodeSweep integration for scanning source code.</li>
-                    <li>Ability to switch between ASoC (AppScan On Cloud) applications.</li>
-                    <li>Ability to switch between AppScan Source assessment (.ozasmt) files.</li>
-                    <li>Support for ASoC EU Production server.</li>
-                    <li>Bug fixes.</li>
-                </ul>
-            </li>
-            <li>2.1 -
-                <ul>
-                    <li>Support for IDE background themes.</li>
-                    <li>Bug fixes.</li>
-                </ul>
-            </li>
-            <li>2.0.2 - Security fix update: CVE-2021-45046</li>
-            <li>2.0.1 - Security fix update: CVE-2021-44228</li>
-            <li>2.0 - 
-                <ul>
-                    <li>View fix groups and scans data from HCL AppScan On Cloud applications.</li>
-                    <li>Import results of executed scans from AppScan Source.</li>
-                    <li>Triage the fix groups or underlying issues within the IDE, with comments during a status change.</li>
-                </ul>
-            </li>   
-    ]]>
-    </change-notes>
-
-    <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-    <idea-version since-build="222"/>
-
-    <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-         on how to target different products -->
-    <!--    <depends>com.intellij.modules.platform</depends>-->
-    <depends>com.intellij.modules.lang</depends>
-    <depends optional="true" config-file="plugin-java.xml">com.intellij.modules.java</depends>
-    <depends optional="true" config-file="plugin-python.xml">com.intellij.modules.python</depends>
-
-
-    <resource-bundle>messages.AppScanBundle</resource-bundle>
-
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="AppScan" icon="/icons/appScan-logo-shape.svg" anchor="bottom"
-                    factoryClass="com.hcl.appscan.intellij.plugin.ui.PluginToolWindowFactory"/>
-        <toolWindow id="AppScan Details" icon="/icons/appScan-logo-shape.svg" anchor="right"
-                    factoryClass="com.hcl.appscan.intellij.plugin.ui.IssueDetailsToolWindowFactory"/>
-        <applicationService serviceImplementation="com.hcl.appscan.intellij.plugin.auth.asoc.CloudAuthenticationHandler"/>
-        <applicationService serviceImplementation="com.hcl.appscan.intellij.plugin.auth.asoc.CodeSweepASoCHandler"/>
-
-        <projectService serviceInterface="com.hcl.appscan.intellij.plugin.ui.PluginToolWindowFactory$ProjectService"
-                        serviceImplementation="com.hcl.appscan.intellij.plugin.ui.PluginToolWindowFactory$ProjectService"/>
-        <projectService serviceInterface="com.hcl.appscan.intellij.plugin.handler.asoc.ApplicationHandler"
-                        serviceImplementation="com.hcl.appscan.intellij.plugin.handler.asoc.ApplicationHandler"/>
-        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.handler.codesweep.CodeSweepHandler"/>
-        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.handler.codesweep.CodeSweepNoiseHandler"/>
-        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsState"/>
-        <projectConfigurable displayName="AppScan" parentId="tools" instance="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable"
-                        id="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable" nonDefaultProject="false"/>
-        <projectConfigurable displayName="CodeSweep" parentId="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable" instance="com.hcl.appscan.intellij.plugin.handler.codesweep.CodeSweepSettingsConfigurable"
-                             id="com.hcl.appscan.intellij.plugin.handler.codesweep.CodeSweepSettingsConfigurable" nonDefaultProject="false"/>
-
-        <projectConfigurable displayName="ASoC/AppScan 360°" parentId="com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable" instance="com.hcl.appscan.intellij.plugin.handler.AsocA360Configurable"
-                             id="com.hcl.appscan.intellij.plugin.handler.AsocA360Configurable" nonDefaultProject="false"/>
-
-        <projectConfigurable displayName="Login" parentId="com.hcl.appscan.intellij.plugin.handler.AsocA360Configurable" instance="com.hcl.appscan.intellij.plugin.handler.login.config.LoginConfigurable"
-                             id="com.hcl.appscan.intellij.plugin.handler.login.config.LoginConfigurable" nonDefaultProject="false"/>
-        <notificationGroup id="AppScan Notification" displayType="BALLOON" key="notification.group.name"/>
-        <applicationService serviceImplementation="com.hcl.appscan.intellij.plugin.service.ApplicationLevelStartupActivity"/>
-        <applicationService serviceImplementation="com.hcl.appscan.intellij.plugin.handler.ApplicationSettingsState"/>
-        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.service.FileContentProvider"/>
-        <projectService serviceImplementation="com.hcl.appscan.intellij.plugin.service.IASTIssueProvider"/>
-        <!--        <themeProvider id="df9ed47d-1794-49e6-a3c5-6cd620502bae" path="/intellij_plugin.theme.json"/>-->
-    </extensions>
-
-    <project-components>
-    </project-components>
-
-    <application-components>
-        <component>
-            <implementation-class>com.hcl.appscan.intellij.plugin.service.InvokeCustomScannerService</implementation-class>
-        </component>
-    </application-components>
-    <projectListeners>
-        <listener class="com.hcl.appscan.intellij.plugin.listener.codesweep.VFSaveListener"
-                  topic="com.intellij.openapi.vfs.newvfs.BulkFileListener"/>
-        <listener class="com.hcl.appscan.intellij.plugin.listener.iast.XDebuggerManagerListenerImpl"
-                  topic="com.intellij.xdebugger.XDebuggerManagerListener"/>
-        <listener
-                class="com.hcl.appscan.intellij.plugin.listener.asoc.ApplicationLogOutEventListenerImpl"
-                topic="com.hcl.appscan.intellij.plugin.listener.asoc.IApplicationLogOutEventListener"/>
-    </projectListeners>
-
-    <actions>
-        <!-- Add your actions here -->
-
-        <group id="appscan.toolwindow.actions" >
-            <action id="com.hcl.appscan.intellij.plugin.ui.action.OpenHelpLinkAction"
-                    class="com.hcl.appscan.intellij.plugin.ui.action.OpenHelpLinkAction"/>
-        </group>
-
-        <group id="appscan.codesweep.actions" >
-            <action id="com.hcl.appscan.intellij.plugin.ui.action.OpenCommunityLinkAction"
-                    class="com.hcl.appscan.intellij.plugin.ui.action.OpenCommunityLinkAction"/>
-            <action id="com.hcl.appscan.intellij.plugin.ui.action.OpenCodeSweepRulesAction"
-                    class="com.hcl.appscan.intellij.plugin.ui.action.OpenCodeSweepRulesAction"/>
-        </group>
-    </actions>
-</idea-plugin>
-
+	@Override
+	public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+		if (UIConstants.LOOKANDFEEL_EVENT_NAME.equals(propertyChangeEvent.getPropertyName())) {
+			ApplicationManager.getApplication().invokeLater(() -> {
+				browser.setPageBackgroundColor(UIComponentsUtil.getHtmlHexadecimalColorCode(JBColor.background()));
+				refreshUIComponents(tempObject, tempIssueObject);
+			});
+		}
+	}
