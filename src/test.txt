@@ -1,189 +1,192 @@
-C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew runIde --stacktrace
+
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew build
 
 > Task :verifyPluginConfiguration
 [gradle-intellij-plugin :verifyPluginConfiguration] The following plugin configuration issues were found:
 - The 'since-build' property is lower than the target IntelliJ Platform major version: 222 < 233.
 See: https://jb.gg/intellij-platform-versions
 
-> Task :runIde FAILED
+> Task :buildSearchableOptions
+CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+2026-09-11 12:30:01,706 [   2480]   WARN - #c.i.s.ComponentManagerImpl - `preload=true` must be used only for core services (service=com.intellij.ae.database.core.baseEvents.fus.AddStatisticsEventLogListenerTemporary, plugin=com.jetbrains.ae.database)
+2026-09-11 12:30:01,707 [   2481]   WARN - #c.i.s.ComponentManagerImpl - `preload=true` must be used only for core services (service=com.jetbrains.rdserver.statistics.BackendStatisticsManager, plugin=com.jetbrains.codeWithMe)
+2026-09-11 12:30:02,271 [   3045]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.search.FilenameIndex initializer requests com.intellij.ide.plugins.PluginUtil instance
+2026-09-11 12:30:03,403 [   4177]   WARN - #c.i.o.v.n.p.d.e.DurableEnumeratorFactory - [enumerator.mmapped]: .valueToId map is out-of-sync with .valuesLog data -> rebuilding it
+2026-09-11 12:30:04,151 [   4925]   WARN - #c.i.s.ComponentManagerImpl - org.zmlx.hg4idea.provider.HgChangeProvider initializer requests com.intellij.openapi.vcs.FileStatusFactory instance
+2026-09-11 12:30:09,011 [   9785]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.codeInsight.daemon.LineMarkerProviders initializer requests com.intellij.codeInsight.daemon.LineMarkerProviders instance
+2026-09-11 12:30:11,933 [  12707]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.LanguageSubstitutors initializer requests com.intellij.psi.LanguageSubstitutors instance
+2026-09-11 12:30:16,144 [  16918]   WARN - #c.i.s.ComponentManagerImpl - com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable initializer requests com.intellij.util.LocaleSensitiveApplicationCacheService instance
+2026-09-11 12:30:18,791 [  19565]   WARN - #c.i.u.j.JBCefApp - JCEF is manually disabled in headless env via 'ide.browser.jcef.headless.enabled=false'
+2026-09-11 12:30:18,963 [  19737] SEVERE - #c.i.c.ComponentStoreImpl - Cannot init component state (componentName=GradleJvmSupportMatrix, componentClass=GradleJvmSupportMatrix) [Plugin: com.intellij.gradle]
+com.intellij.diagnostic.PluginException: Cannot init component state (componentName=GradleJvmSupportMatrix, componentClass=GradleJvmSupportMatrix) [Plugin: com.intellij.gradle]
+        at com.intellij.configurationStore.ComponentStoreImpl.initComponent(ComponentStoreImpl.kt:174)
+        at com.intellij.configurationStore.ComponentStoreWithExtraComponents.initComponent(ComponentStoreWithExtraComponents.kt:48)
+        at com.intellij.serviceContainer.ComponentManagerImpl.initializeComponent$intellij_platform_serviceContainer(ComponentManagerImpl.kt:931)
+        at com.intellij.serviceContainer.ServiceInstanceInitializer.createInstance$suspendImpl(ServiceInstanceInitializer.kt:41)
+        at com.intellij.serviceContainer.ServiceInstanceInitializer.createInstance(ServiceInstanceInitializer.kt)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder$initialize$1$1.invokeSuspend(LazyInstanceHolder.kt:162)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder$initialize$1$1.invoke(LazyInstanceHolder.kt)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder$initialize$1$1.invoke(LazyInstanceHolder.kt)
+        at kotlinx.coroutines.intrinsics.UndispatchedKt.startUndispatchedOrReturn(Undispatched.kt:78)
+        at kotlinx.coroutines.BuildersKt__Builders_commonKt.withContext(Builders.common.kt:167)
+        at kotlinx.coroutines.BuildersKt.withContext(Unknown Source)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder$initialize$1.invokeSuspend(LazyInstanceHolder.kt:160)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder$initialize$1.invoke(LazyInstanceHolder.kt)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder$initialize$1.invoke(LazyInstanceHolder.kt)
+        at kotlinx.coroutines.intrinsics.UndispatchedKt.startCoroutineUndispatched(Undispatched.kt:44)
+        at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:112)
+        at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:126)
+        at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:56)
+        at kotlinx.coroutines.BuildersKt.launch(Unknown Source)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder.initialize(LazyInstanceHolder.kt:145)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder.access$initialize(LazyInstanceHolder.kt:13)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder.tryInitialize(LazyInstanceHolder.kt:135)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder.getInstance(LazyInstanceHolder.kt:95)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder.getInstanceInCallerContext$suspendImpl(LazyInstanceHolder.kt:87)
+        at com.intellij.platform.instanceContainer.internal.LazyInstanceHolder.getInstanceInCallerContext(LazyInstanceHolder.kt)
+        at com.intellij.serviceContainer.ComponentManagerImplKt$getOrCreateInstanceBlocking$3.invokeSuspend(ComponentManagerImpl.kt:2337)
+        at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+        at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:108)
+        at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:280)
+        at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:85)
+        at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:59)
+        at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source)
+        at com.intellij.serviceContainer.ComponentManagerImplKt$runBlockingInitialization$1.invoke(ComponentManagerImpl.kt:2406)
+        at com.intellij.serviceContainer.ComponentManagerImplKt$runBlockingInitialization$1.invoke(ComponentManagerImpl.kt:2397)
+        at com.intellij.openapi.progress.ContextKt.prepareThreadContext(context.kt:86)
+        at com.intellij.serviceContainer.ComponentManagerImplKt.runBlockingInitialization(ComponentManagerImpl.kt:2397)
+        at com.intellij.serviceContainer.ComponentManagerImplKt.getOrCreateInstanceBlocking(ComponentManagerImpl.kt:2336)
+        at com.intellij.serviceContainer.ComponentManagerImpl.doGetService(ComponentManagerImpl.kt:1057)
+        at com.intellij.serviceContainer.ComponentManagerImpl.getService(ComponentManagerImpl.kt:988)
+        at org.jetbrains.plugins.gradle.jvmcompat.GradleJvmSupportMatrix$Companion.getInstance(GradleJvmSupportMatrix.kt:220)
+        at org.jetbrains.plugins.gradle.jvmcompat.GradleJvmSupportMatrix$Companion.getAllSupportedGradleVersionsByIdea(GradleJvmSupportMatrix.kt:192)
+        at org.jetbrains.plugins.gradle.service.settings.IdeaGradleDefaultProjectSettingsControl.setCurrentDefaultProjectSettings(IdeaGradleDefaultProjectSettingsControl.kt:122)
+        at org.jetbrains.plugins.gradle.service.settings.IdeaGradleDefaultProjectSettingsControl.<init>(IdeaGradleDefaultProjectSettingsControl.kt:55)
+        at org.jetbrains.plugins.gradle.service.settings.IdeaGradleSystemSettingsControlBuilder.<init>(IdeaGradleSystemSettingsControlBuilder.java:85)
+        at org.jetbrains.plugins.gradle.service.settings.JavaGradleSettingsControlProvider.getSystemSettingsControlBuilder(JavaGradleSettingsControlProvider.java:20)
+        at org.jetbrains.plugins.gradle.service.settings.GradleSystemSettingsControl.<init>(GradleSystemSettingsControl.java:34)
+        at org.jetbrains.plugins.gradle.service.settings.GradleConfigurable.createSystemSettingsControl(GradleConfigurable.java:34)
+        at org.jetbrains.plugins.gradle.service.settings.GradleConfigurable.createSystemSettingsControl(GradleConfigurable.java:15)
+        at com.intellij.openapi.externalSystem.service.settings.AbstractExternalSystemConfigurable.prepareSystemSettings(AbstractExternalSystemConfigurable.java:188)
+        at com.intellij.openapi.externalSystem.service.settings.AbstractExternalSystemConfigurable.createComponent(AbstractExternalSystemConfigurable.java:82)
+        at com.intellij.openapi.options.ex.ConfigurableWrapper.createComponent(ConfigurableWrapper.java:181)
+        at com.intellij.ide.ui.search.SearchUtil.processConfigurables(SearchUtil.java:72)
+        at com.intellij.ide.ui.search.TraverseUIStarter.lambda$startup$0(TraverseUIStarter.java:116)
+        at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:308)
+        at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:792)
+        at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:739)
+        at java.desktop/java.awt.EventQueue$3.run(EventQueue.java:733)
+        at java.base/java.security.AccessController.doPrivileged(AccessController.java:399)
+        at java.base/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(ProtectionDomain.java:86)
+        at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:761)
+        at com.intellij.ide.IdeEventQueue.defaultDispatchEvent(IdeEventQueue.kt:695)
+        at com.intellij.ide.IdeEventQueue._dispatchEvent$lambda$12(IdeEventQueue.kt:589)
+        at com.intellij.openapi.application.impl.RwLockHolder.runWithoutImplicitRead(RwLockHolder.kt:44)
+        at com.intellij.ide.IdeEventQueue._dispatchEvent(IdeEventQueue.kt:589)
+        at com.intellij.ide.IdeEventQueue.access$_dispatchEvent(IdeEventQueue.kt:72)
+        at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:351)
+        at com.intellij.ide.IdeEventQueue$dispatchEvent$processEventRunnable$1$1.invoke(IdeEventQueue.kt:349)
+        at com.intellij.ide.IdeEventQueueKt.performActivity$lambda$1(IdeEventQueue.kt:1014)
+        at com.intellij.openapi.application.TransactionGuardImpl.performActivity(TransactionGuardImpl.java:106)
+        at com.intellij.ide.IdeEventQueueKt.performActivity(IdeEventQueue.kt:1014)
+        at com.intellij.ide.IdeEventQueue.dispatchEvent$lambda$7(IdeEventQueue.kt:349)
+        at com.intellij.openapi.application.impl.ApplicationImpl.runIntendedWriteActionOnCurrentThread(ApplicationImpl.java:848)
+        at com.intellij.ide.IdeEventQueue.dispatchEvent(IdeEventQueue.kt:391)
+        at java.desktop/java.awt.EventDispatchThread.pumpOneEventForFilters(EventDispatchThread.java:207)
+        at java.desktop/java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.java:128)
+        at java.desktop/java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:117)
+        at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:113)
+        at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:105)
+        at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:92)
+Caused by: java.lang.IllegalArgumentException: 25
+        at com.intellij.util.lang.JavaVersion.parse(JavaVersion.java:307)
+        at org.jetbrains.plugins.gradle.jvmcompat.GradleJvmSupportMatrix$getCompatibilityRanges$1$javaRange$1.invoke(GradleJvmSupportMatrix.kt:44)
+        at org.jetbrains.plugins.gradle.jvmcompat.GradleJvmSupportMatrix$getCompatibilityRanges$1$javaRange$1.invoke(GradleJvmSupportMatrix.kt:44)
+        at org.jetbrains.plugins.gradle.jvmcompat.IdeVersionedDataParser$Companion.parseVersion(IdeVersionedDataParser.kt:21)
+        at org.jetbrains.plugins.gradle.jvmcompat.IdeVersionedDataParser$Companion.parseRange(IdeVersionedDataParser.kt:31)
+        at org.jetbrains.plugins.gradle.jvmcompat.GradleJvmSupportMatrix.getCompatibilityRanges(GradleJvmSupportMatrix.kt:44)
+        at org.jetbrains.plugins.gradle.jvmcompat.GradleJvmSupportMatrix.applyState(GradleJvmSupportMatrix.kt:28)
+        at org.jetbrains.plugins.gradle.jvmcompat.GradleJvmSupportMatrix.onStateChanged(GradleJvmSupportMatrix.kt:50)
+        at org.jetbrains.plugins.gradle.jvmcompat.GradleJvmSupportMatrix.onStateChanged(GradleJvmSupportMatrix.kt:13)
+        at org.jetbrains.plugins.gradle.jvmcompat.IdeVersionedDataStorage.loadState(IdeVersionedDataStorage.kt:38)
+        at org.jetbrains.plugins.gradle.jvmcompat.IdeVersionedDataStorage.loadState(IdeVersionedDataStorage.kt:7)
+        at com.intellij.configurationStore.ComponentStoreImpl.doInitComponent(ComponentStoreImpl.kt:490)
+        at com.intellij.configurationStore.ComponentStoreImpl.initComponent(ComponentStoreImpl.kt:409)
+        at com.intellij.configurationStore.ComponentStoreImpl.initComponent(ComponentStoreImpl.kt:131)
+        ... 78 more
+2026-09-11 12:30:18,968 [  19742] SEVERE - #c.i.c.ComponentStoreImpl - IntelliJ IDEA 2023.3.6  Build #IC-233.15026.9
+2026-09-11 12:30:18,968 [  19742] SEVERE - #c.i.c.ComponentStoreImpl - JDK: 17.0.10; VM: OpenJDK 64-Bit Server VM; Vendor: JetBrains s.r.o.
+2026-09-11 12:30:18,969 [  19743] SEVERE - #c.i.c.ComponentStoreImpl - OS: Windows 11
+2026-09-11 12:30:18,970 [  19744] SEVERE - #c.i.c.ComponentStoreImpl - Last Action: 
+Found 209 configurables
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\textmate.jar\search\textmate.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\markdown.jar\search\markdown.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\IntelliLang.jar\search\IntelliLang.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\eclipse.jar\search\eclipse.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\tasks-core.jar\search\tasks-core.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\sh.jar\search\sh.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-coverage.jar\search\java-coverage.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-impl.jar!\search\java-impl.jar!.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\javaFX.jar!\search\javaFX.jar!.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\searchEverywhereMl.jar\search\searchEverywhereMl.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\idea-junit.jar!\search\idea-junit.jar!.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\uiDesigner.jar\search\uiDesigner.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\javaFX.jar\search\javaFX.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\dev.jar\search\dev.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\space.jar\search\space.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\cwm-plugin-terminal.jar\search\cwm-plugin-terminal.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-svn.jar\search\vcs-svn.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\byteCodeViewer.jar\search\byteCodeViewer.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\testng-plugin.jar!\search\testng-plugin.jar!.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\marketplace.jar\search\marketplace.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\maven.jar\search\maven.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\copyright.jar\search\copyright.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\maven.jar!\search\maven.jar!.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\Groovy.jar\search\Groovy.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\instrumented-intellij-plugin-2.13.jar\search\instrumented-intellij-plugin-2.13.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\terminal.jar\search\terminal.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\gradle-java.jar\search\gradle-java.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\performanceTesting-async.jar\search\performanceTesting-async.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\properties.jar\search\properties.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-impl.jar\search\java-impl.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\app-client.jar\search\app-client.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\html-tools.jar\search\html-tools.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-perforce.jar\search\vcs-perforce.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-debugger-streams.jar\search\java-debugger-streams.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\gradle.jar\search\gradle.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\testng-plugin.jar\search\testng-plugin.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\grazie.jar\search\grazie.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\qodana.jar\search\qodana.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\app.jar\search\app.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\completionMlRanking.jar\search\completionMlRanking.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-decompiler.jar\search\java-decompiler.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-hg.jar\search\vcs-hg.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\performanceTesting.jar\search\performanceTesting.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-gitlab.jar\search\vcs-gitlab.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\cwm-common.jar\search\cwm-common.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\java-i18n.jar\search\java-i18n.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\Groovy.jar!\search\Groovy.jar!.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\emojipicker.jar\search\emojipicker.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\toml.jar\search\toml.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\platform-ijent-impl.jar\search\platform-ijent-impl.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\idea-junit.jar\search\idea-junit.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\yaml.jar\search\yaml.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\packageChecker.jar\search\packageChecker.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\platform-tracing-ide.jar\search\platform-tracing-ide.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\editorconfig.jar\search\editorconfig.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-github.jar\search\vcs-github.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\platform-langInjection.jar\search\platform-langInjection.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\platform-images.jar\search\platform-images.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\vcs-git.jar\search\vcs-git.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\kotlin-plugin.jar\search\kotlin-plugin.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\modules.jar\search\modules.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\indexing-shared.jar\search\indexing-shared.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\featuresTrainer.jar\search\featuresTrainer.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\kotlin-plugin.jar!\search\kotlin-plugin.jar!.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\cwm-host.jar\search\cwm-host.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\gradle-java-maven.jar\search\gradle-java-maven.jar.searchableOptions.xml
+Output written to C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\searchableOptions\settingsSync.jar\search\settingsSync.jar.searchableOptions.xml
+Searchable options index builder completed
 
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-Execution failed for task ':runIde'.
-> Index: 1, Size: 1
-
-* Try:
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights.
-> Get more help at https://help.gradle.org.
-
-* Exception is:
-org.gradle.api.tasks.TaskExecutionException: Execution failed for task ':runIde'.
-        at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.lambda$executeIfValid$1(ExecuteActionsTaskExecuter.java:148)
-        at org.gradle.internal.Try$Failure.ifSuccessfulOrElse(Try.java:282)
-        at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:146)
-        at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:134)
-        at org.gradle.api.internal.tasks.execution.FinalizePropertiesTaskExecuter.execute(FinalizePropertiesTaskExecuter.java:46)
-        at org.gradle.api.internal.tasks.execution.ResolveTaskExecutionModeExecuter.execute(ResolveTaskExecutionModeExecuter.java:51)
-        at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:57)
-        at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:74)
-        at org.gradle.api.internal.tasks.execution.CatchExceptionTaskExecuter.execute(CatchExceptionTaskExecuter.java:36)
-        at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.executeTask(EventFiringTaskExecuter.java:77)
-        at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:55)
-        at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:52)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:199)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:157)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
-        at org.gradle.internal.operations.DefaultBuildOperationExecutor.call(DefaultBuildOperationExecutor.java:78)
-        at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter.execute(EventFiringTaskExecuter.java:52)
-        at org.gradle.execution.plan.LocalTaskNodeExecutor.execute(LocalTaskNodeExecutor.java:42)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:331)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:318)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.lambda$execute$0(DefaultTaskExecutionGraph.java:314)
-        at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:80)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:314)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
-        at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:463)
-        at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:380)
-        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
-        at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
-Caused by: java.lang.IndexOutOfBoundsException: Index: 1, Size: 1
-        at org.jetbrains.intellij.Utils.resolveIdeHomeVariable(utils.kt:105)
-        at org.jetbrains.intellij.propertyProviders.IntelliJPlatformArgumentProvider.getAdditionalJvmArguments(IntelliJPlatformArgumentProvider.kt:64)
-        at org.jetbrains.intellij.propertyProviders.IntelliJPlatformArgumentProvider.asArguments(IntelliJPlatformArgumentProvider.kt:75)
-        at org.jetbrains.intellij.propertyProviders.IntelliJPlatformArgumentProvider.asArguments(IntelliJPlatformArgumentProvider.kt:20)
-        at org.gradle.process.internal.DefaultJavaForkOptions.copyTo(DefaultJavaForkOptions.java:221)
-        at org.gradle.process.internal.DefaultJavaExecSpec.copyTo(DefaultJavaExecSpec.java:80)
-        at org.gradle.api.tasks.JavaExec.exec(JavaExec.java:161)
-        at org.jetbrains.intellij.tasks.RunIdeBase.exec(RunIdeBase.kt:199)
-        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
-        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-        at org.gradle.internal.reflect.JavaMethod.invoke(JavaMethod.java:125)
-        at org.gradle.api.internal.project.taskfactory.StandardTaskAction.doExecute(StandardTaskAction.java:58)
-        at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:51)
-        at org.gradle.api.internal.project.taskfactory.StandardTaskAction.execute(StandardTaskAction.java:29)
-        at org.gradle.api.internal.tasks.execution.TaskExecution$3.run(TaskExecution.java:248)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:29)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$1.execute(DefaultBuildOperationRunner.java:26)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:157)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.run(DefaultBuildOperationRunner.java:47)
-        at org.gradle.internal.operations.DefaultBuildOperationExecutor.run(DefaultBuildOperationExecutor.java:73)
-        at org.gradle.api.internal.tasks.execution.TaskExecution.executeAction(TaskExecution.java:233)
-        at org.gradle.api.internal.tasks.execution.TaskExecution.executeActions(TaskExecution.java:216)
-        at org.gradle.api.internal.tasks.execution.TaskExecution.executeWithPreviousOutputFiles(TaskExecution.java:199)
-        at org.gradle.api.internal.tasks.execution.TaskExecution.execute(TaskExecution.java:166)
-        at org.gradle.internal.execution.steps.ExecuteStep.executeInternal(ExecuteStep.java:105)
-        at org.gradle.internal.execution.steps.ExecuteStep.access$000(ExecuteStep.java:44)
-        at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:59)
-        at org.gradle.internal.execution.steps.ExecuteStep$1.call(ExecuteStep.java:56)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:199)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:157)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
-        at org.gradle.internal.operations.DefaultBuildOperationExecutor.call(DefaultBuildOperationExecutor.java:78)
-        at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:56)
-        at org.gradle.internal.execution.steps.ExecuteStep.execute(ExecuteStep.java:44)
-        at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:67)
-        at org.gradle.internal.execution.steps.RemovePreviousOutputsStep.execute(RemovePreviousOutputsStep.java:37)
-        at org.gradle.internal.execution.steps.CancelExecutionStep.execute(CancelExecutionStep.java:41)
-        at org.gradle.internal.execution.steps.TimeoutStep.executeWithoutTimeout(TimeoutStep.java:74)
-        at org.gradle.internal.execution.steps.TimeoutStep.execute(TimeoutStep.java:55)
-        at org.gradle.internal.execution.steps.CreateOutputsStep.execute(CreateOutputsStep.java:50)
-        at org.gradle.internal.execution.steps.CreateOutputsStep.execute(CreateOutputsStep.java:28)
-        at org.gradle.internal.execution.steps.CaptureStateAfterExecutionStep.executeDelegateBroadcastingChanges(CaptureStateAfterExecutionStep.java:100)
-        at org.gradle.internal.execution.steps.CaptureStateAfterExecutionStep.execute(CaptureStateAfterExecutionStep.java:72)
-        at org.gradle.internal.execution.steps.CaptureStateAfterExecutionStep.execute(CaptureStateAfterExecutionStep.java:50)
-        at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:40)
-        at org.gradle.internal.execution.steps.ResolveInputChangesStep.execute(ResolveInputChangesStep.java:29)
-        at org.gradle.internal.execution.steps.BuildCacheStep.executeWithoutCache(BuildCacheStep.java:179)
-        at org.gradle.internal.execution.steps.BuildCacheStep.lambda$execute$1(BuildCacheStep.java:70)
-        at org.gradle.internal.Either$Right.fold(Either.java:175)
-        at org.gradle.internal.execution.caching.CachingState.fold(CachingState.java:59)
-        at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:68)
-        at org.gradle.internal.execution.steps.BuildCacheStep.execute(BuildCacheStep.java:46)
-        at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:36)
-        at org.gradle.internal.execution.steps.StoreExecutionStateStep.execute(StoreExecutionStateStep.java:25)
-        at org.gradle.internal.execution.steps.RecordOutputsStep.execute(RecordOutputsStep.java:36)
-        at org.gradle.internal.execution.steps.RecordOutputsStep.execute(RecordOutputsStep.java:22)
-        at org.gradle.internal.execution.steps.SkipUpToDateStep.executeBecause(SkipUpToDateStep.java:91)
-        at org.gradle.internal.execution.steps.SkipUpToDateStep.lambda$execute$2(SkipUpToDateStep.java:55)
-        at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:55)
-        at org.gradle.internal.execution.steps.SkipUpToDateStep.execute(SkipUpToDateStep.java:37)
-        at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:65)
-        at org.gradle.internal.execution.steps.ResolveChangesStep.execute(ResolveChangesStep.java:36)
-        at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:37)
-        at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsFinishedStep.execute(MarkSnapshottingInputsFinishedStep.java:27)
-        at org.gradle.internal.execution.steps.ResolveCachingStateStep.execute(ResolveCachingStateStep.java:77)
-        at org.gradle.internal.execution.steps.ResolveCachingStateStep.execute(ResolveCachingStateStep.java:38)
-        at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:108)
-        at org.gradle.internal.execution.steps.ValidateStep.execute(ValidateStep.java:55)
-        at org.gradle.internal.execution.steps.CaptureStateBeforeExecutionStep.execute(CaptureStateBeforeExecutionStep.java:71)
-        at org.gradle.internal.execution.steps.CaptureStateBeforeExecutionStep.execute(CaptureStateBeforeExecutionStep.java:45)
-        at org.gradle.internal.execution.steps.SkipEmptyWorkStep.executeWithNonEmptySources(SkipEmptyWorkStep.java:177)
-        at org.gradle.internal.execution.steps.SkipEmptyWorkStep.execute(SkipEmptyWorkStep.java:81)
-        at org.gradle.internal.execution.steps.SkipEmptyWorkStep.execute(SkipEmptyWorkStep.java:53)
-        at org.gradle.internal.execution.steps.RemoveUntrackedExecutionStateStep.execute(RemoveUntrackedExecutionStateStep.java:32)
-        at org.gradle.internal.execution.steps.RemoveUntrackedExecutionStateStep.execute(RemoveUntrackedExecutionStateStep.java:21)
-        at org.gradle.internal.execution.steps.legacy.MarkSnapshottingInputsStartedStep.execute(MarkSnapshottingInputsStartedStep.java:38)
-        at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:36)
-        at org.gradle.internal.execution.steps.LoadPreviousExecutionStateStep.execute(LoadPreviousExecutionStateStep.java:23)
-        at org.gradle.internal.execution.steps.CleanupStaleOutputsStep.execute(CleanupStaleOutputsStep.java:75)
-        at org.gradle.internal.execution.steps.CleanupStaleOutputsStep.execute(CleanupStaleOutputsStep.java:41)
-        at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.lambda$execute$2(ExecuteWorkBuildOperationFiringStep.java:66)
-        at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:66)
-        at org.gradle.internal.execution.steps.ExecuteWorkBuildOperationFiringStep.execute(ExecuteWorkBuildOperationFiringStep.java:38)
-        at org.gradle.internal.execution.steps.AssignWorkspaceStep.lambda$execute$0(AssignWorkspaceStep.java:32)
-        at org.gradle.api.internal.tasks.execution.TaskExecution$4.withWorkspace(TaskExecution.java:293)
-        at org.gradle.internal.execution.steps.AssignWorkspaceStep.execute(AssignWorkspaceStep.java:30)
-        at org.gradle.internal.execution.steps.AssignWorkspaceStep.execute(AssignWorkspaceStep.java:21)
-        at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:37)
-        at org.gradle.internal.execution.steps.IdentityCacheStep.execute(IdentityCacheStep.java:27)
-        at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:47)
-        at org.gradle.internal.execution.steps.IdentifyStep.execute(IdentifyStep.java:34)
-        at org.gradle.internal.execution.impl.DefaultExecutionEngine$1.execute(DefaultExecutionEngine.java:64)
-        at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.executeIfValid(ExecuteActionsTaskExecuter.java:145)
-        at org.gradle.api.internal.tasks.execution.ExecuteActionsTaskExecuter.execute(ExecuteActionsTaskExecuter.java:134)
-        at org.gradle.api.internal.tasks.execution.FinalizePropertiesTaskExecuter.execute(FinalizePropertiesTaskExecuter.java:46)
-        at org.gradle.api.internal.tasks.execution.ResolveTaskExecutionModeExecuter.execute(ResolveTaskExecutionModeExecuter.java:51)
-        at org.gradle.api.internal.tasks.execution.SkipTaskWithNoActionsExecuter.execute(SkipTaskWithNoActionsExecuter.java:57)
-        at org.gradle.api.internal.tasks.execution.SkipOnlyIfTaskExecuter.execute(SkipOnlyIfTaskExecuter.java:74)
-        at org.gradle.api.internal.tasks.execution.CatchExceptionTaskExecuter.execute(CatchExceptionTaskExecuter.java:36)
-        at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.executeTask(EventFiringTaskExecuter.java:77)
-        at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:55)
-        at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter$1.call(EventFiringTaskExecuter.java:52)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:204)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$CallableBuildOperationWorker.execute(DefaultBuildOperationRunner.java:199)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:66)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner$2.execute(DefaultBuildOperationRunner.java:59)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:157)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.execute(DefaultBuildOperationRunner.java:59)
-        at org.gradle.internal.operations.DefaultBuildOperationRunner.call(DefaultBuildOperationRunner.java:53)
-        at org.gradle.internal.operations.DefaultBuildOperationExecutor.call(DefaultBuildOperationExecutor.java:78)
-        at org.gradle.api.internal.tasks.execution.EventFiringTaskExecuter.execute(EventFiringTaskExecuter.java:52)
-        at org.gradle.execution.plan.LocalTaskNodeExecutor.execute(LocalTaskNodeExecutor.java:42)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:331)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$InvokeNodeExecutorsAction.execute(DefaultTaskExecutionGraph.java:318)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.lambda$execute$0(DefaultTaskExecutionGraph.java:314)
-        at org.gradle.internal.operations.CurrentBuildOperationRef.with(CurrentBuildOperationRef.java:80)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:314)
-        at org.gradle.execution.taskgraph.DefaultTaskExecutionGraph$BuildOperationAwareExecutionAction.execute(DefaultTaskExecutionGraph.java:303)
-        at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.execute(DefaultPlanExecutor.java:463)
-        at org.gradle.execution.plan.DefaultPlanExecutor$ExecutorWorker.run(DefaultPlanExecutor.java:380)
-        at org.gradle.internal.concurrent.ExecutorPolicy$CatchAndRecordFailures.onExecute(ExecutorPolicy.java:64)
-        at org.gradle.internal.concurrent.AbstractManagedExecutor$1.run(AbstractManagedExecutor.java:47)
-
-
-BUILD FAILED in 1s
-10 actionable tasks: 3 executed, 7 up-to-date
+BUILD SUCCESSFUL in 37s
+14 actionable tasks: 5 executed, 9 up-to-date
