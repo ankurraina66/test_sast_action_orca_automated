@@ -1,155 +1,519 @@
-package com.hcl.appscan.intellij.plugin.ui;
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew build --refresh-dependencies
 
-import com.google.common.io.Resources;
-import com.hcl.appscan.intellij.plugin.MessagesBundle;
-import com.hcl.appscan.intellij.plugin.auth.asoc.LoginUtility;
-import com.hcl.appscan.intellij.plugin.handler.ProjectSettingsState;
-import com.hcl.appscan.intellij.plugin.handler.asoc.ApplicationHandler;
-import com.hcl.appscan.intellij.plugin.listener.asoc.IMessageTopics;
-import com.hcl.appscan.intellij.plugin.util.CodeSweepUtils;
-import com.hcl.appscan.intellij.plugin.util.OmniaUtil;
-import com.hcl.appscan.intellij.plugin.util.UIComponentsUtil;
-import com.hcl.appscan.sdk.auth.IAuthenticationProvider;
-import com.intellij.ide.BrowserUtil;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
-import com.intellij.ui.JBColor;
-import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.jcef.JBCefBrowser;
-import com.intellij.ui.jcef.JBCefBrowserBase;
-import com.intellij.ui.jcef.JBCefJSQuery;
-import com.intellij.util.ui.UIUtil;
-import org.cef.browser.CefBrowser;
-import org.cef.handler.CefLoadHandler;
-import org.cef.handler.CefLoadHandlerAdapter;
+> Task :verifyPluginConfiguration
+[gradle-intellij-plugin :verifyPluginConfiguration] The following plugin configuration issues were found:
+- The 'since-build' property is lower than the target IntelliJ Platform major version: 222 < 233.
+See: https://jb.gg/intellij-platform-versions
 
-import javax.swing.*;
-import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+> Task :compileJava
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\auth\asoc\CodeSweepASoCHandler.java:19: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONException;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\auth\asoc\CodeSweepASoCHandler.java:20: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONObject;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:18: error: package com.ibm.appscan.common.http does not exist
+import com.ibm.appscan.common.http.HttpClient;
+                                  ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:19: error: package com.ibm.appscan.common.http does not exist
+import com.ibm.appscan.common.http.HttpResponse;
+                                  ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:20: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONArray;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:21: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONException;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:22: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONObject;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:49: error: cannot find symbol
+        public static boolean refreshScanRules() throws IOException, JSONException {
+                                                                     ^
+  symbol:   class JSONException
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:81: error: cannot find symbol
+        private static HashMap<String, ScanRuleLanguage> getRulesMap(HttpResponse response) throws IOException, JSONException {
+                                                                     ^
+  symbol:   class HttpResponse
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:81: error: cannot find symbol
+        private static HashMap<String, ScanRuleLanguage> getRulesMap(HttpResponse response) throws IOException, JSONException {
+                                                                                                                ^
+  symbol:   class JSONException
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\handler\codesweep\CodeSweepHandler.java:42: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONException;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\model\AssessmentModel.java:15: error: package com.ibm.appscan.common.error does not exist
+import com.ibm.appscan.common.error.AppScanException;
+                                   ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\model\AssessmentModel.java:36: error: cannot find symbol
+    public static AssessmentModel getAssessmentModel () throws AssessmentException, AppScanException {
+                                                                                    ^
+  symbol:   class AppScanException
+  location: class AssessmentModel
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\model\AssessmentModel.java:40: error: cannot find symbol
+    public static void loadAssessmentModel (File file) throws AssessmentException, AppScanException {
+                                                                                   ^
+  symbol:   class AppScanException
+  location: class AssessmentModel
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:21: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONArray;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:22: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONException;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:23: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONObject;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:53: error: package com.ibm.appscan.common.xml does not exist
+import com.ibm.appscan.common.xml.StAXWriter;
+                                 ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:59: error: package com.ibm.appscan.common.utils does not exist
+import com.ibm.appscan.common.utils.IOUtil;
+                                   ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\FixGroupPanel.java:23: error: package com.ibm.appscan.common.error does not exist
+import com.ibm.appscan.common.error.AppScanException;
+                                   ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:23: error: package com.ibm.appscan.common.http does not exist
+import com.ibm.appscan.common.http.HttpClient;
+                                  ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:24: error: package com.ibm.appscan.common.http does not exist
+import com.ibm.appscan.common.http.HttpResponse;
+                                  ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:33: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONException;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:34: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONObject;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:80: error: cannot find symbol
+        public static void processFailedResponse(HttpResponse response) throws IOException {
+                                                 ^
+  symbol:   class HttpResponse
+  location: class CodeSweepUtils
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:197: error: cannot find symbol
+        public static String getIgnoreFindingPayload(CodeSweepFinding codeSweepFinding) throws JSONException {
+                                                                                               ^
+  symbol:   class JSONException
+  location: class CodeSweepUtils
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\FixgroupGenerator.java:19: error: package org.apache.commons.json does not exist
+import org.apache.commons.json.JSONException;
+                              ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\FixgroupGenerator.java:46: error: cannot find symbol
+        public List<FixGroup> getFixgroups() throws JSONException {
+                                                    ^
+  symbol:   class JSONException
+  location: class FixgroupGenerator
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\FixgroupGenerator.java:52: error: cannot find symbol
+        public void createFixGroups() throws JSONException {
+                                             ^
+  symbol:   class JSONException
+  location: class FixgroupGenerator
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\FixgroupGenerator.java:60: error: cannot find symbol
+        private void processNode(IDivergentNode node) throws JSONException {
+                                                             ^
+  symbol:   class JSONException
+  location: class FixgroupGenerator
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\PluginUtil.java:88: error: cannot find symbol
+        public static boolean loadAssessmentFile(Project project, String path) throws AppScanException {
+                                                                                      ^
+  symbol:   class AppScanException
+  location: class PluginUtil
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\auth\asoc\CodeSweepASoCHandler.java:43: error: cannot find symbol
+                                JSONObject payload = new JSONObject();
+                                ^
+  symbol:   class JSONObject
+  location: class CodeSweepASoCHandler
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\auth\asoc\CodeSweepASoCHandler.java:43: error: cannot find symbol
+                                JSONObject payload = new JSONObject();
+                                                         ^
+  symbol:   class JSONObject
+  location: class CodeSweepASoCHandler
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\auth\asoc\CodeSweepASoCHandler.java:52: error: cannot find symbol
+                        } catch (JSONException | IOException e) {
+                                 ^
+  symbol:   class JSONException
+  location: class CodeSweepASoCHandler
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:53: error: cannot find symbol
+                        HttpResponse response = new HttpClient().get(CodeSweepUtils.GET_ALL_RULES, null, null);
+                        ^
+  symbol:   class HttpResponse
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:53: error: cannot find symbol
+                        HttpResponse response = new HttpClient().get(CodeSweepUtils.GET_ALL_RULES, null, null);
+                                                    ^
+  symbol:   class HttpClient
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:83: error: cannot find symbol
+                JSONObject o = (JSONObject) response.getResponseBodyAsJSON();
+                ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:83: error: cannot find symbol
+                JSONObject o = (JSONObject) response.getResponseBodyAsJSON();
+                                ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:85: error: cannot find symbol
+                        Map.Entry<String, JSONObject> rulesSetEntry = (Map.Entry<String, JSONObject>) rulesSetObject;
+                                          ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:85: error: cannot find symbol
+                        Map.Entry<String, JSONObject> rulesSetEntry = (Map.Entry<String, JSONObject>) rulesSetObject;
+                                                                                         ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:87: error: cannot find symbol
+                        JSONObject rulesSet = rulesSetEntry.getValue();
+                        ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:90: error: cannot find symbol
+                                Map.Entry<String, JSONObject> rulesEntry = (Map.Entry<String, JSONObject>) rulesObject;
+                                                  ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:90: error: cannot find symbol
+                                Map.Entry<String, JSONObject> rulesEntry = (Map.Entry<String, JSONObject>) rulesObject;
+                                                                                              ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:92: error: cannot find symbol
+                                JSONObject rule = rulesEntry.getValue();
+                                ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:93: error: cannot find symbol
+                                JSONArray fixArray = (JSONArray) rule.get(CodeSweepUtils.RULES_JSON_CODEFIXES);
+                                ^
+  symbol:   class JSONArray
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:93: error: cannot find symbol
+                                JSONArray fixArray = (JSONArray) rule.get(CodeSweepUtils.RULES_JSON_CODEFIXES);
+                                                      ^
+  symbol:   class JSONArray
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:96: error: cannot find symbol
+                                        JSONObject obj = (JSONObject) o1;
+                                        ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:96: error: cannot find symbol
+                                        JSONObject obj = (JSONObject) o1;
+                                                          ^
+  symbol:   class JSONObject
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:112: error: cannot find symbol
+                HttpResponse response = new HttpClient().post(url, null, null);
+                ^
+  symbol:   class HttpResponse
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:112: error: cannot find symbol
+                HttpResponse response = new HttpClient().post(url, null, null);
+                                            ^
+  symbol:   class HttpClient
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:120: error: cannot find symbol
+                HttpResponse response = new HttpClient().delete(url, null, null);
+                ^
+  symbol:   class HttpResponse
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\dataProvider\codeSweep\RulesProvider.java:120: error: cannot find symbol
+                HttpResponse response = new HttpClient().delete(url, null, null);
+                                            ^
+  symbol:   class HttpClient
+  location: class RulesProvider
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\handler\codesweep\CodeSweepHandler.java:185: error: cannot find symbol
+                } catch (IOException | JSONException e) {
+                                       ^
+  symbol:   class JSONException
+  location: class CodeSweepHandler
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\model\FixGroupTableBaseModel.java:39: error: cannot access SaaSConstants
+                Collection<FixGroup> fixGroupCollection = this.m_fixGroupViewer.getCloudFixgroupProvider().getFixGroups();
+                                                                                                          ^
+  class file for com.ibm.appscan.common.SaaSConstants not found
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:34: error: cannot find symbol
+            JSONObject jsonObject = new JSONObject(str);
+            ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:34: error: cannot find symbol
+            JSONObject jsonObject = new JSONObject(str);
+                                        ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:35: error: cannot find symbol
+            JSONArray jsonArray = (JSONArray) jsonObject.get("issue-group");
+            ^
+  symbol:   class JSONArray
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:35: error: cannot find symbol
+            JSONArray jsonArray = (JSONArray) jsonObject.get("issue-group");
+                                   ^
+  symbol:   class JSONArray
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:37: error: cannot find symbol
+            String id = (String) ((JSONObject) jsonArray.get(0)).get("id");
+                                   ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:40: error: cannot find symbol
+            JSONObject issue_type = (JSONObject) ((JSONObject) jsonArray.get(0)).get("issue-type");
+            ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:40: error: cannot find symbol
+            JSONObject issue_type = (JSONObject) ((JSONObject) jsonArray.get(0)).get("issue-type");
+                                     ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:40: error: cannot find symbol
+            JSONObject issue_type = (JSONObject) ((JSONObject) jsonArray.get(0)).get("issue-type");
+                                                   ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:48: error: cannot find symbol
+            if(((JSONObject) jsonArray.get(0)).has("additionalInfo"))    {
+                 ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:49: error: cannot find symbol
+                JSONObject additionalInfo = (JSONObject) ((JSONObject) jsonArray.get(0)).get("additionalInfo");
+                ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:49: error: cannot find symbol
+                JSONObject additionalInfo = (JSONObject) ((JSONObject) jsonArray.get(0)).get("additionalInfo");
+                                             ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:49: error: cannot find symbol
+                JSONObject additionalInfo = (JSONObject) ((JSONObject) jsonArray.get(0)).get("additionalInfo");
+                                                           ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:54: error: cannot find symbol
+            JSONArray variantGroup = (JSONArray) ((JSONObject) jsonArray.get(0)).get("variant-group");
+            ^
+  symbol:   class JSONArray
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:54: error: cannot find symbol
+            JSONArray variantGroup = (JSONArray) ((JSONObject) jsonArray.get(0)).get("variant-group");
+                                      ^
+  symbol:   class JSONArray
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:54: error: cannot find symbol
+            JSONArray variantGroup = (JSONArray) ((JSONObject) jsonArray.get(0)).get("variant-group");
+                                                   ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:56: error: cannot find symbol
+            JSONObject request = (JSONObject) ((JSONObject) variantGroup.get(0)).get("request");
+            ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:56: error: cannot find symbol
+            JSONObject request = (JSONObject) ((JSONObject) variantGroup.get(0)).get("request");
+                                  ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:56: error: cannot find symbol
+            JSONObject request = (JSONObject) ((JSONObject) variantGroup.get(0)).get("request");
+                                                ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:61: error: cannot find symbol
+            JSONArray callTraceArray = (JSONArray) ((JSONObject) variantGroup.get(0)).get("call-trace");
+            ^
+  symbol:   class JSONArray
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:61: error: cannot find symbol
+            JSONArray callTraceArray = (JSONArray) ((JSONObject) variantGroup.get(0)).get("call-trace");
+                                        ^
+  symbol:   class JSONArray
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:61: error: cannot find symbol
+            JSONArray callTraceArray = (JSONArray) ((JSONObject) variantGroup.get(0)).get("call-trace");
+                                                     ^
+  symbol:   class JSONObject
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\service\IASTIssueBuilder.java:66: error: cannot find symbol
+        } catch (JSONException | JsonProcessingException  err) {
+                 ^
+  symbol:   class JSONException
+  location: class IASTIssueBuilder
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\annotator\AppScanExternalAnnotator.java:104: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+        Color codeHighlightColor = UIUtil.isUnderDarcula() ? CodeSweepConstants.HIGHLIGHT_COLOR_DARK : CodeSweepConstants.HIGHLIGHT_COLOR_LIGHT;
+                                         ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\CodeSweepDefaultPanel.java:104: warning: [removal] ActionLink in com.intellij.ui.components.labels has been deprecated and marked for removal
+        ActionLink actionLinkLogin = new ActionLink(MessagesBundle.message("toolwindow.codesweep.onboarding.desc3.asoc.login"), new AnAction() {
+        ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\CodeSweepDefaultPanel.java:104: warning: [removal] ActionLink in com.intellij.ui.components.labels has been deprecated and marked for removal
+        ActionLink actionLinkLogin = new ActionLink(MessagesBundle.message("toolwindow.codesweep.onboarding.desc3.asoc.login"), new AnAction() {
+                                         ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\CodeSweepDefaultPanel.java:118: warning: [removal] ActionLink in com.intellij.ui.components.labels has been deprecated and marked for removal
+        ActionLink actionLink = new ActionLink(MessagesBundle.message("toolwindow.codesweep.onboarding.desc3.asoc.login.link"), new AnAction() {
+        ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\CodeSweepDefaultPanel.java:118: warning: [removal] ActionLink in com.intellij.ui.components.labels has been deprecated and marked for removal
+        ActionLink actionLink = new ActionLink(MessagesBundle.message("toolwindow.codesweep.onboarding.desc3.asoc.login.link"), new AnAction() {
+                                    ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:112: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                File traceImagesDir = new File(installDir, UIUtil.isUnderDarcula() ? UIConstants.TRACE_ICON_FOLDER_DARK : UIConstants.TRACE_ICON_FOLDER_LIGHT);
+                                                                 ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:113: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                String templatePath = UIConstants.LIB_FOLDER + File.separator + (UIUtil.isUnderDarcula() ? UIConstants.DARK_TEMPLATE_FOLDER : UIConstants.TEMPLATE_FOLDER);
+                                                                                       ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:115: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                File xslFile = UIUtil.isUnderDarcula() ? new File(installDir, UIConstants.XSL_FILE) : new File(installDir, UIConstants.XSL_FILE_LIGHT);
+                                     ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:117: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                String styleSheet = "<link rel='stylesheet' href='" + installDir.getAbsolutePath() + (UIUtil.isUnderDarcula() ? UIConstants.TRACE_DARK_CSS_LOCATION : UIConstants.TRACE_LIGHT_CSS_LOCATION) + "'>";
+                                                                                                            ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:140: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                                                "<img style='margin-bottom: -3px;' src='" + location + "/"+ (UIUtil.isUnderDarcula() ? "best_fix_location.svg" : "best_fix_location_light.svg") +"' alt='" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.bestfixlocation") + "' width='15' height='15'><span style= 'margin:10px'>" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.bestfixlocation") + "</span>" +
+                                                                                                                   ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:141: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                                                "<img class= 'dataflow-legend-icon' src='" + location + "/"+ (UIUtil.isUnderDarcula() ? "alt_fix_location.svg" : "alt_fix_location_light.svg") +"' alt='" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.alternativefixlocation") + "' width='15' height='15'><span class= 'dataflow-legend-text'>" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.alternativefixlocation") + "</span>" +
+                                                                                                                    ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:142: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                                                "<img class= 'dataflow-legend-icon' src='" + location + "/"+ (UIUtil.isUnderDarcula() ? "method_source.svg" : "method_source_light.svg") +"' alt='" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.source") + "' width='15' height='15'><span class= 'dataflow-legend-text'>" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.source") + "</span>" +
+                                                                                                                    ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:143: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                                                "<img class= 'dataflow-legend-icon' src='" + location + "/"+ (UIUtil.isUnderDarcula() ? "method_sink.svg" : "method_sink_light.svg") +"' alt='" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.sink") + "' width='15' height='15'><span class= 'dataflow-legend-text'>" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.sink") + "</span>" +
+                                                                                                                    ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:144: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                                                "<img class= 'dataflow-legend-icon' src='" + location + "/"+ (UIUtil.isUnderDarcula() ? "taint_prop.svg" : "taint_prop_light.svg") +"' alt='" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.taintpropagator") + "' width='15' height='15'><span class= 'dataflow-legend-text'>" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.taintpropagator") + "</span>" +
+                                                                                                                    ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:145: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                                                "<img class= 'dataflow-legend-icon' src='" + location + "/"+ (UIUtil.isUnderDarcula() ? "tainted_data.svg" : "tainted_data_light.svg") +"' alt='" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.tainteddata") + "' width='15' height='15'><span class= 'dataflow-legend-text'>" + MessagesBundle.message("toolwindow.issuedetails.dataflow.legend.tainteddata") + "</span></div></div>" +
+                                                                                                                    ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:159: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                                                        String styleCSS = "<link rel='stylesheet' href='" + installDir.getAbsolutePath() + (UIUtil.isUnderDarcula() ? UIConstants.DARK_CSS_LOCATION : UIConstants.LIGHT_CSS_LOCATION) + "'>";
+                                                                                                                                                  ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:205: error: cannot find symbol
+                                                IOUtil.close(input);
+                                                ^
+  symbol:   variable IOUtil
+  location: class DataFlowPanel
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:262: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                        String htmlUrl = templateDir.getAbsolutePath() + (UIUtil.isUnderDarcula() ? UIConstants.DATA_FLOW_HTML_DARK : UIConstants.DATA_FLOW_HTML);
+                                                                                ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:320: error: cannot find symbol
+                StAXWriter writer = null;
+                ^
+  symbol:   class StAXWriter
+  location: class DataFlowPanel
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\DataFlowPanel.java:322: error: cannot find symbol
+                        writer = new StAXWriter(bytes);
+                                     ^
+  symbol:   class StAXWriter
+  location: class DataFlowPanel
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\dialog\asoc\FixGroupStatusUpdateDialog.java:409: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                        if (!UIUtil.isUnderDarcula()) {
+                                   ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\dialog\asoc\LoginDialog.java:261: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                        if (!UIUtil.isUnderDarcula()) {
+                                   ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\FixGroupPanel.java:87: error: cannot find symbol
+                } catch (AppScanException e) {
+                         ^
+  symbol:   class AppScanException
+  location: class FixGroupPanel
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\FixGroupPanel.java:111: warning: [removal] SERVICE in ContentFactory has been deprecated and marked for removal
+                                Content scansTabContent = ContentFactory.SERVICE.getInstance().createContent(scanToolWindowContent, MessagesBundle.message("toolwindow.scan.title"), false);
+                                                                        ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\HowToFixPanel.java:134: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                String templatePath = (UIUtil.isUnderDarcula() ? UIConstants.DARK_TEMPLATE_FOLDER : UIConstants.TEMPLATE_FOLDER);
+                                             ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\HowToFixPanel.java:136: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                String omniaUrl = templateDir.getAbsolutePath() + (UIUtil.isUnderDarcula() ? UIConstants.HOW_TO_FIX_HTML_DARK : UIConstants.HOW_TO_FIX_HTML);
+                                                                         ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\HowToFixPanel.java:138: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                        omniaUrl = templateDir.getAbsolutePath() + (UIUtil.isUnderDarcula() ? UIConstants.CODESWEEP_RULES_HTML_DARK : UIConstants.CODESWEEP_RULES_HTML);
+                                                                          ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\HowToFixPanel.java:141: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                String mode = UIUtil.isUnderDarcula() ? UIConstants.DARK_MODE : UIConstants.LIGHT_MODE;
+                                    ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\IssueDetailsToolWindowFactory.java:38: warning: [removal] SERVICE in ContentFactory has been deprecated and marked for removal
+                        Content howToFixGroupContent = ContentFactory.SERVICE.getInstance().createContent(howToFixToolWindowContent, MessagesBundle.message("toolwindow.issuedetails.howtofix.title"), false);
+                                                                     ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\IssueDetailsToolWindowFactory.java:42: warning: [removal] SERVICE in ContentFactory has been deprecated and marked for removal
+                        Content dataFlowContent = ContentFactory.SERVICE.getInstance().createContent(dataFlowToolWindowContent, MessagesBundle.message("toolwindow.issuedetails.dataflow.title"), false);
+                                                                ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\PluginToolWindowFactory.java:43: warning: [removal] SERVICE in ContentFactory has been deprecated and marked for removal
+                Content codeSweepContent = ContentFactory.SERVICE.getInstance().createContent(codeSweepToolWindowContent, MessagesBundle.message("toolwindow.codesweep.title"), false);
+                                                         ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\PluginToolWindowFactory.java:49: warning: [removal] SERVICE in ContentFactory has been deprecated and marked for removal
+                        Content iASTContent = ContentFactory.SERVICE.getInstance().createContent(iastToolWindowContent, MessagesBundle.message("toolwindow.iast.title"), false);
+                                                            ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\PluginToolWindowFactory.java:54: warning: [removal] SERVICE in ContentFactory has been deprecated and marked for removal
+                Content fixGroupContent = ContentFactory.SERVICE.getInstance().createContent(fixGroupToolWindowContent, MessagesBundle.message("toolwindow.fixgroup.title"), false);
+                                                        ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\ui\PluginToolWindowFactory.java:58: warning: [removal] SERVICE in ContentFactory has been deprecated and marked for removal
+                Content scanContent = ContentFactory.SERVICE.getInstance().createContent(scanToolWindowContent, MessagesBundle.message("toolwindow.scan.title"), false);
+                                                    ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:82: error: cannot find symbol
+                        JSONObject obj = (JSONObject) response.getResponseBodyAsJSON();
+                        ^
+  symbol:   class JSONObject
+  location: class CodeSweepUtils
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:82: error: cannot find symbol
+                        JSONObject obj = (JSONObject) response.getResponseBodyAsJSON();
+                                          ^
+  symbol:   class JSONObject
+  location: class CodeSweepUtils
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:84: error: cannot find symbol
+                } catch (JSONException e) {
+                         ^
+  symbol:   class JSONException
+  location: class CodeSweepUtils
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:199: error: cannot find symbol
+                JSONObject jsonObject = new JSONObject(gson.toJson(codeSweepFinding));
+                ^
+  symbol:   class JSONObject
+  location: class CodeSweepUtils
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:199: error: cannot find symbol
+                JSONObject jsonObject = new JSONObject(gson.toJson(codeSweepFinding));
+                                            ^
+  symbol:   class JSONObject
+  location: class CodeSweepUtils
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:246: error: cannot find symbol
+                        HttpResponse response = new HttpClient().get(CodeSweepUtils.GET_ALL_RULES, null, null);
+                        ^
+  symbol:   class HttpResponse
+  location: class CodeSweepUtils
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\CodeSweepUtils.java:246: error: cannot find symbol
+                        HttpResponse response = new HttpClient().get(CodeSweepUtils.GET_ALL_RULES, null, null);
+                                                    ^
+  symbol:   class HttpClient
+  location: class CodeSweepUtils
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\IconTextCellRenderer.java:63: warning: [removal] isUnderDarcula() in UIUtil has been deprecated and marked for removal
+                Icon icon = (UIUtil.isUnderDarcula() ? IconLoader.findIcon(UIConstants.SEVERITY_ICON_FOLDER + UIConstants.SEVERITY_ICON_DISABLED_DARK) : IconLoader.findIcon(UIConstants.SEVERITY_ICON_FOLDER + UIConstants.SEVERITY_ICON_DISABLED));
+                                   ^
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\src\main\java\com\hcl\appscan\intellij\plugin\util\UIComponentsUtil.java:298: warning: [removal] SERVICE in ContentFactory has been deprecated and marked for removal
+                    content = ContentFactory.SERVICE.getInstance().createContent(dataFlowToolWindowContent, MessagesBundle.message("toolwindow.issuedetails.dataflow.title"), false);
+                                            ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+87 errors
+32 warnings
 
-public class HowToFixPanel implements PropertyChangeListener {
-	private Object tempObject;
-	private Object tempIssueObject;
-	private JBCefBrowser browser;
-	private ProjectSettingsState settingsState;
-	protected JPanel panel;
-	protected ApplicationHandler applicationHandler;
-	protected IAuthenticationProvider authenticationHandler;
-	protected Project project;
-	protected static String issueTypeId = null;
-	private static Logger logger = Logger.getInstance(HowToFixPanel.class);
-	private JBCefJSQuery myJSQueryOpenInBrowser;
-	private static String ourJSCodeToInject;
-	private CefLoadHandler myCefLoadHandler;
+> Task :compileJava FAILED
 
-	public HowToFixPanel(final Project project) {
-		this.project = project;
-		this.authenticationHandler = LoginUtility.getASoCHandler();
-		this.applicationHandler = ApplicationHandler.getASoCApplicationHandler(project);
-		this.settingsState = ProjectSettingsState.getInstance(project);
+FAILURE: Build failed with an exception.
 
-		createUIComponents();
-		refreshUIComponents(null, null);
-		subscribeToListener();
-		UIManager.addPropertyChangeListener(this);
-	}
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler error output for details.
 
-	static {
-		try {
-			ourJSCodeToInject = Resources.toString(HowToFixPanel.class.getResource("/js/howtofix_script.js"), StandardCharsets.UTF_8);
-		}
-		catch (IOException e) {
-			logger.warn("Failed to load script.js.", e);
-		}
-	}
+* Try:
+> Run with --info option to get more log output.
+> Run with --scan to get full insights.
 
-	public static String getIssueTypeId() {
-		return issueTypeId;
-	}
-
-	private void subscribeToListener() {
-		project.getMessageBus().connect().subscribe(IMessageTopics.APPSCAN_DETAILS_LISTENER_TOPIC, this::refreshUIComponents);
-	}
-
-	private void createUIComponents() {
-		this.panel = UIComponentsUtil.getDefaultXAxisPanel();
-		this.browser = new JBCefBrowser();
-
-		browser.getComponent().setPreferredSize(new Dimension(10, 10));
-		browser.setPageBackgroundColor(UIComponentsUtil.getHtmlHexadecimalColorCode(JBColor.background()));
-
-		myJSQueryOpenInBrowser = JBCefJSQuery.create((JBCefBrowserBase) browser);
-		browser.getJBCefClient().addLoadHandler(myCefLoadHandler = new CefLoadHandlerAdapter() {
-			@Override
-			public void onLoadingStateChange(CefBrowser cefBrowser, boolean isLoading, boolean canGoBack, boolean canGoForward) {
-				if (ourJSCodeToInject != null) {
-					cefBrowser.executeJavaScript(ourJSCodeToInject, browser.getCefBrowser().getURL(), 0);
-					cefBrowser.executeJavaScript("window.__Appscan.openInBrowserCallback = link => {"
-									+ myJSQueryOpenInBrowser.inject("link") + "}",
-							browser.getCefBrowser().getURL(), 0);
-				}
-			}
-		}, browser.getCefBrowser());
-		myJSQueryOpenInBrowser.addHandler((link) -> {
-			if (link != null)
-				BrowserUtil.browse(link);
-			return null;
-		});
-
-		JPanel appPanel = new JPanel();
-		appPanel.setLayout(new BoxLayout(appPanel, BoxLayout.X_AXIS));
-		JBScrollPane scrollPane = new JBScrollPane(browser.getComponent(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setViewportView(browser.getComponent());
-		appPanel.add(scrollPane);
-		panel.add(appPanel);
-		panel.updateUI();
-	}
-
-	public JPanel getComponent() {
-		return panel;
-	}
-
-	protected void refreshUIComponents(Object object, Object issueObject) {
-		this.tempObject = object;
-		this.tempIssueObject = issueObject;
-		File libFolder = OmniaUtil.getLibFolder();
-		String templatePath = (UIUtil.isUnderDarcula() ? UIConstants.DARK_TEMPLATE_FOLDER : UIConstants.TEMPLATE_FOLDER);
-		File templateDir = new File(libFolder, templatePath);
-		String omniaUrl = templateDir.getAbsolutePath() + (UIUtil.isUnderDarcula() ? UIConstants.HOW_TO_FIX_HTML_DARK : UIConstants.HOW_TO_FIX_HTML);
-		if (object instanceof String && CodeSweepUtils.SHOW_CODESWEEP_RULES_INFO.equals(object)) {
-			omniaUrl = templateDir.getAbsolutePath() + (UIUtil.isUnderDarcula() ? UIConstants.CODESWEEP_RULES_HTML_DARK : UIConstants.CODESWEEP_RULES_HTML);
-			object = null;
-		}
-		String mode = UIUtil.isUnderDarcula() ? UIConstants.DARK_MODE : UIConstants.LIGHT_MODE;
-		if(object != null) {
-			HowToFixPanel.issueTypeId = OmniaUtil.extractIssueTypeId(object, project);
-			omniaUrl = OmniaUtil.getOmniaUrl(object, omniaUrl, mode, issueTypeId);
-			browser.loadURL(omniaUrl);
-		} else {
-			try {
-				Path path = Paths.get(omniaUrl);
-				String fileContent = Files.readString(path);
-				browser.loadHTML(fileContent);
-			} catch (Exception e) {
-				logger.error(MessagesBundle.message("toolwindow.issuedetails.dataflow.templatefilenotfound"), e);
-			}
-		}
-	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-		if (UIConstants.LOOKANDFEEL_EVENT_NAME.equals(propertyChangeEvent.getPropertyName())) {
-			ApplicationManager.getApplication().invokeLater(() -> {
-				browser.setPageBackgroundColor(UIComponentsUtil.getHtmlHexadecimalColorCode(JBColor.background()));
-				refreshUIComponents(tempObject, tempIssueObject);
-			});
-		}
-	}
+BUILD FAILED in 1m 26s
+3 actionable tasks: 2 executed, 1 up-to-date
