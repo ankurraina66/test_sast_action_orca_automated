@@ -1,4 +1,4 @@
-$ git diff --stat
+$ git add node_modules/undici node_modules/.package-lock.json
 warning: in the working copy of 'node_modules/undici/LICENSE', LF will be replaced by CRLF the next time Git touches it
 warning: in the working copy of 'node_modules/undici/README.md', LF will be replaced by CRLF the next time Git touches it
 warning: in the working copy of 'node_modules/undici/docs/docs/api/Agent.md', LF will be replaced by CRLF the next time Git touches it
@@ -174,13 +174,20 @@ warning: in the working copy of 'node_modules/undici/types/retry-handler.d.ts', 
 warning: in the working copy of 'node_modules/undici/types/util.d.ts', LF will be replaced by CRLF the next time Git touches it
 warning: in the working copy of 'node_modules/undici/types/webidl.d.ts', LF will be replaced by CRLF the next time Git touches it
 warning: in the working copy of 'node_modules/undici/types/websocket.d.ts', LF will be replaced by CRLF the next time Git touches it
- node_modules/.package-lock.json                    |   7 +-
- node_modules/undici/lib/core/request.js            |  13 +-
- node_modules/undici/lib/dispatcher/client-h1.js    |  29 +-
- node_modules/undici/lib/handler/retry-handler.js   |  66 +++-
- node_modules/undici/lib/web/cookies/util.js        |  88 ++++-
- .../lib/web/eventsource/eventsource-stream.js      | 395 +++++++++++++--------
- .../undici/lib/web/websocket/connection.js         |   2 +-
- .../undici/lib/web/websocket/permessage-deflate.js |   5 +
- node_modules/undici/package.json                   |   2 +-
- 9 files changed, 433 insertions(+), 174 deletions(-)
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (update-undici)
+$ git status
+On branch update-undici
+Your branch is up to date with 'origin/update-undici'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   node_modules/.package-lock.json
+        modified:   node_modules/undici/lib/core/request.js
+        modified:   node_modules/undici/lib/dispatcher/client-h1.js
+        modified:   node_modules/undici/lib/handler/retry-handler.js
+        modified:   node_modules/undici/lib/web/cookies/util.js
+        modified:   node_modules/undici/lib/web/eventsource/eventsource-stream.js
+        modified:   node_modules/undici/lib/web/websocket/connection.js
+        modified:   node_modules/undici/lib/web/websocket/permessage-deflate.js
+        modified:   node_modules/undici/package.json
