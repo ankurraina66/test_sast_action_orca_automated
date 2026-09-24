@@ -1,7 +1,7 @@
 C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew dependencyInsight --dependency commons-lang3 --configuration runtimeClasspath
 
 > Task :dependencyInsight
-org.apache.commons:commons-lang3:3.14.0
+org.apache.commons:commons-lang3:3.18.0
   Variant runtime:
     | Attribute Name                 | Provided     | Requested    |
     |--------------------------------|--------------|--------------|
@@ -12,8 +12,13 @@ org.apache.commons:commons-lang3:3.14.0
     | org.gradle.dependency.bundling |              | external     |
     | org.gradle.jvm.environment     |              | standard-jvm |
     | org.gradle.jvm.version         |              | 17           |
+   Selection reasons:
+      - By conflict resolution: between versions 3.18.0 and 3.14.0
 
-org.apache.commons:commons-lang3:3.14.0
+org.apache.commons:commons-lang3:3.18.0
+\--- runtimeClasspath
+
+org.apache.commons:commons-lang3:3.14.0 -> 3.18.0
 \--- org.apache.commons:commons-compress:1.26.0
      \--- com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT:20260923.231931-2615
           +--- runtimeClasspath
