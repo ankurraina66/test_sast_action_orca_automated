@@ -1,58 +1,113 @@
-C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew dependencyInsight --dependency jackson-bom --configuration runtimeClasspath
+C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin>gradlew dependencyInsight --dependency jackson-databind --configuration runtimeClasspath
 
 > Task :dependencyInsight
-com.fasterxml.jackson:jackson-bom:2.18.8
-  Variant platform-runtime:
+com.fasterxml.jackson.core:jackson-databind:2.18.11
+  Variant runtimeElements:
     | Attribute Name                 | Provided     | Requested    |
     |--------------------------------|--------------|--------------|
     | org.gradle.status              | release      |              |
-    | org.gradle.category            | platform     | platform     |
+    | org.gradle.category            | library      | library      |
+    | org.gradle.dependency.bundling | external     | external     |
+    | org.gradle.libraryelements     | jar          | jar          |
     | org.gradle.usage               | java-runtime | java-runtime |
-    | org.gradle.dependency.bundling |              | external     |
     | org.gradle.jvm.environment     |              | standard-jvm |
     | org.gradle.jvm.version         |              | 17           |
-    | org.gradle.libraryelements     |              | jar          |
+   Selection reasons:
+      - By constraint
+      - By conflict resolution: between versions 2.18.11, 2.18.8 and 2.18.3
 
-com.fasterxml.jackson:jackson-bom:2.18.8
-+--- com.fasterxml.jackson.core:jackson-annotations:2.18.8
-|    +--- com.fasterxml.jackson:jackson-bom:2.18.8 (*)
-|    \--- com.fasterxml.jackson.core:jackson-databind:2.18.8
-|         +--- com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT:20260922.231529-2612
-|         |    +--- runtimeClasspath
-|         |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611
-|         |    |    \--- runtimeClasspath
-|         |    +--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612
-|         |    |    +--- runtimeClasspath
-|         |    |    \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
-|         |    +--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605
-|         |    |    +--- runtimeClasspath
-|         |    |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
-|         |    |    \--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612 (*)
-|         |    +--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260922.231529-2610
-|         |    |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
-|         |    |    \--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605 (*)
-|         |    +--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260922.231529-2612
-|         |    |    \--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260922.231529-2610 (*)
-|         |    +--- com.hcl.appscan:assessment:1.0-SNAPSHOT:20260922.231529-2615
-|         |    |    +--- runtimeClasspath
-|         |    |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
-|         |    |    +--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612 (*)
-|         |    |    +--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605 (*)
-|         |    |    \--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260922.231529-2612 (*)
-|         |    \--- com.hcl.appscan:com.hcl.appscan.kb:1.0-SNAPSHOT:20260922.231529-2611
-|         |         \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
-|         +--- com.networknt:json-schema-validator:2.0.1 (requested com.fasterxml.jackson.core:jackson-databind:2.18.3)
-|         |    \--- com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT:20260922.231529-2612 (*)
-|         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.8
-|         |    +--- com.networknt:json-schema-validator:2.0.1 (requested com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.3) (*)
-|         |    \--- com.fasterxml.jackson:jackson-bom:2.18.8 (*)
-|         \--- com.fasterxml.jackson:jackson-bom:2.18.8 (*)
-+--- com.fasterxml.jackson.core:jackson-core:2.18.8
-|    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.8 (*)
-|    +--- com.fasterxml.jackson:jackson-bom:2.18.8 (*)
-|    \--- com.fasterxml.jackson.core:jackson-databind:2.18.8 (*)
-+--- com.fasterxml.jackson.core:jackson-databind:2.18.8 (*)
-\--- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.8 (*)
+com.fasterxml.jackson.core:jackson-databind:2.18.11
++--- com.fasterxml.jackson:jackson-bom:2.18.11
+|    +--- runtimeClasspath
+|    +--- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.11
+|    |    +--- com.networknt:json-schema-validator:2.0.1 (requested com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.3)
+|    |    |    \--- com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT:20260922.231529-2612
+|    |    |         +--- runtimeClasspath
+|    |    |         +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611
+|    |    |         |    \--- runtimeClasspath
+|    |    |         +--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612
+|    |    |         |    +--- runtimeClasspath
+|    |    |         |    \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+|    |    |         +--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605
+|    |    |         |    +--- runtimeClasspath
+|    |    |         |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+|    |    |         |    \--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612 (*)
+|    |    |         +--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260922.231529-2610
+|    |    |         |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+|    |    |         |    \--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605 (*)
+|    |    |         +--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260922.231529-2612
+|    |    |         |    \--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260922.231529-2610 (*)
+|    |    |         +--- com.hcl.appscan:assessment:1.0-SNAPSHOT:20260922.231529-2615
+|    |    |         |    +--- runtimeClasspath
+|    |    |         |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+|    |    |         |    +--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612 (*)
+|    |    |         |    +--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605 (*)
+|    |    |         |    \--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260922.231529-2612 (*)
+|    |    |         \--- com.hcl.appscan:com.hcl.appscan.kb:1.0-SNAPSHOT:20260922.231529-2611
+|    |    |              \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+|    |    \--- com.fasterxml.jackson:jackson-bom:2.18.11 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.18.11 (*)
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.18.11
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.18.11 (*)
+|    |    \--- com.fasterxml.jackson:jackson-bom:2.18.11 (*)
+|    \--- com.fasterxml.jackson.core:jackson-core:2.18.11
+|         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.11 (*)
+|         +--- com.fasterxml.jackson.core:jackson-databind:2.18.11 (*)
+|         \--- com.fasterxml.jackson:jackson-bom:2.18.11 (*)
+\--- com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.11 (*)
+
+com.fasterxml.jackson.core:jackson-databind:2.18.3 -> 2.18.11
+\--- com.networknt:json-schema-validator:2.0.1
+     \--- com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT:20260922.231529-2612
+          +--- runtimeClasspath
+          +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611
+          |    \--- runtimeClasspath
+          +--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612
+          |    +--- runtimeClasspath
+          |    \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+          +--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605
+          |    +--- runtimeClasspath
+          |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+          |    \--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612 (*)
+          +--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260922.231529-2610
+          |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+          |    \--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605 (*)
+          +--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260922.231529-2612
+          |    \--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260922.231529-2610 (*)
+          +--- com.hcl.appscan:assessment:1.0-SNAPSHOT:20260922.231529-2615
+          |    +--- runtimeClasspath
+          |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+          |    +--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612 (*)
+          |    +--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605 (*)
+          |    \--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260922.231529-2612 (*)
+          \--- com.hcl.appscan:com.hcl.appscan.kb:1.0-SNAPSHOT:20260922.231529-2611
+               \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+
+com.fasterxml.jackson.core:jackson-databind:2.18.8 -> 2.18.11
+\--- com.hcl.appscan:com.hcl.appscan.common:1.0-SNAPSHOT:20260922.231529-2612
+     +--- runtimeClasspath
+     +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611
+     |    \--- runtimeClasspath
+     +--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612
+     |    +--- runtimeClasspath
+     |    \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+     +--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605
+     |    +--- runtimeClasspath
+     |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+     |    \--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612 (*)
+     +--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260922.231529-2610
+     |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+     |    \--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605 (*)
+     +--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260922.231529-2612
+     |    \--- com.hcl.appscan:exclude:1.0-SNAPSHOT:20260922.231529-2610 (*)
+     +--- com.hcl.appscan:assessment:1.0-SNAPSHOT:20260922.231529-2615
+     |    +--- runtimeClasspath
+     |    +--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
+     |    +--- com.hcl.appscan:com.hcl.appscan.result:1.0-SNAPSHOT:20260922.231529-2612 (*)
+     |    +--- com.hcl.appscan:combiner:1.0-SNAPSHOT:20260922.231529-2605 (*)
+     |    \--- com.hcl.appscan:vdb:1.0-SNAPSHOT:20260922.231529-2612 (*)
+     \--- com.hcl.appscan:com.hcl.appscan.kb:1.0-SNAPSHOT:20260922.231529-2611
+          \--- com.hcl.appscan:com.hcl.appscan.reporting:1.0-SNAPSHOT:20260922.231529-2611 (*)
 
 (*) - Indicates repeated occurrences of a transitive dependency subtree. Gradle expands transitive dependency subtrees only once per project; repeat occurrences only display the root of the subtree, followed by this annotation.                                                                                                                                       
 
