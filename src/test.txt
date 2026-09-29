@@ -1,9 +1,9 @@
-C:\Users\ankur.raina\Downloads\JetBrains_Marketplace_Verifier>java -jar "verifier-cli-1.410-all.jar" check-plugin "C:/Users/ankur.raina/Downloads/impl_workspace/ASPL-2330/intellij-plugin/build/distributions/intellij-plugin-2.13.1.zip" "C:/Program Files/JetBrains/IntelliJ IDEA 2026.2.3"
+C:\Users\ankur.raina\Downloads\JetBrains_Marketplace_Verifier>java -jar "verifier-cli-1.410-all.jar" check-plugin "C:/Users/ankur.raina/Downloads/impl_workspace/ASPL-2330/intellij-plugin/build/distributions/intellij-plugin-2.13.1.zip" "C:/Program Files/JetBrains/IntelliJ IDEA 2026.2.3" -mute TemplateWordInPluginId
 Starting the IntelliJ Plugin Verifier 1.410
-Verification reports directory: verification-2026-09-29 at 10.13.40
-2026-09-29T10:13:44 [main] INFO  verification - Reading IDE C:/Program Files/JetBrains/IntelliJ IDEA 2026.2.3
-2026-09-29T10:13:44 [main] INFO  c.j.p.options.OptionsParser - Reading IDE from C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.3
-2026-09-29T10:13:44 [main] WARN  c.j.p.s.i.r.ValidatingLayoutComponentsProvider - Layout component 'intellij.android.gradle.declarative.lang' has some nonexistent 'classPath' elements: 'plugins\android-gradle-declarative-lang-ide\lib\modules\intellij.android.gradle.declarative.lang.jar'
+Verification reports directory: verification-2026-09-29 at 10.20.34
+2026-09-29T10:20:38 [main] INFO  verification - Reading IDE C:/Program Files/JetBrains/IntelliJ IDEA 2026.2.3
+2026-09-29T10:20:38 [main] INFO  c.j.p.options.OptionsParser - Reading IDE from C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.3
+2026-09-29T10:20:38 [main] WARN  c.j.p.s.i.r.ValidatingLayoutComponentsProvider - Layout component 'intellij.android.gradle.declarative.lang' has some nonexistent 'classPath' elements: 'plugins\android-gradle-declarative-lang-ide\lib\modules\intellij.android.gradle.declarative.lang.jar'
 Layout component 'intellij.android.gradle.declarative.lang.flags' has some nonexistent 'classPath' elements: 'plugins\android-gradle-declarative-lang-ide\lib\modules\intellij.android.gradle.declarative.lang.flags.jar'
 Layout component 'intellij.android.gradle.declarative.lang.sync' has some nonexistent 'classPath' elements: 'plugins\android-gradle-declarative-lang-ide\lib\modules\intellij.android.gradle.declarative.lang.sync.jar'
 Layout component 'intellij.clouds.docker.agent' has some nonexistent 'classPath' elements: 'plugins\clouds-docker-impl\lib\modules\intellij.clouds.docker.agent.jar'
@@ -86,21 +86,93 @@ Layout component 'intellij.toml.core' has some nonexistent 'classPath' elements:
 Layout component 'intellij.vcs.github' has some nonexistent 'classPath' elements: 'plugins\vcs-github\lib\modules\intellij.vcs.github.jar'
 Layout component 'intellij.vcs.gitlab' has some nonexistent 'classPath' elements: 'plugins\vcs-gitlab\lib\modules\intellij.vcs.gitlab.jar'
 Layout component 'intellij.yaml' has some nonexistent 'classPath' elements: 'plugins\yaml\lib\modules\intellij.yaml.jar'
-2026-09-29T10:13:44 [main] INFO  verification - Reading plugin to check from C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\distributions\intellij-plugin-2.13.1.zip
-2026-09-29T10:13:48 [main] INFO  verification - Plugin is invalid in C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\distributions\intellij-plugin-2.13.1.zip: Invalid plugin descriptor 'plugin.xml'. The plugin ID 'com.ibm.appscan.intellij.plugin' should not include the word 'intellij'.
-2026-09-29T10:13:55 [main] INFO  verification - Task check-plugin parameters:
-Scheduled verifications (0):
+2026-09-29T10:20:38 [main] INFO  verification - Reading plugin to check from C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\distributions\intellij-plugin-2.13.1.zip
+2026-09-29T10:20:48 [main] INFO  verification - Task check-plugin parameters:
+Scheduled verifications (1):
+com.ibm.appscan.intellij.plugin:2.13.1 against IU-262.10968.63
 
+2026-09-29T10:25:34 [main] INFO  verification - Finished 1 of 1 verifications (in 286.0 s): IU-262.10968.63 against com.ibm.appscan.intellij.plugin:2.13.1: Compatible. 14 usages of scheduled for removal API and 35 usages of deprecated API
+2026-09-29T10:25:34 [main] INFO  c.j.p.PluginVerifierMain - Started printing results (CheckPluginResultPrinter)
+Plugin com.ibm.appscan.intellij.plugin:2.13.1 against IU-262.10968.63: Compatible. 14 usages of scheduled for removal API and 35 usages of deprecated API
+Deprecated API usages (49):
+    #Deprecated method com.intellij.lang.annotation.Annotation.registerFix(IntentionAction) invocation
+        Deprecated method com.intellij.lang.annotation.Annotation.registerFix(com.intellij.codeInsight.intention.IntentionAction fix) : void is invoked in com.hcl.appscan.intellij.plugin.ui.annotator.AppScanExternalAnnotator.lambda$addAnnotation$4(Annotation, TextRange, CodeSweepFinding, AutoFixCode) : void
+        Deprecated method com.intellij.lang.annotation.Annotation.registerFix(com.intellij.codeInsight.intention.IntentionAction fix) : void is invoked in com.hcl.appscan.intellij.plugin.ui.annotator.AppScanExternalAnnotator.addAnnotation(AnnotationHolder, TextRange, CodeSweepFinding) : void
+    #Deprecated method com.intellij.openapi.components.ServiceManager.getService(Project, Class) invocation
+        Deprecated method com.intellij.openapi.components.ServiceManager.getService(com.intellij.openapi.project.Project project, java.lang.Class serviceClass) : T is invoked in com.hcl.appscan.intellij.plugin.listener.iast.XDebuggerManagerListenerImpl.processStarted(XDebugProcess) : void
+        Deprecated method com.intellij.openapi.components.ServiceManager.getService(com.intellij.openapi.project.Project project, java.lang.Class serviceClass) : T is invoked in com.hcl.appscan.intellij.plugin.ui.PluginToolWindowFactory.createToolWindowContent(Project, ToolWindow) : void
+        Deprecated method com.intellij.openapi.components.ServiceManager.getService(com.intellij.openapi.project.Project project, java.lang.Class serviceClass) : T is invoked in com.hcl.appscan.intellij.plugin.listener.iast.XDebuggerManagerListenerImpl.processStopped(XDebugProcess) : void
+        Deprecated method com.intellij.openapi.components.ServiceManager.getService(com.intellij.openapi.project.Project project, java.lang.Class serviceClass) : T is invoked in com.hcl.appscan.intellij.plugin.ui.IASTIssuesViewer.refreshUIComponents() : void
+        Deprecated method com.intellij.openapi.components.ServiceManager.getService(com.intellij.openapi.project.Project project, java.lang.Class serviceClass) : T is invoked in com.hcl.appscan.intellij.plugin.ui.IASTIssuesViewer.createUIComponents() : void
+    #Deprecated method com.intellij.util.ui.UIUtil.isUnderDarcula() invocation
+        Deprecated method com.intellij.util.ui.UIUtil.isUnderDarcula() : boolean is invoked in com.hcl.appscan.intellij.plugin.ui.dialog.asoc.FixGroupStatusUpdateDialog.createJButtonForAction(Action) : JButton. This method will be removed in a future release
+        Deprecated method com.intellij.util.ui.UIUtil.isUnderDarcula() : boolean is invoked in com.hcl.appscan.intellij.plugin.ui.dialog.asoc.LoginDialog.createJButtonForAction(Action) : JButton. This method will be removed in a future release
+        Deprecated method com.intellij.util.ui.UIUtil.isUnderDarcula() : boolean is invoked in com.hcl.appscan.intellij.plugin.ui.annotator.AppScanExternalAnnotator.addAnnotation(AnnotationHolder, TextRange, CodeSweepFinding) : void. This method will be removed in a future release
+        Deprecated method com.intellij.util.ui.UIUtil.isUnderDarcula() : boolean is invoked in com.hcl.appscan.intellij.plugin.ui.DataFlowPanel.refreshUIComponents(Object, Object) : void. This method will be removed in a future release
+        Deprecated method com.intellij.util.ui.UIUtil.isUnderDarcula() : boolean is invoked in com.hcl.appscan.intellij.plugin.util.IconTextCellRenderer.getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int) : Component. This method will be removed in a future release
+        Deprecated method com.intellij.util.ui.UIUtil.isUnderDarcula() : boolean is invoked in com.hcl.appscan.intellij.plugin.ui.HowToFixPanel.refreshUIComponents(Object, Object) : void. This method will be removed in a future release
+    #Deprecated class com.intellij.ui.content.ContentFactory.SERVICE reference
+        Deprecated class com.intellij.ui.content.ContentFactory.SERVICE is referenced in com.hcl.appscan.intellij.plugin.ui.FixGroupPanel.refreshUIComponents(boolean, boolean) : void. This class will be removed in a future release
+        Deprecated class com.intellij.ui.content.ContentFactory.SERVICE is referenced in com.hcl.appscan.intellij.plugin.ui.IssueDetailsToolWindowFactory.createToolWindowContent(Project, ToolWindow) : void. This class will be removed in a future release
+        Deprecated class com.intellij.ui.content.ContentFactory.SERVICE is referenced in com.hcl.appscan.intellij.plugin.ui.PluginToolWindowFactory.createToolWindowContent(Project, ToolWindow) : void. This class will be removed in a future release
+        Deprecated class com.intellij.ui.content.ContentFactory.SERVICE is referenced in com.hcl.appscan.intellij.plugin.util.UIComponentsUtil.addTab(Project, String, String, Content, String) : void. This class will be removed in a future release
+    #Deprecated method com.intellij.ide.DataManager.getDataContext() invocation
+        Deprecated method com.intellij.ide.DataManager.getDataContext() : com.intellij.openapi.actionSystem.DataContext is invoked in com.hcl.appscan.intellij.plugin.handler.AsocA360Configurable.isModified() : boolean
+        Deprecated method com.intellij.ide.DataManager.getDataContext() : com.intellij.openapi.actionSystem.DataContext is invoked in com.hcl.appscan.intellij.plugin.handler.AsocA360Configurable.lambda$getLoginConfigurationLink$0(HyperlinkEvent) : void
+        Deprecated method com.intellij.ide.DataManager.getDataContext() : com.intellij.openapi.actionSystem.DataContext is invoked in com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable.lambda$getCodeSweepConfigurationLink$1(HyperlinkEvent) : void
+        Deprecated method com.intellij.ide.DataManager.getDataContext() : com.intellij.openapi.actionSystem.DataContext is invoked in com.hcl.appscan.intellij.plugin.handler.ProjectSettingsConfigurable.lambda$getAsocA360ConfigurationLink$2(HyperlinkEvent) : void
+    #Deprecated method com.intellij.openapi.util.IconLoader.findIcon(String) invocation
+        Deprecated method com.intellij.openapi.util.IconLoader.findIcon(java.lang.String path) : javax.swing.Icon is invoked in com.hcl.appscan.intellij.plugin.util.UIComponentsUtil.getSeverityColumnIcon(Object, boolean) : Icon
+        Deprecated method com.intellij.openapi.util.IconLoader.findIcon(java.lang.String path) : javax.swing.Icon is invoked in com.hcl.appscan.intellij.plugin.util.CodeSweepUtils.getIcon(String) : Icon
+        Deprecated method com.intellij.openapi.util.IconLoader.findIcon(java.lang.String path) : javax.swing.Icon is invoked in com.hcl.appscan.intellij.plugin.util.UIComponentsUtil.getOtherIcon(String) : Icon
+        Deprecated method com.intellij.openapi.util.IconLoader.findIcon(java.lang.String path) : javax.swing.Icon is invoked in com.hcl.appscan.intellij.plugin.util.IconTextCellRenderer.getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int) : Component
+    #Deprecated method com.intellij.openapi.application.ReadAction.compute(ThrowableComputable) invocation
+        Deprecated method com.intellij.openapi.application.ReadAction.compute(com.intellij.openapi.util.ThrowableComputable action) : T is invoked in com.hcl.appscan.intellij.plugin.ui.CodeSweepFindingsPanel.fixCode(CodeSweepFinding, AutoFixCode) : void
+        Deprecated method com.intellij.openapi.application.ReadAction.compute(com.intellij.openapi.util.ThrowableComputable action) : T is invoked in com.hcl.appscan.intellij.plugin.util.FileUtil.getPsiFileByPath(Project, String, String) : PsiFile
+        Deprecated method com.intellij.openapi.application.ReadAction.compute(com.intellij.openapi.util.ThrowableComputable action) : T is invoked in com.hcl.appscan.intellij.plugin.util.FileUtil.getVirtualFileByPath(Project, String, String) : VirtualFile
+    #Deprecated constructor com.intellij.ide.ui.laf.darcula.ui.DarculaComboBoxUI.<init>(float, Insets, boolean) invocation
+        Deprecated constructor com.intellij.ide.ui.laf.darcula.ui.DarculaComboBoxUI.<init>(float arc, java.awt.Insets borderCompensation, boolean paintArrowButton) is invoked in com.hcl.appscan.intellij.plugin.ui.ApplicationPanel.getComboBox(List) : ComboBox
+        Deprecated constructor com.intellij.ide.ui.laf.darcula.ui.DarculaComboBoxUI.<init>(float arc, java.awt.Insets borderCompensation, boolean paintArrowButton) is invoked in com.hcl.appscan.intellij.plugin.ui.dialog.asoc.FixGroupStatusUpdateDialog.getListPanel() : JComponent
+    #Deprecated method java.lang.Runtime.exec(String, String[], File) invocation
+        Deprecated method java.lang.Runtime.exec(java.lang.String command, java.lang.String[] envp, java.io.File dir) : java.lang.Process is invoked in com.hcl.appscan.intellij.plugin.service.InvokeCustomScannerService.lambda$init$0(Project) : void
+    #Deprecated method com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.restart() invocation
+        Deprecated method com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.restart() : void is invoked in com.hcl.appscan.intellij.plugin.util.CodeSweepUtils.restartCodeAnalyzer(Project, PsiFile) : void
+    #Deprecated method com.intellij.openapi.actionSystem.AnAction.displayTextInToolbar() is overridden
+        Deprecated method com.intellij.openapi.actionSystem.AnAction.displayTextInToolbar() : boolean is overridden in class com.hcl.appscan.intellij.plugin.ui.action.AnActionPopUpButton. This method will be removed in a future release
+        Deprecated method com.intellij.openapi.actionSystem.AnAction.displayTextInToolbar() : boolean is overridden in class com.hcl.appscan.intellij.plugin.ui.action.OpenCodeSweepRulesAction. This method will be removed in a future release
+    #Deprecated method com.intellij.openapi.application.ReadAction.run(ThrowableRunnable) invocation
+        Deprecated method com.intellij.openapi.application.ReadAction.run(com.intellij.util.ThrowableRunnable action) : void is invoked in com.hcl.appscan.intellij.plugin.listener.codesweep.VFSaveListener.after(List) : void
+        Deprecated method com.intellij.openapi.application.ReadAction.run(com.intellij.util.ThrowableRunnable action) : void is invoked in com.hcl.appscan.intellij.plugin.listener.codesweep.VFSaveListener.before(List) : void
+    #Deprecated method com.intellij.lang.annotation.Annotation.setTextAttributes(TextAttributesKey) invocation
+        Deprecated method com.intellij.lang.annotation.Annotation.setTextAttributes(com.intellij.openapi.editor.colors.TextAttributesKey enforcedAttributes) : void is invoked in com.hcl.appscan.intellij.plugin.ui.annotator.AppScanExternalAnnotator.addAnnotation(AnnotationHolder, TextRange, CodeSweepFinding) : void
+    #Deprecated method com.intellij.psi.search.FilenameIndex.getVirtualFilesByName(Project, String, GlobalSearchScope) invocation
+        Deprecated method com.intellij.psi.search.FilenameIndex.getVirtualFilesByName(com.intellij.openapi.project.Project project, java.lang.String name, com.intellij.psi.search.GlobalSearchScope scope) : java.util.Collection is invoked in com.hcl.appscan.intellij.plugin.util.FileUtil.lambda$getVirtualFileByPath$4(Project, String, String) : VirtualFile
+    #Deprecated class com.intellij.openapi.components.ServiceManager reference
+        Deprecated class com.intellij.openapi.components.ServiceManager is referenced in com.hcl.appscan.intellij.plugin.ui.PluginToolWindowFactory.createToolWindowContent(Project, ToolWindow) : void
+        Deprecated class com.intellij.openapi.components.ServiceManager is referenced in com.hcl.appscan.intellij.plugin.listener.iast.XDebuggerManagerListenerImpl.processStarted(XDebugProcess) : void
+        Deprecated class com.intellij.openapi.components.ServiceManager is referenced in com.hcl.appscan.intellij.plugin.listener.iast.XDebuggerManagerListenerImpl.processStopped(XDebugProcess) : void
+        Deprecated class com.intellij.openapi.components.ServiceManager is referenced in com.hcl.appscan.intellij.plugin.ui.IASTIssuesViewer.refreshUIComponents() : void
+        Deprecated class com.intellij.openapi.components.ServiceManager is referenced in com.hcl.appscan.intellij.plugin.ui.IASTIssuesViewer.createUIComponents() : void
+    #Deprecated class com.intellij.ui.components.labels.ActionLink reference
+        Deprecated class com.intellij.ui.components.labels.ActionLink is referenced in com.hcl.appscan.intellij.plugin.ui.CodeSweepDefaultPanel.getOnBoardPanel() : JPanel. This class will be removed in a future release
+    #Deprecated method com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.restart(PsiFile) invocation
+        Deprecated method com.intellij.codeInsight.daemon.DaemonCodeAnalyzer.restart(com.intellij.psi.PsiFile psiFile) : void is invoked in com.hcl.appscan.intellij.plugin.util.CodeSweepUtils.restartCodeAnalyzer(Project, PsiFile) : void
+    #Deprecated method com.intellij.psi.search.FilenameIndex.getFilesByName(Project, String, GlobalSearchScope) invocation
+        Deprecated method com.intellij.psi.search.FilenameIndex.getFilesByName(com.intellij.openapi.project.Project project, java.lang.String name, com.intellij.psi.search.GlobalSearchScope scope) : com.intellij.psi.PsiFile[] is invoked in com.hcl.appscan.intellij.plugin.util.FileUtil.lambda$getPsiFileByPath$2(Project, String, String) : PsiFile
+    #Deprecated method com.intellij.openapi.ui.DialogPanel.setValidateCallbacks(List) invocation
+        Deprecated method com.intellij.openapi.ui.DialogPanel.setValidateCallbacks(java.util.List value) : void is invoked in com.hcl.appscan.intellij.plugin.ui.dialog.asoc.LoginDialog.createUIComponents() : void. This method will be removed in a future release
+    #Deprecated method com.intellij.lang.annotation.Annotation.setEnforcedTextAttributes(TextAttributes) invocation
+        Deprecated method com.intellij.lang.annotation.Annotation.setEnforcedTextAttributes(com.intellij.openapi.editor.markup.TextAttributes enforcedAttributes) : void is invoked in com.hcl.appscan.intellij.plugin.ui.annotator.AppScanExternalAnnotator.addAnnotation(AnnotationHolder, TextRange, CodeSweepFinding) : void
+    #Deprecated method com.intellij.lang.annotation.AnnotationHolder.createAnnotation(HighlightSeverity, TextRange, String, String) invocation
+        Deprecated method com.intellij.lang.annotation.AnnotationHolder.createAnnotation(com.intellij.lang.annotation.HighlightSeverity arg0, com.intellij.openapi.util.TextRange arg1, java.lang.String arg2, java.lang.String arg3) : com.intellij.lang.annotation.Annotation is invoked in com.hcl.appscan.intellij.plugin.ui.annotator.AppScanExternalAnnotator.addAnnotation(AnnotationHolder, TextRange, CodeSweepFinding) : void
+Dynamic Plugin Eligibility (negative due to 1 restrictions):
+    Plugin probably cannot be enabled or disabled without IDE restart
+    #It declares application components: `com.hcl.appscan.intellij.plugin.service.InvokeCustomScannerService`
 
-2026-09-29T10:13:55 [main] INFO  c.j.p.PluginVerifierMain - Started printing results (CheckPluginResultPrinter)
-The following files specified for the verification are not valid plugins:
-    C:\Users\ankur.raina\Downloads\impl_workspace\ASPL-2330\intellij-plugin\build\distributions\intellij-plugin-2.13.1.zip
-        Plugin problems:
-            Invalid plugin descriptor 'plugin.xml'. The plugin ID 'com.ibm.appscan.intellij.plugin' should not include the word 'intellij'.
-                This plugin problem has been reported since 2024-03-26. If the plugin was previously uploaded to the JetBrains Marketplace, it can be suppressed using the `-mute TemplateWordInPluginId` command-line switch.
-2026-09-29T10:13:55 [main] INFO  c.j.p.PluginVerifierMain - Finished printing results in 2ms
-2026-09-29T10:13:55 [main] INFO  verification - Total time spent downloading plugins and their dependencies: 0 ms
-2026-09-29T10:13:55 [main] INFO  verification - Total amount of plugins and dependencies downloaded: 0 B
-2026-09-29T10:13:55 [main] INFO  verification - Total amount of space used for plugins and dependencies: 2.22 GB
-2026-09-29T10:13:55 [main] INFO  verification - PluginDetailsCache statistics: hits=0, misses=0, failures=0, evictions=0, total=0, hit-rate=n/a
-2026-09-29T10:13:56 [main] INFO  verification - Total time spent in plugin verification: 11 s 672 ms
+2026-09-29T10:25:34 [main] INFO  c.j.p.PluginVerifierMain - Finished printing results in 73ms
+2026-09-29T10:25:34 [main] INFO  verification - Total time spent downloading plugins and their dependencies: 1 m 10 s 451 ms
+2026-09-29T10:25:34 [main] INFO  verification - Total amount of plugins and dependencies downloaded: 935.21 MB
+2026-09-29T10:25:34 [main] INFO  verification - Total amount of space used for plugins and dependencies: 3.13 GB
+2026-09-29T10:25:34 [main] INFO  verification - PluginDetailsCache statistics: hits=128, misses=37, failures=0, evictions=0, total=165, hit-rate=77.6%
+2026-09-29T10:25:34 [main] INFO  verification - Verification reports for com.ibm.appscan.intellij.plugin:2.13.1 saved to C:\Users\ankur.raina\Downloads\JetBrains_Marketplace_Verifier\verification-2026-09-29 at 10.20.34\IU-262.10968.63
+2026-09-29T10:25:34 [main] INFO  verification - Total time spent in plugin verification: 4 m 56 s 73 ms
