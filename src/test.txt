@@ -1,1 +1,125 @@
-hello
+AppScan Model Context Protocol (MCP) server
+The AppScan MCP server integrates HCL AppScan on Cloud directly with AI-powered development environments and agents. By implementing the Model Context Protocol (MCP), this server allows LLMs (such as Claude or models running in VS Code) to securely access your security data—including SAST, DAST, SCA, and IAST results—to help you triage issues, analyze findings, and automate workflows using natural language.
+
+Overview
+The AppScan MCP Server acts as a bridge between your AppScan data and your AI assistant. Instead of manually logging into the dashboard to check scans or findings, you can ask your AI tools questions such as:
+"What are the critical SAST issues in the 'WebGoat' application?"
+"Summarize the remediation advice for issue #5."
+"Find all open-source libraries with 'High' severity vulnerabilities."
+Tools
+The MCP server exposes a rich set of tools that allow AI agents to perform the following actions:
+Comprehensive Data Access: Query findings across all scanning technologies (Static, Dynamic, Software Composition, and Interactive Analysis).
+Application and Scan Management: Retrieve details for specific applications, scans, and scan executions.
+Issue Triage: Filter issues by severity, status, or scope (application or scan level).
+Detailed Analysis: Fetch comprehensive issue details, including location, trace information, and specific remediation advice.
+SCA Insights: Query open-source libraries and license information used in your projects.
+Policy: Filter findings based on security policies.
+Configuration
+To use the AppScan MCP Server, configure your MCP client (such as the VS Code MCP extension or Claude Desktop) with your HCL AppScan on Cloud credentials.
+
+Prerequisites
+AppScan on Cloud account: An active ASoC account.
+API keys: Generate an API Key ID and Secret in ASoC.
+Method 1: Install the Extension (Recommended)
+
+For a simpler setup, install the official AppScan MCP extension directly from the VS Code Marketplace. This method automatically handles registration, so you do not need to manually configure mcp.json.
+Open the Extensions view in VS Code (`Ctrl+Shift+X` or `Cmd+Shift+X`).
+Search for "AppScan MCP" and click Install.
+After installation, the AppScan MCP extension prompts you to secure your credentials. Enter your API Key ID and Secret. After your credentials are validated, you are connected to the MCP.
+To reconfigure the MCP or sign out, click the AppScan button in the lower-right corner and follow the instructions.
+Method 2: Manually configure the JSON file
+
+Ensure that you have an LLM extension installed (for example, GitHub Copilot Chat) and that you are signed in with an active account for that extension.
+
+To add AppScan's MCP to VS Code, create the mcp.json configuration file, or locate it in the following directory:
+
+macOS/Linux: ~/Library/Application Support/Code/User
+
+Windows: %APPDATA%\Code\User
+
+Alternatively, in VS Code, run the following command: Cmd/Ctrl + Shift + P → MCP: Open user configuration
+
+Add the following to your configuration:
+
+{
+                "servers": {
+                "appscan-mcp": {
+                "type": "http",
+                "url": "https://cloud.appscan.com/mcp",
+                "headers": {
+                "X-API-KEY": "${input:appscan_api_key_id}:${input:appscan_api_key_secret}"
+                }
+                }
+                },
+                "inputs": [
+                {
+                "id": "appscan_api_key_id",
+                "type": "promptString",
+                "description": "AppScan API Key Id",
+                "default": ""
+                },
+                {
+                "id": "appscan_api_key_secret",
+                "type": "promptString",
+                "description": "AppScan API Key Secret",
+                "default": "",
+                "password": true
+                }
+                ]
+                }
+            
+Note:
+If you already have MCPs configured in mcp.json file, add the servers under the servers section and the inputs under your inputs section.
+
+This configuration uses input prompts to ensure your API Secret is not stored in plain text in the configuration file. You will be prompted to enter your credentials when the server starts.
+After you configure and save the MCP server, a Start button appears under Servers. Click Start to connect to the MCP. When prompted, enter your API key ID and API key secret. After you provide these credentials, you are connected to the AppScan MCP server.
+
+Best practice: Using the appscan-doc prompt
+The server includes a built-in prompt named appscan-doc. This prompt loads essential context, schema definitions, and rules into the AI model's context window. It explains how to construct OData queries, handle GUIDs correctly (for example, without quotes), and paginate results.
+
+You must explicitly activate this prompt before starting your analysis. The method depends on your client:
+
+VS Code
+
+Start typing /mcp in the chat interface. A list of available prompts appears; select appscan-doc from the list.
+
+Visual Studio 2022
+Click the + Reference button in the chat window.
+Select the option to view and apply MCP prompts.
+Select appscan-doc from the available options.
+Windsurf
+
+Type the command explicitly using the format /<mcp-server-name>/<prompt-name>.
+
+For this server, type:
+/appscan-mcp/appscan-doc
+Why is this important? Once loaded, the AI can query the API correctly. For example, it uses string values for enums (such as Status eq 'Open') instead of numeric values.
+
+Direct code remediation
+A key benefit of using AppScan MCP in an IDE is the ability to apply fixes directly to your code.
+
+If the source code scanned (by SAST, DAST, SCA, or IAST) is available in your IDE workspace, the AI model can connect the security finding to your local files. The get_issue_details tool provides the AI with the exact file location, trace information, and remediation advice. The AI can then map this information to your open files and apply the necessary code changes.
+
+Example workflow:
+Open Project: Ensure the scanned project is open in your IDE (VS Code, Windsurf, etc.).
+Request Fix: Ask the AI to address specific issues. "Get the high-severity SAST findings for the 'PaymentService' application. Find the SQL Injection issues and apply a fix to my code."
+AI Action:
+The AI queries the MCP server to get the issue details (line numbers, vulnerable snippet, and fix logic).
+It locates the corresponding file in your local workspace.
+It generates a code patch and applies the fix directly in your editor.
+Advanced workflows & integrations
+Because MCP is a standard protocol, you can chain the AppScan server with other MCP servers to create powerful automation workflows.
+
+Example: Automated ticket creation (AppScan + Jira)
+
+If you have both the AppScan MCP and a Jira MCP configured, you can perform complex triage tasks in a single conversation:
+
+User prompt:
+
+"Find the top 3 critical issues in the 'Retail-Frontend' application. For each issue, create a bug ticket in our Jira project 'SEC' with the issue description and remediation advice."
+
+The AI Agent will:
+Use the AppScan tool to query the critical issues and fetch their remediation details.
+Format that data into a Jira ticket structure.
+Use the Jira tool to post the new tickets.
+Return the new Jira ticket links to you.
