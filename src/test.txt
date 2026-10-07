@@ -1,27 +1,18 @@
-PS C:\Users\ankur.raina> claude mcp add --help
-Usage: claude mcp add [options] <name> <commandOrUrl> [args...]
+ What AppScan MCP tools are available?
 
-Add an MCP server to Claude Code.
+There are no AppScan MCP tools available in this session. I searched the loaded and deferred tools for "appscan" and found nothing.
 
-Examples:
-  # Add HTTP server:
-  claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
+The MCP servers that are connected, each needing authentication first, are:
+- HCLSW DevOps Automation: Build, Control, Deploy, Loop, Plan, Test
+- Azure DevOps: Dev and Prod (SETeam)
+- Collaboration and productivity: Atlassian Rovo, Slack, Google Workspace, Microsoft 365, HCLSW Google Chat, Figma, Docusign, Adobe
+- Sales and other: Aha, ChurnZero, Demandbase, Outreach, ZoomInfo, CB Insights, plus several life-sciences sources
 
-  # Add HTTP server with headers:
-  claude mcp add --transport http corridor https://app.corridor.dev/api/mcp --header "Authorization: Bearer ..."
-
-  # Add stdio server with environment variables:
-  claude mcp add my-server -e API_KEY=xxx -- npx my-mcp-server
-
-  # Add stdio server with subprocess flags:
-  claude mcp add my-server -- my-command --some-flag arg1
+I can't tell from names alone whether any of these expose AppScan scanning. For example, the HCLSW DevOps Automation Test server might, but I can't confirm that until it's authenticated and its tools load.
 
 Options:
-  --callback-port <port>       Fixed port for OAuth callback (for servers requiring pre-registered redirect URIs)
-  --client-id <clientId>       OAuth client ID for HTTP/SSE servers
-  --client-secret              Prompt for OAuth client secret (or set MCP_CLIENT_SECRET env var)
-  -e, --env <env...>           Set environment variables (e.g. -e KEY=value)
-  -H, --header <header...>     Set headers for HTTP/SSE servers (e.g. -H "X-Api-Key: abc123" -H "X-Custom: value")
-  -h, --help                   Display help for command
-  -s, --scope <scope>          Configuration scope (local, user, or project) (default: "local")
-  -t, --transport <transport>  Transport type (stdio, sse, http). Defaults to stdio if not specified.
+1. Check the DevOps Automation servers. I can authenticate one (for example Test) and list its tools. You'd need to complete the login.
+2. Add an AppScan MCP server. If your team has one, register it with claude mcp add, or ask your admin to enable it in claude.ai. Then run /mcp to confirm it's connected.
+3. Scan this project another way. I can run a static review of this Spring Boot project with the security-review skill, or look at AppScan CLI options.
+
+Which would you like?
