@@ -1,18 +1,176 @@
- What AppScan MCP tools are available?
+HCL AppScan + Claude Code Integration
+Shift-Left Security in Development with AI-Powered IDE
+Document Prepared: September 8, 2026
+For: Developers &amp; Product Management Team
+Executive Summary
+This document outlines the strategy to integrate HCL AppScan on Cloud with Claude Code, enabling
+developers to perform SAST (Static Application Security Testing) and SCA (Software Composition
+Analysis) scans in shift-left mode—directly within their IDE as they code.
+The integration leverages HCL&#39;s existing AppScan MCP (Model Context Protocol) Server and wraps it
+with a Claude Code agent to deliver real-time file-level scanning, periodic full-project analysis, and inline
+editor diagnostics. This brings security earlier into the development lifecycle, enabling developers to fix
+vulnerabilities before commit.
+Use Case
+Shift-Left Security in the Developer Workflow
+Today&#39;s workflow:
+● Developers write code → Commit → CI/CD pipeline runs security scans → Issues found
+days/weeks later → Expensive remediation cycles.
+Desired workflow:
+● Developer writes code in Claude Code → Real-time SAST/SCA feedback inline in editor →
+Issues highlighted as they type/save → Developer fixes before commit → Periodic full scans
+validate compliance.
+Business Benefits:
+● Reduce time-to-remediation from days to minutes
+● Lower cost of fixing vulnerabilities (earlier = cheaper)
+● Improve developer security awareness through immediate feedback
+● Reduce security debt and audit risk
+User Personas
+1. Developer (Primary User)
+Profile: Full-stack developer writing code in Claude Code daily
+Needs:
+● Real-time feedback on security issues as they code (file-level scanning)
+● Quick-fix suggestions directly in the IDE
+● Low latency (&lt;5 sec per file scan)
+● One-click remediation for common issues
+2. Security Team / AppScan Owner
+Profile: AppScan on Cloud administrator managing policies and scan results
+Needs:
+● Enforce security policies in real-time across development
+● Visibility into what developers are scanning and when
+● Periodic full-project scans for compliance
 
-There are no AppScan MCP tools available in this session. I searched the loaded and deferred tools for "appscan" and found nothing.
+● Integration with ticket systems (Jira) for tracking
+3. Product Manager / DevOps
+Profile: Responsible for development toolchain and security posture
+Needs:
+● A product offering that differentiates AppScan in the market
+● Clear ROI metrics (time saved, vulnerabilities caught earlier)
+● Easy adoption path for existing AppScan customers
+● Telemetry for usage and impact
 
-The MCP servers that are connected, each needing authentication first, are:
-- HCLSW DevOps Automation: Build, Control, Deploy, Loop, Plan, Test
-- Azure DevOps: Dev and Prod (SETeam)
-- Collaboration and productivity: Atlassian Rovo, Slack, Google Workspace, Microsoft 365, HCLSW Google Chat, Figma, Docusign, Adobe
-- Sales and other: Aha, ChurnZero, Demandbase, Outreach, ZoomInfo, CB Insights, plus several life-sciences sources
+Current State: What HCL Already Has
+HCL AppScan on Cloud includes a production-ready MCP (Model Context Protocol) Server that exposes:
+● SAST results (static code vulnerabilities)
+● SCA results (open-source dependency vulnerabilities)
+● DAST results (dynamic/runtime vulnerabilities)
+● IAST results (interactive analysis monitoring)
+● Issue triage, filtering, and detailed remediation advice
+● Direct code remediation (AI can apply fixes to open source files)
+Availability:
+● Available for VS Code, Visual Studio 2022, Windsurf, and Claude Desktop
+● Integrates via HTTP MCP endpoint at https://cloud.appscan.com/mcp
+● Requires AppScan on Cloud API Key (ID + Secret)
+● Built-in appscan-doc prompt to guide AI on correct API usage
+Solution Architecture
+The integration wraps the AppScan MCP Server with a shift-left orchestration layer in Claude Code:
 
-I can't tell from names alone whether any of these expose AppScan scanning. For example, the HCLSW DevOps Automation Test server might, but I can't confirm that until it's authenticated and its tools load.
+Key Features:
+● File-Level Real-Time Scanning: Developer saves file → Agent queries AppScan MCP → Findings
+formatted as inline editor diagnostics (&lt;5 sec latency target)
+● Periodic Full-Project Scanning: Scheduled (nightly/weekly) or on-demand full SAST+SCA scan
+with results cached locally
+● Inline Remediation: AI uses AppScan remediation advice to suggest and apply code fixes directly
+in editor
+● MCP Chaining: Can chain with other MCPs (Jira, GitHub, etc.) for ticket creation, PR comments,
+or dashboards
+Implementation Approach
+Option 1: Claude Code Agent (Recommended)
+Build a specialized agent that developers invoke with slash commands:
+/appscan-shift-left --scan file # Scan current file
+/appscan-shift-left --scan project # Scan entire project
+Agent Workflow:
+● For file-level scans: Query AppScan MCP for issues in current file → Format as VSCode
+diagnostics → Display inline
+● For project-level scans: Trigger full SAST+SCA scan → Poll AppScan for results → Cache locally
+→ Return summary + per-file breakdowns
+● Developers can ask: &#39;Fix this SQL injection&#39; → Agent maps finding to local code → Applies patch
+directly
+Option 2: Claude Code Skill + Scheduled Tasks (Lighter-Weight)
+● Skill: /appscan slash command in Claude Code
+● Scheduled Task: Periodic full scans (e.g., daily at 6 PM)
+● Pre-Commit Hook: Triggers file scans before commit
 
-Options:
-1. Check the DevOps Automation servers. I can authenticate one (for example Test) and list its tools. You'd need to complete the login.
-2. Add an AppScan MCP server. If your team has one, register it with claude mcp add, or ask your admin to enable it in claude.ai. Then run /mcp to confirm it's connected.
-3. Scan this project another way. I can run a static review of this Spring Boot project with the security-review skill, or look at AppScan CLI options.
+Recommendation: Start with Option 1 (Agent) as it&#39;s more flexible and integrates tightly with Claude
+Code&#39;s UX.
+Phased Delivery Plan
 
-Which would you like?
+Success Criteria
+Technical:
+● File-level scan latency ≤ 5 seconds (average)
+● Project scan completes within 5-10 minutes
+● Zero authentication failures for authorized users
+● 100% accurate finding detection (matches AppScan dashboard)
+Business:
+● ≥50% of pilot developers use the feature regularly (within 2 weeks)
+● Average time-to-fix drops by 70% (from discovery to remediation)
+● ≥80% of developers rate usability as 4/5 or higher
+● Positive customer feedback on shift-left value proposition
+
+Critical Open Questions
+1. AppScan MCP Discoverability in Claude Code
+Q: Is the AppScan MCP Server auto-registered when Claude Code loads, or do developers need to
+manually configure mcp.json?
+Impact: Affects ease of onboarding. Auto-registration is preferred.
+2. Application Context Resolution
+Q: How does the Agent determine which AppScan &#39;application&#39; to scan? Does it need:
+● Environment variable (APPSCAN_APP_ID)?
+● .appscan.json in project root?
+● User prompt on first run?
+Impact: Affects setup effort per project. Clear convention needed.
+3. Scan Latency SLA &amp; Caching Strategy
+Q: What&#39;s the maximum acceptable wait time for a file-level scan? Should we:
+● Cache results and only re-scan when file changes?
+● Queue scans asynchronously and show stale results while waiting?
+● Fail gracefully if AppScan is unavailable?
+Impact: Affects UX quality. Target: &lt;5 sec average, &lt;10 sec worst-case.
+4. Remediation Data Detail
+Q: What level of remediation guidance does AppScan MCP expose? Does it include:
+● Specific code fix examples?
+● CWE/CVE references?
+● Priority ranking?
+Impact: Affects quality of in-editor fix suggestions.
+5. AppScan on Cloud Deployment Model
+Q: Is this intended as:
+● Internal tooling for HCL development only?
+● A product feature shipped with AppScan on Cloud?
+● A reference implementation for customers to build upon?
+Impact: Affects scope, go-to-market strategy, and support model.
+6. Integration with Existing Security Workflows
+Q: How should this integrate with existing security gates?
+● Should file-level scans block commits if critical issues are found?
+● Should results feed back into AppScan dashboards?
+Impact: Affects adoption and compliance alignment.
+Next Steps &amp; Action Items
+Immediate (Next 1-2 weeks):
+● [ ] Review and answer Critical Open Questions 1-6 with product &amp; engineering leads
+● [ ] Validate AppScan MCP Server availability and capabilities in test environment
+● [ ] Generate AppScan on Cloud API keys for development team
+● [ ] Confirm Claude Code agent development approach (Claude Agent SDK vs. Skill)
+● [ ] Allocate dev team (recommend: 2-3 engineers for 6 weeks)
+Phase 1 (Weeks 1-2):
+● [ ] Set up AppScan MCP in Claude Code development environment
+
+● [ ] Create developer onboarding guide (mcp.json config, API key setup)
+● [ ] Test basic queries against AppScan API (via MCP)
+● [ ] Publish results internally
+Phase 2 (Weeks 2-3):
+● [ ] Build Agent skeleton + file-level scan tool
+● [ ] Implement VSCode diagnostics formatter
+● [ ] Test with internal pilot (5-10 developers)
+● [ ] Collect latency metrics and UX feedback
+Phase 3+ (Weeks 3-6):
+● [ ] Add project-level scanning + scheduling
+● [ ] Implement caching strategy
+● [ ] Expand pilot to 20-30 developers
+● [ ] Build in-editor remediation (Claude applies fixes)
+● [ ] Integrate with Jira/GitHub for ticketing
+● [ ] Create product documentation &amp; demo videos
+Roles &amp; Responsibilities:
+● Product Manager: Roadmap, prioritization, customer feedback, launch planning
+● Engineering Lead: Architecture decisions, Phase gates, technical RFCs
+● Developers (2-3): Agent implementation, testing, documentation
+● AppScan Team: MCP support, API troubleshooting, performance tuning
+● Security Team: Requirements validation, policy alignment, pilot feedback
+---
+This document serves as the foundation for integrating HCL AppScan with Claude Code. The next critical
+step is answering the open questions and securing alignment on scope and timeline.
