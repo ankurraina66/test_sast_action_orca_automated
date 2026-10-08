@@ -1,2 +1,40 @@
-PS C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master> claude mcp get appscan-mcp
-No MCP server named "appscan-mcp". Configured servers: claude.ai ADO Dev Devops, claude.ai ADO Prod SETeam, claude.ai Actian Gong, claude.ai Adobe for creativity, claude.ai Aha!, claude.ai Atlassian Rovo, claude.ai CB Insights, claude.ai ChEMBL (and 24 more — run `claude mcp list` to see all)
+PS C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master> claude mcp list
+claude.ai Google Sheets: https://sheetsmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai Google Slides: https://slidesmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai Google Docs: https://docsmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai HCLSW Devops Automation Build: https://devopsautomation.hcl-software.com/build/mcp - × Failed to connect — Version negotiation probe timed out
+after 5000ms
+claude.ai HCLSW Devops Automation Control: https://devopsautomation.hcl-software.com/control/mcp - × Failed to connect — Version negotiation probe timed out
+after 5000ms
+claude.ai HCLSW Devops Automation Deploy: https://devopsautomation.hcl-software.com/deploy/mcp - × Failed to connect — Version negotiation probe timed out
+after 5000ms
+claude.ai HCLSW Devops Automation Test: https://devopsautomation.hcl-software.com/test/mcp - × Failed to connect — Version negotiation probe timed out after
+5000ms
+claude.ai HCLSW Devops Automation Loop: https://devopsautomation.hcl-software.com/loop/mcp - × Failed to connect — Version negotiation probe timed out after
+5000ms
+claude.ai HCLSW Devops Automation Plan: https://devopsautomation.hcl-software.com/plan/mcp - × Failed to connect — Version negotiation probe timed out after
+5000ms
+claude.ai ADO Prod SETeam: https://mcp-data-observability.actian.com/jTBrZQAATiM/mcp - ! Needs authentication
+claude.ai ADO Dev Devops: https://mcp.use1.gcp.data-observability.dev.actian.com/OakCWQAATiQ/mcp - ! Needs authentication
+claude.ai Actian Gong: https://mcp.gong.io/mcp - ! Needs authentication
+claude.ai Adobe for creativity: https://adobe-creativity.adobe.io/mcp - ! Needs authentication
+claude.ai Demandbase: https://gateway.demandbase.com/mcp/servers/db-mcp - ! Needs authentication
+claude.ai HCLSW Google Chat: https://chatmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai CB Insights: https://mcp.cbinsights.com - ! Needs authentication
+claude.ai bioRxiv: https://hcls.mcp.claude.com/biorxiv/mcp - √ Connected
+claude.ai PubMed: https://pubmed.mcp.claude.com/mcp - √ Connected
+claude.ai Clinical Trials: https://hcls.mcp.claude.com/clinical_trials/mcp - √ Connected
+claude.ai ChEMBL: https://hcls.mcp.claude.com/chembl/mcp - √ Connected
+claude.ai ZoomInfo: https://mcp.zoominfo.com/mcp - ! Needs authentication
+claude.ai Aha!: https://hcl-software.aha.io/api/v1/mcp - ! Needs authentication
+claude.ai ChurnZero: https://app.churnzero.net/mcp - ! Needs authentication
+claude.ai Outreach: https://api.outreach.io/mcp - ! Needs authentication
+claude.ai Atlassian Rovo: https://mcp.atlassian.com/v1/mcp - ! Needs authentication
+claude.ai Microsoft 365: https://microsoft365.mcp.claude.com/mcp - ! Needs authentication
+claude.ai Slack: https://mcp.slack.com/mcp - ! Needs authentication
+claude.ai Figma: https://mcp.figma.com/mcp - ! Needs authentication
+claude.ai Docusign: https://mcp.docusign.com/mcp - ! Needs authentication
+claude.ai Google Calendar: https://calendarmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai Gmail: https://gmailmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai Google Drive: https://drivemcp.googleapis.com/mcp/v1 - √ Connected
+appscan-mcp: https://cloud.appscan.com/mcp (HTTP) - √ Connected
