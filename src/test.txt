@@ -1,62 +1,57 @@
-Using the AppScan MCP, list the applications available to me. Do not modify anything.
+ Using the AppScan MCP,
+  Find one Open SAST issue in the Test_Tayalan application.
+
+    Return:
+  - issue ID
+  - issue name/title
+  - severity
+  - application ID
+  - scan ID if available
+  - source file
+  - line number
+  - vulnerable code/location information if available
+
+    Do not modify anything in AppScan.
+
+  Called appscan-mcp 2 times
+
+The filter returned 0 rows, but I guessed those field names. I'll fetch one unfiltered issue to see the real schema.
+
+  Called appscan-mcp 2 times
+
+The schema uses DiscoveryMethod = SAST, not Static. I'll retry with that value.
 
   Called appscan-mcp
 
-The query returned all 23 applications (@odata.count = 23). It was read-only, so nothing was modified. The table is sorted by total issues and shows only the fields I pulled from the response.
+I found an Open SAST issue in Test_Tayalan. The application has 99 Open SAST issues in total, and I picked the first one returned. I changed nothing in AppScan.
 
-┌──────────────────────┬─────────┬────────────────────────────────┬─────────────┬───────────────────────┬───────┐
-│     Application      │  Risk   │ Crit / High / Med / Low / Info │ Open issues │      Scan types       │ Scans │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ Test_Joy             │ High    │ 2 / 468 / 996 / 118 / 15       │ 1599        │ DAST, SAST, SCA       │ 10    │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ Test_Tanmoy          │ High    │ 12 / 130 / 69 / 37 / 9         │ 257         │ DAST, SAST, IAST, SCA │ 5     │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ Test_Tanmoy_SN       │ High    │ 16 / 114 / 68 / 38 / 17        │ 253         │ DAST, SAST, SCA       │ 8     │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ TestApp1             │ High    │ 2 / 39 / 85 / 24 / 15          │ 165         │ DAST, SAST            │ 2     │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ Test_Tanmoy_SN3      │ High    │ 7 / 39 / 43 / 31 / 16          │ 136         │ DAST, SAST, SCA       │ 5     │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ Test_Tayalan         │ Unknown │ 5 / 95 / 26 / 9 / 0            │ 135         │ SAST, SCA             │ 2     │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ ASRADotnet           │ Medium  │ 0 / 2 / 23 / 72 / 18           │ 115         │ DAST, SAST            │ 3     │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ TestApp2             │ Medium  │ 0 / 78 / 16 / 8 / 0            │ 102         │ SAST                  │ 1     │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ Demo_Test_Ankur      │ High    │ 2 / 12 / 30 / 24 / 15          │ 83          │ DAST                  │ 1     │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ Test_vishal          │ Medium  │ 0 / 15 / 26 / 28 / 13          │ 82          │ DAST                  │ 6     │
-├──────────────────────┼─────────┼────────────────────────────────┼─────────────┼───────────────────────┼───────┤
-│ TestApp3             │ Medium  │ 0 / 24 / 14 / 18 / 0           │ 56          │ SAST                  │ 1     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ Test_Hema            │ High    │ 2 / 6 / 22 / 14 / 10           │ 54          │ DAST, SAST            │ 3     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ TestVinita           │ Medium  │ 0 / 11 / 15 / 18 / 0           │ 44          │ SAST                  │ 1     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ Test_Ankita          │ Unknown │ 6 / 21 / 12 / 1 / 0            │ 40          │ SAST, SCA             │ 10    │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ Bitbucket plugin     │ Medium  │ 0 / 0 / 21 / 0 / 0             │ 21          │ SAST                  │ 1     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ Test_Vinod           │ Unknown │ 0 / 4 / 1 / 0 / 0              │ 5           │ SAST                  │ 2     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ AltoroMutual         │ Medium  │ 0 / 1 / 3 / 0 / 0              │ 4           │ DAST, IAST            │ 3     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ Demo_HCLF            │ Unknown │ 0                              │ 0           │ none                  │ 0     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ charvi               │ Unknown │ 0                              │ 0           │ none                  │ 5     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ AzureBoardsPluginGit │ Unknown │ 0                              │ 0           │ none (not started)    │ 0     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ DemoTestFireApp      │ Unknown │ 0                              │ 0           │ none                  │ 0     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ Test_Kranthi         │ Low     │ 0                              │ 0           │ none                  │ 0     │
-├──────────────────────┼─────────┼─────────────────────────────────────────┼───────┤
-│ Sample_project       │ Low     │ 0                              │ 0           │ none                  │ 0     │
-└──────────────────────┴─────────┴─────────────────────────────────────────┴───────┘
+┌───────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│     Field     │                                                                Value                                                                │
+├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Issue ID      │ 57c3f2a8-98bc-f111-a6a9-000d3a7b2c78 (external ID PT-3)                                                                             │
+├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Issue name    │ Cross-Site Scripting (CWE-79)                                                                                                       │
+├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Severity      │ High                                                                                                                                │
+├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Status        │ Open                                                                                                                                │
+├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application   │ 39c76747-8617-4e00-8ae8-096e208f72ac (Test_Tayalan)                                                                                 │
+│ ID            │                                                                                                                                     │
+├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan ID       │ Not available. The issue model has no scan ID field. It only gives the scan name, SAST 2026-09-30 demo (2).irx, from AppScan Static │
+│               │  Analyzer. get_scans could resolve the ID.                                                                                          │
+├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Source file   │ WebContent/admin/admin.jsp                                                                                                          │
+├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Line number   │ 90                                                                                                                                  │
+└───────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
-- AltoroMutual: This is probably the one tied to this AltoroJ  High, 3 Medium) from DAST and IAST scans, and its last updatewas 2026-09-22.
-- Demo_Test_Ankur: You created this one (CreatedBy: Ankur Rainm a DAST scan.
-- Unreliable counts: Several apps show zero issues but have scan executions (charvi, Demo_HCLF, DemoTestFireApp). The Test_Kranthi and Sample_project apps
-  show zero issues and zero scans. I haven't looked into why.
-
-Next, I can pull AltoroMutual's scans or issues with get_scanso read-only.
+Vulnerable code and location
+- Sink: javax.servlet.jsp.JspWriter.print(String) at WebContent/admin/admin.jsp:90.
+- Code context: out.print(user).
+- Taint source: java.sql.ResultSet.getString(String), so a database value is written to the page without encoding.
+- Calling method: org.apache.jsp.admin.admin_jsp._jspService(HttpServletRequest, HttpServletResponse).
+- Source link: https://github.com/HCL-TECH-SOFTWARE/AltoroJ/blob/c97f0312bd50b7118c6708d2b9d86af50c99b8b0/WebContent/admin/admin.jsp#L90
+- Not yet verified: I haven't opened the file in this repo to confirm line 90. The scan was against commit c97f031, which matches your current HEAD.
+- Full details: get_issue_details returns the XML trace for this issue if you want it. It is also read-only.
