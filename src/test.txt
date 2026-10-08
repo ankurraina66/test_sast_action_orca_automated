@@ -1,59 +1,69 @@
- Find one Open SAST issue in the Test_Tayalan application.
-
-  Return:
-  - issue ID
-  - issue name/title
-  - severity
-  - application ID
-  - scan ID if available
-  - source file
-  - line number
-  - vulnerable code/location information if available
-
-  Do not modify anything in AppScan.
+Get the full AppScan details and remediation guidance for issue 57c3f2a8-98bc-f111-a6a9-000d3a7b2c78. Do not modify or update the issue.
 
   Called appscan-mcp
 
-I found an Open SAST issue in Test_Tayalan. I ran one read-only get_issues query and changed nothing in AppScan.
+I retrieved the full report for this issue with a read-only get_issue_details call. Nothing was modified.
 
-┌────────────────┬────────────────────────────────────────────────────────────────┐
-│     Field      │                             Value                              │
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Issue ID       │ 57c3f2a8-98bc-f111-a6a9-000d3a7b2c78                           │
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Issue name     │ Cross-Site Scripting (CWE-79, IssueTypeId: CrossSiteScripting) │
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Severity       │ High                                                           │
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Status         │ Open
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Application ID │ 39c76747-8617-4e00-8ae8-096e208f72ac
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Scan ID        │ Not returned. The issue record has no scan
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Scan name      │ SAST 2026-09-30 demo (2).irx
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Source file    │ WebContent/admin/admin.jsp
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Line number    │ 90
-├────────────────┼────────────────────────────────────────────────────────────────┤
-│ Language       │ Java (JSP)
-└────────────────┴────────────────────────────────────────────────────────────────┘
+Issue
 
-Vulnerable code and location
-- Location: javax.servlet.jsp.JspWriter.print(String):void Web
-- Calling method: org.apache.jsp.admin.admin_jsp._jspService(HttpServletRequest, HttpServletResponse)
-- Source (where the tainted data comes from): java.sql.ResultS
-- Sink (the API that writes it out): javax.servlet.jsp.JspWriter.print(String)
-- Code context: out . javax.servlet.jsp.JspWriter.print ( user
-- Link to the code: https://github.com/HCL-TECH-SOFTWARE/AltoroJ/blob/c97f0312bd50b7118c6708d2b9d86af50c99b8b0/WebContent/admin/admin.jsp#L90
+┌────────────┬─────────────────────────────────────────────────────┐
+│   Field    │                        Value                        │
+├────────────┼─────────────────────────────────────────────────────┤
+│ Type       │ Cross-Site Scripting (CrossSiteScripting)           │
+├────────────┼─────────────────────────────────────────────────────┤
+│ Severity   │ High                                                │
+├────────────┼─────────────────────────────────────────────────────┤
+│ Language   │ Java (JSP)                                          │
+├────────────┼─────────────────────────────────────────────────────┤
+│ Issue hash │ 1682423555                                          │
+├────────────┼─────────────────────────────────────────────────────┤
+│ Variants   │ 1 (variant ID 6196f89a-f7df-45a9-aea3-549f2c348819) │
+└────────────┴─────────────────────────────────────────────────────┘
 
-Other details
-- Scanner: AppScan Static Analyzer
-- Dates: first found and last found 2026-09-30
-- Fix group ID: f02acd3a-47b6-f111-a6a7-000d3ad9f1b0
-- External ID: PT-3. This is already linked to a ticket in an external system, so I'd check that ticket before triaging.
+Data flow (call trace)
 
-The finding is from the AltoroJ demo app. It is a stored XSS pattern: a database value (user) is written to the page without output encoding. This is my reading of the source and sink fields, not a confirmed analysi
+┌────────────────┬───────────────────────────────┬───────────────────────────────────────┐
+│      Step      │           Location            │                 Code                  │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 1. Entry       │ admin_jsp._jspService(...)    │                                       │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 2.             │ WebContent/admin/admin.jsp:31 │ users = getBankUsers()                │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 3.             │ ServletUtil.java:241          │ calls DBUtil.getBankUsernames()       │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 4. Source      │ DBUtil.java:436               │ name = resultSet.getString("USER_ID") │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 5. Propagation │ DBUtil.java:437               │ users.add(name)                       │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 6. Propagation │ DBUtil.java:440               │ return users.toArray(...)             │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 7. Sink        │ WebContent/admin/admin.jsp:90 │ out.print(u
+└────────────────┴───────────────────────────────┴───────────────────────────────────────┘
 
-I can pull the full XML report and remediation guidance with gthe scan ID through get_scans. Both are read-only.
+Usernames are read from the database (USER_ID) and collected into an array. The JSP then writes them into the page at line 90 with no encoding or
+validation step in between. AppScan marks the intermediate cal
+
+Fix information in the report
+
+- Fix group: FIX: 217877293, priority High.
+- Recommended fix location: DBUtil.java:437, the ArrayList.add(Object) call.
+- Scope of the fix: it covers 4 High-severity XSS findings in
+- Related methods:
+  - DBUtil.getBankUsernames()
+  - ServletUtil.getBankUsers()
+  - ResultSet.getString(String)
+  - ArrayList.toArray(Object[])
+  - admin_jsp._jspService(...)
+
+What the report doesn't contain
+
+The XML has no advisory text, meaning no written description, ode samples. It only gives the trace and the fix location. Iwon't present advisory wording as AppScan's.
+
+My recommendation (general practice, not from AppScan)
+
+- Primary fix: encode the output for an HTML context where it is written, at admin.jsp:90. For example, use <c:out> or the OWASP Java Encoder's
+  Encode.forHtml(user) instead of raw out.print(user).
+- Optional defence in depth: validate usernames on input.
+- Why not DBUtil.java:437: that is where AppScan groups the fiof output is the more standard fix for XSS. I haven't checkedthis against the AltoroJ code, so confirm it in your own review.
+
+Before you change anything, two more things to check. This issue already has external ID PT-3, so its ticket may show someone is already working on it. The same fix group covers 3 other XSS findings, and a get_fixg
