@@ -1,57 +1,59 @@
- Using the AppScan MCP,
-  Find one Open SAST issue in the Test_Tayalan application.
-
-    Return:
-  - issue ID
-  - issue name/title
-  - severity
-  - application ID
-  - scan ID if available
-  - source file
-  - line number
-  - vulnerable code/location information if available
-
-    Do not modify anything in AppScan.
-
-  Called appscan-mcp 2 times
-
-The filter returned 0 rows, but I guessed those field names. I'll fetch one unfiltered issue to see the real schema.
-
-  Called appscan-mcp 2 times
-
-The schema uses DiscoveryMethod = SAST, not Static. I'll retry with that value.
+Using the AppScan MCP, get the full details and remediation guidance for issue 57c3f2a8-98bc-f111-a6a9-000d3a7b2c78. Do not modify or update the issue.
 
   Called appscan-mcp
 
-I found an Open SAST issue in Test_Tayalan. The application has 99 Open SAST issues in total, and I picked the first one returned. I changed nothing in AppScan.
+The XML report gives a full call trace and a recommended fix location, but no remediation prose. The guidance section below is my own, not AppScan's. I changed nothing in AppScan.
 
-┌───────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│     Field     │                                                                Value                                                                │
-├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Issue ID      │ 57c3f2a8-98bc-f111-a6a9-000d3a7b2c78 (external ID PT-3)                                                                             │
-├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Issue name    │ Cross-Site Scripting (CWE-79)                                                                                                       │
-├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Severity      │ High                                                                                                                                │
-├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Status        │ Open                                                                                                                                │
-├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Application   │ 39c76747-8617-4e00-8ae8-096e208f72ac (Test_Tayalan)                                                                                 │
-│ ID            │                                                                                                                                     │
-├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Scan ID       │ Not available. The issue model has no scan ID field. It only gives the scan name, SAST 2026-09-30 demo (2).irx, from AppScan Static │
-│               │  Analyzer. get_scans could resolve the ID.                                                                                          │
-├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Source file   │ WebContent/admin/admin.jsp                                                                                                          │
-├───────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Line number   │ 90                                                                                                                                  │
-└───────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+Issue summary
 
-Vulnerable code and location
-- Sink: javax.servlet.jsp.JspWriter.print(String) at WebContent/admin/admin.jsp:90.
-- Code context: out.print(user).
-- Taint source: java.sql.ResultSet.getString(String), so a database value is written to the page without encoding.
-- Calling method: org.apache.jsp.admin.admin_jsp._jspService(HttpServletRequest, HttpServletResponse).
-- Source link: https://github.com/HCL-TECH-SOFTWARE/AltoroJ/blob/c97f0312bd50b7118c6708d2b9d86af50c99b8b0/WebContent/admin/admin.jsp#L90
-- Not yet verified: I haven't opened the file in this repo to confirm line 90. The scan was against commit c97f031, which matches your current HEAD.
-- Full details: get_issue_details returns the XML trace for this issue if you want it. It is also read-only.
+┌──────────┬───────────────────────────────────────────────────┐
+│  Field   │                       Value                       │
+├──────────┼───────────────────────────────────────────────────┤
+│ Type     │ Cross-Site Scripting (CrossSiteScripting, CWE-79) │
+├──────────┼───────────────────────────────────────────────────┤
+│ Severity │ High                                              │
+├──────────┼───────────────────────────────────────────────────┤
+│ Language │ Java (JSP)                                        │
+├──────────┼───────────────────────────────────────────────────┤
+│ Variants │ 1                                                 │
+└──────────┴───────────────────────────────────────────────────┘
+
+Data flow (from the call trace)
+
+┌────────────────┬───────────────────────────────┬───────────────────────────────────────┐
+│      Step      │           Location            │                 Code                  │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 1. Page entry  │ admin_jsp._jspService         │                                       │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 2. Fetch users │ WebContent/admin/admin.jsp:31 │ users = getBankUsers()                │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 3. Delegate    │ ServletUtil:241               │ calls DBUtil.getBankUsernames()       │
+├────────────────┼───────────────────────────────┼───────────────────────────────────────┤
+│ 4. Source      │ DBUtil:436                    │ name = resultSet.getString("USER_ID") │
+├────────────────┼───────────────────────────────┼────────────
+│ 5. Collect     │ DBUtil:437                    │ users.add(name)                       │
+├────────────────┼───────────────────────────────┼────────────
+│ 6. Return      │ DBUtil:440                    │ users.toArray(...)                    │
+├────────────────┼───────────────────────────────┼────────────
+│ 7. Sink        │ WebContent/admin/admin.jsp:90 │ out.print(user)                       │
+└────────────────┴───────────────────────────────┴────────────
+                                                                                                                                                       e values in USER_ID reach the page unencoded. An attacker whame has a stored XSS. The username could be set throughregistration or a user-creation flow.                                                                                                                  
+AppScan's recommended fix                                                                                                                              
+- Fix group: FIX: 217877293, priority High, resolving 4 High XSS issues in total.                                                                      Fix location: DBUtil.java:437, the ArrayList.add(Object) cal
+- Alternates: AppScan lists DBUtil.getBankUsernames(), ServletUtil.getBankUsers(), ResultSet.getString(), ArrayList.toArray() and _jspService as other places a fix would also work.
+- Taint tracking: AppScan marks the add and toArray steps as NotAValidator, so nothing in the flow sanitizes the value.
+
+Remediation guidance (my recommendation, not from AppScan)
+
+1. Encode at output (preferred): Change admin.jsp:90 to HTML-encode user before printing. Use the OWASP Java Encoder (Encode.forHtml(user)) or JSTL <c:out
+   value="${user}"/>. Encoding at the sink covers every data s
+2. Validate on input (defense in depth): Restrict usernames to an allow-list pattern, such as [A-Za-z0-9_.-]{1,64}, where users are created.
+3. Why the fix location matters: Fixing at DBUtil:437, as AppSdata at collection time. That ties encoding to HTML, which isthe wrong layer. I'd encode at the output instead, but this is a judgment call.
+4. Retest: Rescan after the change and confirm the 4 issues in
+
+Caveats
+
+- Not checked against this repo: The trace paths (com.ibm.secul.*) and line numbers come from the scan of commit c97f031. Ihaven't opened those files here, so check the lines before editing.
+- Related issues: The 4 High issues in this fix group probablyprint calls in admin.jsp. I haven't listed them.
+
+I can open the local admin.jsp and DBUtil.java to check the li to review.
