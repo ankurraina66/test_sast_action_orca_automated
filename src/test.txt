@@ -1,51 +1,66 @@
-What AppScan MCP tools are available?
+List the AppScan applications available to me. Do not modify anything.
 
-The AppScan MCP server (appscan-mcp) has 12 tools. All of them use OData v4 query options ($filter, $select, $expand, $orderby, $top, $skip, $apply, $count) except get_issue_details and get_edm_metadata.
+  Called appscan-mcp
 
-Read-only tools
+get_apps returned all 23 applications (@odata.count = 23). This was a read-only query and I changed nothing.
 
-┌─────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────┐
-│        Tool         │                                          Purpose                                          │          Required inputs          │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_apps            │ List, filter, sort and page applications in your organization                             │ none                              │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_apps_by_library │ Find applications that use a given open-source library, for impact analysis               │ packageId (UUID)                  │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_scans           │ List scans, filterable by status, time range, technology and so on                        │ none                              │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_issues          │ Query issues across the organization or within a scope. It supports policy filtering and  │ none (scope and scopeId are       │
-│                     │ localization.                                                                             │ optional)                         │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_issue_details   │ Return the full XML report for one issue, including remediation guidance                  │ issueId (UUID)                    │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_fixgroups       │ Group SAST and SCA issues by root cause or fix, to plan remediation                       │ scope, scopeId                    │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_os_libraries    │ List the open-source components in a scope (SBOM-like)                                    │ scope, scopeId                    │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_org_libraries   │ List open-source libraries across the whole organization                                  │ none                              │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_licenses        │ List open-source license findings in a scope, for compliance reporting                    │ scope, scopeId                    │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_policies        │ List predefined and custom policies                                                       │ none                              │
-├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
-│ get_edm_metadata    │ Return the OData EDM schema, which shows the entity sets and fields you can query         │ none                              │
-└─────────────────────┴──────────────────────────────────────────────────────────────┴───────────────────────────────────┘
+┌──────────────────────┬───────────────────────┬──────────┬──────┬────────┬─────┬──────┬──────────────┬──────────────┐
+│     Application      │       Scan tech       │ Critical │ High │ Medium │ Low │ Info │ Open / Total │ Last updated │
+├──────────────────────┼───────────────────────┼──────────┼──────┼────────┼─────┼──────┼──────────────┼──────────────┤
+│ Test_Joy             │ DAST, SAST, SCA       │ 2        │ 468  │ 996    │ 118 │ 15   │ 1599 / 1599  │ 2026-10-05   │
+├──────────────────────┼───────────────────────┼──────────┼──────┼────────┼─────┼──────┼──────────────┼──────────────┤
+│ Test_Tanmoy          │ DAST, SAST, IAST, SCA │ 12       │ 130  │ 69     │ 37  │ 9    │ 257 / 296    │ 2026-09-29   │
+├──────────────────────┼───────────────────────┼──────────┼──────┼────────┼─────┼──────┼──────────────┼──────────────┤
+│ Test_Tanmoy_SN       │ DAST, SAST, SCA       │ 16       │ 114  │ 68     │ 38  │ 17   │ 253 / 263    │ 2026-09-30   │
+├──────────────────────┼───────────────────────┼──────────┼──────┼────────┼─────┼──────┼──────────────┼──────────────┤
+│ TestApp1             │ DAST, SAST            │ 2        │ 39   │ 85     │ 24  │ 15   │ 165 / 167    │ 2026-09-10   │
+├──────────────────────┼───────────────────────┼──────────┼──────┼────────┼─────┼──────┼──────────────┼──────────────┤
+│ Test_Tanmoy_SN3      │ DAST, SAST, SCA       │ 7        │ 39   │ 43     │ 31  │ 16   │ 136 / 136    │ 2026-09-30   │
+├──────────────────────┼───────────────────────┼──────────┼──────┼────────┼─────┼──────┼──────────────┼──────────────┤
+│ Test_Tayalan         │ SAST, SCA             │ 5        │ 95   │ 26     │ 9   │ 0    │ 135 / 137    │ 2026-10-02   │
+├──────────────────────┼───────────────────────┼──────────┼──────┼────────┼─────┼──────┼──────────────┼──────────────┤
+│ ASRADotnet           │ DAST, SAST            │ 0        │ 2    │ 23     │ 72  │ 18   │ 115 / 115    │ 2026-09-21   │
+├──────────────────────┼───────────────────────┼──────────┼──────┼────────┼─────┼──────┼──────────────┼──────────────┤
+│ TestApp2             │ SAST                  │ 0        │ 78   │ 16     │ 8   │ 0    │ 102 / 102    │ 2026-08-11   │
+├──────────────────────┼───────────────────────┼──────────┼──────┼────────┼─────┼──────┼──────────────┼──────────────┤
+│ Demo_Test_Ankur      │ DAST                  │ 2        │ 12   │ 30     │ 24  │ 15   │ 83 / 83      │ 2026-09-17   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ Test_vishal          │ DAST                  │ 0        │ 15   │ 26     │ 28  │ 13   │ 82 / 82      │ 2026-09-22   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ TestApp3             │ SAST                  │ 0        │ 24   │ 14     │ 18  │ 0    │ 56 / 57      │ 2026-08-12   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ Test_Hema            │ DAST, SAST            │ 2        │ 6    │ 22     │ 14  │ 10   │ 54 / 119     │ 2026-10-05   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ TestVinita           │ SAST                  │ 0        │ 11   │ 15     │ 18  │ 0    │ 44 / 44      │ 2026-10-06   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ Test_Ankita          │ SAST, SCA             │ 6        │ 21   │ 12     │ 1   │ 0    │ 40 / 42      │ 2026-09-24   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ Bitbucket plugin     │ SAST                  │ 0        │ 0    │ 21     │ 0   │ 0    │ 21 / 21      │ 2026-08-23   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ Test_Vinod           │ SAST                  │ 0        │ 4    │ 1      │ 0   │ 0    │ 5 / 5        │ 2026-10-05   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ AltoroMutual         │ DAST, IAST            │ 0        │ 1    │ 3      │ 0   │ 0    │ 4 / 8        │ 2026-09-22   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ Demo_HCLF            │ none                  │ 0        │ 0    │ 0      │ 0   │ 0    │ 0 / 0        │ 2026-08-05   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ charvi               │ none                  │ 0        │ 0    │ 0      │ 0   │ 0    │ 0 / 0        │ 2026-10-05   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ DemoTestFireApp      │ none                  │ 0        │ 0    │ 0      │ 0   │ 0    │ 0 / 0        │ 2026-08-05   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ Test_Kranthi         │ none                  │ 0        │ 0    │ 0      │ 0   │ 0    │ 0 / 0        │ 2025-12-19   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ Sample_project       │ none                  │ 0        │ 0    │ 0      │ 0   │ 0    │ 0 / 0        │ 2026-03-26   │
+├──────────────────────┼───────────────────────┼──────────┼──────────────┼──────────────┤
+│ AzureBoardsPluginGit │ none                  │ 0        │ 0    │ 0      │ 0   │ 0    │ 0 / 0        │ 2026-01-28   │
+└──────────────────────┴───────────────────────┴──────────┴──────────────┴──────────────┘
 
-Write tool
+Observations
 
-┌───────────────┬─────────────────────────────────────────────────────────────────────────────┬──────────────────────────┐
-│     Tool      │                                                 Purpose                                                  │     Required inputs      │
-├───────────────┼─────────────────────────────────────────────────────────────────────────────┼──────────────────────────┤
-│ update_issues │ Bulk-triage issues that match an OData filter. You can set the status, external ID (for example a Jira   │ scope, scopeId,          │
-│               │ ticket) and comment.                                                        │ odataFilter              │
-└───────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────┴──────────────────────────┘
+- Most open issues: Test_Joy has 1,599, far more than any othe
+- Most critical issues: Test_Tanmoy_SN has 16 and Test_Tanmoy has 12.
+- Empty applications: 6 have no scan technology and no issues.tions (Demo_HCLF, charvi, DemoTestFireApp, and none for theother two). TotalScans is 0 for Demo_HCLF and DemoTestFireApp even though they have 2 executions each.
+- Git integration: none of the applications has a Git repo linall).
+- Your application: Demo_Test_Ankur is the one you created. It has 2 critical and 12 high issues from a DAST scan.
+- Policies: only Test_Joy, Test_Hema and Bitbucket plugin haveine"), and it's marked disabled and non-compliant on all three.
 
-Notes
-
-- Scope values: Application, Scan or ScanExecution. The schema also lists Applications.
-- Policy modes: applyPolicies takes None, All or Select. All oen. Select also needs selectPolicyIds.
-- Status values for update_issues: Open, InProgress, Reopened, Noise, Passed, Fixed, New.
-- Caution with update_issues: it changes issue state in AppSca. I'd first run the same filter through get_issues with$count=true to see how many issues it hits, and I'll confirm with you before running any update.
-- Large queries: an organization-wide get_issues call can retu, $top, $select or $apply to keep it small.
-- Field names: call get_edm_metadata first if you're unsure which fields exist.                                                                           
-I haven't called any of these yet. If you give me an application name or a goal, I can run the relevant queries. A scan of this Spring Boot project is one example.
+I left out the application IDs to keep the table short. I can braries for any of these if you tell me which one.
