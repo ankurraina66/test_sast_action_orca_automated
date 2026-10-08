@@ -1,40 +1,51 @@
-PS C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master> claude mcp list
-claude.ai Google Sheets: https://sheetsmcp.googleapis.com/mcp/v1 - √ Connected
-claude.ai Google Slides: https://slidesmcp.googleapis.com/mcp/v1 - √ Connected
-claude.ai Google Docs: https://docsmcp.googleapis.com/mcp/v1 - √ Connected
-claude.ai HCLSW Devops Automation Build: https://devopsautomation.hcl-software.com/build/mcp - × Failed to connect — Version negotiation probe timed out
-after 5000ms
-claude.ai HCLSW Devops Automation Control: https://devopsautomation.hcl-software.com/control/mcp - × Failed to connect — Version negotiation probe timed out
-after 5000ms
-claude.ai HCLSW Devops Automation Deploy: https://devopsautomation.hcl-software.com/deploy/mcp - × Failed to connect — Version negotiation probe timed out
-after 5000ms
-claude.ai HCLSW Devops Automation Test: https://devopsautomation.hcl-software.com/test/mcp - × Failed to connect — Version negotiation probe timed out after
-5000ms
-claude.ai HCLSW Devops Automation Loop: https://devopsautomation.hcl-software.com/loop/mcp - × Failed to connect — Version negotiation probe timed out after
-5000ms
-claude.ai HCLSW Devops Automation Plan: https://devopsautomation.hcl-software.com/plan/mcp - × Failed to connect — Version negotiation probe timed out after
-5000ms
-claude.ai ADO Prod SETeam: https://mcp-data-observability.actian.com/jTBrZQAATiM/mcp - ! Needs authentication
-claude.ai ADO Dev Devops: https://mcp.use1.gcp.data-observability.dev.actian.com/OakCWQAATiQ/mcp - ! Needs authentication
-claude.ai Actian Gong: https://mcp.gong.io/mcp - ! Needs authentication
-claude.ai Adobe for creativity: https://adobe-creativity.adobe.io/mcp - ! Needs authentication
-claude.ai Demandbase: https://gateway.demandbase.com/mcp/servers/db-mcp - ! Needs authentication
-claude.ai HCLSW Google Chat: https://chatmcp.googleapis.com/mcp/v1 - √ Connected
-claude.ai CB Insights: https://mcp.cbinsights.com - ! Needs authentication
-claude.ai bioRxiv: https://hcls.mcp.claude.com/biorxiv/mcp - √ Connected
-claude.ai PubMed: https://pubmed.mcp.claude.com/mcp - √ Connected
-claude.ai Clinical Trials: https://hcls.mcp.claude.com/clinical_trials/mcp - √ Connected
-claude.ai ChEMBL: https://hcls.mcp.claude.com/chembl/mcp - √ Connected
-claude.ai ZoomInfo: https://mcp.zoominfo.com/mcp - ! Needs authentication
-claude.ai Aha!: https://hcl-software.aha.io/api/v1/mcp - ! Needs authentication
-claude.ai ChurnZero: https://app.churnzero.net/mcp - ! Needs authentication
-claude.ai Outreach: https://api.outreach.io/mcp - ! Needs authentication
-claude.ai Atlassian Rovo: https://mcp.atlassian.com/v1/mcp - ! Needs authentication
-claude.ai Microsoft 365: https://microsoft365.mcp.claude.com/mcp - ! Needs authentication
-claude.ai Slack: https://mcp.slack.com/mcp - ! Needs authentication
-claude.ai Figma: https://mcp.figma.com/mcp - ! Needs authentication
-claude.ai Docusign: https://mcp.docusign.com/mcp - ! Needs authentication
-claude.ai Google Calendar: https://calendarmcp.googleapis.com/mcp/v1 - √ Connected
-claude.ai Gmail: https://gmailmcp.googleapis.com/mcp/v1 - √ Connected
-claude.ai Google Drive: https://drivemcp.googleapis.com/mcp/v1 - √ Connected
-appscan-mcp: https://cloud.appscan.com/mcp (HTTP) - √ Connected
+What AppScan MCP tools are available?
+
+The AppScan MCP server (appscan-mcp) has 12 tools. All of them use OData v4 query options ($filter, $select, $expand, $orderby, $top, $skip, $apply, $count) except get_issue_details and get_edm_metadata.
+
+Read-only tools
+
+┌─────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────┐
+│        Tool         │                                          Purpose                                          │          Required inputs          │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_apps            │ List, filter, sort and page applications in your organization                             │ none                              │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_apps_by_library │ Find applications that use a given open-source library, for impact analysis               │ packageId (UUID)                  │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_scans           │ List scans, filterable by status, time range, technology and so on                        │ none                              │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_issues          │ Query issues across the organization or within a scope. It supports policy filtering and  │ none (scope and scopeId are       │
+│                     │ localization.                                                                             │ optional)                         │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_issue_details   │ Return the full XML report for one issue, including remediation guidance                  │ issueId (UUID)                    │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_fixgroups       │ Group SAST and SCA issues by root cause or fix, to plan remediation                       │ scope, scopeId                    │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_os_libraries    │ List the open-source components in a scope (SBOM-like)                                    │ scope, scopeId                    │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_org_libraries   │ List open-source libraries across the whole organization                                  │ none                              │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_licenses        │ List open-source license findings in a scope, for compliance reporting                    │ scope, scopeId                    │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_policies        │ List predefined and custom policies                                                       │ none                              │
+├─────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────┤
+│ get_edm_metadata    │ Return the OData EDM schema, which shows the entity sets and fields you can query         │ none                              │
+└─────────────────────┴──────────────────────────────────────────────────────────────┴───────────────────────────────────┘
+
+Write tool
+
+┌───────────────┬─────────────────────────────────────────────────────────────────────────────┬──────────────────────────┐
+│     Tool      │                                                 Purpose                                                  │     Required inputs      │
+├───────────────┼─────────────────────────────────────────────────────────────────────────────┼──────────────────────────┤
+│ update_issues │ Bulk-triage issues that match an OData filter. You can set the status, external ID (for example a Jira   │ scope, scopeId,          │
+│               │ ticket) and comment.                                                        │ odataFilter              │
+└───────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────┴──────────────────────────┘
+
+Notes
+
+- Scope values: Application, Scan or ScanExecution. The schema also lists Applications.
+- Policy modes: applyPolicies takes None, All or Select. All oen. Select also needs selectPolicyIds.
+- Status values for update_issues: Open, InProgress, Reopened, Noise, Passed, Fixed, New.
+- Caution with update_issues: it changes issue state in AppSca. I'd first run the same filter through get_issues with$count=true to see how many issues it hits, and I'll confirm with you before running any update.
+- Large queries: an organization-wide get_issues call can retu, $top, $select or $apply to keep it small.
+- Field names: call get_edm_metadata first if you're unsure which fields exist.                                                                           
+I haven't called any of these yet. If you give me an application name or a goal, I can run the relevant queries. A scan of this Spring Boot project is one example.
