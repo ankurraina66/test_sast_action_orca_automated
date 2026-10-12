@@ -1,110 +1,71 @@
- C:\Users\ankur.raina\ai-coding-assistants-claude-poc> @'
->> import { describe, expect, it } from "vitest";
->> import { loadConfig } from "../../src/config/config.js";
->>
->> describe("loadConfig", () => {
->>   it("defaults to remote mode and accepts a remote endpoint", () => {
->>     const config = loadConfig({
->>       APP_SCAN_REMOTE_ENDPOINT: "https://cloud.appscan.com/mcp",
->>     });
->>
->>     expect(config.provider).toBe("remote");
->>     expect(config.remote?.endpoint).toBe(
->>       "https://cloud.appscan.com/mcp",
->>     );
->>     expect(config.requestTimeoutMs).toBe(30000);
->>   });
->>
->>   it("accepts local mode without assuming local server transport", () => {
->>     const config = loadConfig({
->>       APP_SCAN_PROVIDER: "local",
->>     });
->>
->>     expect(config.provider).toBe("local");
->>     expect(config.remote).toBeUndefined();
->>   });
->>
->>   it("normalizes provider casing and whitespace", () => {
->>     const config = loadConfig({
->>       APP_SCAN_PROVIDER: " LOCAL ",
->>     });
->>
->>     expect(config.provider).toBe("local");
->>   });
->>
->>   it("rejects an unsupported provider", () => {
->>     expect(() =>
->>       loadConfig({
->>         APP_SCAN_PROVIDER: "unknown",
->>       }),
->>     ).toThrow('APP_SCAN_PROVIDER must be either "remote" or "local".');
->>   });
->>
->>   it("requires an endpoint in remote mode", () => {
->>     expect(() => loadConfig({})).toThrow(
->>       "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
->>     );
->>   });
->>
->>   it("rejects an invalid remote endpoint", () => {
->>     expect(() =>
->>       loadConfig({
->>         APP_SCAN_REMOTE_ENDPOINT: "not-a-url",
->>       }),
->>     ).toThrow("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
->>   });
->>
->>   it("rejects unsupported URL protocols", () => {
->>     expect(() =>
->>       loadConfig({
->>         APP_SCAN_REMOTE_ENDPOINT: "ftp://example.com/mcp",
->>       }),
->>     ).toThrow("Remote endpoint must use HTTP or HTTPS.");
->>   });
->>
->>   it("rejects invalid timeout values", () => {
->>     expect(() =>
->>       loadConfig({
->>         APP_SCAN_PROVIDER: "local",
->>         APP_SCAN_REQUEST_TIMEOUT_MS: "0",
->>       }),
->>     ).toThrow(
->>       "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
->>     );
->>   });
->>
->>   it("accepts a configured remote API key without exposing it in errors", () => {
->>     const config = loadConfig({
->>       APP_SCAN_REMOTE_ENDPOINT: "https://cloud.appscan.com/mcp",
->>       APP_SCAN_API_KEY: "test-key",
->>     });
->>
->>     expect(config.remote?.apiKey).toBe("test-key");
->>   });
->> });
->> '@ | Set-Content -Encoding utf8 tests/unit/config.test.ts
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Write-Host "Configuration tests created."
-Configuration tests created.
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Test-Path "tests\unit\config.test.ts"
-True
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run typecheck
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content src/config/config.ts
+export type AppScanProvider = "remote" | "local";
 
-> ai-coding-assistants-claude-poc@1.0.0 typecheck
-> tsc --noEmit
+export interface ConnectorConfig {
+  provider: AppScanProvider;
+  requestTimeoutMs: number;
+  remote?: {
+    endpoint: string;
+    apiKey?: string;
+  };
+}
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm test
+export type Environment = Record<string, string | undefined>;
 
-> ai-coding-assistants-claude-poc@1.0.0 test
-> vitest run
+export function loadConfig(
+  env: Environment = process.env,
+): ConnectorConfig {
+  const provider = (env.APP_SCAN_PROVIDER ?? "remote")
+    .trim()
+    .toLowerCase();
 
+  if (provider !== "remote" && provider !== "local") {
+    throw new Error(
+      'APP_SCAN_PROVIDER must be either "remote" or "local".',
+    );
+  }
 
- RUN  v5.0.3 C:/Users/ankur.raina/ai-coding-assistants-claude-poc
+  const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
 
- ✓ tests/unit/index.test.ts (1 test) 3ms
- ✓ tests/unit/config.test.ts (9 tests) 6ms
+  if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 300000) {
+    throw new Error(
+      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
+    );
+  }
 
- Test Files  2 passed (2)
-      Tests  10 passed (10)
-   Start at  15:36:38
-   Duration  356ms (transform 67%, import 22%, worker 6%, tests 4%)
+  if (provider === "remote") {
+    const endpoint = env.APP_SCAN_REMOTE_ENDPOINT?.trim();
+
+    if (!endpoint) {
+      throw new Error(
+        "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
+      );
+    }
+
+    let parsed: URL;
+
+    try {
+      parsed = new URL(endpoint);
+    } catch {
+      throw new Error("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+    }
+
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      throw new Error("Remote endpoint must use HTTP or HTTPS.");
+    }
+
+    return {
+      provider,
+      requestTimeoutMs: timeout,
+      remote: {
+        endpoint: parsed.toString(),
+        apiKey: env.APP_SCAN_API_KEY?.trim() || undefined,
+      },
+    };
+  }
+
+  return {
+    provider: "local",
+    requestTimeoutMs: timeout,
+  };
+}
