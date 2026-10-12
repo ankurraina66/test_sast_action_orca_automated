@@ -1,2 +1,84 @@
-PS C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package> Set-Location "$HOME\ai-coding-assistants-claude-poc"
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> node --check "$HOME\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content tests/unit/config.test.ts
+import { describe, expect, it } from "vitest";
+import { loadConfig } from "../../src/config/config.js";
+
+describe("loadConfig", () => {
+  it("defaults to remote mode and accepts a remote endpoint", () => {
+    const config = loadConfig({
+      APP_SCAN_REMOTE_ENDPOINT: "https://cloud.appscan.com/mcp",
+    });
+
+    expect(config.provider).toBe("remote");
+    expect(config.remote?.endpoint).toBe(
+      "https://cloud.appscan.com/mcp",
+    );
+    expect(config.requestTimeoutMs).toBe(30000);
+  });
+
+  it("accepts local mode without assuming local server transport", () => {
+    const config = loadConfig({
+      APP_SCAN_PROVIDER: "local",
+    });
+
+    expect(config.provider).toBe("local");
+    expect(config.remote).toBeUndefined();
+  });
+
+  it("normalizes provider casing and whitespace", () => {
+    const config = loadConfig({
+      APP_SCAN_PROVIDER: " LOCAL ",
+    });
+
+    expect(config.provider).toBe("local");
+  });
+
+  it("rejects an unsupported provider", () => {
+    expect(() =>
+      loadConfig({
+        APP_SCAN_PROVIDER: "unknown",
+      }),
+    ).toThrow('APP_SCAN_PROVIDER must be either "remote" or "local".');
+  });
+
+  it("requires an endpoint in remote mode", () => {
+    expect(() => loadConfig({})).toThrow(
+      "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
+    );
+  });
+
+  it("rejects an invalid remote endpoint", () => {
+    expect(() =>
+      loadConfig({
+        APP_SCAN_REMOTE_ENDPOINT: "not-a-url",
+      }),
+    ).toThrow("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+  });
+
+  it("rejects unsupported URL protocols", () => {
+    expect(() =>
+      loadConfig({
+        APP_SCAN_REMOTE_ENDPOINT: "ftp://example.com/mcp",
+      }),
+    ).toThrow("Remote endpoint must use HTTP or HTTPS.");
+  });
+
+  it("rejects invalid timeout values", () => {
+    expect(() =>
+      loadConfig({
+        APP_SCAN_PROVIDER: "local",
+        APP_SCAN_REQUEST_TIMEOUT_MS: "0",
+      }),
+    ).toThrow(
+      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
+    );
+  });
+
+  it("accepts a configured remote API key without exposing it in errors", () => {
+    const config = loadConfig({
+      APP_SCAN_REMOTE_ENDPOINT: "https://cloud.appscan.com/mcp",
+      APP_SCAN_API_KEY: "test-key",
+    });
+
+    expect(config.remote?.apiKey).toBe("test-key");
+  });
+});
