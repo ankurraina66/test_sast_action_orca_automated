@@ -1,3 +1,5 @@
+Doc 1
+
 # AppScan MCP Server
 
 A Model Context Protocol (MCP) server that integrates with HCL AppScan API, enabling GitHub Copilot and other MCP clients to interact with AppScan's application security testing platform.
@@ -352,3 +354,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 See AppScan API License Agreement at https://www.hcltechsw.com/resources/license-agreements
 
 This MCP server code is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+***************************************************************************************************
+
