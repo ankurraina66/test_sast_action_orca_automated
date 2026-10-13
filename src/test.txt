@@ -1,82 +1,96 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run typecheck
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content src/config/config.ts
+export type AppScanProvider = "remote" | "local";
 
-> ai-coding-assistants-claude-poc@1.0.0 typecheck
-> tsc --noEmit
+export interface ConnectorConfig {
+  provider: AppScanProvider;
+  requestTimeoutMs: number;
+  remote?: {
+    endpoint: string;
+    apiKey?: string;
+  };
+  local?: {
+    command: string;
+    args: string[];
+    serverPath: string;
+    apiBase: string;
+    keyId?: string;
+    keySecret?: string;
+  };
+}
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm test
+export type Environment = Record<string, string | undefined>;
 
-> ai-coding-assistants-claude-poc@1.0.0 test
-> vitest run
+export function loadConfig(
+  env: Environment = process.env,
+): ConnectorConfig {
+  const provider = (env.APP_SCAN_PROVIDER ?? "remote")
+    .trim()
+    .toLowerCase();
 
+  if (provider !== "remote" && provider !== "local") {
+    throw new Error(
+      'APP_SCAN_PROVIDER must be either "remote" or "local".',
+    );
+  }
 
- RUN  v5.0.3 C:/Users/ankur.raina/ai-coding-assistants-claude-poc
+  const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
 
- ✓ tests/unit/index.test.ts (1 test) 2ms
- ✓ tests/unit/config.test.ts (11 tests) 8ms
-stderr | tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > connects to the local MCP server
-[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+  if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 300000) {
+    throw new Error(
+      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
+    );
+  }
 
-stderr | tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > does not connect twice when already connected
-[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+  if (provider === "remote") {
+    const endpoint = env.APP_SCAN_REMOTE_ENDPOINT?.trim();
 
-stderr | tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > lists tools exposed by the MCP server
-[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+    if (!endpoint) {
+      throw new Error(
+        "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
+      );
+    }
 
-stderr | tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > rejects tool listing before connecting
-[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+    let parsed: URL;
 
-stderr | tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > calls a tool and normalizes its result
-[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+    try {
+      parsed = new URL(endpoint);
+    } catch {
+      throw new Error("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+    }
 
-stderr | tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > rejects a tool call before connecting
-[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      throw new Error("Remote endpoint must use HTTP or HTTPS.");
+    }
 
-stderr | tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > rejects an unsupported tool result format
-[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+    return {
+      provider,
+      requestTimeoutMs: timeout,
+      remote: {
+        endpoint: parsed.toString(),
+        apiKey: env.APP_SCAN_API_KEY?.trim() || undefined,
+      },
+    };
+  }
 
-stderr | tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > disconnects the client
-[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+  const serverPath = env.APP_SCAN_LOCAL_SERVER_PATH?.trim();
 
-stderr | tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > does nothing when disconnecting before connecting
-[vitest] The vi.fn() mock did not use 'function' or 'class' in its implementation, see https://vitest.dev/api/vi#vi-spyon for examples.
+  if (!serverPath) {
+    throw new Error(
+      "APP_SCAN_LOCAL_SERVER_PATH is required for local mode.",
+    );
+  }
 
- ❯ tests/unit/local-stdio-connector.test.ts (9 tests | 9 failed) 9ms
-   ❯ LocalStdioConnector (9)
-     × connects to the local MCP server 5ms
-     × does not connect twice when already connected 1ms
-     × lists tools exposed by the MCP server 0ms
-     × rejects tool listing before connecting 0ms
-     × calls a tool and normalizes its result 0ms
-     × rejects a tool call before connecting 0ms
-     × rejects an unsupported tool result format 0ms
-     × disconnects the client 0ms
-     × does nothing when disconnecting before connecting 0ms
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-
- FAIL  tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > connects to the local MCP server
- FAIL  tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > does not connect twice when already connected
- FAIL  tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > lists tools exposed by the MCP server
- FAIL  tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > rejects tool listing before connecting
- FAIL  tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > calls a tool and normalizes its result
- FAIL  tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > rejects a tool call before connecting
- FAIL  tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > rejects an unsupported tool result format
- FAIL  tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > disconnects the client
- FAIL  tests/unit/local-stdio-connector.test.ts > LocalStdioConnector > does nothing when disconnecting before connecting
-TypeError: () => mockClient is not a constructor
- ❯ new LocalStdioConnector src/mcp/local-stdio-connector.ts:25:19
-     23|
-     24|   constructor(options: LocalStdioConnectorOptions) {
-     25|     this.client = new Client({
-       |                   ^
-     26|       name: "hcl-appscan-connector-for-claude",
-     27|       version: "0.1.0",
- ❯ tests/unit/local-stdio-connector.test.ts:36:13
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
-
-
- Test Files  1 failed | 2 passed (3)
-      Tests  9 failed | 12 passed (21)
-   Start at  11:04:48
-   Duration  401ms (transform 68%, import 20%, worker 6%, tests 6%)
+  return {
+    provider,
+    requestTimeoutMs: timeout,
+    local: {
+      command: env.APP_SCAN_LOCAL_COMMAND?.trim() || "node",
+      args: [serverPath],
+      serverPath,
+      apiBase:
+        env.APPSCAN_API_BASE?.trim() || "https://cloud.appscan.com",
+      keyId: env.APPSCAN_KEY_ID?.trim() || undefined,
+      keySecret: env.APPSCAN_KEY_SECRET?.trim() || undefined,
+    },
+  };
+}
