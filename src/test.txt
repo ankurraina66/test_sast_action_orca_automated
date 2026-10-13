@@ -1,178 +1,125 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-const { mockClient, mockTransport } = vi.hoisted(() => ({
-mockClient: {
-connect: vi.fn(),
-listTools: vi.fn(),
-callTool: vi.fn(),
-close: vi.fn(),
-},
-mockTransport: vi.fn(),
-}));
-
-vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
-Client: vi.fn(function () {
-return mockClient;
-}),
-}));
-
-vi.mock(
-"@modelcontextprotocol/sdk/client/streamableHttp.js",
-() => ({
-StreamableHTTPClientTransport: mockTransport,
-}),
-);
-
-import { RemoteHttpConnector } from "../../src/mcp/remote-http-connector.js";
-
-describe("RemoteHttpConnector", () => {
-let connector: RemoteHttpConnector;
-
-beforeEach(() => {
-vi.clearAllMocks();
-
-mockClient.connect.mockResolvedValue(undefined);
-mockClient.listTools.mockResolvedValue({ tools: [] });
-mockClient.callTool.mockResolvedValue({
-  content: [{ type: "text", text: "Success" }],
-  isError: false,
-});
-mockClient.close.mockResolvedValue(undefined);
-
-mockTransport.mockImplementation(function () {
-  return {};
-});
-
-connector = new RemoteHttpConnector({
-  endpoint: "https://cloud.appscan.com/mcp",
-  apiKey: "test-key",
-});
-
-});
-
-it("connects to the remote MCP server", async () => {
-await connector.connect();
-
-expect(mockClient.connect).toHaveBeenCalledTimes(1);
-
-});
-
-it("does not connect twice when already connected", async () => {
-await connector.connect();
-await connector.connect();
-
-expect(mockClient.connect).toHaveBeenCalledTimes(1);
-
-});
-
-it("lists tools exposed by the MCP server", async () => {
-mockClient.listTools.mockResolvedValue({
-tools: [
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content package.json
 {
-name: "get_apps",
-description: "List applications",
-inputSchema: { type: "object", properties: {} },
-},
-],
-});
-
-await connector.connect();
-
-await expect(connector.listTools()).resolves.toEqual([
-  {
-    name: "get_apps",
-    description: "List applications",
-    inputSchema: { type: "object", properties: {} },
+  "name": "ai-coding-assistants-claude-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test:watch": "vitest",
+    "dev": "tsx watch src/index.ts"
   },
-]);
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  },
+  "private": "true",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.6"
+  }
+}
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content src/config/config.ts
+export type AppScanProvider = "remote" | "local";
 
-});
+export interface ConnectorConfig {
+  provider: AppScanProvider;
+  requestTimeoutMs: number;
+  remote?: {
+    endpoint: string;
+    apiKey?: string;
+  };
+  local?: {
+    command: string;
+    args: string[];
+    serverPath: string;
+    apiBase: string;
+    keyId?: string;
+    keySecret?: string;
+  };
+}
 
-it("rejects tool listing before connecting", async () => {
-await expect(connector.listTools()).rejects.toThrow(
-"Remote AppScan MCP connector is not connected.",
-);
-});
+export type Environment = Record<string, string | undefined>;
 
-it("calls a tool and normalizes its result", async () => {
-await connector.connect();
+export function loadConfig(
+  env: Environment = process.env,
+): ConnectorConfig {
+  const provider = (env.APP_SCAN_PROVIDER ?? "remote")
+    .trim()
+    .toLowerCase();
 
-await expect(
-  connector.callTool("get_apps", { top: 5 }),
-).resolves.toEqual({
-  content: [{ type: "text", text: "Success" }],
-  isError: false,
-});
+  if (provider !== "remote" && provider !== "local") {
+    throw new Error(
+      'APP_SCAN_PROVIDER must be either "remote" or "local".',
+    );
+  }
 
-expect(mockClient.callTool).toHaveBeenCalledWith({
-  name: "get_apps",
-  arguments: { top: 5 },
-});
+  const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
 
-});
+  if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 300000) {
+    throw new Error(
+      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
+    );
+  }
 
-it("rejects a tool call before connecting", async () => {
-await expect(
-connector.callTool("get_apps", {}),
-).rejects.toThrow(
-"Remote AppScan MCP connector is not connected.",
-);
-});
+  if (provider === "remote") {
+    const endpoint = env.APP_SCAN_REMOTE_ENDPOINT?.trim();
 
-it("rejects an unsupported tool result format", async () => {
-await connector.connect();
-mockClient.callTool.mockResolvedValue({ unexpected: true });
+    if (!endpoint) {
+      throw new Error(
+        "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
+      );
+    }
 
-await expect(
-  connector.callTool("get_apps", {}),
-).rejects.toThrow(
-  'MCP tool "get_apps" returned an unsupported result format.',
-);
+    let parsed: URL;
 
-});
+    try {
+      parsed = new URL(endpoint);
+    } catch {
+      throw new Error("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+    }
 
-it("disconnects the client", async () => {
-await connector.connect();
-await connector.disconnect();
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      throw new Error("Remote endpoint must use HTTP or HTTPS.");
+    }
 
-expect(mockClient.close).toHaveBeenCalledTimes(1);
+    return {
+      provider,
+      requestTimeoutMs: timeout,
+      remote: {
+        endpoint: parsed.toString(),
+        apiKey: env.APP_SCAN_API_KEY?.trim() || undefined,
+      },
+    };
+  }
 
-});
+  const serverPath = env.APP_SCAN_LOCAL_SERVER_PATH?.trim();
 
-it("passes the API key in the X-API-KEY header", () => {
-  expect(mockTransport).toHaveBeenCalledWith(
-    new URL("https://cloud.appscan.com/mcp"),
-    expect.objectContaining({
-      requestInit: expect.objectContaining({
-        headers: {
-          "X-API-KEY": "test-key",
-        },
-      }),
-    }),
-  );
-});
+  if (!serverPath) {
+    throw new Error(
+      "APP_SCAN_LOCAL_SERVER_PATH is required for local mode.",
+    );
+  }
 
-it("configures the request timeout when provided", () => {
-  const timeoutConnector = new RemoteHttpConnector({
-    endpoint: "https://cloud.appscan.com/mcp",
-    apiKey: "test-key",
-    requestTimeoutMs: 5000,
-  });
-
-  expect(mockTransport).toHaveBeenCalledWith(
-    new URL("https://cloud.appscan.com/mcp"),
-    expect.objectContaining({
-      requestInit: expect.objectContaining({
-        signal: expect.any(AbortSignal),
-      }),
-    }),
-  );
-});
-
-it("does nothing when disconnecting before connecting", async () => {
-await connector.disconnect();
-
-expect(mockClient.close).not.toHaveBeenCalled();
-
-});
-});
+  return {
+    provider,
+    requestTimeoutMs: timeout,
+    local: {
+      command: env.APP_SCAN_LOCAL_COMMAND?.trim() || "node",
+      args: [serverPath],
+      serverPath,
+      apiBase:
+        env.APPSCAN_API_BASE?.trim() || "https://cloud.appscan.com",
+      keyId: env.APPSCAN_KEY_ID?.trim() || undefined,
+      keySecret: env.APPSCAN_KEY_SECRET?.trim() || undefined,
+    },
+  };
+}
