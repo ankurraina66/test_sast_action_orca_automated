@@ -1,149 +1,178 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content tests/unit/remote-http-connector.test.ts
-import { beforeEach, describe, expect, it, vi } from "vitest";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content src/mcp/remote-http-connector.ts
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-const { mockClient, mockTransport } = vi.hoisted(() => ({
-mockClient: {
-connect: vi.fn(),
-listTools: vi.fn(),
-callTool: vi.fn(),
-close: vi.fn(),
-},
-mockTransport: vi.fn(),
-}));
+import type {
+AppScanMcpConnector,
+McpTool,
+McpToolCallResult,
+} from "./connector.js";
 
-vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
-Client: vi.fn(function () {
-return mockClient;
-}),
-}));
+export interface RemoteHttpConnectorOptions {
+endpoint: string;
+apiKey?: string;
+requestTimeoutMs?: number;
+}
 
-vi.mock(
-"@modelcontextprotocol/sdk/client/streamableHttp.js",
-() => ({
-StreamableHTTPClientTransport: mockTransport,
-}),
-);
+export class RemoteHttpConnector implements AppScanMcpConnector {
+private readonly client: Client;
+private readonly transport: StreamableHTTPClientTransport;
+private connected = false;
 
-import { RemoteHttpConnector } from "../../src/mcp/remote-http-connector.js";
-
-describe("RemoteHttpConnector", () => {
-let connector: RemoteHttpConnector;
-
-beforeEach(() => {
-vi.clearAllMocks();
-
-mockClient.connect.mockResolvedValue(undefined);
-mockClient.listTools.mockResolvedValue({ tools: [] });
-mockClient.callTool.mockResolvedValue({
-  content: [{ type: "text", text: "Success" }],
-  isError: false,
-});
-mockClient.close.mockResolvedValue(undefined);
-
-mockTransport.mockImplementation(function () {
-  return {};
+constructor(options: RemoteHttpConnectorOptions) {
+this.client = new Client({
+name: "hcl-appscan-connector-for-claude",
+version: "0.1.0",
 });
 
-connector = new RemoteHttpConnector({
-  endpoint: "https://cloud.appscan.com/mcp",
-  apiKey: "test-key",
-});
+const headers: Record<string, string> = {};
 
-});
+if (options.apiKey) {
+  headers["X-API-KEY"] = options.apiKey;
+}
 
-it("connects to the remote MCP server", async () => {
-await connector.connect();
-
-expect(mockClient.connect).toHaveBeenCalledTimes(1);
-
-});
-
-it("does not connect twice when already connected", async () => {
-await connector.connect();
-await connector.connect();
-
-expect(mockClient.connect).toHaveBeenCalledTimes(1);
-
-});
-
-it("lists tools exposed by the MCP server", async () => {
-mockClient.listTools.mockResolvedValue({
-tools: [
-{
-name: "get_apps",
-description: "List applications",
-inputSchema: { type: "object", properties: {} },
-},
-],
-});
-
-await connector.connect();
-
-await expect(connector.listTools()).resolves.toEqual([
+this.transport = new StreamableHTTPClientTransport(
+  new URL(options.endpoint),
   {
-    name: "get_apps",
-    description: "List applications",
-    inputSchema: { type: "object", properties: {} },
+    requestInit: {
+      headers,
+      signal: options.requestTimeoutMs
+        ? AbortSignal.timeout(options.requestTimeoutMs)
+        : undefined,
+    },
   },
-]);
-
-});
-
-it("rejects tool listing before connecting", async () => {
-await expect(connector.listTools()).rejects.toThrow(
-"Remote AppScan MCP connector is not connected.",
-);
-});
-
-it("calls a tool and normalizes its result", async () => {
-await connector.connect();
-
-await expect(
-  connector.callTool("get_apps", { top: 5 }),
-).resolves.toEqual({
-  content: [{ type: "text", text: "Success" }],
-  isError: false,
-});
-
-expect(mockClient.callTool).toHaveBeenCalledWith({
-  name: "get_apps",
-  arguments: { top: 5 },
-});
-
-});
-
-it("rejects a tool call before connecting", async () => {
-await expect(
-connector.callTool("get_apps", {}),
-).rejects.toThrow(
-"Remote AppScan MCP connector is not connected.",
-);
-});
-
-it("rejects an unsupported tool result format", async () => {
-await connector.connect();
-mockClient.callTool.mockResolvedValue({ unexpected: true });
-
-await expect(
-  connector.callTool("get_apps", {}),
-).rejects.toThrow(
-  'MCP tool "get_apps" returned an unsupported result format.',
 );
 
+}
+
+async connect(): Promise<void> {
+if (this.connected) {
+return;
+}
+
+await this.client.connect(this.transport);
+this.connected = true;
+
+}
+
+async listTools(): Promise<McpTool[]> {
+this.ensureConnected();
+
+const result = await this.client.listTools();
+
+return result.tools.map((tool: Tool) => ({
+  name: tool.name,
+  description: tool.description,
+  inputSchema: tool.inputSchema as Record<string, unknown>,
+}));
+
+}
+
+async callTool(
+name: string,
+args: Record<string, unknown>,
+): Promise<McpToolCallResult> {
+this.ensureConnected();
+
+const result: unknown = await this.client.callTool({
+  name,
+  arguments: args,
 });
 
-it("disconnects the client", async () => {
-await connector.connect();
-await connector.disconnect();
+if (
+  typeof result !== "object" ||
+  result === null ||
+  !("content" in result) ||
+  !Array.isArray(result.content)
+) {
+  throw new Error(
+    `MCP tool "${name}" returned an unsupported result format.`,
+  );
+}
 
-expect(mockClient.close).toHaveBeenCalledTimes(1);
+const content: McpToolCallResult["content"] = result.content.map(
+  (item: unknown) => {
+    if (typeof item !== "object" || item === null || !("type" in item)) {
+      throw new Error(
+        `MCP tool "${name}" returned an invalid content item.`,
+      );
+    }
 
-});
+    if (typeof item.type !== "string") {
+      throw new Error(
+        `MCP tool "${name}" returned a content item with an invalid type.`,
+      );
+    }
 
-it("does nothing when disconnecting before connecting", async () => {
-await connector.disconnect();
+    if ("text" in item && typeof item.text === "string") {
+      return { type: item.type, text: item.text };
+    }
 
-expect(mockClient.close).not.toHaveBeenCalled();
+    return { type: item.type };
+  },
+);
 
-});
-});
+return {
+  content,
+  isError:
+    "isError" in result && typeof result.isError === "boolean"
+      ? result.isError
+      : undefined,
+};
+
+}
+
+async disconnect(): Promise<void> {
+if (!this.connected) {
+return;
+}
+
+try {
+  await this.client.close();
+} finally {
+  this.connected = false;
+}
+
+}
+
+private ensureConnected(): void {
+if (!this.connected) {
+throw new Error("Remote AppScan MCP connector is not connected.");
+}
+}
+}
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "node_modules/@modelcontextprotocol/sdk/dist/esm/client/streamableHttp.d.ts" |
+>>   Select-String -Pattern "requestInit|fetch\?:|constructor\(" -Context 1,3
+
+      readonly code: number | undefined;
+>     constructor(code: number | undefined, message: string | undefined);
+  }
+  /**
+   * Options for starting or authenticating an SSE connection
+       */
+>     requestInit?: RequestInit;
+      /**
+       * Custom fetch implementation used for all network requests.
+       */
+>     fetch?: FetchLike;
+      /**
+       * How a redirect of one of the transport's requests is handled, including the OAuth requests it makes for `authProvider`.
+       *
+       *
+>      * With either value, a `requestInit.redirect` of `'error'` or `'manual'` is passed to fetch unchanged for the POST requests that carry messages and
+for DELETE requests.
+>      * The OAuth requests read `requestInit.redirect` only with `'follow'`, and GET requests do not read it.
+       */
+      redirectPolicy?: 'same-origin' | 'follow';
+      /**
+      private _scope?;
+>     private _requestInit?;
+      private _authProvider?;
+      private _fetch?;
+      private _fetchWithInit;
+      onmessage?: (message: JSONRPCMessage) => void;
+>     constructor(url: URL, opts?: StreamableHTTPClientTransportOptions);
+      /** Error text for a redirect `response` that was not followed, or `undefined` for any other response. */
+      private _unfollowedRedirect;
+      private _authThenStart;
