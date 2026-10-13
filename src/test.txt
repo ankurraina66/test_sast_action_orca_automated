@@ -1,22 +1,143 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path "node_modules/@modelcontextprotocol/sdk/dist/esm/client/index.js" -Pattern "class Client|async connect|listTools|callTool|async close"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path "node_modules/@modelcontextprotocol/sdk/dist/esm/types.d.ts" -Pattern "CallToolResultSchema|ListToolsResultSchema|ToolSchema" -Context 5,18
 
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:2:import { CallToolResultSchema, CompleteResultSchema, EmptyResultSchema, ErrorCode,
-GetPromptResultSchema, InitializeResultSchema, LATEST_PROTOCOL_VERSION, ListPromptsResultSchema, ListResourcesResultSchema,
-ListResourceTemplatesResultSchema, ListToolsResultSchema, McpError, ReadResourceResultSchema, SUPPORTED_PROTOCOL_VERSIONS, ElicitResultSchema,
-ElicitRequestSchema, CreateTaskResultSchema, CreateMessageRequestSchema, CreateMessageResultSchema, CreateMessageResultWithToolsSchema,
-ToolListChangedNotificationSchema, PromptListChangedNotificationSchema, ResourceListChangedNotificationSchema, ListChangedOptionsBaseSchema } from
-'../types.js';
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:96:export class Client extends Protocol {
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:123:                const result = await this.listTools();
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:274:    async connect(transport, options) {
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:477:     * For task-based execution with streaming behavior, use
-client.experimental.tasks.callToolStream() instead.
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:479:    async callTool(params, resultSchema = CallToolResultSchema, options) {
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:482:            throw new McpError(ErrorCode.InvalidRequest, `Tool "${params.name}"
-requires task-based execution. Use client.experimental.tasks.callToolStream() instead.`);
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:526:     * Called after listTools() to pre-compile validators for better performance.
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:554:    async listTools(params, options) {
-node_modules\@modelcontextprotocol\sdk\dist\esm\client\index.js:555:        const result = await this.request({ method: 'tools/list', params },
-ListToolsResultSchema, options);
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2376:    }>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2377:}, z.core.$strip>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2378:/**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2379: * Definition for a tool the client can call.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2380: */
+> node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2381:export declare const ToolSchema: z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2382:    description: z.ZodOptional<z.ZodString>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2383:    inputSchema: z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2384:        type: z.ZodLiteral<"object">;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2385:        properties: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodCustom<object, object>>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2386:        required: z.ZodOptional<z.ZodArray<z.ZodString>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2387:    }, z.core.$catchall<z.ZodUnknown>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2388:    outputSchema: z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2389:        type: z.ZodLiteral<"object">;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2390:        properties: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodCustom<object, object>>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2391:        required: z.ZodOptional<z.ZodArray<z.ZodString>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2392:    }, z.core.$catchall<z.ZodUnknown>>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2393:    annotations: z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2394:        title: z.ZodOptional<z.ZodString>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2395:        readOnlyHint: z.ZodOptional<z.ZodBoolean>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2396:        destructiveHint: z.ZodOptional<z.ZodBoolean>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2397:        idempotentHint: z.ZodOptional<z.ZodBoolean>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2398:        openWorldHint: z.ZodOptional<z.ZodBoolean>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2399:    }, z.core.$strip>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2439:    method: z.ZodLiteral<"tools/list">;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2440:}, z.core.$strip>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2441:/**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2442: * The server's response to a tools/list request from the client.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2443: */
+> node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2444:export declare const ListToolsResultSchema: z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2445:    _meta: z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2446:        /**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2447:         * If specified, the caller is requesting out-of-band progress notifications for
+this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent
+notifications. The receiver is not obligated to provide these notifications.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2448:         */
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2449:        progressToken: z.ZodOptional<z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2450:        /**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2451:         * If specified, this request is related to the provided task.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2452:         */
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2453:        "io.modelcontextprotocol/related-task": z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2454:            taskId: z.ZodString;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2455:        }, z.core.$strip>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2456:    }, z.core.$loose>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2457:    nextCursor: z.ZodOptional<z.ZodString>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2458:    tools: z.ZodArray<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2459:        description: z.ZodOptional<z.ZodString>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2460:        inputSchema: z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2461:            type: z.ZodLiteral<"object">;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2462:            properties: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodCustom<object,
+object>>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2496:    }, z.core.$strip>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2497:}, z.core.$loose>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2498:/**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2499: * The server's response to a tool call.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2500: */
+> node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2501:export declare const CallToolResultSchema: z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2502:    _meta: z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2503:        /**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2504:         * If specified, the caller is requesting out-of-band progress notifications for
+this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent
+notifications. The receiver is not obligated to provide these notifications.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2505:         */
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2506:        progressToken: z.ZodOptional<z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2507:        /**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2508:         * If specified, this request is related to the provided task.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2509:         */
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2510:        "io.modelcontextprotocol/related-task": z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2511:            taskId: z.ZodString;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2512:        }, z.core.$strip>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2513:    }, z.core.$loose>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2514:    content: z.ZodDefault<z.ZodArray<z.ZodUnion<readonly [z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2515:        type: z.ZodLiteral<"text">;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2516:        text: z.ZodString;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2517:        annotations: z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2518:            audience: z.ZodOptional<z.ZodArray<z.ZodEnum<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2519:                user: "user";
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2600:    }, z.core.$strip>]>>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2601:    structuredContent: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2602:    isError: z.ZodOptional<z.ZodBoolean>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2603:}, z.core.$loose>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2604:/**
+> node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2605: * CallToolResultSchema extended with backwards compatibility to protocol version
+2024-10-07.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2606: */
+> node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2607:export declare const CompatibilityCallToolResultSchema: z.ZodUnion<[z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2608:    _meta: z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2609:        /**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2610:         * If specified, the caller is requesting out-of-band progress notifications for
+this request (as represented by notifications/progress). The value of this parameter is an opaque token that will be attached to any subsequent
+notifications. The receiver is not obligated to provide these notifications.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2611:         */
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2612:        progressToken: z.ZodOptional<z.ZodUnion<readonly [z.ZodString, z.ZodNumber]>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2613:        /**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2614:         * If specified, this request is related to the provided task.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2615:         */
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2616:        "io.modelcontextprotocol/related-task": z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2617:            taskId: z.ZodString;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2618:        }, z.core.$strip>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2619:    }, z.core.$loose>>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2620:    content: z.ZodDefault<z.ZodArray<z.ZodUnion<readonly [z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2621:        type: z.ZodLiteral<"text">;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2622:        text: z.ZodString;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2623:        annotations: z.ZodOptional<z.ZodObject<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2624:            audience: z.ZodOptional<z.ZodArray<z.ZodEnum<{
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:2625:                user: "user";
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8080:export type PromptMessage = Infer<typeof PromptMessageSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8081:export type GetPromptResult = Infer<typeof GetPromptResultSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8082:export type PromptListChangedNotification = Infer<typeof
+PromptListChangedNotificationSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8083:export type ToolAnnotations = Infer<typeof ToolAnnotationsSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8084:export type ToolExecution = Infer<typeof ToolExecutionSchema>;
+> node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8085:export type Tool = Infer<typeof ToolSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8086:export type ListToolsRequest = Infer<typeof ListToolsRequestSchema>;
+> node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8087:export type ListToolsResult = Infer<typeof ListToolsResultSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8088:export type CallToolRequestParams = Infer<typeof CallToolRequestParamsSchema>;
+> node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8089:export type CallToolResult = Infer<typeof CallToolResultSchema>;
+> node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8090:export type CompatibilityCallToolResult = Infer<typeof
+CompatibilityCallToolResultSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8091:export type CallToolRequest = Infer<typeof CallToolRequestSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8092:export type ToolListChangedNotification = Infer<typeof
+ToolListChangedNotificationSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8093:export type LoggingLevel = Infer<typeof LoggingLevelSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8094:export type SetLevelRequestParams = Infer<typeof SetLevelRequestParamsSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8095:export type SetLevelRequest = Infer<typeof SetLevelRequestSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8096:export type LoggingMessageNotificationParams = Infer<typeof
+LoggingMessageNotificationParamsSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8097:export type LoggingMessageNotification = Infer<typeof LoggingMessageNotificationSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8098:export type ToolChoice = Infer<typeof ToolChoiceSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8099:export type ModelHint = Infer<typeof ModelHintSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8100:export type ModelPreferences = Infer<typeof ModelPreferencesSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8101:export type SamplingContent = Infer<typeof SamplingContentSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8102:export type SamplingMessageContentBlock = Infer<typeof
+SamplingMessageContentBlockSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8103:export type SamplingMessage = Infer<typeof SamplingMessageSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8104:export type CreateMessageRequestParams = Infer<typeof CreateMessageRequestParamsSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8105:export type CreateMessageRequest = Infer<typeof CreateMessageRequestSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8106:export type CreateMessageResult = Infer<typeof CreateMessageResultSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8107:export type CreateMessageResultWithTools = Infer<typeof
+CreateMessageResultWithToolsSchema>;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\types.d.ts:8108:/**
