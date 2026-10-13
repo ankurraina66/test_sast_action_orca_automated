@@ -1,2 +1,47 @@
-Get-Content "node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.d.ts" |
-  Select-Object -Skip 55 -First 45
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.d.ts" |
+>>   Select-Object -Skip 55 -First 45
+ */
+export declare const DEFAULT_REQUEST_TIMEOUT_MSEC = 60000;
+/**
+ * Options that can be given per request.
+ */
+export type RequestOptions = {
+    /**
+     * If set, requests progress notifications from the remote end (if supported). When progress notifications are received, this callback will be invoked.
+     *
+     * For task-augmented requests: progress notifications continue after CreateTaskResult is returned and stop automatically when the task reaches a terminal status.
+     */
+    onprogress?: ProgressCallback;
+    /**
+     * Can be used to cancel an in-flight request. This will cause an AbortError to be raised from request().
+     */
+    signal?: AbortSignal;
+    /**
+     * A timeout (in milliseconds) for this request. If exceeded, an McpError with code `RequestTimeout` will be raised from request().
+     *
+     * If not specified, `DEFAULT_REQUEST_TIMEOUT_MSEC` will be used as the timeout.
+     */
+    timeout?: number;
+    /**
+     * If true, receiving a progress notification will reset the request timeout.
+     * This is useful for long-running operations that send periodic progress updates.
+     * Default: false
+     */
+    resetTimeoutOnProgress?: boolean;
+    /**
+     * Maximum total time (in milliseconds) to wait for a response.
+     * If exceeded, an McpError with code `RequestTimeout` will be raised, regardless of progress notifications.
+     * If not specified, there is no maximum total timeout.
+     */
+    maxTotalTimeout?: number;
+    /**
+     * If provided, augments the request with task creation parameters to enable call-now, fetch-later execution patterns.
+     */
+    task?: TaskCreationParams;
+    /**
+     * If provided, associates this request with a related task.
+     */
+    relatedTask?: RelatedTaskMetadata;
+} & TransportSendOptions;
+/**
+ * Options that can be given per notification.
