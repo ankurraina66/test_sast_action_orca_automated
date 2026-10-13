@@ -1,4 +1,3 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content tests/unit/appscan-service.test.ts
 import { describe, expect, it, vi } from "vitest";
 
 import { AppScanService } from "../../src/services/appscan-service.js"; import type { AppScanMcpConnector, McpTool, McpToolCallResult, } from "../../src/mcp/connector.js";
@@ -37,6 +36,46 @@ await expect(
 expect(connector.callTool).toHaveBeenCalledWith("get-apps", {
   top: 5,
 });
+});
+
+it("recognizes the remote get_apps tool name", async () => {
+  const connector = createMockConnector();
+
+  vi.mocked(connector.listTools).mockResolvedValue([
+    {
+      name: "get_apps",
+      description: "List applications",
+      inputSchema: { type: "object", properties: {} },
+    },
+  ]);
+
+  const service = new AppScanService(connector);
+
+  await expect(service.findApplicationDiscoveryTool()).resolves.toMatchObject({
+    name: "get_apps",
+  });
+});
+
+it("discovers applications using the available tool name", async () => {
+  const connector = createMockConnector();
+  const service = new AppScanService(connector);
+
+  await service.discoverApplications({ top: 5 });
+
+  expect(connector.callTool).toHaveBeenCalledWith("get-apps", {
+    top: 5,
+  });
+});
+
+it("reports when no recognized application discovery tool exists", async () => {
+  const connector = createMockConnector();
+  vi.mocked(connector.listTools).mockResolvedValue([]);
+
+  const service = new AppScanService(connector);
+
+  await expect(service.discoverApplications()).rejects.toThrow(
+    "The configured AppScan MCP server does not expose a recognized application discovery tool.",
+  );
 });
 
 it("disconnects through the configured connector", async () => { const connector = createMockConnector(); const service = new AppScanService(connector);
