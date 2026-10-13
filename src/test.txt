@@ -1,6 +1,47 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content src/services/appscan-service-factory.ts
-import { loadConfig } from "../config/config.js"; import { createConnector } from "../mcp/connector-factory.js"; import { AppScanService } from "./appscan-service.js";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content tests/unit/appscan-service.test.ts
+import { describe, expect, it, vi } from "vitest";
 
-export function createAppScanService(): AppScanService { const config = loadConfig(); const connector = createConnector(config);
+import { AppScanService } from "../../src/services/appscan-service.js"; import type { AppScanMcpConnector, McpTool, McpToolCallResult, } from "../../src/mcp/connector.js";
 
-return new AppScanService(connector); }
+describe("AppScanService", () => { function createMockConnector(): AppScanMcpConnector { return { connect: vi.fn().mockResolvedValue(undefined), listTools: vi.fn().mockResolvedValue([ { name: "get-apps", description: "List AppScan applications", inputSchema: { type: "object", properties: {} }, } satisfies McpTool, ]), callTool: vi.fn().mockResolvedValue({ content: [{ type: "text", text: "Success" }], isError: false, } satisfies McpToolCallResult), disconnect: vi.fn().mockResolvedValue(undefined), }; }
+
+it("connects through the configured connector", async () => { const connector = createMockConnector(); const service = new AppScanService(connector);
+
+await service.connect();
+
+expect(connector.connect).toHaveBeenCalledTimes(1);
+});
+
+it("lists tools through the configured connector", async () => { const connector = createMockConnector(); const service = new AppScanService(connector);
+
+await expect(service.listTools()).resolves.toEqual([
+  {
+    name: "get-apps",
+    description: "List AppScan applications",
+    inputSchema: { type: "object", properties: {} },
+  },
+]);
+
+expect(connector.listTools).toHaveBeenCalledTimes(1);
+});
+
+it("delegates tool calls and arguments to the connector", async () => { const connector = createMockConnector(); const service = new AppScanService(connector);
+
+await expect(
+  service.callTool("get-apps", { top: 5 }),
+).resolves.toEqual({
+  content: [{ type: "text", text: "Success" }],
+  isError: false,
+});
+
+expect(connector.callTool).toHaveBeenCalledWith("get-apps", {
+  top: 5,
+});
+});
+
+it("disconnects through the configured connector", async () => { const connector = createMockConnector(); const service = new AppScanService(connector);
+
+await service.disconnect();
+
+expect(connector.disconnect).toHaveBeenCalledTimes(1);
+}); });
