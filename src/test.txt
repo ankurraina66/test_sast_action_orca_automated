@@ -1,6 +1,110 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content src/services/appscan-service-factory.ts
-import { loadConfig } from "../config/config.js"; import { createConnector } from "../mcp/connector-factory.js"; import { AppScanService } from "./appscan-service.js";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content tests/unit/connector-factory.test.ts
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-export function createAppScanService(): AppScanService { const config = loadConfig(); const connector = createConnector(config);
+const {
+  mockLocalConstructor,
+  mockRemoteConstructor,
+  mockLocalInstance,
+  mockRemoteInstance,
+  } = vi.hoisted(() => ({
+   mockLocalConstructor: vi.fn(),
+   mockRemoteConstructor: vi.fn(),
+   mockLocalInstance: { provider: "local-mock" },
+   mockRemoteInstance: { provider: "remote-mock" },
+}));
 
-return new AppScanService(connector); }
+vi.mock("../../src/mcp/local-stdio-connector.js", () => ({
+  LocalStdioConnector: class {
+    constructor(options: unknown) {
+      mockLocalConstructor(options);
+      return mockLocalInstance;
+    }
+  },
+}));
+
+vi.mock("../../src/mcp/remote-http-connector.js", () => ({
+  RemoteHttpConnector: class {
+    constructor(options: unknown) {
+      mockRemoteConstructor(options);
+      return mockRemoteInstance;
+    }
+  },
+}));
+
+import { createConnector } from "../../src/mcp/connector-factory.js";
+import type { ConnectorConfig } from "../../src/config/config.js";
+
+describe("createConnector", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("creates the remote connector for remote configuration", () => {
+    const config: ConnectorConfig = {
+      provider: "remote",
+      requestTimeoutMs: 30000,
+      remote: {
+        endpoint: "https://cloud.appscan.com/mcp",
+        apiKey: "test-key",
+      },
+    };
+
+    const result = createConnector(config);
+
+    expect(mockRemoteConstructor).toHaveBeenCalledWith({
+      endpoint: "https://cloud.appscan.com/mcp",
+      apiKey: "test-key",
+      requestTimeoutMs: 30000,
+    });
+    expect(mockLocalConstructor).not.toHaveBeenCalled();
+    expect(result).toEqual({ provider: "remote-mock" });
+  });
+
+  it("creates the local connector for local configuration", () => {
+    const config: ConnectorConfig = {
+      provider: "local",
+      requestTimeoutMs: 30000,
+      local: {
+        command: "node",
+        args: ["server.js"],
+        serverPath: "server.js",
+        apiBase: "https://cloud.appscan.com",
+        keyId: "test-id",
+        keySecret: "test-secret",
+      },
+    };
+
+    const result = createConnector(config);
+
+    expect(mockLocalConstructor).toHaveBeenCalledWith({
+      command: "node",
+      args: ["server.js"],
+      requestTimeoutMs: 30000,
+      env: {
+        APPSCAN_API_BASE: "https://cloud.appscan.com",
+        APPSCAN_KEY_ID: "test-id",
+        APPSCAN_KEY_SECRET: "test-secret",
+      },
+    });
+    expect(mockRemoteConstructor).not.toHaveBeenCalled();
+    expect(result).toEqual({ provider: "local-mock" });
+  });
+
+  it("rejects missing remote configuration", () => {
+    expect(() =>
+      createConnector({
+        provider: "remote",
+        requestTimeoutMs: 30000,
+      }),
+    ).toThrow("Remote connector configuration is missing.");
+  });
+
+  it("rejects missing local configuration", () => {
+    expect(() =>
+      createConnector({
+        provider: "local",
+        requestTimeoutMs: 30000,
+      }),
+    ).toThrow("Local connector configuration is missing.");
+  });
+});
