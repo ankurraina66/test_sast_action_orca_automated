@@ -1,17 +1,106 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run typecheck
+Updated local-stdio-connector.ts
+Please verify:
 
-> ai-coding-assistants-claude-poc@1.0.0 typecheck
-> tsc --noEmit
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types.js";
 
-src/mcp/local-stdio-connector.ts:66:11 - error TS2322: Type '{ [x: string]: unknown; content: ({ type: "text"; text: string; annotations?: { audience?: ("assistant" | "user")[] | undefined; priority?: number | undefined; lastModified?: string | undefined; } | undefined; _meta?: Record<...> | undefined; } | { ...; } | { ...; } | { ...; } | { ...; })[]; _meta?: { ...; } | undef...' is not assignable to type '{ [x: string]: unknown; _meta?: { [x: string]: unknown; progressToken?: string | number | undefined; "io.modelcontextprotocol/related-task"?: { taskId: string; } | undefined; } | undefined; content: ({ ...; } | ... 3 more ... | { ...; })[]; structuredContent?: { ...; } | undefined; isError?: boolean | undefined; }'.
-  Property 'content' is missing in type '{ [x: string]: unknown; toolResult: unknown; _meta?: { [x: string]: unknown; progressToken?: string | number | undefined; "io.modelcontextprotocol/related-task"?: { taskId: string; } | undefined; } | undefined; }' but required in type '{ [x: string]: unknown; _meta?: { [x: string]: unknown; progressToken?: string | number | undefined; "io.modelcontextprotocol/related-task"?: { taskId: string; } | undefined; } | undefined; content: ({ ...; } | ... 3 more ... | { ...; })[]; structuredContent?: { ...; } | undefined; isError?: boolean | undefined; }'.
+import type {
+  AppScanMcpConnector,
+  McpTool,
+  McpToolCallResult,
+} from "./connector.js";
 
-66     const result: CallToolResult = await this.client.callTool({
-             ~~~~~~
+export interface LocalStdioConnectorOptions {
+  command: string;
+  args: string[];
+  env?: Record<string, string>;
+  cwd?: string;
+  requestTimeoutMs?: number;
+}
 
-  node_modules/@modelcontextprotocol/sdk/dist/esm/types.d.ts:2514:5 - 'content' is declared here.
-    2514     content: z.ZodDefault<z.ZodArray<z.ZodUnion<readonly [z.ZodObject<{
-             ~~~~~~~
+export class LocalStdioConnector implements AppScanMcpConnector {
+  private readonly client: Client;
+  private readonly transport: StdioClientTransport;
+  private connected = false;
 
+  constructor(options: LocalStdioConnectorOptions) {
+    this.client = new Client({
+      name: "hcl-appscan-connector-for-claude",
+      version: "0.1.0",
+    });
 
-Found 1 error in src/mcp/local-stdio-connector.ts:66
+    this.transport = new StdioClientTransport({
+      command: options.command,
+      args: options.args,
+      env: options.env,
+      cwd: options.cwd,
+      stderr: "inherit",
+    });
+  }
+
+  async connect(): Promise<void> {
+    if (this.connected) {
+      return;
+    }
+
+    await this.client.connect(this.transport);
+    this.connected = true;
+  }
+
+  async listTools(): Promise<McpTool[]> {
+    this.ensureConnected();
+
+    const result = await this.client.listTools();
+
+    return result.tools.map((tool: Tool) => ({
+      name: tool.name,
+      description: tool.description,
+      inputSchema: tool.inputSchema as Record<string, unknown>,
+    }));
+  }
+
+  async callTool(
+    name: string,
+    args: Record<string, unknown>,
+  ): Promise<McpToolCallResult> {
+    this.ensureConnected();
+
+    const result = await this.client.callTool({
+      name,
+      arguments: args,
+    });
+
+    if (!("content" in result)) {
+      throw new Error(
+        `MCP tool "${name}" returned an unsupported compatibility result.`,
+      );
+    }
+
+    return {
+      content: result.content.map((item) => ({
+        type: item.type,
+        ...("text" in item ? { text: item.text } : {}),
+      })),
+      isError: result.isError,
+    };
+  }
+
+  async disconnect(): Promise<void> {
+    if (!this.connected) {
+      return;
+    }
+
+    try {
+      await this.client.close();
+    } finally {
+      this.connected = false;
+    }
+  }
+
+  private ensureConnected(): void {
+    if (!this.connected) {
+      throw new Error("Local AppScan MCP connector is not connected.");
+    }
+  }
+}
