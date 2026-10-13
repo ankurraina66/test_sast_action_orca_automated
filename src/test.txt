@@ -1,140 +1,144 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-const { mockClient, mockTransport } = vi.hoisted(() => ({
-mockClient: {
-connect: vi.fn(),
-listTools: vi.fn(),
-callTool: vi.fn(),
-close: vi.fn(),
-},
-mockTransport: vi.fn(),
-}));
+import type {
+  AppScanMcpConnector,
+  McpTool,
+  McpToolCallResult,
+} from "./connector.js";
 
-vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
-Client: vi.fn(function () {
-  return mockClient;
-}),
-}));
+export interface LocalStdioConnectorOptions {
+  command: string;
+  args: string[];
+  env?: Record<string, string>;
+  cwd?: string;
+  requestTimeoutMs?: number;
+}
 
-vi.mock("@modelcontextprotocol/sdk/client/stdio.js", () => ({
-StdioClientTransport: mockTransport,
-}));
+export class LocalStdioConnector implements AppScanMcpConnector {
+  private readonly client: Client;
+  private readonly transport: StdioClientTransport;
+  private readonly requestTimeoutMs: number;
+  private connected = false;
 
-import { LocalStdioConnector } from "../../src/mcp/local-stdio-connector.js";
+  constructor(options: LocalStdioConnectorOptions) {
+    this.requestTimeoutMs = options.requestTimeoutMs ?? 30000;
 
-describe("LocalStdioConnector", () => {
-let connector: LocalStdioConnector;
+    this.client = new Client({
+      name: "hcl-appscan-connector-for-claude",
+      version: "0.1.0",
+    });
 
-beforeEach(() => {
-vi.clearAllMocks();
-mockClient.connect.mockResolvedValue(undefined);
-mockClient.listTools.mockResolvedValue({ tools: [] });
-mockClient.callTool.mockResolvedValue({
-content: [{ type: "text", text: "Success" }],
-isError: false,
-});
-mockClient.close.mockResolvedValue(undefined);
+    this.transport = new StdioClientTransport({
+      command: options.command,
+      args: options.args,
+      env: options.env,
+      cwd: options.cwd,
+      stderr: "inherit",
+    });
+  }
 
-connector = new LocalStdioConnector({
-  command: "node",
-  args: ["build/index.js"],
-});
+  async connect(): Promise<void> {
+    if (this.connected) {
+      return;
+    }
 
-});
+    await this.client.connect(this.transport);
+    this.connected = true;
+  }
 
-it("connects to the local MCP server", async () => {
-await connector.connect();
+  async listTools(): Promise<McpTool[]> {
+    this.ensureConnected();
 
-expect(mockClient.connect).toHaveBeenCalledTimes(1);
+    const result = await this.client.listTools(
+      {},
+      { timeout: this.requestTimeoutMs },
+    );
 
-});
+    return result.tools.map((tool: Tool) => ({
+      name: tool.name,
+      description: tool.description,
+      inputSchema: tool.inputSchema as Record<string, unknown>,
+    }));
+  }
 
-it("does not connect twice when already connected", async () => {
-await connector.connect();
-await connector.connect();
+  async callTool(
+    name: string,
+    args: Record<string, unknown>,
+  ): Promise<McpToolCallResult> {
+    this.ensureConnected();
 
-expect(mockClient.connect).toHaveBeenCalledTimes(1);
+    const result: unknown = await this.client.callTool(
+      {
+        name,
+        arguments: args,
+      },
+      undefined,
+      {
+        timeout: this.requestTimeoutMs,
+      },
+    );
 
-});
+    if (
+      typeof result !== "object" ||
+      result === null ||
+      !("content" in result) ||
+      !Array.isArray(result.content)
+    ) {
+      throw new Error(
+        `MCP tool "${name}" returned an unsupported result format.`,
+      );
+    }
 
-it("lists tools exposed by the MCP server", async () => {
-mockClient.listTools.mockResolvedValue({
-tools: [
-{
-name: "get-apps",
-description: "List AppScan applications",
-inputSchema: { type: "object", properties: {} },
-},
-],
-});
+    const content: McpToolCallResult["content"] = result.content.map(
+      (item: unknown) => {
+        if (typeof item !== "object" || item === null || !("type" in item)) {
+          throw new Error(
+            `MCP tool "${name}" returned an invalid content item.`,
+          );
+        }
 
-await connector.connect();
+        const type = item.type;
 
-await expect(connector.listTools()).resolves.toEqual([
-  {
-    name: "get-apps",
-    description: "List AppScan applications",
-    inputSchema: { type: "object", properties: {} },
-  },
-]);
+        if (typeof type !== "string") {
+          throw new Error(
+            `MCP tool "${name}" returned a content item with an invalid type.`,
+          );
+        }
 
-});
+        if ("text" in item && typeof item.text === "string") {
+          return { type, text: item.text };
+        }
 
-it("rejects tool listing before connecting", async () => {
-await expect(connector.listTools()).rejects.toThrow(
-"Local AppScan MCP connector is not connected.",
-);
-});
+        return { type };
+      },
+    );
 
-it("calls a tool and normalizes its result", async () => {
-await connector.connect();
+    return {
+      content,
+      isError:
+        "isError" in result && typeof result.isError === "boolean"
+          ? result.isError
+          : undefined,
+    };
+  }
 
-await expect(
-  connector.callTool("get-apps", { top: 5 }),
-).resolves.toEqual({
-  content: [{ type: "text", text: "Success" }],
-  isError: false,
-});
+  async disconnect(): Promise<void> {
+    if (!this.connected) {
+      return;
+    }
 
-expect(mockClient.callTool).toHaveBeenCalledWith({
-  name: "get-apps",
-  arguments: { top: 5 },
-});
+    try {
+      await this.client.close();
+    } finally {
+      this.connected = false;
+    }
+  }
 
-});
-
-it("rejects a tool call before connecting", async () => {
-await expect(
-connector.callTool("get-apps", {}),
-).rejects.toThrow(
-"Local AppScan MCP connector is not connected.",
-);
-});
-
-it("rejects an unsupported tool result format", async () => {
-await connector.connect();
-mockClient.callTool.mockResolvedValue({ unexpected: true });
-
-await expect(
-  connector.callTool("get-apps", {}),
-).rejects.toThrow(
-  'MCP tool "get-apps" returned an unsupported result format.',
-);
-
-});
-
-it("disconnects the client", async () => {
-await connector.connect();
-await connector.disconnect();
-
-expect(mockClient.close).toHaveBeenCalledTimes(1);
-
-});
-
-it("does nothing when disconnecting before connecting", async () => {
-await connector.disconnect();
-
-expect(mockClient.close).not.toHaveBeenCalled();
-
-});
-});
+  private ensureConnected(): void {
+    if (!this.connected) {
+      throw new Error("Local AppScan MCP connector is not connected.");
+    }
+  }
+}
