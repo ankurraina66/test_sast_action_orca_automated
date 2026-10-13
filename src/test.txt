@@ -1,97 +1,52 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content tests/unit/connector-factory.test.ts
-import { beforeEach, describe, expect, it, vi } from "vitest";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm test
 
-const { mockLocalConstructor, mockRemoteConstructor } = vi.hoisted(
-  () => ({
-    mockLocalConstructor: vi.fn(),
-    mockRemoteConstructor: vi.fn(),
-  }),
-);
+> ai-coding-assistants-claude-poc@1.0.0 test
+> vitest run
 
-vi.mock("../../src/mcp/local-stdio-connector.js", () => ({
-  LocalStdioConnector: mockLocalConstructor,
-}));
 
-vi.mock("../../src/mcp/remote-http-connector.js", () => ({
-  RemoteHttpConnector: mockRemoteConstructor,
-}));
+ RUN  v5.0.3 C:/Users/ankur.raina/ai-coding-assistants-claude-poc
 
-import { createConnector } from "../../src/mcp/connector-factory.js";
-import type { ConnectorConfig } from "../../src/config/config.js";
+ ✓ tests/unit/config.test.ts (11 tests) 6ms
+ ✓ tests/unit/index.test.ts (1 test) 2ms
+ ✓ tests/unit/remote-http-connector.test.ts (9 tests) 7ms
+ ✓ tests/unit/local-stdio-connector.test.ts (9 tests) 6ms
+ ❯ tests/unit/connector-factory.test.ts (4 tests | 2 failed) 11ms
+   ❯ createConnector (4)
+     × creates the remote connector for remote configuration 6ms
+     × creates the local connector for local configuration 1ms
+     ✓ rejects missing remote configuration 1ms
+     ✓ rejects missing local configuration 1ms
 
-describe("createConnector", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockLocalConstructor.mockReturnValue({ provider: "local-mock" });
-    mockRemoteConstructor.mockReturnValue({ provider: "remote-mock" });
-  });
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 
-  it("creates the remote connector for remote configuration", () => {
-    const config: ConnectorConfig = {
-      provider: "remote",
-      requestTimeoutMs: 30000,
-      remote: {
-        endpoint: "https://cloud.appscan.com/mcp",
-        apiKey: "test-key",
-      },
-    };
+ FAIL  tests/unit/connector-factory.test.ts > createConnector > creates the remote connector for remote configuration
+TypeError: Cannot use `mockReturnValue` when called with `new`. Use `mockImplementation` with a `class` keyword instead. See https://vitest.dev/api/mock#class-support for more information.
+ ❯ Module.createConnector src/mcp/connector-factory.ts:38:10
+     36|   }
+     37|
+     38|   return new RemoteHttpConnector({
+       |          ^
+     39|     endpoint: config.remote.endpoint,
+     40|     apiKey: config.remote.apiKey,
+ ❯ tests/unit/connector-factory.test.ts:38:20
 
-    const result = createConnector(config);
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
 
-    expect(mockRemoteConstructor).toHaveBeenCalledWith({
-      endpoint: "https://cloud.appscan.com/mcp",
-      apiKey: "test-key",
-      requestTimeoutMs: 30000,
-    });
-    expect(mockLocalConstructor).not.toHaveBeenCalled();
-    expect(result).toEqual({ provider: "remote-mock" });
-  });
+ FAIL  tests/unit/connector-factory.test.ts > createConnector > creates the local connector for local configuration
+TypeError: Cannot use `mockReturnValue` when called with `new`. Use `mockImplementation` with a `class` keyword instead. See https://vitest.dev/api/mock#class-support for more information.
+ ❯ Module.createConnector src/mcp/connector-factory.ts:16:12
+     14|     }
+     15|
+     16|     return new LocalStdioConnector({
+       |            ^
+     17|       command: config.local.command,
+     18|       args: config.local.args,
+ ❯ tests/unit/connector-factory.test.ts:63:20
 
-  it("creates the local connector for local configuration", () => {
-    const config: ConnectorConfig = {
-      provider: "local",
-      requestTimeoutMs: 30000,
-      local: {
-        command: "node",
-        args: ["server.js"],
-        serverPath: "server.js",
-        apiBase: "https://cloud.appscan.com",
-        keyId: "test-id",
-        keySecret: "test-secret",
-      },
-    };
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
 
-    const result = createConnector(config);
 
-    expect(mockLocalConstructor).toHaveBeenCalledWith({
-      command: "node",
-      args: ["server.js"],
-      requestTimeoutMs: 30000,
-      env: {
-        APPSCAN_API_BASE: "https://cloud.appscan.com",
-        APPSCAN_KEY_ID: "test-id",
-        APPSCAN_KEY_SECRET: "test-secret",
-      },
-    });
-    expect(mockRemoteConstructor).not.toHaveBeenCalled();
-    expect(result).toEqual({ provider: "local-mock" });
-  });
-
-  it("rejects missing remote configuration", () => {
-    expect(() =>
-      createConnector({
-        provider: "remote",
-        requestTimeoutMs: 30000,
-      }),
-    ).toThrow("Remote connector configuration is missing.");
-  });
-
-  it("rejects missing local configuration", () => {
-    expect(() =>
-      createConnector({
-        provider: "local",
-        requestTimeoutMs: 30000,
-      }),
-    ).toThrow("Local connector configuration is missing.");
-  });
-});
+ Test Files  1 failed | 4 passed (5)
+      Tests  2 failed | 32 passed (34)
+   Start at  12:22:10
+   Duration  397ms (transform 66%, import 23%, tests 6%, worker 5%)
