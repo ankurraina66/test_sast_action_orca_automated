@@ -1,106 +1,26 @@
-Updated local-stdio-connector.ts
-Please verify:
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run typecheck
 
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import type { CallToolResult, Tool } from "@modelcontextprotocol/sdk/types.js";
+> ai-coding-assistants-claude-poc@1.0.0 typecheck
+> tsc --noEmit
 
-import type {
-  AppScanMcpConnector,
-  McpTool,
-  McpToolCallResult,
-} from "./connector.js";
+src/mcp/local-stdio-connector.ts:78:16 - error TS18046: 'result.content' is of type 'unknown'.
 
-export interface LocalStdioConnectorOptions {
-  command: string;
-  args: string[];
-  env?: Record<string, string>;
-  cwd?: string;
-  requestTimeoutMs?: number;
-}
+78       content: result.content.map((item) => ({
+                  ~~~~~~~~~~~~~~
 
-export class LocalStdioConnector implements AppScanMcpConnector {
-  private readonly client: Client;
-  private readonly transport: StdioClientTransport;
-  private connected = false;
+src/mcp/local-stdio-connector.ts:78:36 - error TS7006: Parameter 'item' implicitly has an 'any' type.
 
-  constructor(options: LocalStdioConnectorOptions) {
-    this.client = new Client({
-      name: "hcl-appscan-connector-for-claude",
-      version: "0.1.0",
-    });
+78       content: result.content.map((item) => ({
+                                      ~~~~
 
-    this.transport = new StdioClientTransport({
-      command: options.command,
-      args: options.args,
-      env: options.env,
-      cwd: options.cwd,
-      stderr: "inherit",
-    });
-  }
+src/mcp/local-stdio-connector.ts:82:7 - error TS2322: Type 'unknown' is not assignable to type 'boolean | undefined'.
 
-  async connect(): Promise<void> {
-    if (this.connected) {
-      return;
-    }
+82       isError: result.isError,
+         ~~~~~~~
 
-    await this.client.connect(this.transport);
-    this.connected = true;
-  }
+  src/mcp/connector.ts:12:3 - The expected type comes from property 'isError' which is declared here on type 'McpToolCallResult'
+    12   isError?: boolean;
+         ~~~~~~~
 
-  async listTools(): Promise<McpTool[]> {
-    this.ensureConnected();
 
-    const result = await this.client.listTools();
-
-    return result.tools.map((tool: Tool) => ({
-      name: tool.name,
-      description: tool.description,
-      inputSchema: tool.inputSchema as Record<string, unknown>,
-    }));
-  }
-
-  async callTool(
-    name: string,
-    args: Record<string, unknown>,
-  ): Promise<McpToolCallResult> {
-    this.ensureConnected();
-
-    const result = await this.client.callTool({
-      name,
-      arguments: args,
-    });
-
-    if (!("content" in result)) {
-      throw new Error(
-        `MCP tool "${name}" returned an unsupported compatibility result.`,
-      );
-    }
-
-    return {
-      content: result.content.map((item) => ({
-        type: item.type,
-        ...("text" in item ? { text: item.text } : {}),
-      })),
-      isError: result.isError,
-    };
-  }
-
-  async disconnect(): Promise<void> {
-    if (!this.connected) {
-      return;
-    }
-
-    try {
-      await this.client.close();
-    } finally {
-      this.connected = false;
-    }
-  }
-
-  private ensureConnected(): void {
-    if (!this.connected) {
-      throw new Error("Local AppScan MCP connector is not connected.");
-    }
-  }
-}
+Found 3 errors in the same file, starting at: src/mcp/local-stdio-connector.ts:78
