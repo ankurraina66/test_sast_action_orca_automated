@@ -1,52 +1,44 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm test
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content src/mcp/connector-factory.ts
+import type { ConnectorConfig } from "../config/config.js";
+import type { AppScanMcpConnector } from "./connector.js";
+import { LocalStdioConnector } from "./local-stdio-connector.js";
+import { RemoteHttpConnector } from "./remote-http-connector.js";
 
-> ai-coding-assistants-claude-poc@1.0.0 test
-> vitest run
+export function createConnector(
+  config: ConnectorConfig,
+): AppScanMcpConnector {
+  if (config.provider === "local") {
+    if (!config.local) {
+      throw new Error(
+        "Local connector configuration is missing.",
+      );
+    }
 
+    return new LocalStdioConnector({
+      command: config.local.command,
+      args: config.local.args,
+      requestTimeoutMs: config.requestTimeoutMs,
+      env: {
+        APPSCAN_API_BASE: config.local.apiBase,
+        ...(config.local.keyId
+          ? { APPSCAN_KEY_ID: config.local.keyId }
+          : {}),
+        ...(config.local.keySecret
+          ? { APPSCAN_KEY_SECRET: config.local.keySecret }
+          : {}),
+      },
+    });
+  }
 
- RUN  v5.0.3 C:/Users/ankur.raina/ai-coding-assistants-claude-poc
+  if (!config.remote) {
+    throw new Error(
+      "Remote connector configuration is missing.",
+    );
+  }
 
- ✓ tests/unit/config.test.ts (11 tests) 6ms
- ✓ tests/unit/index.test.ts (1 test) 2ms
- ✓ tests/unit/remote-http-connector.test.ts (9 tests) 7ms
- ✓ tests/unit/local-stdio-connector.test.ts (9 tests) 6ms
- ❯ tests/unit/connector-factory.test.ts (4 tests | 2 failed) 11ms
-   ❯ createConnector (4)
-     × creates the remote connector for remote configuration 6ms
-     × creates the local connector for local configuration 1ms
-     ✓ rejects missing remote configuration 1ms
-     ✓ rejects missing local configuration 1ms
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-
- FAIL  tests/unit/connector-factory.test.ts > createConnector > creates the remote connector for remote configuration
-TypeError: Cannot use `mockReturnValue` when called with `new`. Use `mockImplementation` with a `class` keyword instead. See https://vitest.dev/api/mock#class-support for more information.
- ❯ Module.createConnector src/mcp/connector-factory.ts:38:10
-     36|   }
-     37|
-     38|   return new RemoteHttpConnector({
-       |          ^
-     39|     endpoint: config.remote.endpoint,
-     40|     apiKey: config.remote.apiKey,
- ❯ tests/unit/connector-factory.test.ts:38:20
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
-
- FAIL  tests/unit/connector-factory.test.ts > createConnector > creates the local connector for local configuration
-TypeError: Cannot use `mockReturnValue` when called with `new`. Use `mockImplementation` with a `class` keyword instead. See https://vitest.dev/api/mock#class-support for more information.
- ❯ Module.createConnector src/mcp/connector-factory.ts:16:12
-     14|     }
-     15|
-     16|     return new LocalStdioConnector({
-       |            ^
-     17|       command: config.local.command,
-     18|       args: config.local.args,
- ❯ tests/unit/connector-factory.test.ts:63:20
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
-
-
- Test Files  1 failed | 4 passed (5)
-      Tests  2 failed | 32 passed (34)
-   Start at  12:22:10
-   Duration  397ms (transform 66%, import 23%, tests 6%, worker 5%)
+  return new RemoteHttpConnector({
+    endpoint: config.remote.endpoint,
+    apiKey: config.remote.apiKey,
+    requestTimeoutMs: config.requestTimeoutMs,
+  });
+}
