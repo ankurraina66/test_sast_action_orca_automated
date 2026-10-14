@@ -1,35 +1,40 @@
-import { createAppScanService } from "../../src/services/appscan-service-factory.js";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npx tsx tests/integration/local-app-discovery.integration.ts
+[DEBUG] APPSCAN_API_BASE: https://cloud.appscan.com
+[DEBUG] APPSCAN_KEY_ID: SET (ab3f...)
+[DEBUG] APPSCAN_KEY_SECRET: SET (hidden)
+Using direct AppScan API key authentication from environment variables.
+AppScan MCP Server running on stdio
+Retrieving up to 5 AppScan applications...
+Found 5 application(s):
 
-async function main(): Promise<void> {
-  const service = createAppScanService();
-
-  try {
-    await service.connect();
-
-    console.log("Retrieving up to 5 AppScan applications...");
-
-    const result = await service.callTool("get-apps", { top: 5 });
-
-    for (const item of result.content) {
-      if (item.text) {
-        console.log(item.text);
-      }
-    }
-
-    if (result.isError) {
-      throw new Error("AppScan returned an error while retrieving applications.");
-    }
-
-    console.log("Application retrieval completed.");
-  } finally {
-    await service.disconnect();
-  }
-}
-
-main().catch((error: unknown) => {
-  console.error(
-    "Application retrieval failed:",
-    error instanceof Error ? error.message : "Unknown error",
-  );
-  process.exitCode = 1;
-});
+Name: Demo_HCLF
+ID: 5a0bcbb2-c309-489b-badc-0112e619bce7
+Type: Unknown
+Created: Unknown
+Risk: Unknown
+---
+Name: Test_Tayalan
+ID: 39c76747-8617-4e00-8ae8-096e208f72ac
+Type: Unknown
+Created: Unknown
+Risk: Unknown
+---
+Name: Test_Tanmoy_SN
+ID: e0d855ec-4ec3-4dd3-9ac1-0ea69740cc8b
+Type: Unknown
+Created: Unknown
+Risk: Unknown
+---
+Name: charvi
+ID: e59ef14d-3342-47ae-8b17-21cb37a705fd
+Type: Unknown
+Created: Unknown
+Risk: Unknown
+---
+Name: AltoroMutual
+ID: 4111c5d9-d355-4b9d-95c7-25ee45351928
+Type: Unknown
+Created: Unknown
+Risk: Unknown
+---
+Application retrieval completed.
