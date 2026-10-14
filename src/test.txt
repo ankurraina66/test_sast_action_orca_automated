@@ -1,37 +1,136 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npx tsx tests/integration/local-scan-discovery.integration.ts
-[DEBUG] APPSCAN_API_BASE: https://cloud.appscan.com
-[DEBUG] APPSCAN_KEY_ID: SET (ab3f...)
-[DEBUG] APPSCAN_KEY_SECRET: SET (hidden)
-Using direct AppScan API key authentication from environment variables.
-AppScan MCP Server running on stdio
-get-issues input schema:
-{
-  "type": "object",
-  "properties": {
-    "appId": {
-      "type": "string",
-      "description": "Application ID (get this from get-apps tool first)"
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+import { createAppScanService } from "./services/appscan-service-factory.js";
+
+async function main(): Promise<void> {
+  const service = createAppScanService();
+
+  await service.connect();
+
+  const server = new McpServer({
+    name: "hcl-appscan-connector-for-claude",
+    version: "0.1.0",
+  });
+
+  function textResult(result: {
+    content: Array<{ type: string; text?: string }>;
+    isError?: boolean;
+  }) {
+    const text = result.content
+      .map((item) => item.text ?? "")
+      .filter(Boolean)
+      .join("\n");
+
+    return {
+      content: [
+        {
+          type: "text" as const,
+          text: text || "The AppScan tool returned no text content.",
+        },
+      ],
+      ...(result.isError ? { isError: true } : {}),
+    };
+  }
+
+  server.registerTool(
+    "get-apps",
+    {
+      description: "Retrieve AppScan applications.",
+      inputSchema: {
+        filter: z.string().optional(),
+        top: z.number().optional(),
+      },
     },
-    "filter": {
-      "description": "OData filter expression, e.g., \"Severity eq 'High'\" or \"Status eq 'Open'\"",
-      "type": "string"
+    async (args) => {
+      const result = await service.callTool("get-apps", args);
+      return textResult(result);
     },
-    "top": {
-      "description": "Number of records to return (optional, default 100, max 5000)",
-      "type": "number"
+  );
+
+  server.registerTool(
+    "get-scans",
+    {
+      description: "Retrieve existing AppScan scans.",
+      inputSchema: {
+        filter: z.string().optional(),
+        top: z.number().optional(),
+      },
     },
-    "applyPolicies": {
-      "description": "Which policies to apply for filtering (default: None)",
-      "type": "string",
-      "enum": [
-        "None",
-        "All",
-        "Select"
-      ]
+    async (args) => {
+      const result = await service.callTool("get-scans", args);
+      return textResult(result);
+    },
+  );
+
+  server.registerTool(
+    "get-scan-issues",
+    {
+      description: "Retrieve security findings for a specific AppScan scan.",
+      inputSchema: {
+        scanId: z.string().min(1),
+        filter: z.string().optional(),
+        top: z.number().optional(),
+      },
+    },
+    async (args) => {
+      const result = await service.callTool("get-scan-issues", args);
+      return textResult(result);
+    },
+  );
+
+  server.registerTool(
+    "get-issue-details",
+    {
+      description: "Retrieve detailed information about an AppScan finding.",
+      inputSchema: {
+        issueId: z.string().min(1),
+      },
+    },
+    async (args) => {
+      const result = await service.callTool("get-issue-details", args);
+      return textResult(result);
+    },
+  );
+
+  const transport = new StdioServerTransport();
+
+  try {
+    await server.connect(transport);
+    console.error("HCL AppScan Connector for Claude is running.");
+  } catch (error) {
+    await service.disconnect();
+    throw error;
+  }
+
+  const shutdown = async () => {
+    try {
+      await server.close();
+    } finally {
+      await service.disconnect();
     }
-  },
-  "required": [
-    "appId"
-  ],
-  "$schema": "http://json-schema.org/draft-07/schema#"
+  };
+
+  process.once("SIGINT", () => {
+    void shutdown().catch((error: unknown) => {
+      console.error("Shutdown failed:", error);
+      process.exitCode = 1;
+    });
+  });
+
+  process.once("SIGTERM", () => {
+    void shutdown().catch((error: unknown) => {
+      console.error("Shutdown failed:", error);
+      process.exitCode = 1;
+    });
+  });
 }
+
+main().catch((error: unknown) => {
+  console.error(
+    "Failed to start HCL AppScan Connector for Claude:",
+    error instanceof Error ? error.message : "Unknown error",
+  );
+  process.exitCode = 1;
+});
