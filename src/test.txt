@@ -1,1 +1,4 @@
 
+Inspect "XSSVulnerableServlet.java" in the Spring Boot project at "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master".
+
+Read-only analysis only. Identify potential XSS paths, report exact source line numbers and explain the data flow from request input to HTML output. Do not modify any files, invoke write-capable AppScan tools, or trigger scans. Clearly distinguish observed code from assumptions.
