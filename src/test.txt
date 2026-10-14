@@ -1,4 +1,60 @@
----
-name: appscan
-description: Review HCL AppScan security findings, correlate them with source code in the current workspace, and propose security remediations for developer approval.
----
+> /appscan
+
+I'll start by loading the AppScan read-only tools so I can list the available applications.
+
+  Called appscan-connector
+
+I retrieved 20 AppScan applications. This was a read-only call, and I haven't opened any scans or findings yet.
+
+┌──────────────────────┬──────────────────────────────────────┐
+│     Application      │                  ID                  │
+├──────────────────────┼──────────────────────────────────────┤
+│ Demo_HCLF            │ 5a0bcbb2-c309-489b-badc-0112e619bce7 │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Tayalan         │ 39c76747-8617-4e00-8ae8-096e208f72ac │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Tanmoy_SN       │ e0d855ec-4ec3-4dd3-9ac1-0ea69740cc8b │
+├──────────────────────┼──────────────────────────────────────┤
+│ charvi               │ e59ef14d-3342-47ae-8b17-21cb37a705fd │
+├──────────────────────┼──────────────────────────────────────┤
+│ AltoroMutual         │ 4111c5d9-d355-4b9d-95c7-25ee45351928 │
+├──────────────────────┼──────────────────────────────────────┤
+│ AzureBoardsPluginGit │ 072732e0-61a9-4185-bca4-30166831e72e │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Vinod           │ 2e38956e-1dce-4742-8278-3ee80509a732 │
+├──────────────────────┼──────────────────────────────────────┤
+│ DemoTestFireApp      │ c89e2e91-eb9c-49f7-9fe8-6428ba3f1b15 │
+├──────────────────────┼──────────────────────────────────────┤
+│ Bitbucket plugin     │ b106ec10-235a-42d6-aa0a-69c77bad4879 │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_vishal          │ 7b3f217f-988c-41d5-9e91-877353174267 │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Tanmoy_SN3      │ 5122bf79-751c-4836-8dcd-8ec90a611e77 │
+├──────────────────────┼──────────────────────────────────────
+│ TestVinita           │ 8aa628ec-a475-4dae-93e3-99e1e92f85fd
+├──────────────────────┼──────────────────────────────────────┤
+│ Demo_Test_Ankur      │ 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Ankita          │ ae0bcb39-4c80-4dda-a236-a13ac7e65c84
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Kranthi         │ 20c6ebe3-aded-462c-8bd2-a320c5d09c3f
+├──────────────────────┼──────────────────────────────────────┤
+│ TestApp1             │ e5626722-aa85-44df-8c53-b564ff5a1ccb
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Tanmoy          │ ab0e20b0-0638-4fd4-aa67-b5df30ef1538
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Joy             │ c77eb298-9b34-4aef-801f-d404a6960f43
+├──────────────────────┼──────────────────────────────────────┤
+│ ASRADotnet           │ 672d6c33-fed5-4883-98fa-deb1977154a0
+├──────────────────────┼──────────────────────────────────────┤
+│ TestApp3             │ ccf35b47-af1b-4154-a02d-e8a23e5dbe18
+└──────────────────────┴──────────────────────────────────────┘
+
+AppScan returned "Unknown" for type, creation date and risk on every application. I can't tell from this list which one matches the code in your
+workspace.
+
+Which application, scan or finding do you want me to review? Tr.raina\ai-coding-assistants-claude-poc.
+
+- Application: Name one, for example Demo_Test_Ankur. I'll lisings for the one you pick.
+- Scan or issue ID: If you already have one, I can go straight to the findings or the issue details.
+- Severity filter: Tell me if you want to narrow to Critical/H
