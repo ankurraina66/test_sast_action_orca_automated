@@ -1,25 +1,29 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npx tsx tests/integration/local-mcp.integration.ts
-Connecting to local AppScan MCP...
-[DEBUG] APPSCAN_API_BASE: https://cloud.appscan.com
-[DEBUG] APPSCAN_KEY_ID: SET (ab3f...)
-[DEBUG] APPSCAN_KEY_SECRET: SET (hidden)
-Using direct AppScan API key authentication from environment variables.
-AppScan MCP Server running on stdio
-Connection established. Discovering tools...
-Discovered 15 tool(s):
-- get-tenant-info
-- get-apps
-- create-app
-- get-scans
-- get-issues
-- get-scan-issues
-- get-issue-details
-- update-scan-issues
-- update-individual-issue-by-scan
-- update-individual-issue-by-app
-- update-application-issues
-- get-reports
-- create-security-report
-- get-asset-groups
-- create-scan
-Local MCP connection and tool discovery succeeded.
+import { createAppScanService } from "../../src/services/appscan-service-factory.js";
+
+async function main(): Promise<void> {
+  const service = createAppScanService();
+
+  try {
+    await service.connect();
+
+    const tools = await service.listTools();
+    const appsTool = tools.find((tool) => tool.name === "get-apps");
+
+    if (!appsTool) {
+      throw new Error("The local MCP server does not expose get-apps.");
+    }
+
+    console.log("get-apps input schema:");
+    console.log(JSON.stringify(appsTool.inputSchema, null, 2));
+  } finally {
+    await service.disconnect();
+  }
+}
+
+main().catch((error: unknown) => {
+  console.error(
+    "Application discovery preparation failed:",
+    error instanceof Error ? error.message : "Unknown error",
+  );
+  process.exitCode = 1;
+});
