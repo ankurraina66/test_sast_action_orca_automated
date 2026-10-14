@@ -1,1 +1,2 @@
-Test-Path "$HOME\Downloads\VulnerableRPGLE_VisualStudio_Project\VulnerableBanking.rpgle"
+Get-ChildItem "$HOME\Downloads" -Filter "VulnerableBanking.rpgle" -File -Recurse -ErrorAction SilentlyContinue |
+    Select-Object -ExpandProperty FullName
