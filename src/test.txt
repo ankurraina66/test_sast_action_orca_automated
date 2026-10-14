@@ -1,9 +1,17 @@
-$pkg = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $pkg = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> [PSCustomObject]@{
+>>     EntryPoint = Test-Path "$pkg\build\index.js"
+>>     PackageJson = Test-Path "$pkg\package.json"
+>>     NodeModules = Test-Path "$pkg\node_modules"
+>>     McpSdk = Test-Path "$pkg\node_modules\@modelcontextprotocol\sdk\package.json"
+>>     AdmZip = Test-Path "$pkg\node_modules\adm-zip\package.json"
+>> }
 
-[PSCustomObject]@{
-    EntryPoint = Test-Path "$pkg\build\index.js"
-    PackageJson = Test-Path "$pkg\package.json"
-    NodeModules = Test-Path "$pkg\node_modules"
-    McpSdk = Test-Path "$pkg\node_modules\@modelcontextprotocol\sdk\package.json"
-    AdmZip = Test-Path "$pkg\node_modules\adm-zip\package.json"
-}
+EntryPoint  : True
+PackageJson : True
+NodeModules : True
+McpSdk      : True
+AdmZip      : True
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
