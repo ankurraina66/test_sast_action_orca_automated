@@ -1,1 +1,4 @@
-claude mcp add --transport stdio appscan-connector -- node "$PWD/dist/claude-mcp-server.js"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp add --transport stdio appscan-connector -- node "$PWD/dist/claude-mcp-server.js"
+Added stdio MCP server appscan-connector with command: node C:\Users\ankur.raina\ai-coding-assistants-claude-poc/dist/claude-mcp-server.js to local config
+File modified: C:\Users\ankur.raina\.claude.json [project: C:\Users\ankur.raina\ai-coding-assistants-claude-poc]
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
