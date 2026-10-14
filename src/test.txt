@@ -1,7 +1,4 @@
-[PSCustomObject]@{
-    ProviderConfigured = [bool]$env:APP_SCAN_PROVIDER
-    ServerPathConfigured = [bool]$env:APP_SCAN_LOCAL_SERVER_PATH
-    ApiBaseConfigured = [bool]$env:APPSCAN_API_BASE
-    KeyIdConfigured = [bool]$env:APPSCAN_KEY_ID
-    KeySecretConfigured = [bool]$env:APPSCAN_KEY_SECRET
-}
+$env:APP_SCAN_PROVIDER = "local"
+$env:APP_SCAN_LOCAL_SERVER_PATH = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
+$env:APPSCAN_API_BASE = "https://cloud.appscan.com"
+$env:APP_SCAN_REQUEST_TIMEOUT_MS = "30000"
