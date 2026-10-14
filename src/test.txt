@@ -1,1 +1,38 @@
+import { createAppScanService } from "../../src/services/appscan-service-factory.js";
+
+async function main(): Promise<void> {
+  const service = createAppScanService();
+
+  try {
+    await service.connect();
+
+    console.log("Retrieving details for the SQL Injection finding...");
+
+    const result = await service.callTool("get-issue-details", {
+      issueId: "0c9b8938-b1c0-f111-a6a9-000d3a7b2c78",
+    });
+
+    for (const item of result.content) {
+      if (item.text) {
+        console.log(item.text);
+      }
+    }
+
+    if (result.isError) {
+      throw new Error("AppScan returned an error while retrieving issue details.");
+    }
+
+    console.log("Issue-details retrieval completed.");
+  } finally {
+    await service.disconnect();
+  }
+}
+
+main().catch((error: unknown) => {
+  console.error(
+    "Issue-details retrieval failed:",
+    error instanceof Error ? error.message : "Unknown error",
+  );
+  process.exitCode = 1;
+});
 
