@@ -1,26 +1,7 @@
+Review the SQL Injection finding in scan "VulnerableRPGLE_VisualStudio_Project_2026-10-05_17-06-51", at "VulnerableBanking.rpgle:45".
 
-1. Determine the user's requested task from the command and accompanying prompt.
+Use the appscan-connector to confirm the scan, retrieve its findings, and fetch the details for the matching SQL Injection issue. Then check whether the referenced source file exists in the current workspace.
 
-2. If the user invokes `/appscan` without specifying a task, briefly explain the available capabilities and ask what they want to review. Do not call AppScan tools yet.
+Provide the finding metadata and a remediation proposal grounded in the available evidence. If the source file is missing or the evidence is insufficient, state that clearly.
 
-3. If the user specifies a scan, finding, or application, use the available information to identify that resource. Call `get-apps` only when application discovery is necessary or explicitly requested.
-
-4. For a specified scan, call `get-scans` to identify and confirm the scan. Do not list unrelated applications.
-
-5. For a specified finding, retrieve the relevant findings using `get-scan-issues`, then retrieve the selected finding's details using `get-issue-details`.
-
-6. Distinguish facts returned by AppScan from your own analysis. Clearly identify unavailable descriptions, evidence, traces, or remediation guidance.
-
-7. Search the current workspace for the file and location referenced by the finding. Verify that the file exists before analysing it.
-
-8. Read the relevant source code and surrounding context before proposing a change.
-
-9. Explain the vulnerability, its likely impact, and the evidence supporting your assessment.
-
-10. Propose a minimal remediation and explain why it addresses the identified vulnerability.
-
-11. Ask the developer for explicit approval before editing source files.
-
-12. After approval, make only the agreed changes and report the files modified.
-
-13. Run appropriate available tests or checks. Ask permission before running checks that may have side effects. Report what was actually executed and whether it passed.
+Analysis only: do not modify code, update issues, or trigger scans.
