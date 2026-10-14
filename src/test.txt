@@ -1,8 +1,79 @@
 Using the "appscan-connector" MCP, perform a read-only security review:
 
-1. Call "get-scans" and list up to 5 existing scans with their names, IDs, and statuses.
-2. Select one existing scan from the results and call "get-scan-issues" for that scan with "top: 5".
-3. If findings are returned, call "get-issue-details" for one finding.
-4. Summarize the finding title, severity, status, location, and any description or remediation information actually returned by AppScan.
+  1. Call "get-scans" and list up to 5 existing scans with their names, IDs, and statuses.
+  2. Select one existing scan from the results and call "get-scan-issues" for that scan with "top: 5".
+  3. If findings are returned, call "get-issue-details" for one finding.
+  4. Summarize the finding title, severity, status, location, and any description or remediation information actually returned by AppScan.
 
-Do not create scans, update issues, modify code, or invent missing information. If a tool call fails, report the actual error. Clearly mark fields that are unavailable.
+  Do not create scans, update issues, modify code, or invent missing information. If a tool call fails, report the actual error. Clearly mark fields that are unavailable.
+
+  Called appscan-connector 2 times
+
+Selecting the first scan (the DAST scan against demo.testfire.net, which is AppScan's public demo target).
+
+  Called appscan-connector 2 times
+
+All four calls succeeded. This was read-only: no scans created, no issues updated, no code changed.
+
+1. Scans (5 returned)
+
+┌─────┬──────────────────────────────────────────────────────────┬──────────────────────────────────────┬────────┐
+│  #  │                           Name                                     │ Status │
+├─────┼──────────────────────────────────────────────────────────┼──────────────────────────────────────┼────────┤
+│ 1   │ DAST 2026-10-1 https://demo.testfire.net?mode=demo    024b8a5beb66 │ Ready  │
+├─────┼──────────────────────────────────────────────────────────┼──────────────────────────────────────┼────────┤
+│ 2   │ test_ScanVinod                                        07bed5ab1c21 │ Ready  │
+├─────┼──────────────────────────────────────────────────────────┼──────────────────────────────────────┼────────┤
+│ 3   │ VulnerableRPGLE_VisualStudio_Project_2026-10-05_17-06-0b42c940d1ad │ Ready  │
+├─────┼──────────────────────────────────────────────────────────┼──────────────────────────────────────┼────────┤
+│ 4   │ SAST 2026-09-15 build-plugin.zip                      0bb2f2fb4793 │ Ready  │
+├─────┼──────────────────────────────────────────────────────────┼──────────────────────────────────────┼────────┤
+│ 5   │ SAST 2026-09-30 demo (2).irx                          0cdb7a17f45f │ Ready  │
+└─────┴──────────────────────────────────────────────────────────┴──────────────────────────────────────┴────────┘
+
+Type, Created and Risk are unavailable for all five scans; the connector returned "Unknown".
+
+2. Issues for scan #1 (top 5)
+
+All five are Medium severity and Open, at https://demo.testfire.net/:
+
+┌────────────────────────────────────────────────────────────────┬──────────────────────────────────────┐
+│                             Issue                                        │
+├────────────────────────────────────────────────────────────────┼──────────────────────────────────────┤
+│ Encryption Not Enforced                                     000d3a7b2c78 │
+├────────────────────────────────────────────────────────────────┼──────────────────────────────────────┤
+│ Missing or insecure Cross-Origin-Embedder-Policy (COEP) head000d3a7b2c78 │
+├────────────────────────────────────────────────────────────────┼──────────────────────────────────────┤
+│ Missing or insecure Cross-Origin-Resource-Policy (CORP) head000d3a7b2c78 │
+├────────────────────────────────────────────────────────────────┼──────────────────────────────────────┤
+│ Missing or insecure Cross-Origin-Opener-Policy (COOP) header000d3a7b2c78 │
+├────────────────────────────────────────────────────────────────┼──────────────────────────────────────┤
+│ Cookie with Insecure or Improper SameSite attribute         000d3a7b2c78 │
+└────────────────────────────────────────────────────────────────┴──────────────────────────────────────┘
+
+3. Finding detail: Encryption Not Enforced
+
+┌─────────────┬───────────────────────────────────────────────────────────────────────┐
+│    Field    │                                 Value
+├─────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Title       │ Encryption Not Enforced
+├─────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Severity    │ Medium
+├─────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Status      │ Open
+├─────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Location    │ https://demo.testfire.net/
+├─────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Scan        │ DAST 2026-10-1 https://demo.testfire.net?mode=
+├─────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Application │ Unavailable (returned "Unknown")
+├─────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Description │ Unavailable (AppScan returned "No description
+├─────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Remediation │ Unavailable (AppScan returned "No remediation
+└─────────────┴───────────────────────────────────────────────────────────────────────┘
+
+Notes
+
+- The details call returned no description or remediation, so I haven't added any. The title suggests the site is reachable without enforced HTTPS, but    that is my reading of the name, not something AppScan report
+- The scan targets demo.testfire.net, which I believe is AppScan's public demo site. I didn't confirm that, so check whether it is the target you intended before treating these findings as real.
