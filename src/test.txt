@@ -1,1 +1,31 @@
-pppp
+
+
+import { createAppScanService } from "../../src/services/appscan-service-factory.js";
+
+async function main(): Promise<void> {
+  const service = createAppScanService();
+
+  try {
+    await service.connect();
+
+    const tools = await service.listTools();
+    const tool = tools.find((item) => item.name === "get-issue-details");
+
+    if (!tool) {
+      throw new Error("The get-issue-details tool is not available.");
+    }
+
+    console.log("get-issue-details input schema:");
+    console.log(JSON.stringify(tool.inputSchema, null, 2));
+  } finally {
+    await service.disconnect();
+  }
+}
+
+main().catch((error: unknown) => {
+  console.error(
+    "Issue-details schema inspection failed:",
+    error instanceof Error ? error.message : "Unknown error",
+  );
+  process.exitCode = 1;
+});
