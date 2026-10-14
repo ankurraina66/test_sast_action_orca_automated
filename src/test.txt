@@ -1,2 +1,20 @@
-Get-ChildItem "$HOME\Downloads" -Filter "VulnerableBanking.rpgle" -File -Recurse -ErrorAction SilentlyContinue |
-    Select-Object -ExpandProperty FullName
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem "$HOME\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src" -Recurse -File | Select-Object -ExpandProperty FullName
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\EntryPoint.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\config\AppConfig.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\config\SQLInjectionDemo.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\config\XSSVulnerableServlet.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\controller\ConsultantController.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\model\Consultant.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\repository\ConsultantRepository.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\repository\impl\ConsultantJPARepository.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\repository\impl\ConsultantJPARepositoryImpl.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\repository\impl\ConsultantStubImpl.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\service\ConsultantService.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\service\InfoService.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\service\consultant\impl\ConsultantServiceImpl.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\service\info\impl\InfoServiceImpl1.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\service\info\impl\InfoServiceImpl2.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\service\info\impl\InfoServiceImpl3.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\java\com\levent\consultantapi\service\info\impl\InfoServiceImpl4.java
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\main\resources\consultant.sql
+C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master\src\test\java\com\levent\consultantapi\AppTest.java
