@@ -1,33 +1,25 @@
-import { createAppScanService } from "../../src/services/appscan-service-factory.js";
-
-async function main(): Promise<void> {
-  const service = createAppScanService();
-
-  try {
-    console.log("Connecting to local AppScan MCP...");
-
-    await service.connect();
-
-    console.log("Connection established. Discovering tools...");
-
-    const tools = await service.listTools();
-
-    console.log(`Discovered ${tools.length} tool(s):`);
-
-    for (const tool of tools) {
-      console.log(`- ${tool.name}`);
-    }
-
-    console.log("Local MCP connection and tool discovery succeeded.");
-  } finally {
-    await service.disconnect();
-  }
-}
-
-main().catch((error: unknown) => {
-  console.error(
-    "Local MCP integration test failed:",
-    error instanceof Error ? error.message : "Unknown error",
-  );
-  process.exitCode = 1;
-});
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npx tsx tests/integration/local-mcp.integration.ts
+Connecting to local AppScan MCP...
+[DEBUG] APPSCAN_API_BASE: https://cloud.appscan.com
+[DEBUG] APPSCAN_KEY_ID: SET (ab3f...)
+[DEBUG] APPSCAN_KEY_SECRET: SET (hidden)
+Using direct AppScan API key authentication from environment variables.
+AppScan MCP Server running on stdio
+Connection established. Discovering tools...
+Discovered 15 tool(s):
+- get-tenant-info
+- get-apps
+- create-app
+- get-scans
+- get-issues
+- get-scan-issues
+- get-issue-details
+- update-scan-issues
+- update-individual-issue-by-scan
+- update-individual-issue-by-app
+- update-application-issues
+- get-reports
+- create-security-report
+- get-asset-groups
+- create-scan
+Local MCP connection and tool discovery succeeded.
