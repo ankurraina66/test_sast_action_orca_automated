@@ -1,4 +1,1 @@
-$project = "$HOME\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
 
-Get-Content "$project\src\main\java\com\levent\consultantapi\config\SQLInjectionDemo.java"
-Get-Content "$project\src\main\java\com\levent\consultantapi\config\XSSVulnerableServlet.java"
