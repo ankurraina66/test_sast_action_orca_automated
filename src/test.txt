@@ -1,8 +1,33 @@
-[PSCustomObject]@{
-    Provider = $env:APP_SCAN_PROVIDER
-    ServerPath = $env:APP_SCAN_LOCAL_SERVER_PATH
-    ServerPathExists = Test-Path $env:APP_SCAN_LOCAL_SERVER_PATH
-    ApiBase = $env:APPSCAN_API_BASE
-    TimeoutMs = $env:APP_SCAN_REQUEST_TIMEOUT_MS
-    CredentialsConfigured = [bool]$env:APPSCAN_KEY_ID -and [bool]$env:APPSCAN_KEY_SECRET
+import { createAppScanService } from "../../src/services/appscan-service-factory.js";
+
+async function main(): Promise<void> {
+  const service = createAppScanService();
+
+  try {
+    console.log("Connecting to local AppScan MCP...");
+
+    await service.connect();
+
+    console.log("Connection established. Discovering tools...");
+
+    const tools = await service.listTools();
+
+    console.log(`Discovered ${tools.length} tool(s):`);
+
+    for (const tool of tools) {
+      console.log(`- ${tool.name}`);
+    }
+
+    console.log("Local MCP connection and tool discovery succeeded.");
+  } finally {
+    await service.disconnect();
+  }
 }
+
+main().catch((error: unknown) => {
+  console.error(
+    "Local MCP integration test failed:",
+    error instanceof Error ? error.message : "Unknown error",
+  );
+  process.exitCode = 1;
+});
