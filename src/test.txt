@@ -1,17 +1,52 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $pkg = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package"
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> [PSCustomObject]@{
->>     EntryPoint = Test-Path "$pkg\build\index.js"
->>     PackageJson = Test-Path "$pkg\package.json"
->>     NodeModules = Test-Path "$pkg\node_modules"
->>     McpSdk = Test-Path "$pkg\node_modules\@modelcontextprotocol\sdk\package.json"
->>     AdmZip = Test-Path "$pkg\node_modules\adm-zip\package.json"
->> }
-
-EntryPoint  : True
-PackageJson : True
-NodeModules : True
-McpSdk      : True
-AdmZip      : True
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "$pkg\package.json"
+{
+  "name": "mcp-appscan-server",
+  "version": "1.0.0",
+  "description": "A Model Context Protocol server for HCL AppScan API integration",
+  "type": "module",
+  "bin": {
+    "mcp-appscan-server": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "appscan",
+    "security",
+    "testing",
+    "server"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/mcp-appscan-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/mcp-appscan-server/issues"
+  },
+  "homepage": "https://github.com/yourusername/mcp-appscan-server#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2",
+    "@types/adm-zip": "^0.5.7",
+    "adm-zip": "^0.5.16",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.2"
+  },
+  "files": [
+    "build",
+    "README.md",
+    "LICENSE",
+    "API_REFERENCE.md"
+  ]
+}
