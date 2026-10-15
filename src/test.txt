@@ -1,98 +1,1087 @@
-Continue the read-only analysis of the Spring Boot project at "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master".
+As a DevSecOps engineer or CI/CD pipeline operator,
+I want to run SAST and SCA scans from the AppScan Cloud CLI,
+So that I can identify source code vulnerabilities and vulnerable open-source dependencies directly from the command line or any CI/CD pipeline.
 
-  Determine whether "XSSVulnerableServlet" can be compiled and registered or otherwise reached at runtime.
+Business Context
 
-  1. Inspect the "pom.xml", main application entry point, servlet registration configuration, "web.xml" if present, and relevant Spring configuration.
-  2. Search for "@ServletComponentScan", "ServletRegistrationBean", references to "XSSVulnerableServlet", and mappings for "/hello" and "/comment".
-  3. Check whether the servlet's package declaration and imports are compatible with the project configuration.
-  4. Distinguish confirmed registration paths from possibilities that cannot be verified by static inspection.
-  5. Do not edit files, run scans, invoke write-capable AppScan tools, or start the application. Report the relevant file paths and line numbers.
+Today the AppScan Cloud CLI only supports Dynamic Application Security Testing (DAST). Customers who want SAST or SCA capabilities must use other AppScan CICD plugins or the web console. This limits adoption in CI/CD environments where AppScan Plugins are not there (AWS CodePipeline, Bamboo, Google Cloud etc.) and prevents teams from running source-level security scans as part of automated build pipelines.
 
-  Conclude with one of: registration confirmed, registration not found in the inspected files, or inconclusive. Do not claim runtime exploitability from
-  static inspection alone.
+SAST and SCA are core pillars of a shift-left security strategy. Bringing these capabilities into the CLI will:
 
-  Searched for 1 pattern, read 5 files, ran 1 shell command
+Provide a single, platform-agnostic tool for all three scan types (DAST, SAST, SCA)
 
-Reachability of XSSVulnerableServlet (read-only)
+Enable security gates in any CI/CD pipeline
 
-I didn't edit any files, run scans, call AppScan tools, or stare relative to the project root.
+Reduce manual effort and mean time to detect vulnerabilities
 
-Conclusion: registration not found in the inspected files. Thionly. It says nothing about runtime exploitability.
+Support compliance requirements that mandate source-level and dependency-level scanning
 
-1. Compilation (confirmed from source)
+Functional Requirements
 
-Check: Missing imports
-Observation: List and ArrayList are used, but java.util is never imported. This is a compile error.
-Location: src/main/java/com/levent/consultantapi/config/XSSVults at 1–7)
-────────────────────────────────────────
-Check: No package statement
-Observation: The file sits in .../config/ but declares no package, so it would be in the default package. Its siblings, such as AppConfig.java:1, declare
-com.levent.consultantapi.config.
-Location: XSSVulnerableServlet.java:1
-────────────────────────────────────────
-Check: Servlet API namespace
-Observation: The file uses javax.servlet.*. The project uses S with Java 1.8 (pom.xml:57-58). That is javax-compatible, and
-spring-boot-starter-web pulls in embedded Tomcat. This is an inference from the Boot version, since I didn't inspect the resolved dependency tree.
-Location: pom.xml:20,28
+FR-1: SAST Scanning Command (invokesastscan)
 
-The servlet fails to compile because of the missing imports. Tesn't apply to this Boot version.
+The CLI shall provide a new command invokesastscan that allows users to submit source code for static analysis. The command must support:
 
-The project has other compile errors, so a full Maven build wo
-- ConsultantController.java:73 and :87 call DriverManager.getConnection(...). The literal ... is invalid Java.
-- ConsultantController.java:84-99: getUser is declared to retutatement.
-- ConsultantController.java:44: the return consultantService.getConsultants(); after the finally { return null; } block is unreachable.
-- ConsultantController.java:53 and :68: both methods map to GEn ambiguous mapping, which is a startup failure rather than acompile error.
+Authentication -- Users provide their AppScan on Cloud or AppScan 360 API key and secret. The CLI authenticates and verifies the user has an active SAST subscription before proceeding.
 
-I did not inspect SQLInjectionDemo.java or the other source files.
+Two scan methods:
 
-2. Registration paths
+IRX Generation (default) -- The CLI downloads the SAClient locally, generates an IRX file from the source code, and uploads it to AppScan for analysis.
 
-┌────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│             Mechanism              │                        sult                                                    │
-├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ @ServletComponentScan              │ Not found anywhere in t has only @SpringBootApplication.                       │
-├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ ServletRegistrationBean            │ Not found.                                                                     │
-├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ web.xml                            │ Not found. There is no resources. The packaging is jar (pom.xml:7).            │
-├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ References to XSSVulnerableServlet │ Only its own class decl.java:10).                                              │
-├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ @WebServlet                        │ Only XSSVulnerableServl                                                        │
-├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ /hello mapping                     │ Only the servlet annota                                                        │
-├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ /comment mapping                   │ Only the sendRedirect("rableServlet.java:24. Nothing in the project serves it. │
-├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Spring MVC controller              │ ConsultantController.jav1/. It doesn't expose /hello or /comment.              │
-└────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+Direct Upload -- The CLI uploads source files, directories, or pre-built IRX files directly without local IRX generation.
 
-3. Why the annotation alone doesn't register it
+Scan speed control -- Users can choose between normal, fast, faster, and fastest scan speeds, trading thoroughness for scan time.
 
-- Assumption (framework behaviour, not verified in this project): in Boot 1.3.x, @WebServlet on an embedded-container jar is only processed when
-  @ServletComponentScan is present. Neither @ServletComponentSBean exists here.
-- Component scanning: EntryPoint scans com.levent.consultantapi and its sub-packages. A default-package class would not be in that scan range anyway, and
-  it isn't a Spring stereotype bean.
+Combined SAST + SCA analysis -- By default, the SAST command also performs Software Composition Analysis alongside static analysis, providing a unified view of both code-level vulnerabilities and vulnerable open-source dependencies. Users can disable this with an option.
 
-4. Confirmed vs. unverifiable
+Source-code-only mode -- Users can restrict analysis to source code only (no binary analysis). This mode is not available with the direct upload method.
 
-Confirmed by static inspection:
-- The servlet source has compile errors (List and ArrayList not imported).
-- No registration mechanism exists in any file I inspected.
-- No Spring route serves /hello or /comment.
+Open-source-only mode -- Users can restrict analysis to open-source components only, effectively performing an SCA scan through the SAST command.
 
-Cannot be verified statically:
-- Whether the packaging pipeline (a shade plugin build, pom.xmig adds registration. I saw none, but I didn't inspect buildoutput or target/.
-- Whether a deployment or test harness uses a different servleanning. The packaging and entry point suggest not.
-- Whether files outside the inspected set register it. For example, SQLInjectionDemo.java and the test class AppTest.java were not read, though a grep for
-  registration terms across the whole project returned no matc
+Rescan capability -- Users can rescan a previously submitted scan by providing the scan ID.
 
-Side findings (security hygiene)
+Application association -- Each scan is associated with a registered AppScan application via application ID.
 
-- config/application.properties:25 holds a hardcoded API secree it and move it to an environment variable or secrets manager. I won't repeat its value here. The secret.key.api value should be replaced by <API_SECRET> in any shared copies.
-- ConsultantController.java:34 has a hardcoded password stringt it should still be removed.
-- application.properties:5-6 enables the H2 console at /h2. That is a risk if the app were deployed. I'm also not sure how it interacts with
-  spring.datasource.password= (line 11), which is empty.
+FR-2: SCA Scanning Command (invokescascan)
 
-Net assessment
-                                                                                                                                                          The XSS patterns in the servlet are real in the source. In thiervlet doesn't compile and nothing registers it. That'sconsistent with a seeded test file. A scanner reporting these findings would still be matching code patterns, so the findings would likely be unreachable in a built artifact. Confirming that needs a build and a runtieither.
+The CLI shall provide a new command invokescascan that performs standalone Software Composition Analysis. The command must support:
+
+Authentication & entitlement -- Same as SAST, but validates SCA subscription.
+
+Dependency analysis -- Analyzes open-source and third-party libraries in the target directory for known CVEs.
+
+Rescan capability -- Same as SAST.
+
+Application association -- Same as SAST.
+
+FR-3: Scan Results & Reporting
+
+Both SAST and SCA commands must provide:
+
+Real-time progress -- Display live scan status, elapsed duration, and progress percentage while a scan is in progress.
+
+Findings summary -- Breakdown of findings by severity: Critical, High, Medium, Low, Informational, and total count.
+
+Scan summary -- Application name, scan ID, scan name, creation timestamp, created-by details, target, and a direct URL to view the scan in the AppScan web console.
+
+Report download -- Download the scan report to ./AppscanReports/ in the user's chosen format (HTML, PDF, CSV, or XML). Default is HTML.
+
+Scan log download -- Download scan logs as a zip file to ./AppscanReports/.
+
+FR-4: Build Gate / Quality Gate Integration
+
+Both commands must support CI/CD quality gates:
+
+Threshold-based failure (failbuildif subcommand) -- Allow users to set maximum thresholds on total, critical, high, medium, and low severity issues. If any threshold is exceeded, the CLI exits with a non-zero code. Conditions are OR'd.
+
+Policy-based failure (--failBuildNonCompliance) -- Fail the build if any issues violate the compliance policies configured on the AppScan application.
+
+Async mode (--waitForResults=false) -- Fire-and-forget usage where the scan is submitted but the CLI does not wait for results.
+
+FR-5: AppScan 360 Support
+
+Both commands must work with HCL AppScan 360 (on-premises) in addition to AppScan on Cloud (SaaS):
+
+Accept a custom service URL (--serviceUrl)
+
+Accept untrusted SSL certificates (--acceptssl) for development/testing environments
+
+API keys for AppScan 360 use the local_ prefix convention
+
+FR-6: CLI Help & Discoverability
+
+Running the CLI with --help must list invokesastscan and invokescascan alongside the existing invokedynamicscan command.
+
+Each new command must display comprehensive help text with option descriptions and defaults.
+
+The CLI header must reflect all three scan types (DAST, SAST, SCA).
+
+Exit Codes
+
+Code
+
+Meaning
+
+0 
+
+Scan completed successfully; all quality gate conditions passed 
+
+2 
+
+Invalid option combination 
+
+10 
+
+Scan failed, threshold exceeded, or unexpected error 
+
+12 
+
+Non-compliant issues found (when --failBuildNonCompliance=true) 
+
+Non-Functional Requirements
+
+Platform agnostic -- Must work on any OS where Java 11+ is available (Linux, macOS, Windows).
+
+No CI/CD platform dependency -- Pure CLI executable; no Jenkins or other platform dependency.
+
+Backward compatibility -- Existing invokedynamicscan, getapplications, and getpresenceids commands must continue to work without any behavioral change.
+
+SDK compatibility -- Must use AppScan SDK v1.1.12 or later.
+
+Supply chain security -- All dependency versions (direct and transitive) must be pinned and locked per SCAL-PKGDEP-2 requirements.
+
+Consistent UX -- SAST and SCA commands must follow the same option naming conventions, output format, and scan lifecycle as the existing DAST command.
+
+SAST vs SCA: When to Use What
+
+Aspect
+
+SAST (invokesastscan)
+
+SCA (invokescascan)
+
+What it scans 
+
+Application source code 
+
+Open-source / third-party dependencies 
+
+What it finds 
+
+Code-level vulnerabilities (SQLi, XSS, buffer overflows, etc.) 
+
+Known CVEs in consumed libraries 
+
+Scan target 
+
+Source code directories, IRX files, zip archives 
+
+Source code directories 
+
+Combined option 
+
+Can include SCA in the same scan (default) 
+
+Standalone SCA only 
+
+Scan methods 
+
+IRX generation or direct upload 
+
+Automatic 
+
+Typical user 
+
+Developers checking their own code 
+
+Teams managing dependency risk 
+
+Example Usage Scenarios
+
+Scenario 1 -- Nightly SAST scan in a AWS pipeline
+A team runs a full SAST+SCA scan every night against the main branch, failing the build if any critical issues are found.
+
+Scenario 2 -- PR-level SCA gate in GitHub Actions
+On every pull request, an SCA scan checks for newly introduced vulnerable dependencies, blocking merge if critical CVEs are detected.
+
+Scenario 3 -- Release gate with policy compliance
+Before a production release, a SAST scan is run with --failBuildNonCompliance=true to ensure no findings violate the application's security policy.
+
+Scenario 4 -- Fire-and-forget scan submission
+A developer submits a scan with --waitForResults=false and reviews results later in the AppScan web console.
+
+Scenario 5 -- AppScan 360 on-premises scanning
+An enterprise team runs SAST scans against their AppScan 360 on-premises instance using --serviceUrl and --acceptssl.
+
+Child Stories
+
+#
+
+Story
+
+Priority
+
+Size
+
+1 
+
+Upgrade AppScan SDK from v1.1.5 to v1.1.12 -- Upgrade the SDK dependency, pin new transitive dependencies (commons-compress, commons-io), regenerate lockfile, and verify existing DAST functionality is unaffected. 
+
+P0 (blocker) 
+
+S 
+
+2 
+
+Implement SAST scan command (invokesastscan) -- Implement the static analysis CLI command with IRX generation and direct upload scan methods, scan speed control, source-code-only mode, real-time progress, findings summary, and report/log download. 
+
+P0 
+
+L 
+
+3 
+
+Implement SCA scan command (invokescascan) -- Implement the software composition analysis CLI command with dependency vulnerability detection, real-time progress, findings summary, and report/log download. 
+
+P0 
+
+M 
+
+4 
+
+Enable combined SAST + SCA scanning -- Allow the SAST command to include SCA by default, with entitlement validation and graceful degradation when SCA subscription is unavailable. Include --openSourceOnly mode. 
+
+P1 
+
+M 
+
+5 
+
+Add quality gate support (failbuildif & failBuildNonCompliance) -- Implement threshold-based and policy-based build failure for both SAST and SCA commands. 
+
+P1 
+
+M 
+
+6 
+
+Add rescan and AppScan 360 support for SAST/SCA -- Enable rescan of previous scans via --rescan / --scanId, and connectivity to AppScan 360 on-premises via --serviceUrl / --acceptssl. 
+
+P2 
+
+S 
+
+
+
+Acceptance Criteria (Epic-Level)
+
+A user can run invokesastscan with valid credentials and a source code directory to successfully submit a SAST scan and receive findings categorized by severity.
+
+A user can run invokescascan with valid credentials and a source code directory to successfully submit an SCA scan and receive dependency vulnerability findings.
+
+The SAST command supports both IRX generation and direct upload scan methods.
+
+The SAST command includes SCA analysis by default; users can disable it.
+
+Both commands download a scan report (HTML/PDF/CSV/XML) and scan logs to ./AppscanReports/ upon completion.
+
+The failbuildif subcommand correctly fails the build (exit code 10) when any configured severity threshold is exceeded.
+
+The --failBuildNonCompliance option correctly fails the build (exit code 12) when non-compliant issues exist.
+
+Users without a valid SAST or SCA subscription receive a clear error message and the scan is not submitted.
+
+Users without SCA entitlement in a combined SAST+SCA scan receive a warning and the scan proceeds without SCA (graceful degradation).
+
+The --rescan option with --scanId correctly performs a rescan of an existing scan.
+
+Real-time progress display shows scan status, duration, and progress during execution.
+
+Both commands work with AppScan on Cloud (SaaS) and AppScan 360 (on-premises with --serviceUrl).
+
+The --help output for the main CLI and each new command is complete and accurate.
+
+Existing DAST functionality is unaffected.
+
+The CLI builds successfully, passes lockfile validation, and all existing tests continue to pass.
+
+Dependencies
+
+HCL AppScan SDK v1.1.12 (provides SAST/SCA scan factories and entitlement APIs)
+
+Active SAST and/or SCA subscription on AppScan on Cloud or AppScan 360 for end-to-end testing
+
+Risks & Considerations
+
+SAClient dependency -- The IRX generation scan method requires the SAClient to be downloaded and executed locally. Users behind restrictive firewalls may need to use the direct upload method instead.
+
+Combined results handling -- When SAST + SCA are run together, the backend returns combined results. The CLI must correctly aggregate and display findings from both scan types.
+
+Scan duration -- SAST scans on large codebases can take significant time. The async mode (--waitForResults=false) mitigates this for pipelines with time constraints.
+
+Entitlement mismatches -- A user may have SAST but not SCA entitlement. The CLI should gracefully degrade combined scans rather than failing outright.
+
+
+CLI Command Reference (Complete)
+
+The following is the complete list of commands, subcommands, and options for the AppScan Cloud CLI after SAST and SCA implementation. Items marked [NEW] are introduced by this Epic.
+
+Top-Level CLI
+
+java -jar appscan-cloud-cli.jar [-hV] [COMMAND]
+
+Command
+
+Description
+
+getapplications 
+
+List application IDs from AppScan on Cloud or AppScan 360 
+
+getpresenceids 
+
+List presence IDs from AppScan on Cloud 
+
+invokedynamicscan 
+
+Run a Dynamic Application Security Testing (DAST) scan 
+
+invokesastscan 
+
+[NEW] Run a Static Application Security Testing (SAST) scan 
+
+invokescascan 
+
+[NEW] Run a Software Composition Analysis (SCA) scan 
+
+help 
+
+Display help information about the specified command 
+
+getapplications
+
+getapplications [-hV] --key=<key> --secret=<secret>
+                [--serviceUrl=<serviceUrl>] [--acceptssl=BOOLEAN]
+
+Option
+
+Required
+
+Default
+
+Description
+
+--key 
+
+Yes 
+
+
+
+API Key 
+
+--secret 
+
+Yes 
+
+
+
+API Secret 
+
+--serviceUrl 
+
+No 
+
+
+
+AppScan Service URL 
+
+--acceptssl 
+
+No 
+
+false 
+
+Ignore untrusted certificates (AppScan 360 only) 
+
+getpresenceids
+
+getpresenceids [-hV] --key=<key> --secret=<secret>
+               [--serviceUrl=<serviceUrl>]
+
+Option
+
+Required
+
+Default
+
+Description
+
+--key 
+
+Yes 
+
+
+
+API Key 
+
+--secret 
+
+Yes 
+
+
+
+API Secret 
+
+--serviceUrl 
+
+No 
+
+
+
+AppScan Service URL 
+
+invokedynamicscan
+
+invokedynamicscan [-hV] --key=<key> --secret=<secret> --appId=<appId>
+                  --scanName=<scanName> --target=<target>
+                  [--scanType=<scanType>] [--optimization=<optimization>]
+                  [--reportFormat=<reportFormat>] [--allowIntervention=BOOLEAN]
+                  [--presenceId=<presenceId>] [--waitForResults=BOOLEAN]
+                  [--failBuildNonCompliance=BOOLEAN] [--scanFile=<scanFile>]
+                  [--loginType=<loginType>] [--loginUser=<loginUser>]
+                  [--loginPassword=<loginPassword>]
+                  [--loginSequenceFile=<loginSequenceFile>]
+                  [--serviceUrl=<serviceUrl>] [--acceptssl=BOOLEAN]
+                  [COMMAND]
+
+Option
+
+Required
+
+Default
+
+Valid Values
+
+Description
+
+--key 
+
+Yes 
+
+
+
+
+
+API Key 
+
+--secret 
+
+Yes 
+
+
+
+
+
+API Secret 
+
+--appId 
+
+Yes 
+
+
+
+
+
+Application ID 
+
+--scanName 
+
+Yes 
+
+
+
+
+
+Scan name 
+
+--target 
+
+Yes 
+
+
+
+
+
+Target URL to scan 
+
+--scanType 
+
+No 
+
+Production 
+
+Production, Staging 
+
+Site type 
+
+--optimization 
+
+No 
+
+fast 
+
+Fast, Faster, Fastest, NoOptimization 
+
+Scan speed / coverage balance 
+
+--reportFormat 
+
+No 
+
+html 
+
+html, pdf, csv, xml 
+
+Report format 
+
+--allowIntervention 
+
+No 
+
+false 
+
+true, false 
+
+Allow scan enablement team intervention (AppScan on Cloud only) 
+
+--presenceId 
+
+No 
+
+
+
+
+
+AppScan Presence ID (AppScan on Cloud only) 
+
+--waitForResults 
+
+No 
+
+true 
+
+true, false 
+
+Wait for scan completion 
+
+--failBuildNonCompliance 
+
+No 
+
+false 
+
+true, false 
+
+Fail on non-compliant issues 
+
+--scanFile 
+
+No 
+
+
+
+
+
+Path to scan template file (.scan or .scant) 
+
+--loginType 
+
+No 
+
+None 
+
+None, Automatic, Manual 
+
+Login method 
+
+--loginUser 
+
+No 
+
+
+
+
+
+Login username (when --loginType=Automatic) 
+
+--loginPassword 
+
+No 
+
+
+
+
+
+Login password (when --loginType=Automatic) 
+
+--loginSequenceFile 
+
+No 
+
+
+
+
+
+Path to login sequence file (.config) 
+
+--serviceUrl 
+
+No 
+
+
+
+
+
+AppScan Service URL 
+
+--acceptssl 
+
+No 
+
+false 
+
+true, false 
+
+Ignore untrusted certificates (AppScan 360 only) 
+
+Subcommand: failbuildif
+
+invokedynamicscan [options] failbuildif [-ti=<n>] [-ci=<n>] [-hi=<n>] [-mi=<n>] [-li=<n>]
+
+Option
+
+Short
+
+Description
+
+--totalissuesgt 
+
+-ti 
+
+Fail build if total issues greater than threshold 
+
+--criticalissuesgt 
+
+-ci 
+
+Fail build if critical severity issues greater than threshold 
+
+--highissuesgt 
+
+-hi 
+
+Fail build if high severity issues greater than threshold 
+
+--medissuesgt 
+
+-mi 
+
+Fail build if medium severity issues greater than threshold 
+
+--lowissuesgt 
+
+-li 
+
+Fail build if low severity issues greater than threshold 
+
+invokesastscan [NEW]
+
+invokesastscan [-hV] --key=<key> --secret=<secret> --appId=<appId>
+               --scanName=<scanName> --target=<target>
+               [--scanMethod=<scanMethod>] [--scanSpeed=<scanSpeed>]
+               [--openSourceOnly=BOOLEAN] [--sourceCodeOnly=BOOLEAN]
+               [--includeSCA=BOOLEAN] [--reportFormat=<reportFormat>]
+               [--waitForResults=BOOLEAN] [--failBuildNonCompliance=BOOLEAN]
+               [--rescan=BOOLEAN] [--scanId=<scanId>]
+               [--serviceUrl=<serviceUrl>] [--acceptssl=BOOLEAN]
+               [COMMAND]
+
+Option
+
+Required
+
+Default
+
+Valid Values
+
+Description
+
+--key 
+
+Yes 
+
+
+
+
+
+API Key 
+
+--secret 
+
+Yes 
+
+
+
+
+
+API Secret 
+
+--appId 
+
+Yes 
+
+
+
+
+
+Application ID 
+
+--scanName 
+
+Yes 
+
+
+
+
+
+Scan name 
+
+--target 
+
+Yes 
+
+
+
+
+
+Path to source code directory, IRX file, or zip file 
+
+--scanMethod 
+
+No 
+
+createIRX 
+
+createIRX, uploadDirect 
+
+Scan method 
+
+--scanSpeed 
+
+No 
+
+
+
+normal, fast, faster, fastest 
+
+Scan speed setting 
+
+--openSourceOnly 
+
+No 
+
+false 
+
+true, false 
+
+Perform only open source analysis (SCA) 
+
+--sourceCodeOnly 
+
+No 
+
+false 
+
+true, false 
+
+Analyze source code only (not with uploadDirect) 
+
+--includeSCA 
+
+No 
+
+true 
+
+true, false 
+
+Include SCA in the scan 
+
+--reportFormat 
+
+No 
+
+html 
+
+html, pdf, csv, xml 
+
+Report format 
+
+--waitForResults 
+
+No 
+
+true 
+
+true, false 
+
+Wait for scan completion 
+
+--failBuildNonCompliance 
+
+No 
+
+false 
+
+true, false 
+
+Fail on non-compliant issues 
+
+--rescan 
+
+No 
+
+false 
+
+true, false 
+
+Perform rescan (requires --scanId) 
+
+--scanId 
+
+No 
+
+
+
+
+
+Scan ID to rescan 
+
+--serviceUrl 
+
+No 
+
+
+
+
+
+AppScan Service URL 
+
+--acceptssl 
+
+No 
+
+false 
+
+true, false 
+
+Ignore untrusted certificates (AppScan 360 only) 
+
+Subcommand: failbuildif
+
+invokesastscan [options] failbuildif [-ti=<n>] [-ci=<n>] [-hi=<n>] [-mi=<n>] [-li=<n>]
+
+Option
+
+Short
+
+Description
+
+--totalissuesgt 
+
+-ti 
+
+Fail build if total issues greater than threshold 
+
+--criticalissuesgt 
+
+-ci 
+
+Fail build if critical severity issues greater than threshold 
+
+--highissuesgt 
+
+-hi 
+
+Fail build if high severity issues greater than threshold 
+
+--medissuesgt 
+
+-mi 
+
+Fail build if medium severity issues greater than threshold 
+
+--lowissuesgt 
+
+-li 
+
+Fail build if low severity issues greater than threshold 
+
+invokescascan [NEW]
+
+invokescascan [-hV] --key=<key> --secret=<secret> --appId=<appId>
+              --scanName=<scanName> --target=<target>
+              [--reportFormat=<reportFormat>] [--waitForResults=BOOLEAN]
+              [--failBuildNonCompliance=BOOLEAN] [--rescan=BOOLEAN]
+              [--scanId=<scanId>] [--serviceUrl=<serviceUrl>]
+              [--acceptssl=BOOLEAN]
+              [COMMAND]
+
+Option
+
+Required
+
+Default
+
+Valid Values
+
+Description
+
+--key 
+
+Yes 
+
+
+
+
+
+API Key 
+
+--secret 
+
+Yes 
+
+
+
+
+
+API Secret 
+
+--appId 
+
+Yes 
+
+
+
+
+
+Application ID 
+
+--scanName 
+
+Yes 
+
+
+
+
+
+Scan name 
+
+--target 
+
+Yes 
+
+
+
+
+
+Path to source code directory 
+
+--reportFormat 
+
+No 
+
+html 
+
+html, pdf, csv, xml 
+
+Report format 
+
+--waitForResults 
+
+No 
+
+true 
+
+true, false 
+
+Wait for scan completion 
+
+--failBuildNonCompliance 
+
+No 
+
+false 
+
+true, false 
+
+Fail on non-compliant issues 
+
+--rescan 
+
+No 
+
+false 
+
+true, false 
+
+Perform rescan (requires --scanId) 
+
+--scanId 
+
+No 
+
+
+
+
+
+Scan ID to rescan 
+
+--serviceUrl 
+
+No 
+
+
+
+
+
+AppScan Service URL 
+
+--acceptssl 
+
+No 
+
+false 
+
+true, false 
+
+Ignore untrusted certificates (AppScan 360 only) 
+
+Subcommand: failbuildif
+
+invokescascan [options] failbuildif [-ti=<n>] [-ci=<n>] [-hi=<n>] [-mi=<n>] [-li=<n>]
+
+Option
+
+Short
+
+Description
+
+--totalissuesgt 
+
+-ti 
+
+Fail build if total issues greater than threshold 
+
+--criticalissuesgt 
+
+-ci 
+
+Fail build if critical severity issues greater than threshold 
+
+--highissuesgt 
+
+-hi 
+
+Fail build if high severity issues greater than threshold 
+
+--medissuesgt 
+
+-mi 
+
+Fail build if medium severity issues greater than threshold 
+
+--lowissuesgt 
+
+-li 
+
+Fail build if low severity issues greater than threshold 
