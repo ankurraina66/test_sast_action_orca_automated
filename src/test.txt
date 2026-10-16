@@ -1,33 +1,67 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\tests -Recurse -File |
->>   Select-Object FullName
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\integration\local-scan-discovery.integration.ts
+import { createAppScanService } from "../../src/services/appscan-service-factory.js";
 
-FullName
---------
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\integration\local-app-discovery.integration.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\integration\local-mcp.integration.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\integration\local-scan-discovery.integration.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\appscan-service-factory.test.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\appscan-service.test.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\config.test.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\index.test.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\local-stdio-connector.test.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts
+async function main(): Promise<void> {
+  const service = createAppScanService();
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\src -Recurse -File |
->>   Select-Object FullName
+  try {
+    await service.connect();
 
-FullName
---------
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\index.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector-factory.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service-factory.ts
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts
+    const tools = await service.listTools();
+    const tool = tools.find((item) => item.name === "get-issues");
 
+    if (!tool) {
+      throw new Error("The get-issues tool is not available.");
+    }
+
+    console.log("get-issues input schema:");
+    console.log(JSON.stringify(tool.inputSchema, null, 2));
+  } finally {
+    await service.disconnect();
+  }
+}
+
+main().catch((error: unknown) => {
+  console.error(
+    "get-issues schema inspection failed:",
+    error instanceof Error ? error.message : "Unknown error",
+  );
+  process.exitCode = 1;
+});
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\integration\local-app-discovery.integration.ts
+import { createAppScanService } from "../../src/services/appscan-service-factory.js";
+
+async function main(): Promise<void> {
+  const service = createAppScanService();
+
+  try {
+    await service.connect();
+
+    console.log("Retrieving up to 5 AppScan applications...");
+
+    const result = await service.callTool("get-apps", { top: 5 });
+
+    for (const item of result.content) {
+      if (item.text) {
+        console.log(item.text);
+      }
+    }
+
+    if (result.isError) {
+      throw new Error("AppScan returned an error while retrieving applications.");
+    }
+
+    console.log("Application retrieval completed.");
+  } finally {
+    await service.disconnect();
+  }
+}
+
+main().catch((error: unknown) => {
+  console.error(
+    "Application retrieval failed:",
+    error instanceof Error ? error.message : "Unknown error",
+  );
+  process.exitCode = 1;
+});
 PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
