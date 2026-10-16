@@ -1,67 +1,20 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\integration\local-scan-discovery.integration.ts
-import { createAppScanService } from "../../src/services/appscan-service-factory.js";
+@'
+import { createAppScanService } from "./src/services/appscan-service-factory.ts";
 
-async function main(): Promise<void> {
-  const service = createAppScanService();
+const service = createAppScanService();
 
-  try {
-    await service.connect();
+try {
+  await service.connect();
+  const tools = await service.listTools();
 
-    const tools = await service.listTools();
-    const tool = tools.find((item) => item.name === "get-issues");
-
-    if (!tool) {
-      throw new Error("The get-issues tool is not available.");
-    }
-
-    console.log("get-issues input schema:");
-    console.log(JSON.stringify(tool.inputSchema, null, 2));
-  } finally {
-    await service.disconnect();
+  for (const name of ["get-apps", "get-scans"]) {
+    const tool = tools.find((item) => item.name === name);
+    console.log(`\n${name} input schema:`);
+    console.log(JSON.stringify(tool?.inputSchema ?? "NOT FOUND", null, 2));
   }
+} finally {
+  await service.disconnect();
 }
+'@ | Set-Content .\scripts\inspect-appscan-schemas.ts
 
-main().catch((error: unknown) => {
-  console.error(
-    "get-issues schema inspection failed:",
-    error instanceof Error ? error.message : "Unknown error",
-  );
-  process.exitCode = 1;
-});
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\integration\local-app-discovery.integration.ts
-import { createAppScanService } from "../../src/services/appscan-service-factory.js";
-
-async function main(): Promise<void> {
-  const service = createAppScanService();
-
-  try {
-    await service.connect();
-
-    console.log("Retrieving up to 5 AppScan applications...");
-
-    const result = await service.callTool("get-apps", { top: 5 });
-
-    for (const item of result.content) {
-      if (item.text) {
-        console.log(item.text);
-      }
-    }
-
-    if (result.isError) {
-      throw new Error("AppScan returned an error while retrieving applications.");
-    }
-
-    console.log("Application retrieval completed.");
-  } finally {
-    await service.disconnect();
-  }
-}
-
-main().catch((error: unknown) => {
-  console.error(
-    "Application retrieval failed:",
-    error instanceof Error ? error.message : "Unknown error",
-  );
-  process.exitCode = 1;
-});
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+npx tsx .\scripts\inspect-appscan-schemas.ts
