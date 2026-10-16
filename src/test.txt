@@ -1,13 +1,27 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\.claude\skills\appscan\SKILL.md, .\agent\skills\appscan\SKILL.md `
->>   -Pattern 'AppScan scan metadata consistency|Technology|CreatedAt|generic caveat'
+/appscan List the scans for AppScan application Test_Tayalan
 
-.claude\skills\appscan\SKILL.md:97:AppScan scan metadata consistency
-.claude\skills\appscan\SKILL.md:99:- When reporting scans, use the values returned by `get-scans`. The scan type comes from the API's `Technology` field,
-and the creation timestamp comes from `CreatedAt`.
-.claude\skills\appscan\SKILL.md:101:- Do not add a generic caveat that contradicts a populated scan table.
-agent\skills\appscan\SKILL.md:97:AppScan scan metadata consistency
-agent\skills\appscan\SKILL.md:99:- When reporting scans, use the values returned by `get-scans`. The scan type comes from the API's `Technology` field,
-and the creation timestamp comes from `CreatedAt`.
-agent\skills\appscan\SKILL.md:101:- Do not add a generic caveat that contradicts a populated scan table.
+  Called MCP
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+I need the application's GUID, so I'll look up Test_Tayalan first.
+
+  Called appscan-connector 2 times
+
+Application Test_Tayalan (ID 39c76747-8617-4e00-8ae8-096e208f72ac) has 4 scans, all with status Ready. I got them from get-scans.
+
+┌───────────────────────────────────┬──────────────────────────────────────┬───────────────────┬──────────────────────────┐
+│             Scan name             │               Scan ID                │ Type (Technology) │ Created (CreatedAt, UTC) │
+├───────────────────────────────────┼──────────────────────────────────────┼───────────────────┼──────────────────────────┤
+│ SASTIncrementalscan               │ 3fe02f9a-e8df-4395-9a0d-593b315f1242 │ StaticAnalyzer    │ 2026-10-12 06:51:39      │
+├───────────────────────────────────┼──────────────────────────────────────┼───────────────────┼──────────────────────────┤
+│ staging-check_2026-10-13_16-13-44 │ 32fe2b86-2f61-4c2c-8803-99ac6d42a37d │ DynamicAnalyzer   │ 2026-10-13 10:43:45      │
+├───────────────────────────────────┼──────────────────────────────────────┼───────────────────┼──────────────────────────┤
+│ SAST 2026-09-30 demo (2).irx      │ 36dcd4ac-36bf-40ef-af78-d9fc0d54b1ed │ StaticAnalyzer    │ 2026-09-30 06:31:28      │
+├───────────────────────────────────┼──────────────────────────────────────┼───────────────────┼──────────────────────────┤
+│ SCA 2026-10-1 demo (2).irx        │ b0b5685c-216a-4f31-a16f-e4e322b4c980 │ ScaAnalyzer       │ 2026-10-01 05:35:07      │
+└───────────────────────────────────┴──────────────────────────────────────┴───────────────────┴──────────────────────────┘
+
+Missing values
+- Risk: the get-scans response did not provide a risk value for any of the four scans ("Not provided by AppScan API"). I haven't inferred one.
+- Application metadata: the get-apps response returned Type, Created and Risk as "Unknown" for the application itself.
+
+I haven't retrieved any findings yet. To review one, give me a scan, such as the latest SAST scan SASTIncrementalscan, and I'll list its issues with get-scan-issues.
