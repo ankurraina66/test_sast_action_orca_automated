@@ -1,1 +1,22 @@
 
+$content = Get-Content $McpIndex -Raw
+
+$oldType = 'scan.ScanType || "Unknown"'
+$oldCreated = 'scan.Created || "Unknown"'
+$oldRisk = 'scan.LatestExecution?.Risk || "Unknown"'
+
+if (-not $content.Contains($oldType) -or
+    -not $content.Contains($oldCreated) -or
+    -not $content.Contains($oldRisk)) {
+    throw "Expected source text was not found. No changes saved."
+}
+
+$content = $content.Replace($oldType, 'scan.Technology || "Unknown"')
+$content = $content.Replace($oldCreated, 'scan.CreatedAt || "Unknown"')
+$content = $content.Replace($oldRisk, '"Not provided by AppScan API"')
+
+Set-Content -Path $McpIndex -Value $content -NoNewline
+
+Get-Content $McpIndex |
+    Select-Object -Skip 320 -First 8
+
