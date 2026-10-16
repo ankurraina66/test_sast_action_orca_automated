@@ -1,3 +1,72 @@
-`Type: ${scan.ScanType || "Unknown"}`,
-`Created: ${scan.Created || "Unknown"}`,
-`Risk: ${scan.LatestExecution?.Risk || "Unknown"}`,
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content $McpIndex | Select-Object -Skip 210 -First 70
+            ],
+        };
+    }
+    catch (error) {
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: `Error fetching apps: ${error instanceof Error ? error.message : String(error)}`,
+                },
+            ],
+            isError: true,
+        };
+    }
+});
+/**
+ * Tool: create-app
+ * Create a new application
+ */
+server.registerTool("create-app", {
+    description: "Create a new application in AppScan. Use only after the user explicitly approves application creation. Do not call this tool to guess or unblock a missing appId during create-scan.",
+    inputSchema: {
+        name: z.string().describe("Application name"),
+        description: z.string().optional().describe("Application description"),
+        assetGroupId: z.string().optional().describe("Asset group ID"),
+        approved: z.boolean().optional().default(false).describe("Set to true only after the user has explicitly approved creating this application."),
+    },
+}, async ({ name, description, assetGroupId, approved }) => {
+    try {
+        if (!approved) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: approvalRequiredMessage("creating an AppScan application", [
+                            `Application name: ${name}`,
+                            `Description: ${description || "(none)"}`,
+                            `Asset group ID: ${assetGroupId || "(none)"}`,
+                        ]),
+                    },
+                ],
+                isError: true,
+            };
+        }
+        const payload = {
+            Name: name,
+        };
+        if (description)
+            payload.Description = description;
+        if (assetGroupId)
+            payload.AssetGroupId = assetGroupId;
+        const response = await makeAppScanRequest("/api/v4/Apps", {
+            method: "POST",
+            body: JSON.stringify(payload),
+        });
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: `Application created successfully!\nID: ${response.Id}\nName: ${response.Name}`,
+                },
+            ],
+        };
+    }
+    catch (error) {
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: `Error creating app: ${error instanceof Error ? error.message : String(error)}`,
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
