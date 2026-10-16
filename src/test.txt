@@ -1,1 +1,3 @@
-
+Select-String -Path $McpIndex `
+  -Pattern 'async function makeAppScanRequest|function makeAppScanRequest|makeAppScanRequest' `
+  -Context 0,8
