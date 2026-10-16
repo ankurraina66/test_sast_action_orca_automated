@@ -1,10 +1,3 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem -Path .\src -Recurse -File |
->>   Select-String -Pattern 'get-scans|getScans|get_scans' |
->>   Select-Object Path, LineNumber, Line
-
-Path                                                                          LineNumber Line
-----                                                                          ---------- ----
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts         52     "get-scans",
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts         61       const result = await service.callTool("get-scans", args);
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+Get-ChildItem -Path .\src -Recurse -File |
+  Select-String -Pattern 'get-scans|applicationId|application_id|scanType|created|risk|Unknown' |
+  Select-Object Path, LineNumber, Line
