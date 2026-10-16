@@ -1,83 +1,40 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $appId = "39c76747-8617-4e00-8ae8-096e208f72ac"
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $appUrl = "$($env:APPSCAN_API_BASE)/api/v4/Apps?`$filter=$( [uri]::EscapeDataString("Id eq $appId") )"
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $scanUrl = "$($env:APPSCAN_API_BASE)/api/v4/Scans?`$filter=$( [uri]::EscapeDataString("AppId eq $appId") )"
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $appResponse = Invoke-RestMethod -Uri $appUrl -Headers $headers -Method Get
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $scanResponse = Invoke-RestMethod -Uri $scanUrl -Headers $headers -Method Get
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $app = @($appResponse.Items) | Select-Object -First 1
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $scans = @($scanResponse.Items)
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Write-Host "`n=== APPLICATION ==="
-
-=== APPLICATION ===
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if ($app) {
->>     Write-Host "Fields: $($app.PSObject.Properties.Name -join ', ')"
->>     $app.PSObject.Properties |
->>         Where-Object { $_.Name -match 'type|created|risk|score|severity|issue|critical|high|medium|low' } |
->>         ForEach-Object { "$($_.Name) = $($_.Value)" }
->> } else {
->>     Write-Host "No application record returned."
->> }
-Fields: Id, Name, RiskRating, CustomFields, CriticalIssues, HighIssues, MediumIssues, LowIssues, InformationalIssues, IssuesInProgress, MaxSeverity, CorrelationState, RR_MaxSeverity, AssetGroupId, BusinessImpact, Url, Description, BusinessUnit, BusinessUnitId, Type, Technology, TestingStatus, Hosts, CollateralDamagePotential, TargetDistribution, ConfidentialityRequirement, IntegrityRequirement, AvailabilityRequirement, Tester, BusinessOwner, DevelopmentContact, PreferredOfferingType, AssetGroupName, DateCreated, LastUpdated, LastComment, CreatedBy, NewIssues, OpenIssues, TotalIssues, OverallCompliance, ComplianceStatuses, CanBeDeleted, LockedToSubscription, SubscriptionId, MHSEntitlementKey, TotalScans, NScanExecutions, HasExceedingIssuesNumber, HasExceedingScansNumber, AutoDeleteExceededScans, Presences, UseOnlyAppPresences, AddedToAssetGroupBy, AddedToAssetGroupAt, ScanTechnologies, IssuesCleanupInProgress, EnableBusinessLogicTesting, GitConnectPresenceId, GitRepoOwner, GitRepoName, GitRepoPlatform, GitServerUrl
-RiskRating = Unknown
-CriticalIssues = 7
-HighIssues = 107
-MediumIssues = 56
-LowIssues = 33
-InformationalIssues = 15
-IssuesInProgress = 1
-MaxSeverity = Critical
-RR_MaxSeverity = 0
-Type =
-PreferredOfferingType = None
-DateCreated = 01/29/2024 06:55:19
-CreatedBy = Vimal Sharma
-NewIssues = 0
-OpenIssues = 218
-TotalIssues = 220
-HasExceedingIssuesNumber = False
-IssuesCleanupInProgress = False
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Write-Host "`n=== SCANS ==="
-
-=== SCANS ===
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Write-Host "Scan count: $($scans.Count)"
-Scan count: 4
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if ($scans.Count -gt 0) {
->>     $scan = $scans[0]
->>     Write-Host "Fields: $($scan.PSObject.Properties.Name -join ', ')"
->>     Write-Host "LatestExecution fields: $(if ($scan.LatestExecution) { $scan.LatestExecution.PSObject.Properties.Name -join ', ' } else { 'null' })"
->>
->>     $scan.PSObject.Properties |
->>         Where-Object { $_.Name -match 'risk|score|severity|issue|critical|high|medium|low|technology|created' } |
->>         ForEach-Object { "$($_.Name) = $($_.Value)" }
->>
->>     if ($scan.LatestExecution) {
->>         $scan.LatestExecution.PSObject.Properties |
->>             Where-Object { $_.Name -match 'risk|score|severity|issue|critical|high|medium|low' } |
->>             ForEach-Object { "LatestExecution.$($_.Name) = $($_.Value)" }
->>     }
->> }
-Fields: AppId, Id, Name, Description, Technology, IastAgentType, IastAgentStatus, Url, AppName, TestOptimizationLevel, NumberOfExecutions, CreatedBy, CreatedAt, LastModified, NextScheduledRun, LatestExecution, Presence, RecurrenceRule, EnablePromote, IsPersonal, RescanAllowed, ParsedFromUploadedFile, DeletedAllowed, RecurrenceEndDate, FullyAutomatic, EnableMailNotifications, AssetGroupId, BusinessUnitId, EnableEditing, ProactiveAlerts, GitRepoPlatform
-LatestExecution fields: Id, FileName, UserMessage, NNewAppIssues, NIssuesFound, Status, Progress, ExecutionProgress, CreatedBy, CreatedAt, ExecutedAt, ScanEndTime, ExecutionDurationSec, NNewAppCriticalIssues, NCriticalIssues, NNewAppHighIssues, NHighIssues, NNewAppMediumIssues, NMediumIssues, NNewAppLowIssues, NLowIssues, NNewAppInfoIssues, NInfoIssues, NOpenSourceLicenses, NOpenSourcePackages, HasLogs, IsScanFileAvailable, PredefinedMessageKey, HandledByScanEnabler, IsPartial, IncrementalBaseJobId, IsIncrementalRetest, IsRetestOnly, IssueRetestInfo, GitRepository, GitBranch, SupportModeEnabled, CanResume, RapidFixAnalysisStatus
-Technology = StaticAnalyzer
-CreatedBy = @{Id=4667eb3f-6387-486e-a758-939026048b31; FirstName=Karthik tayalan; LastName=Madasamy; UserName=karthiktayalan.madas@hcl.com; Email=karthiktayalan.madas@hcl.com}
-CreatedAt = 10/12/2026 06:51:39
-RescanAllowed = True
-DeletedAllowed = True
-LatestExecution.NNewAppIssues = 0
-LatestExecution.NIssuesFound = 0
-LatestExecution.NNewAppCriticalIssues = 0
-LatestExecution.NCriticalIssues = 0
-LatestExecution.NNewAppHighIssues = 0
-LatestExecution.NHighIssues = 0
-LatestExecution.NNewAppMediumIssues = 0
-LatestExecution.NMediumIssues = 0
-LatestExecution.NNewAppLowIssues = 0
-LatestExecution.NLowIssues = 0
-LatestExecution.NNewAppInfoIssues = 0
-LatestExecution.NInfoIssues = 0
-LatestExecution.IssueRetestInfo = @{NRetestedIssues=0; NRetestedIssuesFound=0; RetestedIssuesFoundIds=System.Object[]}
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content $McpIndex | Select-Object -Skip 180 -First 38
+            params.append("$top", top.toString());
+        if (params.toString()) {
+            endpoint += `?${params.toString()}`;
+        }
+        const response = await makeAppScanRequest(endpoint);
+        const apps = response.Items || response || [];
+        if (apps.length === 0) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: "No applications found",
+                    },
+                ],
+            };
+        }
+        const formattedApps = apps.map((app) => [
+            `Name: ${app.Name || "Unknown"}`,
+            `ID: ${app.Id || "Unknown"}`,
+            `Type: ${app.AppType || "Unknown"}`,
+            `Created: ${app.Created || "Unknown"}`,
+            `Risk: ${app.Risk || "Unknown"}`,
+            "---",
+        ].join("\n"));
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: `Found ${apps.length} application(s):\n\n${formattedApps.join("\n")}`,
+                },
+            ],
+        };
+    }
+    catch (error) {
+        return {
+            content: [
+                {
+                    type: "text",
 PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
