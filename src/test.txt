@@ -1,34 +1,13 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\.claude\skills\appscan\SKILL.md, .\agent\skills\appscan\SKILL.md `
+>>   -Pattern 'AppScan scan metadata consistency|Technology|CreatedAt|generic caveat'
 
-$files = @(
-    ".\.claude\skills\appscan\SKILL.md",
-    ".\agent\skills\appscan\SKILL.md"
-)
+.claude\skills\appscan\SKILL.md:97:AppScan scan metadata consistency
+.claude\skills\appscan\SKILL.md:99:- When reporting scans, use the values returned by `get-scans`. The scan type comes from the API's `Technology` field,
+and the creation timestamp comes from `CreatedAt`.
+.claude\skills\appscan\SKILL.md:101:- Do not add a generic caveat that contradicts a populated scan table.
+agent\skills\appscan\SKILL.md:97:AppScan scan metadata consistency
+agent\skills\appscan\SKILL.md:99:- When reporting scans, use the values returned by `get-scans`. The scan type comes from the API's `Technology` field,
+and the creation timestamp comes from `CreatedAt`.
+agent\skills\appscan\SKILL.md:101:- Do not add a generic caveat that contradicts a populated scan table.
 
-$section = @'
-
-AppScan scan metadata consistency
-
-- When reporting scans, use the values returned by `get-scans`. The scan type comes from the API's `Technology` field, and the creation timestamp comes from `CreatedAt`.
-- Do not say scan type or creation date is `Unknown` if the returned scan records contain those values.
-- Do not add a generic caveat that contradicts a populated scan table.
-- Report risk as unavailable only when the tool response does not provide a risk value. Do not infer a risk rating from issue counts or scan type.
-- Keep application metadata separate from scan metadata. Do not claim application type or application creation date was missing unless `get-apps` was called and its actual response lacked those values.
-- If a value is missing, identify exactly which field is missing and which tool response was inspected.
-'@
-
-foreach ($file in $files) {
-    $content = Get-Content $file -Raw
-
-    if ($content -notmatch 'AppScan scan metadata consistency') {
-        Copy-Item $file "$file.bak" -Force
-        Add-Content -Path $file -Value $section
-        Write-Host "Updated: $file"
-    } else {
-        Write-Host "Already updated: $file"
-    }
-}
-***********************
-
-
-Select-String -Path .\.claude\skills\appscan\SKILL.md, .\agent\skills\appscan\SKILL.md `
-  -Pattern 'AppScan scan metadata consistency|Technology|CreatedAt|generic caveat'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
