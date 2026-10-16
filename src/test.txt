@@ -1,1 +1,17 @@
+$content = Get-Content $McpIndex -Raw
 
+$old = 'Not provided by' + "`r`n" + 'AppScan API'
+$new = 'Risk rating not available from the scan endpoint'
+
+if (-not $content.Contains($old)) {
+    $old = 'Not provided by' + "`n" + 'AppScan API'
+}
+
+if (-not $content.Contains($old)) {
+    throw "Text not found. File unchanged."
+}
+
+$content = $content.Replace($old, $new)
+Set-Content -Path $McpIndex -Value $content -NoNewline
+
+Select-String -Path $McpIndex -Pattern 'Risk rating not available from the scan endpoint'
