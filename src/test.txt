@@ -1,55 +1,72 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = Get-Content $McpIndex -Raw
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $oldApps = @'
+>>         const formattedApps = apps.map((app) => [
+>>             `Name: ${app.Name || "Unknown"}`,
+>>             `ID: ${app.Id || "Unknown"}`,
+>>             `Type: ${app.AppType || "Unknown"}`,
+>>             `Created: ${app.Created || "Unknown"}`,
+>>             `Risk: ${app.Risk || "Unknown"}`,
+>>             "---",
+>>         ].join("\n"));
+>> '@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $newApps = @'
+>>         const formattedApps = apps.map((app) => [
+>>             `Name: ${app.Name || "Unknown"}`,
+>>             `ID: ${app.Id || "Unknown"}`,
+>>             `Type: ${app.Type || "Not set"}`,
+>>             `Technology: ${app.Technology || "Not provided"}`,
+>>             `Created: ${app.DateCreated || "Unknown"}`,
+>>             `Risk rating: ${app.RiskRating || "Unknown"}`,
+>>             `Maximum severity: ${app.MaxSeverity || "Unknown"}`,
+>>             `Critical issues: ${app.CriticalIssues ?? "Unknown"}`,
+>>             `High issues: ${app.HighIssues ?? "Unknown"}`,
+>>             `Medium issues: ${app.MediumIssues ?? "Unknown"}`,
+>>             `Low issues: ${app.LowIssues ?? "Unknown"}`,
+>>             `Informational issues: ${app.InformationalIssues ?? "Unknown"}`,
+>>             "---",
+>>         ].join("\n"));
+>> '@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $oldRisk = '`${"Not provided by AppScan API"}`'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $newRisk = '`${"Risk rating not available from the scan endpoint"}`'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if (-not $content.Contains($oldApps)) {
+>>     throw "Application formatter did not match. No changes saved."
+>> }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if (-not $content.Contains($oldRisk)) {
+>>     throw "Scan risk formatter did not match. No changes saved."
+>> }
+Exception:
+Line |
+   2 |      throw "Scan risk formatter did not match. No changes saved."
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Scan risk formatter did not match. No changes saved.
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Copy-Item $McpIndex "$McpIndex.before-app-metadata-fix.bak" -Force
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = $content.Replace($oldApps, $newApps)
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = $content.Replace($oldRisk, $newRisk)
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Set-Content -Path $McpIndex -Value $content -NoNewline
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Write-Host "`nApplication formatter:"
 
-$content = Get-Content $McpIndex -Raw
+Application formatter:
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path $McpIndex -Pattern 'app.DateCreated|app.RiskRating|app.MaxSeverity|app.CriticalIssues'
 
-$oldApps = @'
-        const formattedApps = apps.map((app) => [
-            `Name: ${app.Name || "Unknown"}`,
-            `ID: ${app.Id || "Unknown"}`,
-            `Type: ${app.AppType || "Unknown"}`,
-            `Created: ${app.Created || "Unknown"}`,
-            `Risk: ${app.Risk || "Unknown"}`,
-            "---",
-        ].join("\n"));
-'@
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:202:            `Created: ${app.DateCreated ||
+"Unknown"}`,
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:203:            `Risk rating: ${app.RiskRating ||
+"Unknown"}`,
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:204:            `Maximum severity:
+${app.MaxSeverity || "Unknown"}`,
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:205:            `Critical issues:
+${app.CriticalIssues ?? "Unknown"}`,
 
-$newApps = @'
-        const formattedApps = apps.map((app) => [
-            `Name: ${app.Name || "Unknown"}`,
-            `ID: ${app.Id || "Unknown"}`,
-            `Type: ${app.Type || "Not set"}`,
-            `Technology: ${app.Technology || "Not provided"}`,
-            `Created: ${app.DateCreated || "Unknown"}`,
-            `Risk rating: ${app.RiskRating || "Unknown"}`,
-            `Maximum severity: ${app.MaxSeverity || "Unknown"}`,
-            `Critical issues: ${app.CriticalIssues ?? "Unknown"}`,
-            `High issues: ${app.HighIssues ?? "Unknown"}`,
-            `Medium issues: ${app.MediumIssues ?? "Unknown"}`,
-            `Low issues: ${app.LowIssues ?? "Unknown"}`,
-            `Informational issues: ${app.InformationalIssues ?? "Unknown"}`,
-            "---",
-        ].join("\n"));
-'@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Write-Host "`nScan risk label:"
 
-$oldRisk = '`${"Not provided by AppScan API"}`'
-$newRisk = '`${"Risk rating not available from the scan endpoint"}`'
-
-if (-not $content.Contains($oldApps)) {
-    throw "Application formatter did not match. No changes saved."
-}
-if (-not $content.Contains($oldRisk)) {
-    throw "Scan risk formatter did not match. No changes saved."
-}
-
-Copy-Item $McpIndex "$McpIndex.before-app-metadata-fix.bak" -Force
-
-$content = $content.Replace($oldApps, $newApps)
-$content = $content.Replace($oldRisk, $newRisk)
-
-Set-Content -Path $McpIndex -Value $content -NoNewline
-
-Write-Host "`nApplication formatter:"
-Select-String -Path $McpIndex -Pattern 'app.DateCreated|app.RiskRating|app.MaxSeverity|app.CriticalIssues'
-
-Write-Host "`nScan risk label:"
-Select-String -Path $McpIndex -Pattern 'Risk rating not available from the scan endpoint'
-
+Scan risk label:
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path $McpIndex -Pattern 'Risk rating not available from the scan endpoint'
