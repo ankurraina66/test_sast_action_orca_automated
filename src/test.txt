@@ -1,1 +1,3 @@
-
+- When listing scans for a named application, display the application name and its ID together, for example: "Test_Tayalan (Application ID: 39c76747-8617-4e00-8ae8-096e208f72ac)".
+- Do not include tool invocation counts or internal execution narration in the written response. Present the results directly.
+- Keep the response limited to the application name and ID, scan table, and at most one concise note about risk-rating availability.
