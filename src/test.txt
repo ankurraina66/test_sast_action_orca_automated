@@ -1,1 +1,3 @@
-
+`Type: ${scan.ScanType || "Unknown"}`,
+`Created: ${scan.Created || "Unknown"}`,
+`Risk: ${scan.LatestExecution?.Risk || "Unknown"}`,
