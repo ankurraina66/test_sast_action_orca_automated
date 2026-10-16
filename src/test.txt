@@ -1,14 +1,19 @@
-$content = Get-Content $McpIndex -Raw
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = Get-Content $McpIndex -Raw
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $pattern = 'Risk:\s*\$\{"Not provided by\s*AppScan API"\}'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $replacement = 'Risk: ${"Risk rating not available from the scan endpoint"}'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $updated = [regex]::Replace($content, $pattern, $replacement, 1)
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if ($updated -eq $content) {
+>>     throw "Risk label not matched. File was not changed."
+>> }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Set-Content -Path $McpIndex -Value $updated -NoNewline
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path $McpIndex -Pattern 'Risk rating not available from the scan endpoint'
 
-$pattern = 'Risk:\s*\$\{"Not provided by\s*AppScan API"\}'
-$replacement = 'Risk: ${"Risk rating not available from the scan endpoint"}'
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:333:            `Risk: ${"Risk rating not
+available from the scan endpoint"}`,
 
-$updated = [regex]::Replace($content, $pattern, $replacement, 1)
-
-if ($updated -eq $content) {
-    throw "Risk label not matched. File was not changed."
-}
-
-Set-Content -Path $McpIndex -Value $updated -NoNewline
-
-Select-String -Path $McpIndex -Pattern 'Risk rating not available from the scan endpoint'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
