@@ -1,14 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content $McpIndex | Select-Object -Skip 318 -First 12
-        }
-        const formattedScans = scans.map((scan) => [
-            `Name: ${scan.Name || "Unknown"}`,
-            `ID: ${scan.Id || "Unknown"}`,
-            `Type: ${scan.ScanType || "Unknown"}`,
-            `Status: ${scan.LatestExecution?.Status || "Unknown"}`,
-            `Created: ${scan.Created || "Unknown"}`,
-            `Risk: ${scan.LatestExecution?.Risk || "Unknown"}`,
-            "---",
-        ].join("\n"));
-        return {
-            content: [
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+
