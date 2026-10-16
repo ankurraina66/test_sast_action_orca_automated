@@ -1,1 +1,5 @@
+$McpRoot = "$HOME\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build"
 
+Get-ChildItem $McpRoot -Recurse -File |
+  Select-String -Pattern 'get-scans|get_scans|applicationId|scanType' |
+  Select-Object Path, LineNumber, Line
