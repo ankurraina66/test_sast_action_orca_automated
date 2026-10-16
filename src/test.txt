@@ -1,1 +1,5 @@
+(Get-Content .\scripts\inspect-appscan-schemas.ts) `
+  -replace '"\./src/', '"../src/' |
+  Set-Content .\scripts\inspect-appscan-schemas.ts
 
+npx tsx .\scripts\inspect-appscan-schemas.ts
