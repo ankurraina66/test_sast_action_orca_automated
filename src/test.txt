@@ -1,1 +1,40 @@
 
+$appId = "39c76747-8617-4e00-8ae8-096e208f72ac"
+
+$appUrl = "$($env:APPSCAN_API_BASE)/api/v4/Apps?`$filter=$( [uri]::EscapeDataString("Id eq $appId") )"
+$scanUrl = "$($env:APPSCAN_API_BASE)/api/v4/Scans?`$filter=$( [uri]::EscapeDataString("AppId eq $appId") )"
+
+$appResponse = Invoke-RestMethod -Uri $appUrl -Headers $headers -Method Get
+$scanResponse = Invoke-RestMethod -Uri $scanUrl -Headers $headers -Method Get
+
+$app = @($appResponse.Items) | Select-Object -First 1
+$scans = @($scanResponse.Items)
+
+Write-Host "`n=== APPLICATION ==="
+if ($app) {
+    Write-Host "Fields: $($app.PSObject.Properties.Name -join ', ')"
+    $app.PSObject.Properties |
+        Where-Object { $_.Name -match 'type|created|risk|score|severity|issue|critical|high|medium|low' } |
+        ForEach-Object { "$($_.Name) = $($_.Value)" }
+} else {
+    Write-Host "No application record returned."
+}
+
+Write-Host "`n=== SCANS ==="
+Write-Host "Scan count: $($scans.Count)"
+if ($scans.Count -gt 0) {
+    $scan = $scans[0]
+    Write-Host "Fields: $($scan.PSObject.Properties.Name -join ', ')"
+    Write-Host "LatestExecution fields: $(if ($scan.LatestExecution) { $scan.LatestExecution.PSObject.Properties.Name -join ', ' } else { 'null' })"
+
+    $scan.PSObject.Properties |
+        Where-Object { $_.Name -match 'risk|score|severity|issue|critical|high|medium|low|technology|created' } |
+        ForEach-Object { "$($_.Name) = $($_.Value)" }
+
+    if ($scan.LatestExecution) {
+        $scan.LatestExecution.PSObject.Properties |
+            Where-Object { $_.Name -match 'risk|score|severity|issue|critical|high|medium|low' } |
+            ForEach-Object { "LatestExecution.$($_.Name) = $($_.Value)" }
+    }
+}
+
