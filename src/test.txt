@@ -1,1 +1,4 @@
+$McpIndex = Join-Path $McpRoot "index.js"
 
+Get-Content $McpIndex |
+  Select-Object -Skip 275 -First 75
