@@ -1,1 +1,5 @@
 
+Select-String -Path $McpIndex `
+  -Pattern 'function getDirectApiKeyHeader|const getDirectApiKeyHeader' `
+  -Context 0,12
+
