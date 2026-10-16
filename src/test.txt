@@ -1,1 +1,1 @@
-
+Select-String -Path $McpIndex -Pattern 'Tool: get-apps|registerTool\("get-apps"' -Context 0,45
