@@ -1,52 +1,92 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $headers = @{
+>>     "X-Api-Key" = "$($env:APPSCAN_KEY_ID):$($env:APPSCAN_KEY_SECRET)"
+>>     "Content-Type" = "application/json"
+>> }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $response = Invoke-RestMethod `
+>>     -Uri "$($env:APPSCAN_API_BASE)/api/v4/Scans?`$top=1" `
+>>     -Headers $headers `
+>>     -Method Get
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $scans = if ($response.Items) { @($response.Items) } else { @($response) }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $scan = $scans | Select-Object -First 1
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if (-not $scan) {
+>>     Write-Host "No scan returned."
+>> } else {
+>>     Write-Host "`nTop-level scan fields:"
+>>     $scan.PSObject.Properties.Name
+>>
+>>     Write-Host "`nApplication-related fields:"
+>>     $scan.PSObject.Properties |
+>>         Where-Object { $_.Name -match 'app|application|project' } |
+>>         ForEach-Object {
+>>             $value = $_.Value
+>>             if ($null -eq $value) {
+>>                 "$($_.Name) = null"
+>>             } elseif ($value -is [string] -or $value -is [ValueType]) {
+>>                 "$($_.Name) = $value"
+>>             } else {
+>>                 "$($_.Name) = <$($value.GetType().Name)>"
+>>                 if ($value -is [System.Collections.IDictionary]) {
+>>                     "  Nested fields: $($value.Keys -join ', ')"
+>>                 } else {
+>>                     "  Nested fields: $($value.PSObject.Properties.Name -join ', ')"
+>>                 }
+>>             }
+>>         }
+>>
+>>     Write-Host "`nMetadata candidates:"
+>>     foreach ($field in @('ScanType', 'Type', 'Created', 'CreatedAt', 'LatestExecution')) {
+>>         $property = $scan.PSObject.Properties[$field]
+>>         if ($property) {
+>>             if ($field -eq 'LatestExecution' -and $null -ne $property.Value) {
+>>                 "LatestExecution fields: $($property.Value.PSObject.Properties.Name -join ', ')"
+>>             } else {
+>>                 "$field = $($property.Value)"
+>>             }
+>>         }
+>>     }
+>> }
 
-$headers = @{
-    "X-Api-Key" = "$($env:APPSCAN_KEY_ID):$($env:APPSCAN_KEY_SECRET)"
-    "Content-Type" = "application/json"
-}
+Top-level scan fields:
+AppId
+Id
+Name
+Description
+Technology
+IastAgentType
+IastAgentStatus
+Url
+AppName
+TestOptimizationLevel
+NumberOfExecutions
+CreatedBy
+CreatedAt
+LastModified
+NextScheduledRun
+LatestExecution
+Presence
+RecurrenceRule
+EnablePromote
+IsPersonal
+RescanAllowed
+ParsedFromUploadedFile
+DeletedAllowed
+RecurrenceEndDate
+FullyAutomatic
+EnableMailNotifications
+AssetGroupId
+BusinessUnitId
+EnableEditing
+ProactiveAlerts
+GitRepoPlatform
 
-$response = Invoke-RestMethod `
-    -Uri "$($env:APPSCAN_API_BASE)/api/v4/Scans?`$top=1" `
-    -Headers $headers `
-    -Method Get
+Application-related fields:
+AppId = c77eb298-9b34-4aef-801f-d404a6960f43
+AppName = Test_Joy
 
-$scans = if ($response.Items) { @($response.Items) } else { @($response) }
-$scan = $scans | Select-Object -First 1
-
-if (-not $scan) {
-    Write-Host "No scan returned."
-} else {
-    Write-Host "`nTop-level scan fields:"
-    $scan.PSObject.Properties.Name
-
-    Write-Host "`nApplication-related fields:"
-    $scan.PSObject.Properties |
-        Where-Object { $_.Name -match 'app|application|project' } |
-        ForEach-Object {
-            $value = $_.Value
-            if ($null -eq $value) {
-                "$($_.Name) = null"
-            } elseif ($value -is [string] -or $value -is [ValueType]) {
-                "$($_.Name) = $value"
-            } else {
-                "$($_.Name) = <$($value.GetType().Name)>"
-                if ($value -is [System.Collections.IDictionary]) {
-                    "  Nested fields: $($value.Keys -join ', ')"
-                } else {
-                    "  Nested fields: $($value.PSObject.Properties.Name -join ', ')"
-                }
-            }
-        }
-
-    Write-Host "`nMetadata candidates:"
-    foreach ($field in @('ScanType', 'Type', 'Created', 'CreatedAt', 'LatestExecution')) {
-        $property = $scan.PSObject.Properties[$field]
-        if ($property) {
-            if ($field -eq 'LatestExecution' -and $null -ne $property.Value) {
-                "LatestExecution fields: $($property.Value.PSObject.Properties.Name -join ', ')"
-            } else {
-                "$field = $($property.Value)"
-            }
-        }
-    }
-}
-
+Metadata candidates:
+CreatedAt = 09/30/2026 18:41:50
+LatestExecution fields: Id, FileName, UserMessage, NNewAppIssues, NIssuesFound, Status, Progress, ExecutionProgress, CreatedBy, CreatedAt, ExecutedAt, ScanEndTime, ExecutionDurationSec, NNewAppCriticalIssues, NCriticalIssues, NNewAppHighIssues, NHighIssues, NNewAppMediumIssues, NMediumIssues, NNewAppLowIssues, NLowIssues, NNewAppInfoIssues, NInfoIssues, NOpenSourceLicenses, NOpenSourcePackages, HasLogs, IsScanFileAvailable, PredefinedMessageKey, HandledByScanEnabler, IsPartial, IncrementalBaseJobId, IsIncrementalRetest, IsRetestOnly, IssueRetestInfo, GitRepository, GitBranch, SupportModeEnabled, CanResume, RapidFixAnalysisStatus
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
