@@ -1,1 +1,55 @@
 
+$content = Get-Content $McpIndex -Raw
+
+$oldApps = @'
+        const formattedApps = apps.map((app) => [
+            `Name: ${app.Name || "Unknown"}`,
+            `ID: ${app.Id || "Unknown"}`,
+            `Type: ${app.AppType || "Unknown"}`,
+            `Created: ${app.Created || "Unknown"}`,
+            `Risk: ${app.Risk || "Unknown"}`,
+            "---",
+        ].join("\n"));
+'@
+
+$newApps = @'
+        const formattedApps = apps.map((app) => [
+            `Name: ${app.Name || "Unknown"}`,
+            `ID: ${app.Id || "Unknown"}`,
+            `Type: ${app.Type || "Not set"}`,
+            `Technology: ${app.Technology || "Not provided"}`,
+            `Created: ${app.DateCreated || "Unknown"}`,
+            `Risk rating: ${app.RiskRating || "Unknown"}`,
+            `Maximum severity: ${app.MaxSeverity || "Unknown"}`,
+            `Critical issues: ${app.CriticalIssues ?? "Unknown"}`,
+            `High issues: ${app.HighIssues ?? "Unknown"}`,
+            `Medium issues: ${app.MediumIssues ?? "Unknown"}`,
+            `Low issues: ${app.LowIssues ?? "Unknown"}`,
+            `Informational issues: ${app.InformationalIssues ?? "Unknown"}`,
+            "---",
+        ].join("\n"));
+'@
+
+$oldRisk = '`${"Not provided by AppScan API"}`'
+$newRisk = '`${"Risk rating not available from the scan endpoint"}`'
+
+if (-not $content.Contains($oldApps)) {
+    throw "Application formatter did not match. No changes saved."
+}
+if (-not $content.Contains($oldRisk)) {
+    throw "Scan risk formatter did not match. No changes saved."
+}
+
+Copy-Item $McpIndex "$McpIndex.before-app-metadata-fix.bak" -Force
+
+$content = $content.Replace($oldApps, $newApps)
+$content = $content.Replace($oldRisk, $newRisk)
+
+Set-Content -Path $McpIndex -Value $content -NoNewline
+
+Write-Host "`nApplication formatter:"
+Select-String -Path $McpIndex -Pattern 'app.DateCreated|app.RiskRating|app.MaxSeverity|app.CriticalIssues'
+
+Write-Host "`nScan risk label:"
+Select-String -Path $McpIndex -Pattern 'Risk rating not available from the scan endpoint'
+
