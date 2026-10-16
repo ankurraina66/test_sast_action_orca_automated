@@ -1,1 +1,33 @@
 
+server.registerTool(
+  "get-scans",
+  {
+    description:
+      "Retrieve AppScan scans. Optionally filter by applicationId (GUID) and an additional OData filter.",
+    inputSchema: {
+      applicationId: z.string().uuid().optional(),
+      filter: z.string().optional(),
+      top: z.number().int().positive().optional(),
+    },
+  },
+  async ({ applicationId, filter, top }) => {
+    const filters: string[] = [];
+
+    if (applicationId) {
+      // AppId is an OData GUID field, so do not quote the GUID.
+      filters.push(`AppId eq ${applicationId}`);
+    }
+
+    if (filter?.trim()) {
+      filters.push(`(${filter.trim()})`);
+    }
+
+    const result = await service.callTool("get-scans", {
+      ...(filters.length ? { filter: filters.join(" and ") } : {}),
+      ...(top !== undefined ? { top } : {}),
+    });
+
+    return textResult(result);
+  },
+);
+
