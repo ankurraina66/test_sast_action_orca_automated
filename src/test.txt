@@ -1,1 +1,3 @@
-
+Select-String -Path $McpIndex `
+  -Pattern 'scan.ScanType|scan.Created|LatestExecution\?\.Risk' `
+  -Context 3,3
