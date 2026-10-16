@@ -1,3 +1,26 @@
-Get-ChildItem -Path .\src -Recurse -File |
-  Select-String -Pattern 'get-scans|applicationId|application_id|scanType|created|risk|Unknown' |
-  Select-Object Path, LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem -Path .\src -Recurse -File |
+>>   Select-String -Pattern 'get-scans|applicationId|application_id|scanType|created|risk|Unknown' |
+>>   Select-Object Path, LineNumber, Line
+
+Path                                                                                  LineNumber Line
+----                                                                                  ---------- ----
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                 52     "get-scans",
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                 61       const result = await service.callTool("get-scans", …
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                115     void shutdown().catch((error: unknown) => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                122     void shutdown().catch((error: unknown) => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                129 main().catch((error: unknown) => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                132     error instanceof Error ? error.message : "Unknown err…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector.ts                      4   inputSchema: Record<string, unknown>;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector.ts                     20     args: Record<string, unknown>,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         62       inputSchema: tool.inputSchema as Record<string, unk…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         68     args: Record<string, unknown>,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         72     const result: unknown = await this.client.callTool(
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         93       (item: unknown) => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         66   inputSchema: tool.inputSchema as Record<string, unknown…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         73 args: Record<string, unknown>,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         77 const result: unknown = await this.client.callTool({
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         94   (item: unknown) => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          22     args: Record<string, unknown> = {},
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          40     args: Record<string, unknown> = {},
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
