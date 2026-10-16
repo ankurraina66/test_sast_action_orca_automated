@@ -1,5 +1,33 @@
-Get-ChildItem .\tests -Recurse -File |
-  Select-Object FullName
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\tests -Recurse -File |
+>>   Select-Object FullName
 
-Get-ChildItem .\src -Recurse -File |
-  Select-Object FullName
+FullName
+--------
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\integration\local-app-discovery.integration.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\integration\local-mcp.integration.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\integration\local-scan-discovery.integration.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\appscan-service-factory.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\appscan-service.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\config.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\index.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\local-stdio-connector.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\src -Recurse -File |
+>>   Select-Object FullName
+
+FullName
+--------
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\index.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector-factory.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service-factory.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
