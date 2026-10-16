@@ -1,4 +1,4 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\.claude\skills\appscan\SKILL.md
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\agent\skills\appscan\SKILL.md
 ---
 name: appscan
 description: Review HCL AppScan security findings, correlate them with source code in the current workspace, and propose security remediations for developer approval.
@@ -93,3 +93,5 @@ For each reviewed finding, report:
 - Tests or verification performed
 
 - Unresolved questions or limitations
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
