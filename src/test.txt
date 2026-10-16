@@ -1,24 +1,10 @@
-/appscan List the scans available for the AppScan application Test_Tayalan
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem -Path .\src -Recurse -File |
+>>   Select-String -Pattern 'get-scans|getScans|get_scans' |
+>>   Select-Object Path, LineNumber, Line
 
-  Called appscan-connector
+Path                                                                          LineNumber Line
+----                                                                          ---------- ----
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts         52     "get-scans",
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts         61       const result = await service.callTool("get-scans", args);
 
-Test_Tayalan (ID 39c76747-8617-4e00-8ae8-096e208f72ac) has 4 scans, and all four have status Ready. I filtered by the app's ID. The result had 4 scans, well under the limit of 50, so I think this is the full list. I didn't confirm that the filter was applied rather than ignored. The connector returned Type, Created and Risk as "Unknown" for every scan.
-
-┌─────┬───────────────────────────────────┬──────────────────────────────────────┬────────┐
-│  #  │               Name                │                  ID                  │ Status │
-├─────┼───────────────────────────────────┼──────────────────────────────────────┼────────┤
-│ 1   │ SASTIncrementalscan               │ 3fe02f9a-e8df-4395-9a0d-593b315f1242 │ Ready  │
-├─────┼───────────────────────────────────┼──────────────────────────────────────┼────────┤
-│ 2   │ staging-check_2026-10-13_16-13-44 │ 32fe2b86-2f61-4c2c-8803-99ac6d42a37d │ Ready  │
-├─────┼───────────────────────────────────┼──────────────────────────────────────┼────────┤
-│ 3   │ SAST 2026-09-30 demo (2).irx      │ 36dcd4ac-36bf-40ef-af78-d9fc0d54b1ed │ Ready  │
-├─────┼───────────────────────────────────┼──────────────────────────────────────┼────────┤
-│ 4   │ SCA 2026-10-1 demo (2).irx        │ b0b5685c-216a-4f31-a16f-e4e322b4c980 │ Ready  │
-└─────┴───────────────────────────────────┴──────────────────────────────────────┴────────┘
-
-The scan names suggest what each one is, but the connector didn't confirm the scan type:
-- SAST (static analysis of source code) is the likely type for #1 and #3. Their findings are the ones most likely to point at files I can find in this workspace.
-- SCA (third-party dependency analysis) is the likely type for #4.
-- Scan #2 is unclear from its name.
-
-I haven't retrieved any findings. Tell me which scan to open, and I'll list its issues, with a severity filter if you want one.
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
