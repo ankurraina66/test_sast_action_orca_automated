@@ -1,4 +1,50 @@
-Get-ChildItem -Force |
-  Select-Object Name, Mode
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem -Force |
+>>   Select-Object Name, Mode
 
-Get-Content .\package.json
+Name              Mode
+----              ----
+.claude           d----
+agent             d----
+config            d----
+dist              d----
+docs              d----
+node_modules      d----
+scripts           d----
+src               d----
+tests             d----
+.gitignore        -a---
+package-lock.json -a---
+package.json      -a---
+tsconfig.json     -a---
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\package.json
+{
+  "name": "ai-coding-assistants-claude-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test:watch": "vitest",
+    "dev": "tsx watch src/index.ts",
+        "start:claude-mcp": "node dist/claude-mcp-server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  },
+  "private": "true",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.6"
+  }
+}
