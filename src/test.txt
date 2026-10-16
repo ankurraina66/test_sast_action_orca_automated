@@ -1,22 +1,29 @@
-
-$content = Get-Content $McpIndex -Raw
-
-$oldType = 'scan.ScanType || "Unknown"'
-$oldCreated = 'scan.Created || "Unknown"'
-$oldRisk = 'scan.LatestExecution?.Risk || "Unknown"'
-
-if (-not $content.Contains($oldType) -or
-    -not $content.Contains($oldCreated) -or
-    -not $content.Contains($oldRisk)) {
-    throw "Expected source text was not found. No changes saved."
-}
-
-$content = $content.Replace($oldType, 'scan.Technology || "Unknown"')
-$content = $content.Replace($oldCreated, 'scan.CreatedAt || "Unknown"')
-$content = $content.Replace($oldRisk, '"Not provided by AppScan API"')
-
-Set-Content -Path $McpIndex -Value $content -NoNewline
-
-Get-Content $McpIndex |
-    Select-Object -Skip 320 -First 8
-
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = Get-Content $McpIndex -Raw
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $oldType = 'scan.ScanType || "Unknown"'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $oldCreated = 'scan.Created || "Unknown"'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $oldRisk = 'scan.LatestExecution?.Risk || "Unknown"'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if (-not $content.Contains($oldType) -or
+>>     -not $content.Contains($oldCreated) -or
+>>     -not $content.Contains($oldRisk)) {
+>>     throw "Expected source text was not found. No changes saved."
+>> }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = $content.Replace($oldType, 'scan.Technology || "Unknown"')
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = $content.Replace($oldCreated, 'scan.CreatedAt || "Unknown"')
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = $content.Replace($oldRisk, '"Not provided by AppScan API"')
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Set-Content -Path $McpIndex -Value $content -NoNewline
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content $McpIndex |
+>>     Select-Object -Skip 320 -First 8
+            `Name: ${scan.Name || "Unknown"}`,
+            `ID: ${scan.Id || "Unknown"}`,
+            `Type: ${scan.Technology || "Unknown"}`,
+            `Status: ${scan.LatestExecution?.Status || "Unknown"}`,
+            `Created: ${scan.CreatedAt || "Unknown"}`,
+            `Risk: ${"Not provided by AppScan API"}`,
+            "---",
+        ].join("\n"));
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
