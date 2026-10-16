@@ -1,1 +1,7 @@
+Get-ChildItem -Path . -Recurse -File |
+  Where-Object {
+    $_.FullName -notmatch '\\(node_modules|\.git|dist)\\' -and
+    $_.Name -match 'SKILL\.md|appscan.*\.md|claude.*\.md'
+  } |
+  Select-Object FullName
 
