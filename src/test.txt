@@ -1,1 +1,14 @@
+$content = Get-Content $McpIndex -Raw
 
+$pattern = 'Risk:\s*\$\{"Not provided by\s*AppScan API"\}'
+$replacement = 'Risk: ${"Risk rating not available from the scan endpoint"}'
+
+$updated = [regex]::Replace($content, $pattern, $replacement, 1)
+
+if ($updated -eq $content) {
+    throw "Risk label not matched. File was not changed."
+}
+
+Set-Content -Path $McpIndex -Value $updated -NoNewline
+
+Select-String -Path $McpIndex -Pattern 'Risk rating not available from the scan endpoint'
