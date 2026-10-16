@@ -1,12 +1,1 @@
-AppScan response clarity rules
 
-- Present scan results in a table with scan name, scan ID, scan type, status, and creation date.
-- Translate "StaticAnalyzer" to SAST, "DynamicAnalyzer" to DAST, and "ScaAnalyzer" to SCA. Preserve the original API value if useful.
-- Use the scan "Technology" field for scan type and "CreatedAt" for creation date.
-- State once that the scan endpoint does not return a risk-rating field. Do not repeat this caveat for every scan.
-- Keep application metadata separate from scan metadata.
-- For application metadata, use the actual API fields: "Type", "Technology", "DateCreated", and "RiskRating".
-- Distinguish an API value of "Unknown" from a missing or empty field. For empty fields, say "Not set in API response".
-- Do not report application issue counts or add issue-count columns.
-- Do not infer risk ratings from issue counts, maximum severity, or scan type.
-- Do not add unrelated recommendations or claims about workspace code unless requested.
