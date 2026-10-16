@@ -1,1 +1,41 @@
-hello
+> /appscan
+
+HCL AppScan Security Review
+
+You didn't name a task, so I haven't called any AppScan tools yet.
+
+What I can do
+
+┌───────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│         Task          │                                           What happens                                           │
+├───────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ List applications     │ Discover the apps available in AppScan (get-apps).                                               │
+├───────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Review a scan         │ Find and confirm a scan and list its issues (get-scans, get-scan-issues).                        │
+├───────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Investigate a finding │ Pull the finding's details, evidence and remediation guidance (get-issue-details).               │
+├───────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Correlate with source │ Locate the referenced file and line in this workspace and read the surrounding code.             │
+├───────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Propose a fix         │ Explain the vulnerability and its impact, then propose a minimal remediation for you to approve. │
+├───────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Apply and verify      │ After you approve, make only the agreed edits and run the available checks.                      │
+└───────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+How I work
+
+- Read-only AppScan access. I won't create scans or update issues.
+- No edits without approval. I'll ask before changing any source file.
+- Facts vs. analysis. I'll keep what AppScan reports separate from my own assessment. I'll also say when evidence or guidance is missing.
+- Honest verification. I'll report only the checks I actually ran and their results.
+
+What I need from you
+
+Tell me one of these:
+
+1. An application name or ID.
+2. A scan name or ID.
+3. A specific finding, such as an issue ID or a vulnerability type and file.
+4. Or "list my applications" if you need to find the right one
+
+Which would you like to review?
