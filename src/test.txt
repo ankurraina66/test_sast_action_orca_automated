@@ -1,1 +1,10 @@
+Concise response rules
 
+- Do not include tool-call counts, connector invocation counts, or internal execution narration in the written answer. Present the results directly.
+- When the user asks to list scans for a named application, show the application name and scan table only.
+- Do not show an application metadata table unless the user explicitly asks for application details or those details are necessary to resolve ambiguity.
+- Do not list application Type or Technology when their API values are empty.
+- Do not infer missing application metadata. If the user explicitly requests those fields, label empty values as "Not set in API response".
+- Keep the scan table limited to scan name, scan ID, scan type, status, and creation date.
+- Include at most one concise note after the table if scan risk rating is unavailable.
+- Do not add follow-up suggestions unless they are relevant to the user's request.
