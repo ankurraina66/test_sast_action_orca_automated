@@ -1,25 +1,24 @@
-
-$backup = "$McpIndex.bak"
-
-Copy-Item $McpIndex $backup -Force
-
-$content = Get-Content $McpIndex -Raw
-
-$content = $content.Replace(
-    '`${scan.ScanType || "Unknown"}`',
-    '`${scan.Technology || "Unknown"}`'
-)
-$content = $content.Replace(
-    '`${scan.Created || "Unknown"}`',
-    '`${scan.CreatedAt || "Unknown"}`'
-)
-$content = $content.Replace(
-    '`${scan.LatestExecution?.Risk || "Unknown"}`',
-    '`${"Not provided by AppScan API"}`'
-)
-
-Set-Content -Path $McpIndex -Value $content -NoNewline
-
-Select-String -Path $McpIndex `
-  -Pattern 'scan.Technology|scan.CreatedAt|Not provided by AppScan API'
-
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $backup = "$McpIndex.bak"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Copy-Item $McpIndex $backup -Force
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = Get-Content $McpIndex -Raw
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = $content.Replace(
+>>     '`${scan.ScanType || "Unknown"}`',
+>>     '`${scan.Technology || "Unknown"}`'
+>> )
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = $content.Replace(
+>>     '`${scan.Created || "Unknown"}`',
+>>     '`${scan.CreatedAt || "Unknown"}`'
+>> )
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $content = $content.Replace(
+>>     '`${scan.LatestExecution?.Risk || "Unknown"}`',
+>>     '`${"Not provided by AppScan API"}`'
+>> )
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Set-Content -Path $McpIndex -Value $content -NoNewline
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path $McpIndex `
+>>   -Pattern 'scan.Technology|scan.CreatedAt|Not provided by AppScan API'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
