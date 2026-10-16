@@ -1,1 +1,5 @@
 
+3. If the user specifies an application by name, call `get-apps` to resolve the name to its application ID. Do not ask the user to supply a GUID when the application can be found by name.
+
+4. When listing scans for an application, call `get-scans` with the resolved `applicationId`. Verify that the returned scans belong to that application. Report scan type from `Technology` and creation date from `CreatedAt` when present. Never claim either field is Unknown when the returned scan records contain a value. Do not add a generic caveat that contradicts the results table.
+
