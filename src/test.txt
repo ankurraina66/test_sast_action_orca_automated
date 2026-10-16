@@ -1,1 +1,25 @@
 
+$backup = "$McpIndex.bak"
+
+Copy-Item $McpIndex $backup -Force
+
+$content = Get-Content $McpIndex -Raw
+
+$content = $content.Replace(
+    '`${scan.ScanType || "Unknown"}`',
+    '`${scan.Technology || "Unknown"}`'
+)
+$content = $content.Replace(
+    '`${scan.Created || "Unknown"}`',
+    '`${scan.CreatedAt || "Unknown"}`'
+)
+$content = $content.Replace(
+    '`${scan.LatestExecution?.Risk || "Unknown"}`',
+    '`${"Not provided by AppScan API"}`'
+)
+
+Set-Content -Path $McpIndex -Value $content -NoNewline
+
+Select-String -Path $McpIndex `
+  -Pattern 'scan.Technology|scan.CreatedAt|Not provided by AppScan API'
+
