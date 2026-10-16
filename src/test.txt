@@ -1,11 +1,36 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $result = $null
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $filter = [uri]::EscapeDataString("AppId eq $appId")
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $url = "$($env:APPSCAN_API_BASE)/api/v4/Scans?`$filter=$filter"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $result = Invoke-RestMethod -Uri $url -Headers $headers -Method Get
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $scans = @($result.Items)
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Write-Host "Returned scans: $($scans.Count)"
+Returned scans: 4
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $scans | Select-Object Name, AppId, AppName, Technology, CreatedAt
 
-$result = $null
-$filter = [uri]::EscapeDataString("AppId eq $appId")
-$url = "$($env:APPSCAN_API_BASE)/api/v4/Scans?`$filter=$filter"
+Name       : SASTIncrementalscan
+AppId      : 39c76747-8617-4e00-8ae8-096e208f72ac
+AppName    : Test_Tayalan
+Technology : StaticAnalyzer
+CreatedAt  : 12-10-2026 06:51:39
 
-$result = Invoke-RestMethod -Uri $url -Headers $headers -Method Get
-$scans = @($result.Items)
+Name       : staging-check_2026-10-13_16-13-44
+AppId      : 39c76747-8617-4e00-8ae8-096e208f72ac
+AppName    : Test_Tayalan
+Technology : DynamicAnalyzer
+CreatedAt  : 13-10-2026 10:43:45
 
-Write-Host "Returned scans: $($scans.Count)"
-$scans | Select-Object Name, AppId, AppName, Technology, CreatedAt
+Name       : SAST 2026-09-30 demo (2).irx
+AppId      : 39c76747-8617-4e00-8ae8-096e208f72ac
+AppName    : Test_Tayalan
+Technology : StaticAnalyzer
+CreatedAt  : 30-09-2026 06:31:28
 
+Name       : SCA 2026-10-1 demo (2).irx
+AppId      : 39c76747-8617-4e00-8ae8-096e208f72ac
+AppName    : Test_Tayalan
+Technology : ScaAnalyzer
+CreatedAt  : 01-10-2026 05:35:07
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
