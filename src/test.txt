@@ -1,57 +1,24 @@
-/appscan List the AppScan applications available to me
+/appscan List the scans available for the AppScan application Test_Tayalan
 
   Called appscan-connector
 
-AppScan returned 23 applications. I requested up to 50, so this should be the full list. The connector returned Type, Created and Risk as "Unknown" for every app, so I have no data on those fields.
+Test_Tayalan (ID 39c76747-8617-4e00-8ae8-096e208f72ac) has 4 scans, and all four have status Ready. I filtered by the app's ID. The result had 4 scans, well under the limit of 50, so I think this is the full list. I didn't confirm that the filter was applied rather than ignored. The connector returned Type, Created and Risk as "Unknown" for every scan.
 
-┌─────┬──────────────────────┬──────────────────────────────────────┐
-│  #  │         Name         │                  ID                  │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 1   │ Demo_HCLF            │ 5a0bcbb2-c309-489b-badc-0112e619bce7 │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 2   │ Test_Tayalan         │ 39c76747-8617-4e00-8ae8-096e208f72ac │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 3   │ Test_Tanmoy_SN       │ e0d855ec-4ec3-4dd3-9ac1-0ea69740cc8b │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 4   │ charvi               │ e59ef14d-3342-47ae-8b17-21cb37a705fd │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 5   │ AltoroMutual         │ 4111c5d9-d355-4b9d-95c7-25ee45351928 │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 6   │ AzureBoardsPluginGit │ 072732e0-61a9-4185-bca4-30166831e72e │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 7   │ Test_Vinod           │ 2e38956e-1dce-4742-8278-3ee80509a732 │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 8   │ DemoTestFireApp      │ c89e2e91-eb9c-49f7-9fe8-6428ba3f1b15 │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 9   │ Bitbucket plugin     │ b106ec10-235a-42d6-aa0a-69c77bad4879 │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 10  │ Test_vishal          │ 7b3f217f-988c-41d5-9e91-877353174267 │
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 11  │ Test_Tanmoy_SN3      │ 5122bf79-751c-4836-8dcd-8ec90a6
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 12  │ TestVinita           │ 8aa628ec-a475-4dae-93e3-99e1e92
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 13  │ Demo_Test_Ankur      │ 21b194f5-cea5-4ff6-a4d1-a03103a
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 14  │ Test_Ankita          │ ae0bcb39-4c80-4dda-a236-a13ac7e
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 15  │ Test_Kranthi         │ 20c6ebe3-aded-462c-8bd2-a320c5d
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 16  │ TestApp1             │ e5626722-aa85-44df-8c53-b564ff5
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 17  │ Test_Tanmoy          │ ab0e20b0-0638-4fd4-aa67-b5df30e
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 18  │ Test_Joy             │ c77eb298-9b34-4aef-801f-d404a69
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 19  │ ASRADotnet           │ 672d6c33-fed5-4883-98fa-deb1977
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 20  │ TestApp3             │ ccf35b47-af1b-4154-a02d-e8a23e5
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 21  │ TestApp2             │ f435c008-3d6c-4866-a6ae-e973a6e
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 22  │ Sample_project       │ a516afa4-4659-4866-990e-ea1e7d5
-├─────┼──────────────────────┼──────────────────────────────────────┤
-│ 23  │ Test_Hema            │ b826d4b1-57b8-412e-8619-f06c4c6
-└─────┴──────────────────────┴──────────────────────────────────────┘
+┌─────┬───────────────────────────────────┬──────────────────────────────────────┬────────┐
+│  #  │               Name                │                  ID                  │ Status │
+├─────┼───────────────────────────────────┼──────────────────────────────────────┼────────┤
+│ 1   │ SASTIncrementalscan               │ 3fe02f9a-e8df-4395-9a0d-593b315f1242 │ Ready  │
+├─────┼───────────────────────────────────┼──────────────────────────────────────┼────────┤
+│ 2   │ staging-check_2026-10-13_16-13-44 │ 32fe2b86-2f61-4c2c-8803-99ac6d42a37d │ Ready  │
+├─────┼───────────────────────────────────┼──────────────────────────────────────┼────────┤
+│ 3   │ SAST 2026-09-30 demo (2).irx      │ 36dcd4ac-36bf-40ef-af78-d9fc0d54b1ed │ Ready  │
+├─────┼───────────────────────────────────┼──────────────────────────────────────┼────────┤
+│ 4   │ SCA 2026-10-1 demo (2).irx        │ b0b5685c-216a-4f31-a16f-e4e322b4c980 │ Ready  │
+└─────┴───────────────────────────────────┴──────────────────────────────────────┴────────┘
 
-I haven't looked at any scans or findings yet. Demo_Test_Ankur looks like it might be yours, but I'm guessing from the name. Tell me which application you want, and I'll list its scans and then its findings.
+The scan names suggest what each one is, but the connector didn't confirm the scan type:
+- SAST (static analysis of source code) is the likely type for #1 and #3. Their findings are the ones most likely to point at files I can find in this workspace.
+- SCA (third-party dependency analysis) is the likely type for #4.
+- Scan #2 is unclear from its name.
+
+I haven't retrieved any findings. Tell me which scan to open, and I'll list its issues, with a severity filter if you want one.
