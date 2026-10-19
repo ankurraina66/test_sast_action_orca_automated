@@ -1,1 +1,3 @@
-
+Select-String -Path .\src\config\config.ts `
+  -Pattern 'APP_SCAN_PROVIDER|APP_SCAN_REMOTE_ENDPOINT|APP_SCAN_API_KEY|APPSCAN_KEY_ID|APPSCAN_KEY_SECRET' `
+  | Select-Object LineNumber, Line
