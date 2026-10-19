@@ -1,1 +1,11 @@
+Write-Host "`n=== Source Files ==="
+Get-ChildItem .\src -Recurse -File |
+    Select-Object FullName
 
+Write-Host "`n=== Test Files ==="
+Get-ChildItem .\tests -Recurse -File |
+    Select-Object FullName
+
+Write-Host "`n=== Documentation Files ==="
+Get-ChildItem .\docs -Recurse -File |
+    Select-Object FullName
