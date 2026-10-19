@@ -1,1 +1,4 @@
-
+Copy-Item `
+  .\.claude\skills\appscan\SKILL.md `
+  .\agent\skills\appscan\SKILL.md `
+  -Force
