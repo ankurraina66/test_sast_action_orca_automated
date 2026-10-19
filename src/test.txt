@@ -1,1 +1,1 @@
-
+/appscan List the AppScan applications. Return only application names and IDs. Do not create, modify, or launch scans.
