@@ -1,1 +1,2 @@
-
+Select-String -Path .\src\services\appscan-service-factory.ts,.\src\mcp\connector-factory.ts `
+  -Pattern 'loadConfig|APP_SCAN_PROVIDER|createConnector|RemoteHttpConnector|LocalStdioConnector'
