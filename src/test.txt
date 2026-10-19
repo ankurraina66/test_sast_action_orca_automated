@@ -1,1 +1,3 @@
-
+"Provider: " + $env:APP_SCAN_PROVIDER
+"Endpoint configured: " + [bool]$env:APP_SCAN_REMOTE_ENDPOINT
+"API key configured: " + [bool]$env:APP_SCAN_API_KEY
