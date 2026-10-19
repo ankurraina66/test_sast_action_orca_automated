@@ -1,46 +1,65 @@
-@'
-const { RemoteHttpConnector } = require("./dist/mcp/remote-http-connector.js");
-
-(async () => {
-  const connector = new RemoteHttpConnector({
-    endpoint: process.env.APP_SCAN_REMOTE_ENDPOINT,
-    apiKey: process.env.APP_SCAN_API_KEY,
-    requestTimeoutMs: 30000
-  });
-
-  try {
-    await connector.connect();
-
-    const result = await connector.callTool("get_apps", {
-      top: 3,
-      select: "Id,Name",
-      count: true
-    });
-
-    console.log("get_apps isError:", result.isError);
-    for (const item of result.content ?? []) {
-      if (item.type === "text") {
-        try {
-          const data = JSON.parse(item.text);
-          if (Array.isArray(data)) {
-            console.log("Applications returned:", data.length);
-            console.log(JSON.stringify(data.map(app => ({
-              Id: app.Id ?? app.id,
-              Name: app.Name ?? app.name
-            })), null, 2));
-          } else {
-            console.log(JSON.stringify(data, null, 2));
-          }
-        } catch {
-          console.log(item.text.slice(0, 3000));
-        }
-      }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> @'
+>> const { RemoteHttpConnector } = require("./dist/mcp/remote-http-connector.js");
+>>
+>> (async () => {
+>>   const connector = new RemoteHttpConnector({
+>>     endpoint: process.env.APP_SCAN_REMOTE_ENDPOINT,
+>>     apiKey: process.env.APP_SCAN_API_KEY,
+>>     requestTimeoutMs: 30000
+>>   });
+>>
+>>   try {
+>>     await connector.connect();
+>>
+>>     const result = await connector.callTool("get_apps", {
+>>       top: 3,
+>>       select: "Id,Name",
+>>       count: true
+>>     });
+>>
+>>     console.log("get_apps isError:", result.isError);
+>>     for (const item of result.content ?? []) {
+>>       if (item.type === "text") {
+>>         try {
+>>           const data = JSON.parse(item.text);
+>>           if (Array.isArray(data)) {
+>>             console.log("Applications returned:", data.length);
+>>             console.log(JSON.stringify(data.map(app => ({
+>>               Id: app.Id ?? app.id,
+>>               Name: app.Name ?? app.name
+>>             })), null, 2));
+>>           } else {
+>>             console.log(JSON.stringify(data, null, 2));
+>>           }
+>>         } catch {
+>>           console.log(item.text.slice(0, 3000));
+>>         }
+>>       }
+>>     }
+>>   } catch (error) {
+>>     console.error("Read-only request failed:", error.message);
+>>     process.exitCode = 1;
+>>   } finally {
+>>     try { await connector.disconnect(); } catch {}
+>>   }
+>> })();
+>> '@ | node
+get_apps isError: undefined
+{
+  "@odata.context": "https://ascp/McpOData/$metadata#Applications(Id,Name)",
+  "@odata.count": 23,
+  "value": [
+    {
+      "Id": "5a0bcbb2-c309-489b-badc-0112e619bce7",
+      "Name": "Demo_HCLF"
+    },
+    {
+      "Id": "39c76747-8617-4e00-8ae8-096e208f72ac",
+      "Name": "Test_Tayalan"
+    },
+    {
+      "Id": "e0d855ec-4ec3-4dd3-9ac1-0ea69740cc8b",
+      "Name": "Test_Tanmoy_SN"
     }
-  } catch (error) {
-    console.error("Read-only request failed:", error.message);
-    process.exitCode = 1;
-  } finally {
-    try { await connector.disconnect(); } catch {}
-  }
-})();
-'@ | node
+  ]
+}
