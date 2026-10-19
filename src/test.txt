@@ -1,54 +1,143 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\mcp\local-stdio-connector.ts
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> get-Content .\src\services\appscan-service.ts
 import type {
   AppScanMcpConnector,
   McpTool,
   McpToolCallResult,
-} from "../mcp/connector.js";
+} from "./connector.js";
 
-export class AppScanService {
-  constructor(
-    private readonly connector: AppScanMcpConnector,
-  ) {}
+export interface LocalStdioConnectorOptions {
+  command: string;
+  args: string[];
+  env?: Record<string, string>;
+  cwd?: string;
+  requestTimeoutMs?: number;
+}
+
+export class LocalStdioConnector implements AppScanMcpConnector {
+  private readonly client: Client;
+  private readonly transport: StdioClientTransport;
+  private readonly requestTimeoutMs: number;
+  private connected = false;
+
+  constructor(options: LocalStdioConnectorOptions) {
+    this.requestTimeoutMs = options.requestTimeoutMs ?? 30000;
+
+    this.client = new Client({
+      name: "hcl-appscan-connector-for-claude",
+      version: "0.1.0",
+    });
+
+    this.transport = new StdioClientTransport({
+      command: options.command,
+      args: options.args,
+      env: options.env,
+      cwd: options.cwd,
+      stderr: "inherit",
+    });
+  }
 
   async connect(): Promise<void> {
-    await this.connector.connect();
+    if (this.connected) {
+      return;
+    }
+
+    await this.client.connect(this.transport);
+    this.connected = true;
   }
 
   async listTools(): Promise<McpTool[]> {
-    return this.connector.listTools();
+    this.ensureConnected();
+
+    const result = await this.client.listTools(
+      {},
+      { timeout: this.requestTimeoutMs },
+    );
+
+    return result.tools.map((tool: Tool) => ({
+      name: tool.name,
+      description: tool.description,
+      inputSchema: tool.inputSchema as Record<string, unknown>,
+    }));
   }
 
   async callTool(
     name: string,
-    args: Record<string, unknown> = {},
+    args: Record<string, unknown>,
   ): Promise<McpToolCallResult> {
-    return this.connector.callTool(name, args);
-  }
+    this.ensureConnected();
 
-  async disconnect(): Promise<void> {
-    await this.connector.disconnect();
-  }
-
-  async findApplicationDiscoveryTool(): Promise<McpTool | undefined> {
-    const tools = await this.listTools();
-
-    return tools.find((tool) =>
-      /^(get[_-]apps|list[_-]applications)$/i.test(tool.name),
+    const result: unknown = await this.client.callTool(
+      {
+        name,
+        arguments: args,
+      },
+      undefined,
+      { timeout: this.requestTimeoutMs },
     );
-  }
 
-  async discoverApplications(
-    args: Record<string, unknown> = {},
-  ): Promise<McpToolCallResult> {
-    const tool = await this.findApplicationDiscoveryTool();
-
-    if (!tool) {
+    if (
+      typeof result !== "object" ||
+      result === null ||
+      !("content" in result) ||
+      !Array.isArray(result.content)
+    ) {
       throw new Error(
-        "The configured AppScan MCP server does not expose a recognized application discovery tool.",
+        `MCP tool "${name}" returned an unsupported result format.`,
       );
     }
 
-    return this.callTool(tool.name, args);
+    const content: McpToolCallResult["content"] = result.content.map(
+      (item: unknown) => {
+        if (typeof item !== "object" || item === null || !("type" in item)) {
+          throw new Error(
+            `MCP tool "${name}" returned an invalid content item.`,
+          );
+        }
+
+        const type = item.type;
+
+        if (typeof type !== "string") {
+          throw new Error(
+            `MCP tool "${name}" returned a content item with an invalid type.`,
+          );
+        }
+
+        if ("text" in item && typeof item.text === "string") {
+          return { type, text: item.text };
+        }
+
+        return { type };
+      },
+    );
+
+    return {
+      content,
+      isError:
+        "isError" in result && typeof result.isError === "boolean"
+          ? result.isError
+          : undefined,
+    };
+  }
+
+  async disconnect(): Promise<void> {
+    if (!this.connected) {
+      return;
+    }
+
+    try {
+      await this.client.close();
+    } finally {
+      this.connected = false;
+    }
+  }
+
+  private ensureConnected(): void {
+    if (!this.connected) {
+      throw new Error("Local AppScan MCP connector is not connected.");
+    }
   }
 }
