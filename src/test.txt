@@ -1,2 +1,11 @@
-Select-String -Path .\src\mcp\remote-http-connector.ts `
-  -Pattern '^export|constructor\(|async connect|async listTools|async disconnect'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\mcp\remote-http-connector.ts `
+>>   -Pattern '^export|constructor\(|async connect|async listTools|async disconnect'
+
+src\mcp\remote-http-connector.ts:11:export interface RemoteHttpConnectorOptions {
+src\mcp\remote-http-connector.ts:17:export class RemoteHttpConnector implements AppScanMcpConnector {
+src\mcp\remote-http-connector.ts:22:constructor(options: RemoteHttpConnectorOptions) {
+src\mcp\remote-http-connector.ts:48:async connect(): Promise<void> {
+src\mcp\remote-http-connector.ts:58:async listTools(): Promise<McpTool[]> {
+src\mcp\remote-http-connector.ts:125:async disconnect(): Promise<void> {
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
