@@ -1,1 +1,1 @@
-
+/appscan Retrieve the AppScan details for the two SQL Injection findings and the Reflected Cross Site Scripting finding in scan d9227887-45b7-4108-9c58-0b42c940d1ad. Summarize only the evidence, traces, and remediation guidance actually returned by AppScan. Do not edit files or trigger a scan.
