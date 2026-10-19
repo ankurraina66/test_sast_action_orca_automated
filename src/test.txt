@@ -1,2 +1,10 @@
-Select-String -Path .\src\claude-mcp-server.ts `
-  -Pattern 'get-apps|findApplicationDiscoveryTool|discoverApplications'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\claude-mcp-server.ts `
+>>   -Pattern 'get-apps|findApplicationDiscoveryTool|discoverApplications'
+
+src\claude-mcp-server.ts:39:    "get-apps",
+src\claude-mcp-server.ts:48:            console.error("[AppScan diagnostic] get-apps invoked");
+src\claude-mcp-server.ts:50:                    const result = await service.callTool("get-apps", args);
+src\claude-mcp-server.ts:51:                    console.error(`[AppScan diagnostic] get-apps completed; isError=${result.isError ?? false}`, );
+src\claude-mcp-server.ts:54:                    console.error("[AppScan diagnostic] get-apps failed:", error instanceof Error ? error.message : "Unknown error", );
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
