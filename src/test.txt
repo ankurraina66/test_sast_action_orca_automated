@@ -1,44 +1,179 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\mcp\connector-factory.ts
-import type { ConnectorConfig } from "../config/config.js";
-import type { AppScanMcpConnector } from "./connector.js";
-import { LocalStdioConnector } from "./local-stdio-connector.js";
-import { RemoteHttpConnector } from "./remote-http-connector.js";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\unit\remote-http-connector.test.ts
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-export function createConnector(
-  config: ConnectorConfig,
-): AppScanMcpConnector {
-  if (config.provider === "local") {
-    if (!config.local) {
-      throw new Error(
-        "Local connector configuration is missing.",
-      );
-    }
+const { mockClient, mockTransport } = vi.hoisted(() => ({
+mockClient: {
+connect: vi.fn(),
+listTools: vi.fn(),
+callTool: vi.fn(),
+close: vi.fn(),
+},
+mockTransport: vi.fn(),
+}));
 
-    return new LocalStdioConnector({
-      command: config.local.command,
-      args: config.local.args,
-      requestTimeoutMs: config.requestTimeoutMs,
-      env: {
-        APPSCAN_API_BASE: config.local.apiBase,
-        ...(config.local.keyId
-          ? { APPSCAN_KEY_ID: config.local.keyId }
-          : {}),
-        ...(config.local.keySecret
-          ? { APPSCAN_KEY_SECRET: config.local.keySecret }
-          : {}),
-      },
-    });
-  }
+vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
+Client: vi.fn(function () {
+return mockClient;
+}),
+}));
 
-  if (!config.remote) {
-    throw new Error(
-      "Remote connector configuration is missing.",
-    );
-  }
+vi.mock(
+"@modelcontextprotocol/sdk/client/streamableHttp.js",
+() => ({
+StreamableHTTPClientTransport: mockTransport,
+}),
+);
 
-  return new RemoteHttpConnector({
-    endpoint: config.remote.endpoint,
-    apiKey: config.remote.apiKey,
-    requestTimeoutMs: config.requestTimeoutMs,
+import { RemoteHttpConnector } from "../../src/mcp/remote-http-connector.js";
+
+describe("RemoteHttpConnector", () => {
+let connector: RemoteHttpConnector;
+
+beforeEach(() => {
+vi.clearAllMocks();
+
+mockClient.connect.mockResolvedValue(undefined);
+mockClient.listTools.mockResolvedValue({ tools: [] });
+mockClient.callTool.mockResolvedValue({
+  content: [{ type: "text", text: "Success" }],
+  isError: false,
+});
+mockClient.close.mockResolvedValue(undefined);
+
+mockTransport.mockImplementation(function () {
+  return {};
+});
+
+connector = new RemoteHttpConnector({
+  endpoint: "https://cloud.appscan.com/mcp",
+  apiKey: "test-key",
+});
+
+});
+
+it("connects to the remote MCP server", async () => {
+await connector.connect();
+
+expect(mockClient.connect).toHaveBeenCalledTimes(1);
+
+});
+
+it("does not connect twice when already connected", async () => {
+await connector.connect();
+await connector.connect();
+
+expect(mockClient.connect).toHaveBeenCalledTimes(1);
+
+});
+
+it("lists tools exposed by the MCP server", async () => {
+mockClient.listTools.mockResolvedValue({
+tools: [
+{
+name: "get_apps",
+description: "List applications",
+inputSchema: { type: "object", properties: {} },
+},
+],
+});
+
+await connector.connect();
+
+await expect(connector.listTools()).resolves.toEqual([
+  {
+    name: "get_apps",
+    description: "List applications",
+    inputSchema: { type: "object", properties: {} },
+  },
+]);
+
+});
+
+it("rejects tool listing before connecting", async () => {
+await expect(connector.listTools()).rejects.toThrow(
+"Remote AppScan MCP connector is not connected.",
+);
+});
+
+it("calls a tool and normalizes its result", async () => {
+await connector.connect();
+
+await expect(
+  connector.callTool("get_apps", { top: 5 }),
+).resolves.toEqual({
+  content: [{ type: "text", text: "Success" }],
+  isError: false,
+});
+
+expect(mockClient.callTool).toHaveBeenCalledWith({
+  name: "get_apps",
+  arguments: { top: 5 },
+});
+
+});
+
+it("rejects a tool call before connecting", async () => {
+await expect(
+connector.callTool("get_apps", {}),
+).rejects.toThrow(
+"Remote AppScan MCP connector is not connected.",
+);
+});
+
+it("rejects an unsupported tool result format", async () => {
+await connector.connect();
+mockClient.callTool.mockResolvedValue({ unexpected: true });
+
+await expect(
+  connector.callTool("get_apps", {}),
+).rejects.toThrow(
+  'MCP tool "get_apps" returned an unsupported result format.',
+);
+
+});
+
+it("disconnects the client", async () => {
+await connector.connect();
+await connector.disconnect();
+
+expect(mockClient.close).toHaveBeenCalledTimes(1);
+
+});
+
+it("passes the API key in the X-API-KEY header", () => {
+  expect(mockTransport).toHaveBeenCalledWith(
+    new URL("https://cloud.appscan.com/mcp"),
+    expect.objectContaining({
+      requestInit: expect.objectContaining({
+        headers: {
+          "X-API-KEY": "test-key",
+        },
+      }),
+    }),
+  );
+});
+
+it("configures the request timeout when provided", () => {
+  new RemoteHttpConnector({
+    endpoint: "https://cloud.appscan.com/mcp",
+    apiKey: "test-key",
+    requestTimeoutMs: 5000,
   });
-}
+
+  expect(mockTransport).toHaveBeenCalledWith(
+    new URL("https://cloud.appscan.com/mcp"),
+    expect.objectContaining({
+      requestInit: expect.objectContaining({
+        signal: expect.any(AbortSignal),
+      }),
+    }),
+  );
+});
+
+it("does nothing when disconnecting before connecting", async () => {
+await connector.disconnect();
+
+expect(mockClient.close).not.toHaveBeenCalled();
+
+});
+});
