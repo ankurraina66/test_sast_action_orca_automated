@@ -1,2 +1,14 @@
-Select-String -Path .\src\services\appscan-service-factory.ts,.\src\mcp\connector-factory.ts `
-  -Pattern 'loadConfig|APP_SCAN_PROVIDER|createConnector|RemoteHttpConnector|LocalStdioConnector'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\services\appscan-service-factory.ts,.\src\mcp\connector-factory.ts `
+>>   -Pattern 'loadConfig|APP_SCAN_PROVIDER|createConnector|RemoteHttpConnector|LocalStdioConnector'
+
+src\services\appscan-service-factory.ts:1:import { loadConfig } from "../config/config.js";
+src\services\appscan-service-factory.ts:2:import { createConnector } from "../mcp/connector-factory.js";
+src\services\appscan-service-factory.ts:6:  const config = loadConfig();
+src\services\appscan-service-factory.ts:7:  const connector = createConnector(config);
+src\mcp\connector-factory.ts:3:import { LocalStdioConnector } from "./local-stdio-connector.js";
+src\mcp\connector-factory.ts:4:import { RemoteHttpConnector } from "./remote-http-connector.js";
+src\mcp\connector-factory.ts:6:export function createConnector(
+src\mcp\connector-factory.ts:16:    return new LocalStdioConnector({
+src\mcp\connector-factory.ts:38:  return new RemoteHttpConnector({
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
