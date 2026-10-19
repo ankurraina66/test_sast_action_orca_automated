@@ -1,1 +1,3 @@
-
+Compare-Object `
+  (Get-Content .\.claude\skills\appscan\SKILL.md) `
+  (Get-Content .\agent\skills\appscan\SKILL.md)
