@@ -1,1 +1,1 @@
-
+Select-String -Path .\src\claude-mcp-server.ts -Pattern 'registerTool\(|"get-apps"|"get-scans"|"get-scan-issues"|"get-issue-details"|"prepare-scan"|"execute-prepared-scan"|"create-scan"'
