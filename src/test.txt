@@ -1,13 +1,339 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $serverDir = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build"
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem $serverDir -Recurse -File -Filter "*.js" |
->>     Select-String -Pattern "registerCreateScanTool" |
->>     Select-Object Path, LineNumber, Line
-
-Path                                                                                                               LineNumber Line
-----                                                                                                               ---------- ----
-C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js                     5 import { registerCreateScanT…
-C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js                  1007     registerCreateScanTool(s…
-C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js         62 export function registerCrea…
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "$serverDir\tools\createScan.js"
+import { z } from "zod";
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
+import { ensureAuth, downloadSAClient, generateIRX, uploadIRXFile, createScan, waitForScanReady, formatScanSummary, makeAppScanRequest, } from "./scanService.js";
+import { generateAppScanConfig, createSmartConfig } from "../helper/create-appscan-config.js";
+function truncateForLog(value, maxLength = 4000) {
+    const text = String(value || "").trim();
+    if (text.length <= maxLength)
+        return text;
+    return `${text.slice(0, maxLength)}\n... output truncated ...`;
+}
+function cleanupScanArtifacts(outputDir) {
+    if (!fs.existsSync(outputDir)) {
+        return `No local scan artifacts found to delete at ${outputDir}`;
+    }
+    fs.rmSync(outputDir, { recursive: true, force: true });
+    return `Deleted local scan artifacts: ${outputDir}`;
+}
+function formatAvailableApps(apps) {
+    return apps
+        .slice(0, 10)
+        .map((app) => `- ${app.Name || "Unknown"} (ID: ${app.Id || "Unknown"}, Type: ${app.AppType || "Unknown"})`)
+        .join("\n");
+}
+function formatAppResolutionMessage(reason, appOptions) {
+    const lines = [
+        reason,
+        "Pause scan creation if the application ID is missing or invalid, and resolve the application first.",
+        "",
+        "When prompting the user to resolve the application, present a dropdown or selection list structured in this exact order:",
+        "1. Create a new application",
+        "2. [List of known existing applications]",
+        "3. Enter another application name or ID",
+        "",
+        "Handling the User's Selection:",
+        "- If the user selects 'Create a new application': This acts as explicit approval. Call create-app with approved=true. After create-app returns a real application ID, rerun create-scan with that appId and approved=true.",
+        "- If the user selects an existing app from the list: Proceed directly using that application ID.",
+        "- If the user enters a custom app name or ID in the text box: Use the get-apps tool to search for and verify the application details before proceeding.",
+        "",
+        "Forbidden Actions: Do not infer application details, do not create an application automatically without the user explicitly selecting the 'Create' option, and never execute create-scan without a validated, real application ID.",
+    ];
+    if (appOptions) {
+        lines.splice(5, 0, appOptions);
+    }
+    return lines.join("\n");
+}
+async function getAppsForSelection() {
+    const appsResponse = await makeAppScanRequest("/api/v4/Apps?$top=10");
+    return appsResponse.Items || appsResponse || [];
+}
+async function findAppById(appId) {
+    // OData v4 requires raw GUIDs without the guid'' prefix or single quotes
+    const filter = encodeURIComponent(`Id eq ${appId}`);
+    const response = await makeAppScanRequest(`/api/v4/Apps?$filter=${filter}&$top=1`);
+    const apps = response.Items || response || [];
+    return apps.length > 0 ? apps[0] : null;
+}
+/**
+ * Register the create-scan tool.
+ */
+export function registerCreateScanTool(server) {
+    server.registerTool("create-scan", {
+        title: "Create AppScan Scan",
+        description: "Create or start an HCL AppScan SAST scan for a local project, or create an AppScan SCA scan when scanType is set to SCA. Use this whenever the user asks to create a scan, start a scan, run a scan, create a SAST scan, start AppScan on this project, or scan the current workspace for vulnerabilities. The tool packages the local codebase, uploads the IRX artifact, and creates the AppScan scan record. It uses an existing appscan-config.xml when available and can generate a project-aware configuration when missing. If the appId is not passed, missing, or unavailable, do not stop the process. Instead, seamlessly prompt the user with a question asking them to either select from a list of existing applications, enter an app name, or provide a specific app ID. Explicit user approval is required before the scan is finally created.",
+        annotations: {
+            title: "Create AppScan SAST Scan",
+            readOnlyHint: false,
+            destructiveHint: false,
+            idempotentHint: false,
+            openWorldHint: true,
+        },
+        _meta: {
+            tags: ["appscan", "sast", "scan", "create", "start", "run"],
+        },
+        inputSchema: {
+            appId: z.string().optional().describe("Required AppScan application ID that will own the new scan. Use an existing application ID from get-apps or create-app first. If omitted, the tool stops and returns selectable existing applications instead of creating a scan."),
+            scanName: z.string().optional().describe("Optional AppScan scan name. If omitted, the tool generates one from the project folder name and current timestamp."),
+            targetDir: z.string().describe("Required path to the local project, repository checkout, source tree, or prepared build output to package for scanning. For prompts like 'scan this project', use the current workspace folder."),
+            configFile: z.string().optional().describe("Optional path to an existing appscan-config.xml file. Use this when the scan configuration lives outside targetDir or when you want to force a specific AppScan configuration. If omitted, the tool looks for appscan-config.xml in targetDir and generates one when missing."),
+            scanType: z.enum(["SAST", "SCA"]).default("SAST").describe("Type of AppScan scan to create. Use SAST for static application security testing of source or build output. Use SCA for software composition or dependency analysis."),
+            comment: z.string().optional().describe("Optional comment stored with the AppScan scan request, such as a branch name, commit, ticket, or execution note."),
+            wait: z.boolean().optional().default(true).describe("When true, wait for the AppScan scan execution to reach a terminal ready state before returning. Set false to return immediately after the scan is created."),
+            workDir: z.string().optional().describe("Optional working directory used for temporary AppScan artifacts, reports, and intermediate files. Defaults to the system temp directory when omitted."),
+            detailedLogs: z.boolean().optional().default(false).describe("When true, include verbose build output and AppScan command logs for troubleshooting. Keep false for normal runs to reduce noise and token usage."),
+            conserveFiles: z.boolean().optional().default(false).describe("When true, preserve generated local artifacts such as the AppScan output folder, IRX package, and generated configuration for later inspection. Defaults to false and cleans up local artifacts after scan creation."),
+            approved: z.boolean().optional().default(false).describe("Required approval flag for this write action. Set to true only after the user has explicitly approved creating or starting the AppScan scan."),
+        },
+    }, async ({ appId, scanName, targetDir, configFile, scanType, comment, wait, workDir, detailedLogs, conserveFiles, approved }, extra) => {
+        let outputDir;
+        let generatedConfigFile = false;
+        let generatedConfigPath;
+        const cleanupGeneratedFiles = () => {
+            if (conserveFiles) {
+                return [];
+            }
+            const cleanupMessages = [];
+            if (outputDir) {
+                cleanupMessages.push(cleanupScanArtifacts(outputDir));
+            }
+            if (generatedConfigFile && generatedConfigPath && fs.existsSync(generatedConfigPath)) {
+                fs.rmSync(generatedConfigPath, { force: true });
+                cleanupMessages.push(`Deleted generated configuration file: ${generatedConfigPath}`);
+            }
+            return cleanupMessages;
+        };
+        try {
+            // Helper function to send progress updates via logging
+            const sendProgress = async (message, progress, total) => {
+                console.error(`[Progress] ${message}`);
+                try {
+                    // Send progress as info-level logging messages
+                    await server.sendLoggingMessage({
+                        level: "info",
+                        data: message,
+                    });
+                }
+                catch (err) {
+                    console.error(`[Progress] Failed to send logging message: ${err}`);
+                }
+            };
+            await sendProgress("Authenticating with AppScan...", 0, 100);
+            // Ensure authentication
+            await ensureAuth();
+            await sendProgress("Authentication successful", 10, 100);
+            await sendProgress("Validating target directory...", 15, 100);
+            // Validate target directory
+            if (!fs.existsSync(targetDir)) {
+                throw new Error(`Target directory does not exist: ${targetDir}`);
+            }
+            await sendProgress(`✓ Target directory validated: ${targetDir}`, 20, 100);
+            if (!appId) {
+                await sendProgress(`[debug only]`, 20, 100);
+                const apps = await getAppsForSelection();
+                if (apps.length === 0) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: formatAppResolutionMessage("No AppScan applications were found."),
+                            },
+                        ],
+                        isError: true,
+                    };
+                }
+                const appOptions = formatAvailableApps(apps);
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: formatAppResolutionMessage("No AppScan application was selected for this scan.", appOptions),
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            const resolvedApp = await findAppById(appId);
+            if (!resolvedApp) {
+                const apps = await getAppsForSelection();
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: formatAppResolutionMessage(`The supplied AppScan application ID was not found: ${appId}.`, apps.length > 0 ? formatAvailableApps(apps) : undefined),
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            if (!approved) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: [
+                                "User approval is required before creating this AppScan scan.",
+                                `Application ID: ${appId}`,
+                                `Scan name: ${scanName || "(default name will be generated)"}`,
+                                `Target directory: ${targetDir}`,
+                                `Scan type: ${scanType}`,
+                                `Comment: ${comment || "(none)"}`,
+                                "Ask the user for approval, then rerun this tool with approved=true.",
+                            ].join("\n"),
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            // Generate default scan name if not provided
+            if (!scanName) {
+                const projectName = path.basename(targetDir);
+                const now = new Date();
+                const dateTimeStr = now.toISOString().replace(/[-:]/g, '').replace(/\..+/, '').replace('T', '_');
+                scanName = `${projectName}_${dateTimeStr}`;
+                await sendProgress(`Using default scan name: ${scanName}`, 20, 100);
+            }
+            // Check for required configuration file
+            await sendProgress("Checking for appscan-config.xml...", 25, 100);
+            const resolvedConfigFile = configFile ? path.resolve(configFile) : path.join(targetDir, "appscan-config.xml");
+            if (!fs.existsSync(resolvedConfigFile)) {
+                await sendProgress("⚙️ Creating project-aware appscan-config.xml...", 30, 100);
+                console.log(`[createScan] Missing required configuration file: ${resolvedConfigFile}. Creating project-aware appscan-config.xml...`);
+                // Create intelligent, project-aware configuration
+                const smartConfig = createSmartConfig(targetDir, {
+                    scanSecrets: scanType === "SCA",
+                    scanThirdParty: false // Exclude third-party by default for faster scans
+                });
+                const configContent = generateAppScanConfig(smartConfig);
+                fs.writeFileSync(resolvedConfigFile, configContent, 'utf-8');
+                generatedConfigFile = true;
+                generatedConfigPath = resolvedConfigFile;
+                console.log(`[createScan] Created project-aware configuration file: ${resolvedConfigFile}`);
+                await sendProgress("✓ Configuration file created", 35, 100);
+            }
+            else {
+                await sendProgress("✓ Using existing appscan-config.xml", 35, 100);
+            }
+            // Set up working directory for reports (not for SAClient anymore)
+            const baseWorkDir = workDir || path.join(os.tmpdir(), "appscan-mcp");
+            const reportsDir = path.join(baseWorkDir, "reports");
+            // Create directories
+            [baseWorkDir, reportsDir].forEach(dir => {
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, { recursive: true });
+                }
+            });
+            // Step 1: Download SAClient to ~/.appscan
+            await sendProgress("Downloading SAClientUtil to ~/.appscan (this may take a moment)...", 40, 100);
+            console.error("[createScan] Step 1: Download SAClientUtil to ~/.appscan");
+            const appscanPath = await downloadSAClient();
+            await sendProgress("✓ SAClientUtil ready", 45, 100);
+            // Step 2: Build the project
+            console.error("[createScan] Step 2: Build the project");
+            const buildDir = path.join(targetDir, "build");
+            try {
+                // Try to run build command if package.json exists
+                const packageJsonPath = path.join(targetDir, "package.json");
+                if (fs.existsSync(packageJsonPath)) {
+                    await sendProgress("🔨 Building project with npm...", 50, 100);
+                    console.error("[createScan] Found package.json, running npm run build...");
+                    const { execSync } = require('child_process');
+                    const buildOutput = execSync('npm run build', {
+                        cwd: targetDir,
+                        encoding: 'utf-8',
+                        maxBuffer: 1024 * 1024 * 10,
+                        stdio: 'pipe',
+                    });
+                    if (detailedLogs && buildOutput) {
+                        console.error(`[createScan] Build output:\n${truncateForLog(buildOutput, 12000)}`);
+                    }
+                    console.error("[createScan] Build completed successfully");
+                    await sendProgress("Build completed successfully", 55, 100);
+                }
+                else {
+                    await sendProgress("ℹ️ No package.json found, skipping build step", 55, 100);
+                    console.error("[createScan] No package.json found, skipping build step");
+                }
+            }
+            catch (buildError) {
+                const buildOutput = [buildError?.stdout, buildError?.stderr]
+                    .filter(Boolean)
+                    .map((value) => truncateForLog(value, detailedLogs ? 12000 : 2000))
+                    .join("\n");
+                if (buildOutput) {
+                    console.error(`[createScan] Build output excerpt:\n${buildOutput}`);
+                }
+                console.error(`[createScan] Warning: Build failed or no build script: ${buildError instanceof Error ? buildError.message : String(buildError)}`);
+                console.error("[createScan] Continuing with scan of source directory...");
+            }
+            // Use build directory if it exists, otherwise use target directory
+            const scanDir = fs.existsSync(buildDir) ? buildDir : targetDir;
+            console.error(`[createScan] Scanning directory: ${scanDir}`);
+            // Step 3: Generate IRX with enhanced options
+            await sendProgress("Generating IRX file (this may take several minutes)...", 60, 100);
+            console.error("[createScan] Step 3: Generate IRX file using appscan-config.xml");
+            // Create output directory with timestamp
+            const now = new Date();
+            const dateTimeStr = now.toISOString().replace(/[-:]/g, '_').split('.')[0];
+            outputDir = path.join(targetDir, `HCLAppScan_${dateTimeStr}`);
+            const irxPath = await generateIRX(appscanPath, scanDir, `Static_${path.basename(targetDir)}_${dateTimeStr.split('T')[0]}_${dateTimeStr.split('T')[1]}`, outputDir, resolvedConfigFile, undefined, // scanFlag - not used when config file is required
+            false, // secretScanning - configured in XML file
+            "thorough", // scanLevel - use thorough scan by default
+            true, // analysisOnly - use -sao flag
+            detailedLogs);
+            await sendProgress("IRX file generated successfully", 70, 100);
+            // Step 4: Upload IRX
+            await sendProgress("Uploading IRX file to AppScan...", 75, 100);
+            console.error("[createScan] Step 4: Upload IRX file");
+            const fileId = await uploadIRXFile(irxPath);
+            await sendProgress("✓ IRX file uploaded", 80, 100);
+            // Step 5: Create scan
+            await sendProgress("🚀 Creating scan in AppScan...", 85, 100);
+            console.error("[createScan] Step 5: Create scan");
+            const { scanId, scanData } = await createScan(appId, scanName, fileId, scanType, comment);
+            await sendProgress(`✓ Scan created (ID: ${scanId})`, 90, 100);
+            const artifactMessage = conserveFiles
+                ? `Local scan artifacts preserved: ${outputDir}`
+                : cleanupScanArtifacts(outputDir);
+            console.error(`[createScan] ${artifactMessage}`);
+            // Early return when not waiting
+            if (!wait) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: `Scan created. ID: ${scanId} | Name: ${scanData?.Name || scanName} | Type: ${scanType}\nIRX: ${irxPath}\nFileId: ${fileId}\n${artifactMessage}`,
+                        },
+                    ],
+                };
+            }
+            // Step 6: Wait for scan completion
+            await sendProgress("Waiting for scan to complete (checking every 15 seconds)...", 95, 100);
+            console.error("[createScan] Step 6: Wait for scan completion");
+            const { lastPayload } = await waitForScanReady(scanId, 15000, sendProgress, detailedLogs);
+            await sendProgress("Scan completed!", 100, 100);
+            const summary = formatScanSummary(scanId, scanName, scanType, lastPayload, irxPath, fileId);
+            return {
+                content: [
+                    { type: "text", text: `Scan completed.\n${summary}\n${artifactMessage}` },
+                ],
+            };
+        }
+        catch (error) {
+            const cleanupMessages = cleanupGeneratedFiles();
+            const cleanupText = cleanupMessages.length > 0 ? `\n${cleanupMessages.join("\n")}` : "";
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error creating scan: ${error instanceof Error ? error.message : String(error)}${cleanupText}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+}
+//# sourceMappingURL=createScan.js.map
