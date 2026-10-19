@@ -1,18 +1,1 @@
-why this did not work?
 
-/appscan List all the vulnerabilities under this project folder C:/Users/ankur.raina/Downloads/spring-boot-restful-web-service-example-master/spring-boot-restful-web-service-example-master/
-
-I'll check whether AppScan has an application for this project.
-
-  Called appscan-connector
-
-I can't list AppScan vulnerabilities for this project, because AppScan has no application that matches it. The project folder is spring-boot-restful-web-service-example-master, and none of the 23 applications in your AppScan account has a matching name. The names include Demo_Test_Ankur, TestApp1–3, Sample_project, and Test_Tayalan, but nothing like "spring-boot", "consultantapi", or "levent".
-
-A local folder path doesn't link to AppScan on its own, and I won't guess which application it belongs to. Listing findings from a possibly unrelated application would be misleading. I also haven't triggered a scan, as you asked.
-
-Which of these fits?
-
-1. Existing application: the project was scanned under one of the names above, or a name I missed. Tell me which application and I'll list its scans and findings.
-2. Known scan ID: give me the scan ID and I'll retrieve that scan's findings. The scan I reviewed earlier, d9227887-…, covers VulnerableRPGLE_VisualStudio_Project and has no Java findings.
-3. Not scanned yet: AppScan has no results for it. I can't create a scan in this review, so you'd need to run one yourself, for example from the AppScan UI or CLI.
-4. Manual review instead: I can read the project's source and list the vulnerabilities I find. That would be my own analysis, labeled separately from AppScan data. I already did this for XSSVulnerableServlet.java, and I can extend it to the whole project, read-only.
