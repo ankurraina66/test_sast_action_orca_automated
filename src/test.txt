@@ -1,1 +1,21 @@
-node -e "const p=require('./package.json'); console.log(JSON.stringify(p.scripts,null,2))"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> node -e "const p=require('./package.json'); console.log(JSON.stringify(p.scripts,null,2))"
+{
+  "test": "vitest run",
+  "build": "tsc",
+  "typecheck": "tsc --noEmit",
+  "test:watch": "vitest",
+  "dev": "tsx watch src/index.ts",
+  "start:claude-mcp": "node dist/claude-mcp-server.js"
+}
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\src\mcp
+
+    Directory: C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a---          13-10-2026    12:11           1250 connector-factory.ts
+-a---          12-10-2026    16:01            487 connector.ts
+-a---          13-10-2026    17:15           3518 local-stdio-connector.ts
+-a---          13-10-2026    11:29           3102 remote-http-connector.ts
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
