@@ -1,3 +1,27 @@
-- When listing scans for a named application, display the application name and its ID together, for example: "Test_Tayalan (Application ID: 39c76747-8617-4e00-8ae8-096e208f72ac)".
-- Do not include tool invocation counts or internal execution narration in the written response. Present the results directly.
-- Keep the response limited to the application name and ID, scan table, and at most one concise note about risk-rating availability.
+ /appscan
+
+HCL AppScan Security Review
+
+I can help you investigate AppScan findings and prepare remediation proposals for your approval. I only read from AppScan (apps, scans, issues, issue details). I don't create scans or update issues.
+
+┌────────────────────────────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│            Task            │                                                    Example request                                                     │
+├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ List scans for an          │ "List scans for Test_Tayalan"                                                                                          │
+│ application                │                                                                                                                        │
+├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ List findings in a scan    │ "Show issues for scan <SCAN_ID>"                                                                                       │
+├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Investigate one finding    │ "Explain the SQL injection finding in scan <SCAN_ID>"                                                                  │
+├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Correlate a finding with   │ I locate the referenced file in this workspace, read the surrounding code, and explain the vulnerability, its impact   │
+│ code                       │ and the evidence.                                                                                                      │
+├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Propose a remediation      │ I propose a minimal fix with the rationale. I edit files only after you explicitly approve.                            │
+├────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Verify the change          │ I run any available tests or checks and report what actually ran. I ask first if a check could have side effects.      │
+└────────────────────────────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+You can give me an application name and I'll look up its ID, so you don't need to supply a GUID.
+
+What would you like to review?
