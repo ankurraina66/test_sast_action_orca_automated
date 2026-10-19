@@ -1,1 +1,25 @@
+@'
+const { RemoteHttpConnector } = require("./dist/mcp/remote-http-connector.js");
 
+(async () => {
+  const connector = new RemoteHttpConnector({
+    endpoint: process.env.APP_SCAN_REMOTE_ENDPOINT,
+    apiKey: process.env.APP_SCAN_API_KEY,
+    requestTimeoutMs: 30000
+  });
+
+  try {
+    await connector.connect();
+    const tools = await connector.listTools();
+    const names = tools.map(t => t.name);
+
+    console.log("Remote tool names:", names.join(", "));
+    console.log("Has get-apps:", names.includes("get-apps"));
+    console.log("Has get_apps:", names.includes("get_apps"));
+  } catch (error) {
+    console.error("Tool inspection failed:", error.message);
+  } finally {
+    try { await connector.disconnect(); } catch {}
+  }
+})();
+'@ | node
