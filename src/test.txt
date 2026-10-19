@@ -1,3 +1,16 @@
-Select-String -Path .\src\config\config.ts `
-  -Pattern 'APP_SCAN_PROVIDER|APP_SCAN_REMOTE_ENDPOINT|APP_SCAN_API_KEY|APPSCAN_KEY_ID|APPSCAN_KEY_SECRET' `
-  | Select-Object LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\config\config.ts `
+>>   -Pattern 'APP_SCAN_PROVIDER|APP_SCAN_REMOTE_ENDPOINT|APP_SCAN_API_KEY|APPSCAN_KEY_ID|APPSCAN_KEY_SECRET' `
+>>   | Select-Object LineNumber, Line
+
+LineNumber Line
+---------- ----
+        25   const provider = (env.APP_SCAN_PROVIDER ?? "remote")
+        31       'APP_SCAN_PROVIDER must be either "remote" or "local".',
+        44     const endpoint = env.APP_SCAN_REMOTE_ENDPOINT?.trim();
+        48         "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
+        57       throw new Error("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+        69         apiKey: env.APP_SCAN_API_KEY?.trim() || undefined,
+        91       keyId: env.APPSCAN_KEY_ID?.trim() || undefined,
+        92       keySecret: env.APPSCAN_KEY_SECRET?.trim() || undefined,
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
