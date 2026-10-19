@@ -1,1 +1,3 @@
-
+Get-Content .\src\services\appscan-service.ts
+Get-Content .\src\mcp\connector.ts
+Get-Content .\src\claude-mcp-server.ts
