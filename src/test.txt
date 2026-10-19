@@ -1,1 +1,2 @@
-
+Get-Content .\src\config\config.ts
+Get-Content .\src\mcp\remote-http-connector.ts
