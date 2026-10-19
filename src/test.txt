@@ -1,1 +1,30 @@
-/appscan List the AppScan applications using the appscan-connector. Return only application names and IDs. Do not create, modify, or launch any scans. Tell me which MCP tool you called.
+/appscan Review the XSS vulnerability in C:/Users/ankur.raina/Downloads/spring-boot-restful-web-service-example-master/spring-boot-restful-web-service-example-master/src/main/java/com/levent/consultantapi/config/XSSVulnerableServlet.java. Explain the source-to-sink flow using the actual code. Do not edit files or trigger a scan.
+
+
+ /appscan List the AppScan applications using the appscan-connector. Return only application names and IDs. Do not create, modify, or launch any scans. Tell me which MCP tool you called.
+
+  Called appscan-connector
+
+I called the MCP tool get-apps from appscan-connector. It returned "Error occurred while processing the request", so I have no application names or IDs to show.
+
+The error gave no further detail. I called it with no filter or limit. I didn't create, modify, or launch any scans.
+
+I can retry the same call, or retry with a small top value such as 10. If it keeps failing, check that the connector is authenticated and can reach AppScan. I can't tell from this error whether that's the cause.
+
+✻ Sautéed for 9s · done 9:29 PM
+
+> List the AppScan applications using the appscan-connector. Return only application names and IDs. Do not create, modify, or launch any scans. Tell me which MCP tool you called.
+
+  Called appscan-connector
+
+I called get-apps from appscan-connector again, this time with top: 50. It failed with the same error, "Error occurred while processing the request". I still have no application names or IDs to give you, and I won't make any up. I didn't create, modify, or launch any scans.
+
+The error text doesn't say why it failed, so I can't tell whether this is authentication, connectivity, or a server-side problem. Here is what you can check:
+- Connector status: run /mcp in Claude Code and confirm appscan-connector shows as connected.
+- Credentials: confirm the connector's AppScan credentials or token are valid and haven't expired. Don't paste them here. If one has leaked, rotate it.
+- Network: confirm this machine can reach the AppScan service, for example through a VPN or proxy.
+- Connector logs: the MCP server's own logs will probably show the real error.
+
+Once you've checked those, tell me and I'll retry.
+
+wrote prompt using /appscan and without /appscan
