@@ -1,1 +1,257 @@
+HCL AppScan Connector for Claude POC
 
+Presentation Q&A Study Guide
+
+Purpose: Practice guide based on the demo dry run and questions discussed while roleplaying Vinita and Matt.
+
+Important status rule: Clearly distinguish completed local validation from pending remote connectivity, provider switching, client/platform compatibility, and packaging work.
+
+---
+
+Part 1 — Questions from the dry run
+
+1. What are we building, what problem does it solve, and what is the primary deliverable?
+
+We are building an AI-assisted coding solution integrating HCL AppScan with Claude Code to help developers investigate security findings and remediate vulnerable code.
+
+The connector retrieves AppScan findings and available remediation guidance. The Claude Code Skill guides Claude to correlate findings with local source code and propose fixes for developer review and approval.
+
+The planned deliverable is a reusable connector and Skill, distributed internally as a ZIP with setup and configuration documentation. The ZIP itself has not yet been implemented.
+
+2. Why use a separate connector instead of connecting Claude Code directly to the existing HCL AppScan MCP?
+
+The connector provides an abstraction layer over the existing HCL AppScan MCP without modifying it. It controls which tools Claude can access and provides a common interface for local and remote provider modes.
+
+The Skill guides the workflow; the connector does not define the Skill.
+
+3. How does Claude Code select local or remote MCP?
+
+The connector reads "APP_SCAN_PROVIDER" at startup. The provider factory instantiates the selected backend: local STDIO or remote Streamable HTTP.
+
+Claude Code registers our facade once as "appscan-connector". To switch providers, change the environment variable and restart or reconnect the connector process. There is no automatic failover.
+
+4. What are the prerequisites and registration command?
+
+Prerequisites include Node.js/npm, the connector project and dependencies, Claude Code CLI installed and authenticated, valid AppScan credentials, a reachable backend, and the local MCP package/path when using local mode.
+
+Build the project using:
+
+npm install
+npm run build
+
+Register the connector:
+
+claude mcp add --transport stdio appscan-connector -- node "$PWD/dist/claude-mcp-server.js"
+
+Verify registration:
+
+claude mcp list
+
+Set credentials through environment variables. Never display or share secrets.
+
+5. What happens when a developer types "/appscan"?
+
+Claude Code loads ".claude/skills/appscan/SKILL.md". The Skill guides the workflow. When AppScan information is needed, Claude calls the tools exposed by our connector, which routes requests to the selected provider.
+
+The Markdown file provides instructions; it is not executed like a program.
+
+6. How does Claude investigate a specific vulnerability?
+
+Claude calls "get-scan-issues" to retrieve findings for the relevant scan, identifies the target finding, and then calls "get-issue-details" using the finding GUID.
+
+The developer provides the local source project path so Claude can inspect relevant files, correlate the finding with code, and propose remediation.
+
+The facade tool names are "get-scan-issues" and "get-issue-details".
+
+7. Are we using HCL AppScan RapidFix?
+
+No. RapidFix integration has not been implemented or validated.
+
+Claude analyzes AppScan findings and local source code to propose remediation. It may use AppScan guidance when available, but this is not a RapidFix integration.
+
+8. Can Claude modify code without approval?
+
+The developer remains in control. The Skill instructs Claude to obtain explicit approval before editing code.
+
+We must not claim code was changed or tests passed unless those actions actually occurred.
+
+9. What if AppScan does not provide remediation guidance?
+
+Claude can analyze the finding and local source code and propose a fix if enough information is available.
+
+It must distinguish AppScan-provided information from its own analysis. Recommendation quality depends on the available finding details and code.
+
+10. Have local and remote modes both been tested end to end?
+
+Local MCP connectivity, authentication, tool discovery, application listing, and finding retrieval have been tested.
+
+Remote live connectivity, authentication, and tool discovery through our connector remain pending, as does end-to-end provider switching.
+
+11. What are the main limitations and next steps?
+
+Remaining work includes:
+
+- Remote MCP validation.
+- Provider-switching tests.
+- Windows, macOS, and Linux compatibility validation.
+- Separate Claude Desktop and Claude Web validation.
+- Implementing the internal ZIP package and documentation.
+- Reviewing credential handling, tool exposure, errors, timeouts, and approval controls.
+
+Do not claim support until it has been tested.
+
+12. What tools does the Claude-facing connector expose?
+
+Four read-only tools:
+
+- "get-apps"
+- "get-scans"
+- "get-scan-issues"
+- "get-issue-details"
+
+The underlying local MCP has a wider tool inventory, but those additional tools are not exposed by our facade.
+
+13. Can the connector create scans or update AppScan issues?
+
+Not through the current Claude-facing facade. Scan creation and update operations are not exposed.
+
+14. Does the demo prove AppScan found the intentional XSS in the sample project?
+
+No. The sample contains an intentionally vulnerable servlet suitable for static source review, but runtime reachability was not confirmed and no AppScan scan was run for that demo.
+
+Describe it as Claude-assisted source review, not a live AppScan scan result.
+
+15. What exactly is being distributed?
+
+The planned internal ZIP should contain the connector, Claude Code Skill/workflow files, and setup/configuration documentation.
+
+Packaging is planned, not implemented. Marketplace publication is out of scope.
+
+16. Can we claim support for Claude Desktop/Web and Windows, macOS, and Linux?
+
+Not yet. Claude Code CLI is the client tested so far. Desktop/Web and cross-platform compatibility need separate validation.
+
+17. What test evidence exists?
+
+The baseline included 48 unit tests across seven files, with type checking, build, and tests passing after the facade was added.
+
+Local connectivity and finding retrieval were also tested. Remote and provider-switching validation remain pending.
+
+18. What is the safe demo boundary?
+
+Keep the demo read-only:
+
+- List applications and scans.
+- Retrieve findings and issue details.
+- Inspect local source code.
+- Show proposed remediation.
+
+Do not trigger scans, update issues, or edit files unless explicitly in scope and approved.
+
+---
+
+Part 2 — PowerShell command reference
+
+Build the project
+
+cd "$HOME\ai-coding-assistants-claude-poc"
+npm install
+npm run build
+
+Register and verify the Claude-facing MCP
+
+claude mcp add --transport stdio appscan-connector -- node "$PWD/dist/claude-mcp-server.js"
+claude mcp list
+
+Local provider variables
+
+$env:APP_SCAN_PROVIDER = "local"
+$env:APP_SCAN_LOCAL_SERVER_PATH = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
+$env:APPSCAN_API_BASE = "https://cloud.appscan.com"
+$env:APPSCAN_KEY_ID = "<your-key-id>"
+$env:APPSCAN_KEY_SECRET = "<your-key-secret>"
+$env:APP_SCAN_REQUEST_TIMEOUT_MS = "30000"
+
+Remote provider variables — live validation pending
+
+$env:APP_SCAN_PROVIDER = "remote"
+$env:APP_SCAN_REMOTE_ENDPOINT = "https://cloud.appscan.com/mcp"
+$env:APP_SCAN_API_KEY = "<your-remote-mcp-api-key>"
+$env:APP_SCAN_REQUEST_TIMEOUT_MS = "30000"
+
+Safe non-secret preflight
+
+[pscustomobject]@{
+    Provider       = $env:APP_SCAN_PROVIDER
+    LocalServer    = $env:APP_SCAN_LOCAL_SERVER_PATH
+    RemoteEndpoint = $env:APP_SCAN_REMOTE_ENDPOINT
+    AppScanBase    = $env:APPSCAN_API_BASE
+    TimeoutMs      = $env:APP_SCAN_REQUEST_TIMEOUT_MS
+    LocalKeySet    = [bool]$env:APPSCAN_KEY_ID
+    LocalSecretSet = [bool]$env:APPSCAN_KEY_SECRET
+    RemoteKeySet   = [bool]$env:APP_SCAN_API_KEY
+}
+
+Credential warning: Do not paste real keys into slides, screenshots, logs, terminal recordings, or chat.
+
+The current remote implementation sends "APP_SCAN_API_KEY" as "X-API-KEY". Remote endpoint and authentication still need live validation.
+
+---
+
+Part 3 — Demo prompts
+
+1. Type "/appscan" by itself.
+   
+   Expected: The Skill asks what the developer wants to review; it should not automatically list applications.
+
+2. List applications:
+   
+   "/appscan List the AppScan applications available to me."
+
+3. Identify scans:
+   
+   "/appscan Show the scans available for the relevant application and help me identify the scan to review."
+
+4. Review findings:
+   
+   "/appscan Review findings for scan <verified-scan-id> and summarize the highest-priority issues. Do not modify files or trigger a scan."
+
+5. Retrieve issue details:
+   
+   "/appscan Get details for finding <finding-guid> and explain what AppScan reports."
+
+6. Correlate findings with source code:
+   
+   "/appscan The local source project is at <absolute-project-path>. Inspect the code relevant to this finding, explain whether you can correlate it to the reported issue, and propose a minimal fix. Do not edit files; show the recommendation first."
+
+7. Maintain evidence boundaries:
+   
+   "/appscan Separate facts returned by AppScan from your own source-code analysis. Tell me which validation steps have actually been run and do not claim a fix is tested unless it was tested."
+
+---
+
+Part 4 — Status guardrails
+
+Validated
+
+- Claude Code Skill loading.
+- Local MCP connectivity, authentication, and tool discovery.
+- Application listing and finding retrieval.
+- Four-tool read-only facade.
+- Baseline of 48 unit tests, with type checking, build, and tests passing.
+
+Pending
+
+- Live remote connection, authentication, and tool discovery through this connector.
+- End-to-end provider switching.
+- Claude Desktop/Web.
+- Windows, macOS, and Linux compatibility beyond the tested setup.
+- ZIP packaging.
+- Wider security and reliability validation.
+
+Not validated or not in current demo scope
+
+- RapidFix integration.
+- Automatic edits without approval.
+- Scan creation through the Claude-facing facade.
+- Any claim that the sample XSS was found by a live AppScan scan.
