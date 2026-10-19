@@ -1,1 +1,1 @@
-
+/appscan List the AppScan applications using the appscan-connector. Return only application names and IDs. Do not create, modify, or launch any scans. Tell me which MCP tool you called.
