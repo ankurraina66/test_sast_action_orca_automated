@@ -1,1 +1,59 @@
 
+  server.registerTool(
+    "get-provider-status",
+    {
+      description: "Show which AppScan provider is currently active.",
+      inputSchema: {},
+    },
+    async () => ({
+      content: [
+        {
+          type: "text" as const,
+          text: `Active AppScan provider: ${service.getProvider()}`,
+        },
+      ],
+    }),
+  );
+
+  server.registerTool(
+    "switch-provider",
+    {
+      description:
+        "Switch the active AppScan backend between local STDIO and remote HTTP without restarting the Claude-facing MCP server.",
+      inputSchema: {
+        provider: z.enum(["local", "remote"]),
+      },
+    },
+    async ({ provider }) => {
+      try {
+        const result = await service.switchProvider(provider);
+
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: [
+                `Active AppScan provider: ${result.provider}`,
+                `Available backend tools: ${result.toolCount}`,
+                "Provider connection and tool discovery succeeded.",
+              ].join("\n"),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text:
+                error instanceof Error
+                  ? error.message
+                  : "Provider switching failed.",
+          },
+          ],
+          isError: true,
+        };
+      }
+    },
+  );
+
