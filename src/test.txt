@@ -1,1 +1,2 @@
-
+"Provider before launch: " + $env:APP_SCAN_PROVIDER
+node -e "const p=require('./dist/config/config.js').loadConfig(); console.log('Provider loaded:', p.provider); console.log('Remote endpoint configured:', !!p.remote?.endpoint)"
