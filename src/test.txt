@@ -1,1 +1,1 @@
-
+/appscan Review the intentional XSS vulnerability in src/main/java/com/levent/consultantapi/config/XSSVulnerableServlet.java. Explain the source-to-sink flow using the actual code. Do not edit files or trigger a scan.
