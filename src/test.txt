@@ -1,1 +1,3 @@
-
+Get-ChildItem .\tests -Recurse -File |
+    Where-Object { $_.Name -match 'claude-mcp-server|mcp-server' } |
+    Select-Object -ExpandProperty FullName
