@@ -1,1 +1,3 @@
-
+Get-ChildItem .\tests -Recurse -File |
+    Where-Object { $_.Name -match 'factory|connector' } |
+    Select-Object -ExpandProperty FullName
