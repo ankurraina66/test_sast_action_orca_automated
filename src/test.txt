@@ -1,30 +1,35 @@
-@'
-const { RemoteHttpConnector } = require("./dist/mcp/remote-http-connector.js");
-
-(async () => {
-  const connector = new RemoteHttpConnector({
-    endpoint: process.env.APP_SCAN_REMOTE_ENDPOINT,
-    apiKey: process.env.APP_SCAN_API_KEY,
-    requestTimeoutMs: 30000
-  });
-
-  try {
-    await connector.connect();
-    console.log("Remote connection: SUCCESS");
-
-    const tools = await connector.listTools();
-    console.log("Tool discovery: SUCCESS");
-    console.log("Discovered tool count:", tools.length);
-    console.log("Tool names:", tools.map(t => t.name).join(", "));
-  } catch (error) {
-    console.error("Remote test failed:", error.message);
-    process.exitCode = 1;
-  } finally {
-    try {
-      await connector.disconnect();
-    } catch {
-      console.error("Connector cleanup reported an error.");
-    }
-  }
-})();
-'@ | node
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> @'
+>> const { RemoteHttpConnector } = require("./dist/mcp/remote-http-connector.js");
+>>
+>> (async () => {
+>>   const connector = new RemoteHttpConnector({
+>>     endpoint: process.env.APP_SCAN_REMOTE_ENDPOINT,
+>>     apiKey: process.env.APP_SCAN_API_KEY,
+>>     requestTimeoutMs: 30000
+>>   });
+>>
+>>   try {
+>>     await connector.connect();
+>>     console.log("Remote connection: SUCCESS");
+>>
+>>     const tools = await connector.listTools();
+>>     console.log("Tool discovery: SUCCESS");
+>>     console.log("Discovered tool count:", tools.length);
+>>     console.log("Tool names:", tools.map(t => t.name).join(", "));
+>>   } catch (error) {
+>>     console.error("Remote test failed:", error.message);
+>>     process.exitCode = 1;
+>>   } finally {
+>>     try {
+>>       await connector.disconnect();
+>>     } catch {
+>>       console.error("Connector cleanup reported an error.");
+>>     }
+>>   }
+>> })();
+>> '@ | node
+Remote connection: SUCCESS
+Tool discovery: SUCCESS
+Discovered tool count: 12
+Tool names: get_licenses, get_scans, get_edm_metadata, update_issues, get_issue_details, get_os_libraries, get_org_libraries, get_apps_by_library, get_apps, get_issues, get_policies, get_fixgroups
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
