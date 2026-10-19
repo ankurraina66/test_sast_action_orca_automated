@@ -1,1 +1,34 @@
+async (args) => {
+  console.error("[AppScan diagnostic] get-apps invoked");
 
+  try {
+    const tool = await service.findApplicationDiscoveryTool();
+
+    if (!tool) {
+      throw new Error(
+        "The configured AppScan MCP server does not expose a recognized application discovery tool.",
+      );
+    }
+
+    console.error(
+      `[AppScan diagnostic] Resolved backend tool: ${tool.name}`,
+    );
+
+    const result = await service.callTool(tool.name, {
+      ...(args.filter !== undefined ? { filter: args.filter } : {}),
+      ...(args.top !== undefined ? { top: args.top } : {}),
+    });
+
+    console.error(
+      `[AppScan diagnostic] get-apps completed; isError=${result.isError ?? false}`,
+    );
+
+    return textResult(result);
+  } catch (error) {
+    console.error(
+      "[AppScan diagnostic] get-apps failed:",
+      error instanceof Error ? error.message : "Unknown error",
+    );
+    throw error;
+  }
+},
