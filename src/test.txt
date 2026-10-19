@@ -1,1 +1,15 @@
+Explicit scan-creation workflow
 
+When the user explicitly requests a new AppScan scan:
+
+1. Resolve the target application with "get-apps" when necessary and confirm the exact application ID.
+2. Confirm the source directory and scan type (SAST or SCA). Ask for missing information.
+3. Call "prepare-scan" with the intended parameters.
+4. Present the exact application ID, source directory, scan type, and scan name to the user. Explain that source artifacts may be packaged and uploaded to AppScan and that the underlying tool may generate configuration files or run a build.
+5. Ask the user to explicitly confirm that exact operation. Preparing a scan does not start it.
+6. Only after the user confirms, call "execute-prepared-scan" with the returned confirmation token.
+7. If any material parameter changes, prepare a new request and ask for confirmation again.
+8. Report the actual tool result. Do not claim that a scan was created or completed unless the returned result supports that statement.
+9. Never create scans during routine reviews unless the user separately requests one.
+
+Approval to edit source code does not imply approval to create a scan. Approval to create a scan does not imply approval to modify source code.
