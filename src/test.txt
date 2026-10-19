@@ -1,2 +1,8 @@
-Select-String -Path .\dist\claude-mcp-server.js `
-  -Pattern '\[AppScan diagnostic\] get-apps'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\dist\claude-mcp-server.js `
+>>   -Pattern '\[AppScan diagnostic\] get-apps'
+
+dist\claude-mcp-server.js:37:        console.error("[AppScan diagnostic] get-apps invoked");
+dist\claude-mcp-server.js:40:            console.error(`[AppScan diagnostic] get-apps completed; isError=${result.isError ?? false}`);
+dist\claude-mcp-server.js:44:            console.error("[AppScan diagnostic] get-apps failed:", error instanceof Error ? error.message : "Unknown error");
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
