@@ -1,1 +1,95 @@
-Select-String -Path .\src\claude-mcp-server.ts -Pattern 'create-scan' -Context 0,55
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\claude-mcp-server.ts -Pattern 'create-scan' -Context 0,55
+
+> src\claude-mcp-server.ts:114:    "create-scan",
+  src\claude-mcp-server.ts:115:    {
+  src\claude-mcp-server.ts:116:      description:
+  src\claude-mcp-server.ts:117:        "Create an AppScan SAST or SCA scan. IMPORTANT: Before calling this tool, obtain explicit user confirmation in the
+conversation for the exact application ID, target directory, and scan type. Never infer confirmation from a request to inspect or review code. Do not call
+this tool without that confirmation.",
+  src\claude-mcp-server.ts:118:      inputSchema: {
+  src\claude-mcp-server.ts:119:        appId: z.string().uuid(),
+  src\claude-mcp-server.ts:120:        targetDir: z.string().min(1),
+  src\claude-mcp-server.ts:121:        scanType: z.enum(["SAST", "SCA"]).default("SAST"),
+  src\claude-mcp-server.ts:122:        scanName: z.string().min(1).optional(),
+  src\claude-mcp-server.ts:123:        comment: z.string().optional(),
+  src\claude-mcp-server.ts:124:        confirmed: z.literal(true).describe(
+  src\claude-mcp-server.ts:125:          "Must be true only after the user explicitly confirms this exact scan operation.",
+  src\claude-mcp-server.ts:126:        ),
+  src\claude-mcp-server.ts:127:      },
+  src\claude-mcp-server.ts:128:    },
+  src\claude-mcp-server.ts:129:    async ({
+  src\claude-mcp-server.ts:130:      appId,
+  src\claude-mcp-server.ts:131:      targetDir,
+  src\claude-mcp-server.ts:132:      scanType,
+  src\claude-mcp-server.ts:133:      scanName,
+  src\claude-mcp-server.ts:134:      comment,
+  src\claude-mcp-server.ts:135:      confirmed,
+  src\claude-mcp-server.ts:136:    }) => {
+  src\claude-mcp-server.ts:137:      // Fail closed: never forward a scan request without confirmation.
+  src\claude-mcp-server.ts:138:      if (confirmed !== true) {
+  src\claude-mcp-server.ts:139:        return {
+  src\claude-mcp-server.ts:140:          content: [
+  src\claude-mcp-server.ts:141:            {
+  src\claude-mcp-server.ts:142:              type: "text" as const,
+  src\claude-mcp-server.ts:143:              text: "Scan creation requires explicit user confirmation.",
+  src\claude-mcp-server.ts:144:            },
+  src\claude-mcp-server.ts:145:          ],
+  src\claude-mcp-server.ts:146:          isError: true,
+  src\claude-mcp-server.ts:147:        };
+  src\claude-mcp-server.ts:148:      }
+  src\claude-mcp-server.ts:149:
+> src\claude-mcp-server.ts:150:      const result = await service.callTool("create-scan", {
+  src\claude-mcp-server.ts:151:        appId,
+  src\claude-mcp-server.ts:152:        targetDir,
+  src\claude-mcp-server.ts:153:        scanType,
+  src\claude-mcp-server.ts:154:        ...(scanName !== undefined ? { scanName } : {}),
+  src\claude-mcp-server.ts:155:        ...(comment !== undefined ? { comment } : {}),
+  src\claude-mcp-server.ts:156:        approved: true,
+  src\claude-mcp-server.ts:157:      });
+  src\claude-mcp-server.ts:158:
+  src\claude-mcp-server.ts:159:      return textResult(result);
+  src\claude-mcp-server.ts:160:    },
+  src\claude-mcp-server.ts:161:  );
+  src\claude-mcp-server.ts:162:
+  src\claude-mcp-server.ts:163:  const transport = new StdioServerTransport();
+  src\claude-mcp-server.ts:164:
+  src\claude-mcp-server.ts:165:  try {
+  src\claude-mcp-server.ts:166:    await server.connect(transport);
+  src\claude-mcp-server.ts:167:    console.error("HCL AppScan Connector for Claude is running.");
+  src\claude-mcp-server.ts:168:  } catch (error) {
+  src\claude-mcp-server.ts:169:    await service.disconnect();
+  src\claude-mcp-server.ts:170:    throw error;
+  src\claude-mcp-server.ts:171:  }
+  src\claude-mcp-server.ts:172:
+  src\claude-mcp-server.ts:173:  const shutdown = async () => {
+  src\claude-mcp-server.ts:174:    try {
+  src\claude-mcp-server.ts:175:      await server.close();
+  src\claude-mcp-server.ts:176:    } finally {
+  src\claude-mcp-server.ts:177:      await service.disconnect();
+  src\claude-mcp-server.ts:178:    }
+  src\claude-mcp-server.ts:179:  };
+  src\claude-mcp-server.ts:180:
+  src\claude-mcp-server.ts:181:  process.once("SIGINT", () => {
+  src\claude-mcp-server.ts:182:    void shutdown().catch((error: unknown) => {
+  src\claude-mcp-server.ts:183:      console.error("Shutdown failed:", error);
+  src\claude-mcp-server.ts:184:      process.exitCode = 1;
+  src\claude-mcp-server.ts:185:    });
+  src\claude-mcp-server.ts:186:  });
+  src\claude-mcp-server.ts:187:
+  src\claude-mcp-server.ts:188:  process.once("SIGTERM", () => {
+  src\claude-mcp-server.ts:189:    void shutdown().catch((error: unknown) => {
+  src\claude-mcp-server.ts:190:      console.error("Shutdown failed:", error);
+  src\claude-mcp-server.ts:191:      process.exitCode = 1;
+  src\claude-mcp-server.ts:192:    });
+  src\claude-mcp-server.ts:193:  });
+  src\claude-mcp-server.ts:194:}
+  src\claude-mcp-server.ts:195:
+  src\claude-mcp-server.ts:196:main().catch((error: unknown) => {
+  src\claude-mcp-server.ts:197:  console.error(
+  src\claude-mcp-server.ts:198:    "Failed to start HCL AppScan Connector for Claude:",
+  src\claude-mcp-server.ts:199:    error instanceof Error ? error.message : "Unknown error",
+  src\claude-mcp-server.ts:200:  );
+  src\claude-mcp-server.ts:201:  process.exitCode = 1;
+  src\claude-mcp-server.ts:202:});
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
