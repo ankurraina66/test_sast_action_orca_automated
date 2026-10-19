@@ -1,1 +1,9 @@
+$serverPath = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
 
+Write-Host "`n=== Verify Local AppScan MCP Package ==="
+Test-Path $serverPath
+
+Write-Host "`n=== Locate create-scan Definitions ==="
+Get-ChildItem (Split-Path $serverPath) -Recurse -File |
+    Select-String -Pattern "create-scan|createScan|inputSchema" |
+    Select-Object -First 40 Path, LineNumber, Line
