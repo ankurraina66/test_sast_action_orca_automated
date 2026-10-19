@@ -1,6 +1,13 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $serverDir = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem $serverDir -Recurse -File -Filter "*.js" |
+>>     Select-String -Pattern "registerCreateScanTool" |
+>>     Select-Object Path, LineNumber, Line
 
-$serverDir = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build"
+Path                                                                                                               LineNumber Line
+----                                                                                                               ---------- ----
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js                     5 import { registerCreateScanT…
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js                  1007     registerCreateScanTool(s…
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js         62 export function registerCrea…
 
-Get-ChildItem $serverDir -Recurse -File -Filter "*.js" |
-    Select-String -Pattern "registerCreateScanTool" |
-    Select-Object Path, LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
