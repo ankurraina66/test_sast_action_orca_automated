@@ -1,1 +1,51 @@
 
+  server.registerTool(
+    "create-scan",
+    {
+      description:
+        "Create an AppScan SAST or SCA scan. IMPORTANT: Before calling this tool, obtain explicit user confirmation in the conversation for the exact application ID, target directory, and scan type. Never infer confirmation from a request to inspect or review code. Do not call this tool without that confirmation.",
+      inputSchema: {
+        appId: z.string().uuid(),
+        targetDir: z.string().min(1),
+        scanType: z.enum(["SAST", "SCA"]).default("SAST"),
+        scanName: z.string().min(1).optional(),
+        comment: z.string().optional(),
+        confirmed: z.literal(true).describe(
+          "Must be true only after the user explicitly confirms this exact scan operation.",
+        ),
+      },
+    },
+    async ({
+      appId,
+      targetDir,
+      scanType,
+      scanName,
+      comment,
+      confirmed,
+    }) => {
+      // Fail closed: never forward a scan request without confirmation.
+      if (confirmed !== true) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "Scan creation requires explicit user confirmation.",
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      const result = await service.callTool("create-scan", {
+        appId,
+        targetDir,
+        scanType,
+        ...(scanName !== undefined ? { scanName } : {}),
+        ...(comment !== undefined ? { comment } : {}),
+        approved: true,
+      });
+
+      return textResult(result);
+    },
+  );
+
