@@ -1,15 +1,1 @@
-/appscan List the AppScan applications. Return only application names and IDs. Do not create, modify, or launch scans. Tell me which MCP tool you called.
 
-  Called appscan-connector 2 times
-
-I couldn't list the applications. The get-apps tool (from the appscan-connector MCP server) failed on both attempts with the same generic error, "Error occurred while processing the request."
-
-- Calls made: get-apps once with no parameters, then once with top: 100.
-- Scope: Both were read-only. I didn't create, modify or launch any scans, and I didn't call any other AppScan tool.
-- Results: No application names or IDs came back, so I have nothing to report.
-
-The error gives no cause. It could be an expired or invalid AppScan credential, a connector configuration problem, or the AppScan service being unreachable. I can't tell which from here.
-
-Check that the appscan-connector server is connected and authenticated (/mcp shows its status). Once that's sorted, I can run the listing again.
-
-✻ Cooked for 12s · done 9:40 PM
