@@ -1,1 +1,3 @@
-
+Get-ChildItem -Force -Name | Where-Object {
+    $_ -match 'claude|mcp|readme|config'
+}
