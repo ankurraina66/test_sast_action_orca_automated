@@ -1,7 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> "Provider configured: " + [bool]$env:APP_SCAN_PROVIDER
-Provider configured: True
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> "Remote endpoint configured: " + [bool]$env:APP_SCAN_REMOTE_ENDPOINT
-Remote endpoint configured: False
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> "Remote API key configured: " + [bool]$env:APP_SCAN_API_KEY
-Remote API key configured: False
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+
