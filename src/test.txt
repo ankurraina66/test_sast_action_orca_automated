@@ -1,11 +1,1 @@
- > /appscan List the AppScan applications. Return only application names and IDs. Do not create, modify, or launch scans.
 
-  Called appscan-connector 2 times
-
-I couldn't list the AppScan applications. The get-apps call failed twice with the same generic error: "Error occurred while processing the request." The second try added top: 100. The tool returned no other details.
-
-I didn't create, modify, or launch any scans.
-
-Likely causes are an expired or misconfigured AppScan connector credential, an unreachable AppScan service, or a connector problem. I can't tell which from the error. To check, run /mcp to see whether appscan-connector shows as connected. If it doesn't, reconnect it or check the credentials it uses. Tell me when that's done and I'll run the listing again.
-
-is get-apps getting called properly?
