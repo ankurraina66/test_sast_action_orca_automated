@@ -1,2 +1,1 @@
-"AppScan Key ID configured: " + [bool]$env:APPSCAN_KEY_ID
-"AppScan Key Secret configured: " + [bool]$env:APPSCAN_KEY_SECRET
+
