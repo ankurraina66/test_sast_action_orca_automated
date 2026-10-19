@@ -1,474 +1,144 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "$serverDir\tools\scanService.js"
-import * as fs from "fs";
-import * as path from "path";
-import * as os from "os";
-import * as child_process from "child_process";
-import { promisify } from "util";
-import AdmZip from "adm-zip";
-const execAsync = promisify(child_process.exec);
-// Configuration
-const APPSCAN_API_BASE = process.env.APPSCAN_API_BASE || "https://cloud.appscan.com";
-const APPSCAN_KEY_ID = process.env.APPSCAN_KEY_ID;
-const APPSCAN_KEY_SECRET = process.env.APPSCAN_KEY_SECRET;
-function getDirectApiKeyHeader() {
-    if (!APPSCAN_KEY_ID || !APPSCAN_KEY_SECRET) {
-        throw new Error("AppScan credentials are not configured. Set APPSCAN_KEY_ID and APPSCAN_KEY_SECRET.");
-    }
-    return `${APPSCAN_KEY_ID}:${APPSCAN_KEY_SECRET}`;
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\mcp\remote-http-connector.ts
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
+
+import type {
+AppScanMcpConnector,
+McpTool,
+McpToolCallResult,
+} from "./connector.js";
+
+export interface RemoteHttpConnectorOptions {
+endpoint: string;
+apiKey?: string;
+requestTimeoutMs?: number;
 }
-const SCAN_EXECUTION_SELECT = "Id,Status,Progress,ExecutionDurationSec,Result,Risk,NCriticalIssues,NHighIssues,NMediumIssues,NLowIssues,NInfoIssues";
-function truncateForLog(value, maxLength = 4000) {
-    const text = String(value || "").trim();
-    if (text.length <= maxLength)
-        return text;
-    return `${text.slice(0, maxLength)}\n... output truncated ...`;
+
+export class RemoteHttpConnector implements AppScanMcpConnector {
+private readonly client: Client;
+private readonly transport: StreamableHTTPClientTransport;
+private connected = false;
+
+constructor(options: RemoteHttpConnectorOptions) {
+this.client = new Client({
+name: "hcl-appscan-connector-for-claude",
+version: "0.1.0",
+});
+
+const headers: Record<string, string> = {};
+
+if (options.apiKey) {
+  headers["X-API-KEY"] = options.apiKey;
 }
-function toMinimalExecution(execution) {
-    if (!execution)
-        return null;
-    return {
-        Id: execution.Id,
-        Status: execution.Status,
-        Progress: execution.Progress,
-        ExecutionDurationSec: execution.ExecutionDurationSec,
-        Result: execution.Result,
-        Risk: execution.Risk,
-        NCriticalIssues: execution.NCriticalIssues,
-        NHighIssues: execution.NHighIssues,
-        NMediumIssues: execution.NMediumIssues,
-        NLowIssues: execution.NLowIssues,
-        NInfoIssues: execution.NInfoIssues,
-    };
+
+this.transport = new StreamableHTTPClientTransport(
+  new URL(options.endpoint),
+  {
+    requestInit: {
+      headers,
+      signal: options.requestTimeoutMs
+        ? AbortSignal.timeout(options.requestTimeoutMs)
+        : undefined,
+    },
+  },
+);
+
 }
-function toMinimalScanData(scanData) {
-    if (!scanData)
-        return null;
-    return {
-        Id: scanData.Id || scanData.ScanId,
-        Name: scanData.Name || scanData.ScanName,
-        Created: scanData.Created || scanData.CreatedAt,
-        CreatedAt: scanData.CreatedAt,
-        LatestExecution: toMinimalExecution(scanData.LatestExecution),
-    };
+
+async connect(): Promise<void> {
+if (this.connected) {
+return;
 }
-/**
- * Validate that direct API key credentials are available.
- */
-export async function ensureAuth() {
-    return Boolean(APPSCAN_KEY_ID && APPSCAN_KEY_SECRET);
+
+await this.client.connect(this.transport);
+this.connected = true;
+
 }
-/**
- * Minimal fetch wrapper for AppScan API.
- */
-export async function makeAppScanRequest(endpoint, opts = {}) {
-    const url = `${APPSCAN_API_BASE}${endpoint}`;
-    const headers = {
-        "Content-Type": "application/json",
-        "X-Api-Key": getDirectApiKeyHeader(),
-        ...(opts.headers || {}),
-    };
-    const resp = await fetch(url, { method: opts.method || "GET", body: opts.body, headers });
-    if (!resp.ok) {
-        const text = await resp.text();
-        throw new Error(`HTTP ${resp.status}: ${text}`);
-    }
-    const ct = resp.headers.get("content-type") || "";
-    if (ct.includes("application/json"))
-        return (await resp.json());
-    return {};
+
+async listTools(): Promise<McpTool[]> {
+this.ensureConnected();
+
+const result = await this.client.listTools();
+
+return result.tools.map((tool: Tool) => ({
+  name: tool.name,
+  description: tool.description,
+  inputSchema: tool.inputSchema as Record<string, unknown>,
+}));
+
 }
-/**
- * Poll scan status until it is Ready or Abort.
- */
-export async function waitForScanReady(scanId, intervalMs = 15000, progressCallback, detailedLogs = false) {
-    let status = "Unknown";
-    let lastPayload = null;
-    const start = Date.now();
-    let lastReportedProgress = -1;
-    let lastElapsedReportAt = start;
-    let selectFailed = false;
-    while (!["Ready", "Abort"].includes(status)) {
-        const selectedEndpoint = `/api/v4/Scans/${scanId}/Executions?$top=1&$select=${SCAN_EXECUTION_SELECT}`;
-        const fallbackEndpoint = `/api/v4/Scans/${scanId}/Executions?$top=1`;
-        let executions;
-        try {
-            executions = await makeAppScanRequest(selectFailed ? fallbackEndpoint : selectedEndpoint);
-        }
-        catch (error) {
-            if (selectFailed)
-                throw error;
-            selectFailed = true;
-            console.error(`[scanService] Execution field selection failed, falling back to minimal local projection: ${error instanceof Error ? error.message : String(error)}`);
-            executions = await makeAppScanRequest(fallbackEndpoint);
-        }
-        // The latest execution is the first one in the array
-        const latestExecution = executions && executions.length > 0 ? toMinimalExecution(executions[0]) : null;
-        lastPayload = latestExecution;
-        status = latestExecution?.Status || "Unknown";
-        const progress = latestExecution?.Progress || 0;
-        // Report progress when it changes significantly or on a bounded elapsed interval.
-        const elapsed = Date.now() - start;
-        const progressStep = detailedLogs ? 1 : 10;
-        const elapsedReportMs = detailedLogs ? 120000 : 300000;
-        const shouldReport = (progress - lastReportedProgress >= progressStep) ||
-            (Date.now() - lastElapsedReportAt >= elapsedReportMs);
-        if (shouldReport && progressCallback) {
-            const elapsedMin = Math.floor(elapsed / 60000);
-            const message = `⏳ Scan in progress: ${progress}% complete (status: ${status}, elapsed: ${elapsedMin}m)`;
-            const result = progressCallback(message, 95 + Math.min(progress / 20, 4), 100);
-            // Handle both sync and async callbacks
-            if (result instanceof Promise) {
-                await result;
-            }
-            lastReportedProgress = progress;
-            lastElapsedReportAt = Date.now();
-        }
-        // Also log to console.error for debugging
-        if (shouldReport) {
-            console.error(`[scanService] Scan status=${status}, progress=${progress}%, elapsed=${Math.floor(elapsed / 60000)}m`);
-        }
-        if (!["Ready", "Abort"].includes(status)) {
-            await new Promise((r) => setTimeout(r, intervalMs));
-        }
-    }
-    return { status, lastPayload };
+
+async callTool(
+name: string,
+args: Record<string, unknown>,
+): Promise<McpToolCallResult> {
+this.ensureConnected();
+
+const result: unknown = await this.client.callTool({
+  name,
+  arguments: args,
+});
+
+if (
+  typeof result !== "object" ||
+  result === null ||
+  !("content" in result) ||
+  !Array.isArray(result.content)
+) {
+  throw new Error(
+    `MCP tool "${name}" returned an unsupported result format.`,
+  );
 }
-/**
- * Download and extract SAClientUtil to ~/.appscan directory.
- * Returns the path to the appscan executable.
- */
-export async function downloadSAClient() {
-    console.error("[scanService] Checking SAClientUtil version...");
-    // Detect platform and set appropriate OS and executable name
-    const platform = os.platform();
-    const isWindows = platform === "win32";
-    const isMac = platform === "darwin";
-    // Available options: "Win", "Linux", "Mac", "WinGui", "LinuxGui", "MacGui"
-    let osParam;
-    if (isWindows) {
-        osParam = "Win";
+
+const content: McpToolCallResult["content"] = result.content.map(
+  (item: unknown) => {
+    if (typeof item !== "object" || item === null || !("type" in item)) {
+      throw new Error(
+        `MCP tool "${name}" returned an invalid content item.`,
+      );
     }
-    else if (isMac) {
-        osParam = "Mac";
+
+    if (typeof item.type !== "string") {
+      throw new Error(
+        `MCP tool "${name}" returned a content item with an invalid type.`,
+      );
     }
-    else {
-        osParam = "Linux";
+
+    if ("text" in item && typeof item.text === "string") {
+      return { type: item.type, text: item.text };
     }
-    const executableName = isWindows ? "appscan.bat" : "appscan.sh";
-    // Step 1: Check the latest version from the API
-    const metaUrl = `${APPSCAN_API_BASE}/api/v4/Tools/SAClientUtilByType?toolType=${osParam}&meta=true`;
-    console.error(`[scanService] Fetching latest version info from: ${metaUrl}`);
-    let latestVersion = null;
-    try {
-        const metaResponse = await fetch(metaUrl);
-        if (metaResponse.ok) {
-            const metaData = await metaResponse.json();
-            latestVersion = metaData?.VersionNumber || metaData?.VersionNumber || null;
-            console.error(`[scanService] Latest version from API: ${latestVersion}`);
-        }
-        else {
-            console.error(`[scanService] Warning: Failed to fetch version metadata (HTTP ${metaResponse.status}), will proceed with download`);
-        }
-    }
-    catch (error) {
-        console.error(`[scanService] Warning: Failed to fetch version metadata: ${error}, will proceed with download`);
-    }
-    // Step 2: Check if the latest version already exists locally
-    const homeDir = os.homedir();
-    const appscanBaseDir = path.join(homeDir, ".appscan");
-    if (latestVersion && fs.existsSync(appscanBaseDir)) {
-        // Look for directory matching the latest version (e.g., SAClientUtil.8.0.1677)
-        const expectedDirName = `SAClientUtil.${latestVersion}`;
-        const expectedPath = path.join(appscanBaseDir, expectedDirName);
-        if (fs.existsSync(expectedPath)) {
-            console.error(`[scanService] Latest version ${latestVersion} already exists at ${expectedPath}`);
-            const appscanPath = path.join(expectedPath, "bin", executableName);
-            if (fs.existsSync(appscanPath)) {
-                const normalizedPath = isWindows ? path.normalize(appscanPath) : appscanPath;
-                console.error(`[scanService] Using existing SAClientUtil: ${normalizedPath}`);
-                return normalizedPath;
-            }
-            else {
-                console.error(`[scanService] Warning: Expected executable not found at ${appscanPath}, will re-download`);
-            }
-        }
-        else {
-            console.error(`[scanService] Latest version ${latestVersion} not found locally, downloading...`);
-        }
-    }
-    // Step 3: Download SAClientUtil if not already present
-    console.error("[scanService] Downloading SAClientUtil...");
-    const url = `${APPSCAN_API_BASE}/api/v4/Tools/SAClientUtil?os=${osParam}`;
-    console.error(`[scanService] Platform: ${platform}, OS param: ${osParam}`);
-    // Download SAClientUtil zip to temp location
-    const tempZipPath = path.join(os.tmpdir(), `saclient-${Date.now()}.zip`);
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Failed to download SAClientUtil: HTTP ${response.status}`);
-    }
-    // Verify content-type
-    const contentType = response.headers.get('content-type') || '';
-    if (!contentType.toLowerCase().includes('application/zip')) {
-        console.error(`[scanService] Unexpected content-type: ${contentType}`);
-        throw new Error(`Downloaded file is not a zip. Content-Type: ${contentType}`);
-    }
-    // Save zip file
-    const buffer = await response.arrayBuffer();
-    fs.writeFileSync(tempZipPath, Buffer.from(buffer));
-    console.error(`[scanService] Downloaded ${(buffer.byteLength / 1048576).toFixed(2)}MB`);
-    // Extract zip to temp location to detect version
-    console.error("[scanService] Extracting SAClientUtil...");
-    const tempExtractDir = path.join(os.tmpdir(), `saclient-extract-${Date.now()}`);
-    try {
-        const zip = new AdmZip(tempZipPath);
-        zip.extractAllTo(tempExtractDir, true);
-    }
-    catch (error) {
-        console.error(`[scanService] Zip extraction failed: ${error}`);
-        const sample = fs.readFileSync(tempZipPath).slice(0, 200);
-        console.error(`[scanService] First 200 bytes of file: ${sample.toString('hex')}`);
-        fs.unlinkSync(tempZipPath);
-        throw new Error(`Downloaded file is not a valid zip file`);
-    }
-    // Find extracted directory (should be SAClientUtil.x.x.xxxx)
-    const extractedDirs = fs.readdirSync(tempExtractDir).filter(d => {
-        const fullPath = path.join(tempExtractDir, d);
-        try {
-            return fs.statSync(fullPath).isDirectory();
-        }
-        catch {
-            return false;
-        }
-    });
-    if (extractedDirs.length === 0) {
-        throw new Error("SAClientUtil extraction failed - no directories found");
-    }
-    const extractedDirName = extractedDirs[0]; // e.g., SAClientUtil.8.0.1677
-    console.error(`[scanService] Detected version directory: ${extractedDirName}`);
-    // Set up ~/.appscan directory structure (reuse variables already declared above)
-    const saclientDir = path.join(appscanBaseDir, extractedDirName);
-    // Check if already exists
-    if (fs.existsSync(saclientDir)) {
-        console.error(`[scanService] SAClientUtil already exists at ${saclientDir}`);
-        // Clean up temp files
-        fs.unlinkSync(tempZipPath);
-        fs.rmSync(tempExtractDir, { recursive: true, force: true });
-    }
-    else {
-        // Create .appscan directory if needed
-        if (!fs.existsSync(appscanBaseDir)) {
-            fs.mkdirSync(appscanBaseDir, { recursive: true });
-        }
-        // Move extracted directory to ~/.appscan
-        const tempSaclientPath = path.join(tempExtractDir, extractedDirName);
-        fs.renameSync(tempSaclientPath, saclientDir);
-        console.error(`[scanService] Installed SAClientUtil to ${saclientDir}`);
-        // Clean up temp files
-        fs.unlinkSync(tempZipPath);
-        fs.rmSync(tempExtractDir, { recursive: true, force: true });
-    }
-    const appscanPath = path.join(saclientDir, "bin", executableName);
-    if (!fs.existsSync(appscanPath)) {
-        throw new Error(`AppScan executable not found at ${appscanPath}`);
-    }
-    // Normalize path for Windows to use backslashes
-    const normalizedPath = isWindows ? path.normalize(appscanPath) : appscanPath;
-    // Set execute permissions (Linux/Mac only)
-    if (!isWindows) {
-        try {
-            // Set permissions recursively for all files
-            const setPermissionsRecursive = (dir) => {
-                const items = fs.readdirSync(dir);
-                for (const item of items) {
-                    const fullPath = path.join(dir, item);
-                    const stat = fs.statSync(fullPath);
-                    if (stat.isDirectory()) {
-                        fs.chmodSync(fullPath, 0o755);
-                        setPermissionsRecursive(fullPath);
-                    }
-                    else {
-                        fs.chmodSync(fullPath, 0o755);
-                    }
-                }
-            };
-            setPermissionsRecursive(saclientDir);
-        }
-        catch (error) {
-            console.error(`[scanService] Warning: Failed to set permissions: ${error}`);
-        }
-    }
-    console.error(`[scanService] SAClient ready at ${normalizedPath}`);
-    return normalizedPath;
+
+    return { type: item.type };
+  },
+);
+
+return {
+  content,
+  isError:
+    "isError" in result && typeof result.isError === "boolean"
+      ? result.isError
+      : undefined,
+};
+
 }
-/**
- * Generate IRX file using SAClientUtil.
- */
-export async function generateIRX(appscanPath, targetDir, scanName, outputDir, configFile, scanFlag, secretScanning, scanLevel, analysisOnly, detailedLogs = false) {
-    console.error("[scanService] Generating IRX file...");
-    const irxFile = `${scanName}.irx`;
-    const isWindows = os.platform() === "win32";
-    // Create output directory with timestamp if not specified
-    const actualOutputDir = outputDir || path.join(targetDir, `HCLAppScan_${new Date().toISOString().replace(/[-:]/g, '_').split('.')[0]}`);
-    if (!fs.existsSync(actualOutputDir)) {
-        fs.mkdirSync(actualOutputDir, { recursive: true });
-    }
-    const irxPath = path.join(actualOutputDir, irxFile);
-    // Normalize paths for Windows - use path.normalize() for consistency
-    const normalizedAppscanPath = isWindows ? path.normalize(appscanPath) : appscanPath;
-    const normalizedConfigFile = configFile && isWindows ? path.normalize(configFile) : configFile;
-    const normalizedOutputDir = isWindows ? path.normalize(actualOutputDir) : actualOutputDir;
-    // Build command
-    let cmd = `"${normalizedAppscanPath}" prepare`;
-    if (normalizedConfigFile && fs.existsSync(configFile)) {
-        cmd += ` -c "${normalizedConfigFile}"`;
-    }
-    // Add -d flag for output directory
-    cmd += ` -d "${normalizedOutputDir}"`;
-    // Add -n flag for IRX filename
-    cmd += ` -n "${irxFile}"`;
-    // Add -sao flag for scan-only analysis if specified
-    if (analysisOnly) {
-        cmd += ` -sao`;
-    }
-    // Add -s flag for scan level
-    if (scanLevel) {
-        cmd += ` -s ${scanLevel}`;
-    }
-    if (scanFlag) {
-        cmd += ` ${scanFlag}`;
-    }
-    if (secretScanning) {
-        cmd += ` -ssc`;
-    }
-    if (detailedLogs) {
-        cmd += ` -v`;
-    }
-    console.error(`[scanService] Running: ${cmd}`);
-    console.error(`[scanService] Working directory: ${targetDir}`);
-    try {
-        const execOptions = {
-            cwd: targetDir,
-            maxBuffer: 1024 * 1024 * 10, // 10MB buffer
-            windowsHide: true,
-            env: { ...process.env }, // Inherit all environment variables
-        };
-        // On Windows, wrap the command with cmd.exe /c for proper batch file execution
-        let finalCmd = cmd;
-        if (isWindows) {
-            finalCmd = `cmd.exe /c "${cmd}"`;
-            execOptions.shell = 'cmd.exe';
-        }
-        const { stdout, stderr } = await execAsync(finalCmd, execOptions);
-        if (detailedLogs && stdout)
-            console.error(`[scanService] stdout: ${truncateForLog(stdout, 12000)}`);
-        if (detailedLogs && stderr)
-            console.error(`[scanService] stderr: ${truncateForLog(stderr, 12000)}`);
-        if (!fs.existsSync(irxPath)) {
-            throw new Error(`IRX file not generated at ${irxPath}`);
-        }
-        const stats = fs.statSync(irxPath);
-        console.error(`[scanService] IRX generated: ${irxPath} (${(stats.size / 1048576).toFixed(2)}MB)`);
-        return irxPath;
-    }
-    catch (error) {
-        const output = [error?.stdout, error?.stderr].filter(Boolean).map((value) => truncateForLog(value, 2000)).join("\n");
-        if (output) {
-            console.error(`[scanService] IRX generation output excerpt:\n${output}`);
-        }
-        throw new Error(`IRX generation failed: ${error instanceof Error ? error.message : String(error)}`);
-    }
+
+async disconnect(): Promise<void> {
+if (!this.connected) {
+return;
 }
-/**
- * Upload IRX file to AppScan and get fileId.
- */
-export async function uploadIRXFile(irxPath) {
-    console.error("[scanService] Uploading IRX file...");
-    if (!fs.existsSync(irxPath)) {
-        throw new Error(`IRX file not found: ${irxPath}`);
-    }
-    const fileBuffer = fs.readFileSync(irxPath);
-    const fileName = path.basename(irxPath);
-    // Create multipart form data
-    const boundary = `----Boundary${Date.now()}`;
-    const chunks = [];
-    chunks.push(Buffer.from(`--${boundary}\r\n`));
-    chunks.push(Buffer.from(`Content-Disposition: form-data; name="uploadedFile"; filename="${fileName}"\r\n`));
-    chunks.push(Buffer.from(`Content-Type: application/octet-stream\r\n\r\n`));
-    chunks.push(fileBuffer);
-    chunks.push(Buffer.from(`\r\n--${boundary}--\r\n`));
-    const body = Buffer.concat(chunks);
-    const response = await fetch(`${APPSCAN_API_BASE}/api/v4/FileUpload`, {
-        method: "POST",
-        headers: {
-            "X-Api-Key": getDirectApiKeyHeader(),
-            "Content-Type": `multipart/form-data; boundary=${boundary}`,
-        },
-        body,
-    });
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`File upload failed: HTTP ${response.status} - ${errorText}`);
-    }
-    const result = await response.json();
-    const fileId = result.FileId || result.Id;
-    if (!fileId) {
-        throw new Error("File upload did not return a FileId");
-    }
-    console.error(`[scanService] File uploaded. FileId: ${fileId}`);
-    return fileId;
+
+try {
+  await this.client.close();
+} finally {
+  this.connected = false;
 }
-/**
- * Create a new scan in AppScan.
- */
-export async function createScan(appId, scanName, fileId, scanType, comment) {
-    console.error("[scanService] Creating scan...");
-    const endpoint = scanType === "SAST" ? "/api/v4/Scans/Sast" : "/api/v4/Scans/Sca";
-    const payload = {
-        AppId: appId,
-        ApplicationFileId: fileId,
-        EnableMailNotification: false,
-        Execute: true,
-        Locale: "en",
-        Personal: false,
-        ScanName: scanName,
-        FullyAutomatic: true,
-        ClientType: "MCP-Copilot"
-    };
-    if (comment)
-        payload.Comment = comment;
-    const createRes = await makeAppScanRequest(endpoint, {
-        method: "POST",
-        body: JSON.stringify(payload),
-    });
-    const scanId = createRes?.Id || createRes?.ScanId;
-    if (!scanId) {
-        throw new Error("Scan creation did not return an ID");
-    }
-    return { scanId, scanData: toMinimalScanData(createRes) };
+
 }
-/**
- * Format scan summary from scan data.
- */
-export function formatScanSummary(scanId, scanName, scanType, scanData, irxPath, fileId) {
-    // Support both scan data with LatestExecution and execution data directly
-    const execution = scanData?.LatestExecution || scanData;
-    const summaryLines = [
-        `Scan ID: ${scanId}`,
-        `Name: ${scanData?.Name || scanName}`,
-        `Type: ${scanType}`,
-        `Status: ${execution?.Status || "Unknown"}`,
-        `Created: ${scanData?.Created || scanData?.CreatedAt || "Unknown"}`,
-        `DurationSec: ${execution?.ExecutionDurationSec ?? "Unknown"}`,
-        `Risk: ${execution?.Risk || execution?.Result || "Unknown"}`,
-        `Critical: ${execution?.NCriticalIssues ?? 0}`,
-        `High: ${execution?.NHighIssues ?? 0}`,
-        `Medium: ${execution?.NMediumIssues ?? 0}`,
-        `Low: ${execution?.NLowIssues ?? 0}`,
-        `Info: ${execution?.NInfoIssues ?? 0}`,
-        `---`,
-        `IRX Path: ${irxPath}`,
-        `FileId: ${fileId}`,
-    ];
-    return summaryLines.join("\n");
+
+private ensureConnected(): void {
+if (!this.connected) {
+throw new Error("Remote AppScan MCP connector is not connected.");
 }
-//# sourceMappingURL=scanService.js.map
+}
+}
