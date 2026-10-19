@@ -1,1 +1,3 @@
-
+Using appscan-connector, call get-provider-status.
+Return only the active provider.
+Do not call any other tool or perform any AppScan operation.
