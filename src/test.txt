@@ -1,113 +1,144 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\claude-mcp-server.ts `
->>   -Pattern 'get-apps|textResult|catch|callTool' -Context 3,5
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\mcp\remote-http-connector.ts
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-  src\claude-mcp-server.ts:15:    version: "0.1.0",
-  src\claude-mcp-server.ts:16:  });
-  src\claude-mcp-server.ts:17:
-> src\claude-mcp-server.ts:18:  function textResult(result: {
-  src\claude-mcp-server.ts:19:    content: Array<{ type: string; text?: string }>;
-  src\claude-mcp-server.ts:20:    isError?: boolean;
-  src\claude-mcp-server.ts:21:  }) {
-  src\claude-mcp-server.ts:22:    const text = result.content
-  src\claude-mcp-server.ts:23:      .map((item) => item.text ?? "")
-  src\claude-mcp-server.ts:36:  }
-  src\claude-mcp-server.ts:37:
-  src\claude-mcp-server.ts:38:  server.registerTool(
-> src\claude-mcp-server.ts:39:    "get-apps",
-  src\claude-mcp-server.ts:40:    {
-  src\claude-mcp-server.ts:41:      description: "Retrieve AppScan applications.",
-  src\claude-mcp-server.ts:42:      inputSchema: {
-  src\claude-mcp-server.ts:43:        filter: z.string().optional(),
-  src\claude-mcp-server.ts:44:        top: z.number().optional(),
-  src\claude-mcp-server.ts:45:      },
-  src\claude-mcp-server.ts:46:    },
-  src\claude-mcp-server.ts:47:    async (args) => {
-> src\claude-mcp-server.ts:48:      const result = await service.callTool("get-apps", args);
-> src\claude-mcp-server.ts:49:      return textResult(result);
-  src\claude-mcp-server.ts:50:    },
-  src\claude-mcp-server.ts:51:  );
-  src\claude-mcp-server.ts:52:
-  src\claude-mcp-server.ts:53:  server.registerTool(
-  src\claude-mcp-server.ts:54:  "get-scans",
-  src\claude-mcp-server.ts:73:      filters.push(`(${filter.trim()})`);
-  src\claude-mcp-server.ts:74:    }
-  src\claude-mcp-server.ts:75:
-> src\claude-mcp-server.ts:76:    const result = await service.callTool("get-scans", {
-  src\claude-mcp-server.ts:77:      ...(filters.length ? { filter: filters.join(" and ") } : {}),
-  src\claude-mcp-server.ts:78:      ...(top !== undefined ? { top } : {}),
-  src\claude-mcp-server.ts:79:    });
-  src\claude-mcp-server.ts:80:
-> src\claude-mcp-server.ts:81:    return textResult(result);
-  src\claude-mcp-server.ts:82:  },
-  src\claude-mcp-server.ts:83:);
-  src\claude-mcp-server.ts:84:
-  src\claude-mcp-server.ts:85:  server.registerTool(
-  src\claude-mcp-server.ts:86:    "get-scan-issues",
-  src\claude-mcp-server.ts:93:      },
-  src\claude-mcp-server.ts:94:    },
-  src\claude-mcp-server.ts:95:    async (args) => {
-> src\claude-mcp-server.ts:96:      const result = await service.callTool("get-scan-issues", args);
-> src\claude-mcp-server.ts:97:      return textResult(result);
-  src\claude-mcp-server.ts:98:    },
-  src\claude-mcp-server.ts:99:  );
-  src\claude-mcp-server.ts:100:
-  src\claude-mcp-server.ts:101:  server.registerTool(
-  src\claude-mcp-server.ts:102:    "get-issue-details",
-  src\claude-mcp-server.ts:107:      },
-  src\claude-mcp-server.ts:108:    },
-  src\claude-mcp-server.ts:109:    async (args) => {
-> src\claude-mcp-server.ts:110:      const result = await service.callTool("get-issue-details", args);
-> src\claude-mcp-server.ts:111:      return textResult(result);
-  src\claude-mcp-server.ts:112:    },
-  src\claude-mcp-server.ts:113:  );
-  src\claude-mcp-server.ts:114:
-  src\claude-mcp-server.ts:115:const pendingScans = new Map<
-  src\claude-mcp-server.ts:116:    string,
-  src\claude-mcp-server.ts:195:      // Consume the token before execution so it cannot be reused.
-  src\claude-mcp-server.ts:196:      pendingScans.delete(confirmationToken);
-  src\claude-mcp-server.ts:197:
-> src\claude-mcp-server.ts:198:      const result = await service.callTool("create-scan", {
-  src\claude-mcp-server.ts:199:        ...prepared,
-  src\claude-mcp-server.ts:200:        approved: true,
-  src\claude-mcp-server.ts:201:      });
-  src\claude-mcp-server.ts:202:
-> src\claude-mcp-server.ts:203:      return textResult(result);
-  src\claude-mcp-server.ts:204:    },
-  src\claude-mcp-server.ts:205:  );
-  src\claude-mcp-server.ts:206:
-  src\claude-mcp-server.ts:207:  const transport = new StdioServerTransport();
-  src\claude-mcp-server.ts:208:
-  src\claude-mcp-server.ts:209:  try {
-  src\claude-mcp-server.ts:210:    await server.connect(transport);
-  src\claude-mcp-server.ts:211:    console.error("HCL AppScan Connector for Claude is running.");
-> src\claude-mcp-server.ts:212:  } catch (error) {
-  src\claude-mcp-server.ts:213:    await service.disconnect();
-  src\claude-mcp-server.ts:214:    throw error;
-  src\claude-mcp-server.ts:215:  }
-  src\claude-mcp-server.ts:216:
-  src\claude-mcp-server.ts:217:  const shutdown = async () => {
-  src\claude-mcp-server.ts:223:  };
-  src\claude-mcp-server.ts:224:
-  src\claude-mcp-server.ts:225:  process.once("SIGINT", () => {
-> src\claude-mcp-server.ts:226:    void shutdown().catch((error: unknown) => {
-  src\claude-mcp-server.ts:227:      console.error("Shutdown failed:", error);
-  src\claude-mcp-server.ts:228:      process.exitCode = 1;
-  src\claude-mcp-server.ts:229:    });
-  src\claude-mcp-server.ts:230:  });
-  src\claude-mcp-server.ts:231:
-  src\claude-mcp-server.ts:232:  process.once("SIGTERM", () => {
-> src\claude-mcp-server.ts:233:    void shutdown().catch((error: unknown) => {
-  src\claude-mcp-server.ts:234:      console.error("Shutdown failed:", error);
-  src\claude-mcp-server.ts:235:      process.exitCode = 1;
-  src\claude-mcp-server.ts:236:    });
-  src\claude-mcp-server.ts:237:  });
-  src\claude-mcp-server.ts:238:}
-  src\claude-mcp-server.ts:239:
-> src\claude-mcp-server.ts:240:main().catch((error: unknown) => {
-  src\claude-mcp-server.ts:241:  console.error(
-  src\claude-mcp-server.ts:242:    "Failed to start HCL AppScan Connector for Claude:",
-  src\claude-mcp-server.ts:243:    error instanceof Error ? error.message : "Unknown error",
-  src\claude-mcp-server.ts:244:  );
-  src\claude-mcp-server.ts:245:  process.exitCode = 1;
+import type {
+AppScanMcpConnector,
+McpTool,
+McpToolCallResult,
+} from "./connector.js";
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+export interface RemoteHttpConnectorOptions {
+endpoint: string;
+apiKey?: string;
+requestTimeoutMs?: number;
+}
+
+export class RemoteHttpConnector implements AppScanMcpConnector {
+private readonly client: Client;
+private readonly transport: StreamableHTTPClientTransport;
+private connected = false;
+
+constructor(options: RemoteHttpConnectorOptions) {
+this.client = new Client({
+name: "hcl-appscan-connector-for-claude",
+version: "0.1.0",
+});
+
+const headers: Record<string, string> = {};
+
+if (options.apiKey) {
+  headers["X-API-KEY"] = options.apiKey;
+}
+
+this.transport = new StreamableHTTPClientTransport(
+  new URL(options.endpoint),
+  {
+    requestInit: {
+      headers,
+      signal: options.requestTimeoutMs
+        ? AbortSignal.timeout(options.requestTimeoutMs)
+        : undefined,
+    },
+  },
+);
+
+}
+
+async connect(): Promise<void> {
+if (this.connected) {
+return;
+}
+
+await this.client.connect(this.transport);
+this.connected = true;
+
+}
+
+async listTools(): Promise<McpTool[]> {
+this.ensureConnected();
+
+const result = await this.client.listTools();
+
+return result.tools.map((tool: Tool) => ({
+  name: tool.name,
+  description: tool.description,
+  inputSchema: tool.inputSchema as Record<string, unknown>,
+}));
+
+}
+
+async callTool(
+name: string,
+args: Record<string, unknown>,
+): Promise<McpToolCallResult> {
+this.ensureConnected();
+
+const result: unknown = await this.client.callTool({
+  name,
+  arguments: args,
+});
+
+if (
+  typeof result !== "object" ||
+  result === null ||
+  !("content" in result) ||
+  !Array.isArray(result.content)
+) {
+  throw new Error(
+    `MCP tool "${name}" returned an unsupported result format.`,
+  );
+}
+
+const content: McpToolCallResult["content"] = result.content.map(
+  (item: unknown) => {
+    if (typeof item !== "object" || item === null || !("type" in item)) {
+      throw new Error(
+        `MCP tool "${name}" returned an invalid content item.`,
+      );
+    }
+
+    if (typeof item.type !== "string") {
+      throw new Error(
+        `MCP tool "${name}" returned a content item with an invalid type.`,
+      );
+    }
+
+    if ("text" in item && typeof item.text === "string") {
+      return { type: item.type, text: item.text };
+    }
+
+    return { type: item.type };
+  },
+);
+
+return {
+  content,
+  isError:
+    "isError" in result && typeof result.isError === "boolean"
+      ? result.isError
+      : undefined,
+};
+
+}
+
+async disconnect(): Promise<void> {
+if (!this.connected) {
+return;
+}
+
+try {
+  await this.client.close();
+} finally {
+  this.connected = false;
+}
+
+}
+
+private ensureConnected(): void {
+if (!this.connected) {
+throw new Error("Remote AppScan MCP connector is not connected.");
+}
+}
+}
