@@ -1,1 +1,1 @@
-
+Select-String -Path .\src\claude-mcp-server.ts -Pattern 'create-scan' -Context 0,55
