@@ -1,1 +1,2 @@
-
+Select-String -Path .\dist\claude-mcp-server.js `
+  -Pattern '\[AppScan diagnostic\] get-apps'
