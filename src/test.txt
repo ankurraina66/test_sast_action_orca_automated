@@ -1,51 +1,49 @@
-
-  server.registerTool(
-    "create-scan",
-    {
-      description:
-        "Create an AppScan SAST or SCA scan. IMPORTANT: Before calling this tool, obtain explicit user confirmation in the conversation for the exact application ID, target directory, and scan type. Never infer confirmation from a request to inspect or review code. Do not call this tool without that confirmation.",
-      inputSchema: {
-        appId: z.string().uuid(),
-        targetDir: z.string().min(1),
-        scanType: z.enum(["SAST", "SCA"]).default("SAST"),
-        scanName: z.string().min(1).optional(),
-        comment: z.string().optional(),
-        confirmed: z.literal(true).describe(
-          "Must be true only after the user explicitly confirms this exact scan operation.",
-        ),
-      },
-    },
-    async ({
-      appId,
-      targetDir,
-      scanType,
-      scanName,
-      comment,
-      confirmed,
-    }) => {
-      // Fail closed: never forward a scan request without confirmation.
-      if (confirmed !== true) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: "Scan creation requires explicit user confirmation.",
-            },
-          ],
-          isError: true,
-        };
-      }
-
-      const result = await service.callTool("create-scan", {
-        appId,
-        targetDir,
-        scanType,
-        ...(scanName !== undefined ? { scanName } : {}),
-        ...(comment !== undefined ? { comment } : {}),
-        approved: true,
-      });
-
-      return textResult(result);
-    },
-  );
-
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\package.json
+{
+  "name": "ai-coding-assistants-claude-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test:watch": "vitest",
+    "dev": "tsx watch src/index.ts",
+        "start:claude-mcp": "node dist/claude-mcp-server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  },
+  "private": "true",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.6"
+  }
+}
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "sourceMap": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "tests"]
+}
