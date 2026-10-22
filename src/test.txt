@@ -1,1 +1,10 @@
+Continue the HCL AppScan Connector for Claude validation. The remote provider is active.
 
+From the existing findings returned by "get-scan-issues" for scan "32fe2b86-2f61-4c2c-8803-99ac6d42a37d" ("staging-check_2026-10-13_16-13-44"), select one returned finding and use its actual issue ID to call "get-issue-details".
+
+Requirements:
+
+- Use the exact issue ID from the prior result; do not invent or guess one.
+- Report whether the call succeeded and summarize the returned issue details.
+- Do not update findings, create reports, launch scans, or make other write-capable calls.
+- If the previous finding IDs are no longer available in context, stop and report that limitation rather than guessing.
