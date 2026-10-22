@@ -1,8 +1,1 @@
-async ({ issueId }) => {
-  const result = await service.callFirstAvailableTool(
-    ["get-issue-details", "get_issue_details"],
-    { issueId },
-  );
 
-  return textResult(result);
-},
