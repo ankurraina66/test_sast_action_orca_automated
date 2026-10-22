@@ -1,5 +1,127 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $path = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path $path -Pattern "create-scan" -Context 5,15
 
-$path = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
-
-Select-String -Path $path -Pattern "create-scan" -Context 5,15
-
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:40:                role: "user",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:41:                content: {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:42:                    type: "text",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:43:                    text: `BEFORE STEP 1 -
+PRE-SCAN CHECKLIST:
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:44:
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:45:Before running the create-scan tool, ensure
+the following:
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:46:First check if in the root directory of your
+target codebase there is an existing AppScan configuration file (appscan-config.xml). If such a file exists, review its contents to ensure it aligns with
+your scanning requirements. You may choose to use this existing configuration by providing its path to the create-scan tool via the configFile parameter.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:47:
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:48:If no such file exists, you need to create
+one.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:49:For this visit appscan official documentation
+on creating appscan-config.xml.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:50:Here's url:
+https://help.hcl-software.com/appscan/ASoC/src_irx_gen_config.html
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:51:Once you have created the appscan-config.xml
+file, place it in the root directory of your target codebase or a known location.
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:52:Then proceed with create-scan.`,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:53:                },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:54:            },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:55:        ],
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:56:    };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:57:});
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:58:/**
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:59: * Prompt: Create AppScan scan workflow
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:60: * This prompt helps assistants map natural
+scan requests to the create-scan tool.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:61: */
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:62:server.prompt("create-appscan-scan", "Use
+this workflow when the user asks to create, run, start, or launch an HCL AppScan security scan", {}, async () => {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:63:    return {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:64:        messages: [
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:65:            {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:66:                role: "user",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:67:                content: {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:68:                    type: "text",
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:69:                    text: `When the user asks
+to create a scan, run a scan, start a SAST scan, start an SCA scan, scan this project, security test this codebase, analyze this workspace for
+vulnerabilities, or run AppScan against the current project, use the create-scan tool. Do this even when the user does not explicitly say "use the MCP
+server".
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:70:
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:71:Workflow:
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:72:1. Use the current workspace folder as
+targetDir when the user says "this project" or does not provide a path.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:73:2. If appId is missing, first check whether a
+previously mentioned AppScan application ID already exists in the conversation or recent tool results.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:74:3. If no previous appId is available, use
+get-apps and stop there. Ask the user to select one of the returned application IDs, or explicitly approve creating a new application as a separate write
+step.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:75:4. Never infer missing application details.
+Never invent an application name, asset group, ID, or approval.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:76:5. Never create an application or a scan
+until the user has explicitly approved that specific write action.
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:77:6. If the user wants a new app for the scan,
+get approval for create-app, call create-app with approved=true, wait for the real application ID in the tool result, then rerun create-scan with that
+appId and approved=true.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:78:7. If the supplied appId is missing or
+invalid, do not create a new app automatically. Ask the user whether to choose an existing application or approve create-app.
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:79:8. Treat create-app and create-scan as two
+separate writes. Approval for one does not imply approval for the other unless the user clearly grants both in the same turn.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:80:9. Default scanType to SAST unless the user
+asks for SCA, dependency scanning, or software composition analysis.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:81:10. Default detailedLogs to false. Only set
+detailedLogs to true when the user explicitly asks for verbose or troubleshooting logs; detailed logs can consume significantly more chat/model tokens.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:82:11. Default conserveFiles to false so local
+generated scan artifacts are deleted after the scan is created or after the scan setup fails.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:83:12. Set conserveFiles to true when the user
+asks to keep, conserve, retain, save, or inspect generated files, artifacts, zip, IRX, logs, debug output, or anything similar.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:84:13. If the user wants the lowest-token scan
+flow, set wait=false and detailedLogs=false.
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:85:14. Call create-scan only after appId is
+known and scan approval is explicit.`,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:86:                },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:87:            },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:88:        ],
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:89:    };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:90:});
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:91:/**
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:92: * Helper function to make requests to
+AppScan API
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:93: */
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:94:async function makeAppScanRequest(endpoint,
+options = {}) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:95:    const url =
+`${APPSCAN_API_BASE}${endpoint}`;
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:96:    const headers = {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:97:        "Content-Type": "application/json",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:98:        "X-Api-Key": getDirectApiKeyHeader(),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:99:        ...(options.headers || {}),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:100:    };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:233:/**
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:234: * Tool: create-app
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:235: * Create a new application
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:236: */
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:237:server.registerTool("create-app", {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:238:    description: "Create a new application
+in AppScan. Use only after the user explicitly approves application creation. Do not call this tool to guess or unblock a missing appId during
+create-scan.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:239:    inputSchema: {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:240:        name:
+z.string().describe("Application name"),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:241:        description:
+z.string().optional().describe("Application description"),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:242:        assetGroupId:
+z.string().optional().describe("Asset group ID"),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:243:        approved:
+z.boolean().optional().default(false).describe("Set to true only after the user has explicitly approved creating this application."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:244:    },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:245:}, async ({ name, description, assetGroupId,
+approved }) => {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:246:    try {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:247:        if (!approved) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:248:            return {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:249:                content: [
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:250:                    {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:251:                        type: "text",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:252:                        text:
+approvalRequiredMessage("creating an AppScan application", [
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:253:                            `Application
+name: ${name}`,
