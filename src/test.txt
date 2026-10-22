@@ -1,1 +1,3 @@
-
+Select-String -Path .\src\services\appscan-service.ts,.\tests\unit\appscan-service.test.ts `
+  -Pattern 'hasAvailableTool|expectedProvider|Provider mismatch' `
+  -Context 3,6
