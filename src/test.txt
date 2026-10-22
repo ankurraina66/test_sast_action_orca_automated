@@ -1,1 +1,12 @@
+/appscan
 
+Perform read-only discovery to identify an existing AppScan scan suitable for validating the get-scan-issues mapping.
+
+1. Call get-provider-status and continue only if the active provider is remote. Do not switch providers.
+2. Call get-apps with top: 10.
+3. From the returned applications, choose an application and call get-scans with its exact applicationId and top: 10.
+4. Report application IDs, scan IDs, scan names, and any scan status or finding-count fields actually returned.
+5. Do not call get-scan-issues yet. Do not infer that a scan contains findings merely because it exists.
+6. Do not create, start, update, or delete resources. Do not call prepare-scan or execute-prepared-scan. Do not expose credentials.
+
+Stop after reporting the results. Do not change code.
