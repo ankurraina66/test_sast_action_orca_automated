@@ -1,1 +1,5 @@
 
+$path = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
+
+Select-String -Path $path -Pattern "create-scan" -Context 5,15
+
