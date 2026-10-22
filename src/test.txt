@@ -1,1 +1,10 @@
+Continue the HCL AppScan Connector for Claude validation. Confirm that the active provider is remote.
 
+Validate the remote create-scan capability without starting a scan:
+
+1. Inspect the available remote backend tools using the connector's existing tool-discovery capability.
+2. Determine whether "create-scan" or "create_scan" is available.
+3. If neither is available, report that remote scan creation is unsupported by the currently exposed tool inventory.
+4. Do not call "execute-prepared-scan", do not create or prepare a scan, and do not invoke any write-capable AppScan operation.
+
+Report the provider, available scan-creation capability, and conclusion. Do not infer that a real scan was attempted.
