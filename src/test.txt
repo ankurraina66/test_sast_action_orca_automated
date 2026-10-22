@@ -1,6 +1,80 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\unit\index.test.ts
+import { describe, expect, it } from "vitest";
+import { getConnectorName } from "../../src/index.js";
 
-Get-Content .\tests\unit\index.test.ts
+describe("connector bootstrap", () => {
+  it("exposes the expected connector name", () => {
+    expect(getConnectorName()).toBe("HCL AppScan Connector for Claude");
+  });
+});
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\claude-mcp-server.ts |
+>>     Select-Object -Skip 380 -First 75
+                        scanName: prepared.scanName
+                    }
+                         : {}),
+                    ...(prepared.comment !== undefined
+                         ? {
+                        comment: prepared.comment
+                    }
+                         : {}),
+                    approved: true,
+                },
+                    prepared.provider, );
 
-Get-Content .\src\claude-mcp-server.ts |
-    Select-Object -Skip 380 -First 75
+            return textResult(result);
+        } catch (error) {
+            return {
+                content: [{
+                        type: "text" as const,
+                        text:
+                        "Scan execution failed or could not be confirmed. The confirmation token has been consumed to prevent accidental duplicate scans. Review the AppScan backend before preparing another request. Details: " +
+                        (error instanceof Error ? error.message : "Unknown error"),
+                    },
+                ],
+                isError: true,
+            };
+        } finally {
+            executingScanTokens.delete(confirmationToken);
+        }
+    }, );
 
+    const transport = new StdioServerTransport();
+
+    try {
+        await server.connect(transport);
+        console.error("HCL AppScan Connector for Claude is running.");
+    } catch (error) {
+        await service.disconnect();
+        throw error;
+    }
+
+    const shutdown = async(): Promise < void >  => {
+        try {
+            await server.close();
+        } finally {
+            await service.disconnect();
+        }
+    };
+
+    process.once("SIGINT", () => {
+        void shutdown().catch((error: unknown) => {
+            console.error("Shutdown failed:", error);
+            process.exitCode = 1;
+        });
+    });
+
+    process.once("SIGTERM", () => {
+        void shutdown().catch((error: unknown) => {
+            console.error("Shutdown failed:", error);
+            process.exitCode = 1;
+        });
+    });
+}
+
+main().catch((error: unknown) => {
+    console.error(
+        "Failed to start HCL AppScan Connector for Claude:",
+        error instanceof Error ? error.message : "Unknown error", );
+    process.exitCode = 1;
+});
