@@ -1,4 +1,4 @@
-Using the existing AppScan confirmation token "64600781-a99f-405f-9dbb-c196f1047da6", validate provider-mismatch protection.
+/appscan Using the existing AppScan confirmation token "64600781-a99f-405f-9dbb-c196f1047da6", validate provider-mismatch protection.
 
 1. Call "switch-provider" to select "local".
 2. Call "get-provider-status" and verify the active provider is "local".
@@ -8,3 +8,40 @@ Using the existing AppScan confirmation token "64600781-a99f-405f-9dbb-c196f1047
 6. Do not retry execution, do not prepare another scan, and do not launch or upload anything.
 
 Report the actual output for each step. If the provider-mismatch check does not reject the request before execution, stop immediately and report FAIL.
+
+  Called appscan-connector 3 times
+
+Local is active, so step 2 passes. You explicitly asked for this one negative-test call with the existing token, so I'm making it once.
+
+  Called appscan-connector
+
+Provider-mismatch protection test: PASS (with one caveat)
+
+┌────────────────────────────────────┬──────────────────────┬─────────────────────────────────────────────────────────────────────────────────────────┐
+│                Step                │        Result        │                                      Actual output                                      │
+├────────────────────────────────────┼──────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────┤
+│ 1. Switch to local                 │ PASS                 │ "Active AppScan provider: local". "Available backend tools: 15". "Provider connection   │
+│                                    │                      │ and tool discovery succeeded."                                                          │
+├────────────────────────────────────┼──────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────┤
+│ 2. Verify status                   │ PASS                 │ get-provider-status returned "Active AppScan provider: local".                          │
+├────────────────────────────────────┼──────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────┤
+│ 3. Call execute-prepared-scan with │ Executed once        │ I made one call with 64600781-a99f-405f-9dbb-c196f1047da6.                              │
+│  the token                         │                      │                                                                                         │
+├────────────────────────────────────┼──────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────┤
+│ 4. Rejected because the scan was   │                      │ This scan was prepared for the remote provider, but the    │
+│ prepared for remote and local is   │ PASS                 │ active provider is local. The scan was not started. Prepare the request again and       │
+│ active                             │                      │ "                                                          │
+├────────────────────────────────────┼──────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                    │ PASS for "not        │ as not started." It says nothing about the token remaining │
+│ 5. Says the scan was not started   │ started", not        │  available. Its instruction to "Prepare the request again" suggests the token may no    │
+│ and the token remains available    │ confirmed for the    │ l either way from the output.                              │
+│                                    │ token                │                                                                                         │
+├────────────────────────────────────┼──────────────────────┼────────────────────────────────────────────────────────────┤
+│ 6. No retry, re-preparation,       │ PASS                 │ I made no further execute-prepared-scan or prepare-scan calls.                          │
+│ launch, or upload                  │                      │                                                            │
+└────────────────────────────────────┴──────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────┘
+
+Findings
+- The mismatch check rejected the request before execution. Thor stopping and reporting FAIL, and it did not occur.
+- Step 5 is only partly met. The "not started" statement is explicit. Token availability is not stated, so I'm not claiming the token is still valid.   Checking would mean retrying execution, which you ruled out. for your acceptance criteria, treat that part as unverified.
+- The active provider is now local. It was remote when this test began. I left it as is because you didn't ask me to switch back. Say so if you want it set back to remote.
