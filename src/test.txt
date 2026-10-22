@@ -1,4 +1,4 @@
-This is appsca-service.ts
+This is appscan-service.ts
 
 import type {
   AppScanMcpConnector,
