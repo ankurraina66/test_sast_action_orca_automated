@@ -1,1 +1,53 @@
 
+/appscan
+
+Perform a read-only validation of the active AppScan provider and remote tool mappings. Follow these steps in order.
+
+1. Show the active provider
+
+- Call "get-provider-status".
+- Report whether the active provider is "remote" or "local".
+- Do not switch providers.
+
+2. Retrieve applications
+
+- Call "get-apps" with "top: 3".
+- Display the application names and IDs returned.
+- If the request fails, record the exact error and stop the workflow.
+
+3. Retrieve scans for a known application
+
+- Select one application ID returned in step 2.
+- Call "get-scans" with that ID as "applicationId" and "top: 3".
+- Display the scan IDs, names, and statuses when available.
+- Use only the application ID returned in step 2.
+- If the request fails, record the exact error and stop the workflow.
+
+4. Retrieve issues for a returned scan
+
+- If step 3 returns at least one scan with an ID, select the first scan.
+- Call "get-scan-issues" with its "scanId" and "top: 3".
+- Summarize the findings, including issue IDs and severity when available.
+- If no scans are returned, mark this step "SKIPPED".
+- If the request fails, record the exact error.
+
+Safety constraints
+
+- Do not switch providers.
+- Do not create, start, modify, or delete scans, applications, issues, or other AppScan resources.
+- Do not call "prepare-scan" or "execute-prepared-scan".
+- Use only IDs returned by preceding steps.
+- Do not repeatedly retry failures or silently change arguments.
+- Never display credentials, API keys, or secrets.
+
+Final report
+
+Provide a table with these columns:
+
+Step| Tool| Result| Status| Error Details
+
+Use "PASS", "FAIL", or "SKIPPED" for each step.
+
+Distinguish between a successful tool invocation and correct data retrieval. If a mapping fails, include the exact error and the arguments used, excluding secrets.
+
+Conclude with a brief assessment of which mappings were validated and which require implementation changes. Do not modify any code. The purpose is to validate the existing connector, not to change its implementation.
