@@ -1,1 +1,8 @@
 
+# 1. Inspect package metadata and entry points
+Get-Content "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\package.json"
+
+# 2. Find all registration calls in the compiled entry point
+Select-String -Path $path -Pattern 'registerTool\(|server\.tool\(|createScan|create_scan|inputSchema' |
+  Select-Object LineNumber, Line
+
