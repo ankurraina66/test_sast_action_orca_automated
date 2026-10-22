@@ -1,1 +1,5 @@
 
+Get-ChildItem .\tests -Recurse -File |
+    Select-String -Pattern 'SIGINT|SIGTERM|server\.close|disconnect|cleanup|previous.*disconnect|shutdown' |
+    Select-Object Path, LineNumber, Line
+
