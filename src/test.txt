@@ -1,8 +1,67 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\tests -Recurse -File |
+>>     Select-Object FullName
 
-Get-ChildItem .\tests -Recurse -File |
-    Select-Object FullName
+FullName
+--------
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\integration\local-app-discovery.integration.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\integration\local-mcp.integration.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\integration\local-scan-discovery.integration.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\appscan-service-factory.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\appscan-service.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\config.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\index.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\local-stdio-connector.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\scan-workflow.test.ts
 
-Get-ChildItem .\src -Recurse -File |
-    Select-String -Pattern 'disconnect|close\(|terminateSession|AbortSignal|timeout|withLock|switchProvider' |
-    Select-Object Path, LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\src -Recurse -File |
+>>     Select-String -Pattern 'disconnect|close\(|terminateSession|AbortSignal|timeout|withLock|switchProvider' |
+>>     Select-Object Path, LineNumber, Line
 
+Path                                                                                  LineNumber Line
+----                                                                                  ---------- ----
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                 41             const result = await service.switchProvider(p…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                416         await service.disconnect();
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                422             await server.close();
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts                424             await service.disconnect();
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                      5   requestTimeoutMs: number;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     35   const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS …
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     37   if (!Number.isSafeInteger(timeout) || timeout < 1 || ti…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     39       "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer bet…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     66       requestTimeoutMs: timeout,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     84     requestTimeoutMs: timeout,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector-factory.ts             19       requestTimeoutMs: config.requestTimeoutMs,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector-factory.ts             41     requestTimeoutMs: config.requestTimeoutMs,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector.ts                     22   disconnect(): Promise<void>;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         16   requestTimeoutMs?: number;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         22   private readonly requestTimeoutMs: number;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         26     this.requestTimeoutMs = options.requestTimeoutMs ?? 3…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         56       { timeout: this.requestTimeoutMs },
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         78       { timeout: this.requestTimeoutMs },
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts        125   async disconnect(): Promise<void> {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts        131       await this.client.close();
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         10     requestTimeoutMs ?  : number;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         31         const requestTimeoutMs = options.requestTimeoutMs;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         34             if (!requestTimeoutMs || requestTimeoutMs <= …
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         46             const timeoutSignal = AbortSignal.timeout(req…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         50                  ? AbortSignal.any([requestSignal, timeou…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         51                  : timeoutSignal;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts        149     async disconnect(): Promise < void > {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts        155             await this.client.close();
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          22     private async withLock < T > (
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          41         await this.withLock(() => this.connector.connect(…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          45         return this.withLock(() => this.connector.listToo…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          51         return this.withLock(() => this.connector.callToo…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          54     async switchProvider(
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          60         return this.withLock(async() => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          87                     await previousConnector.disconnect();
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts          92                         "The previous AppScan connector c…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts         103                         await nextConnector.disconnect();
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts         119         return this.withLock(async() => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts         133         return this.withLock(async() => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts         157     async disconnect(): Promise < void > {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts         158         await this.withLock(() => this.connector.disconne…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts         162         return this.withLock(async() => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts         172         return this.withLock(async() => {
