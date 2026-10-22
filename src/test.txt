@@ -1,1 +1,33 @@
-Select-String -Path .\node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js -Pattern "createFetchWithInit" -Context 0,25
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js -Pattern "createFetchWithInit" -Context 0,25
+
+> node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:24:export function createFetchWithInit(baseFetch = fetch, baseInit) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:25:    if (!baseInit) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:26:        return baseFetch;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:27:    }
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:28:    // Return a wrapped fetch that merges base RequestInit with call-specific init
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:29:    return async (url, init) => {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:30:        const mergedInit = {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:31:            ...baseInit,
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:32:            ...init,
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:33:            // Headers need special handling - merge instead of replace
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:34:            headers: init?.headers ? { ...normalizeHeaders(baseInit.headers),
+...normalizeHeaders(init.headers) } : baseInit.headers
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:35:        };
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:36:        return baseFetch(url, mergedInit);
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:37:    };
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:38:}
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:39:const MAX_REDIRECTS = 5;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:40:const REDIRECT_STATUSES = [301, 302, 303, 307, 308];
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:41:/** @internal Whether `to` has the scheme, host and port of `from`, or is its
+https form with both on default ports. */
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:42:export function isWithinOrigin(from, to) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:43:    if (from.protocol === to.protocol && from.hostname === to.hostname &&
+from.port === to.port) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:44:        return true;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:45:    }
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:46:    return from.hostname === to.hostname && from.protocol === 'http:' &&
+from.port === '' && to.protocol === 'https:' && to.port === '';
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:47:}
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:48:function redirectTarget(response, requestUrl) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js:49:    const location = REDIRECT_STATUSES.includes(response.status) ?
+response.headers.get('location') : null;
