@@ -1,1 +1,1 @@
-
+Select-String -Path .\src\services\appscan-service.ts -Pattern 'callFirstAvailableToolIfSupported'
