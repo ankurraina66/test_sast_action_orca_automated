@@ -1,8 +1,63 @@
-$file = ".\node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js"
-$lines = Get-Content $file
-for ($i = 300; $i -lt [Math]::Min(330, $lines.Length); $i++) {
-    "{0}: {1}" -f ($i + 1), $lines[$i]
-}
-for ($i = 440; $i -lt [Math]::Min(465, $lines.Length); $i++) {
-    "{0}: {1}" -f ($i + 1), $lines[$i]
-}
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $file = ".\node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $lines = Get-Content $file
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> for ($i = 300; $i -lt [Math]::Min(330, $lines.Length); $i++) {
+>>     "{0}: {1}" -f ($i + 1), $lines[$i]
+>> }
+301:     }
+302:     async send(message, options) {
+303:         try {
+304:             const { resumptionToken, onresumptiontoken } = options || {};
+305:             if (resumptionToken) {
+306:                 // If we have at last event ID, we need to reconnect the SSE stream
+307:                 this._startOrAuthSse({ resumptionToken, replayMessageId: isJSONRPCRequest(message) ? message.id : undefined }).catch(err => this.onerror?.(err));
+308:                 return;
+309:             }
+310:             const headers = await this._commonHeaders();
+311:             headers.set('content-type', 'application/json');
+312:             headers.set('accept', 'application/json, text/event-stream');
+313:             const init = {
+314:                 ...this._requestInit,
+315:                 method: 'POST',
+316:                 headers,
+317:                 body: JSON.stringify(message),
+318:                 signal: this._abortController?.signal
+319:             };
+320:             const response = await fetchWithinOrigin(this._fetch ?? fetch)(this._url, init);
+321:             // Handle session ID received during initialization
+322:             const sessionId = response.headers.get('mcp-session-id');
+323:             if (sessionId) {
+324:                 this._sessionId = sessionId;
+325:             }
+326:             if (!response.ok) {
+327:                 const text = await response.text().catch(() => null);
+328:                 if (response.status === 401 && this._authProvider) {
+329:                     // Prevent infinite recursion when server returns 401 after successful auth
+330:                     if (this._hasCompletedAuthFlow) {
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> for ($i = 440; $i -lt [Math]::Min(465, $lines.Length); $i++) {
+>>     "{0}: {1}" -f ($i + 1), $lines[$i]
+>> }
+441:      * terminate the session.
+442:      *
+443:      * The server MAY respond with HTTP 405 Method Not Allowed, indicating that
+444:      * the server does not allow clients to terminate sessions.
+445:      */
+446:     async terminateSession() {
+447:         if (!this._sessionId) {
+448:             return; // No session to terminate
+449:         }
+450:         try {
+451:             const headers = await this._commonHeaders();
+452:             const init = {
+453:                 ...this._requestInit,
+454:                 method: 'DELETE',
+455:                 headers,
+456:                 signal: this._abortController?.signal
+457:             };
+458:             const response = await fetchWithinOrigin(this._fetch ?? fetch)(this._url, init);
+459:             await response.body?.cancel();
+460:             // We specifically handle 405 as a valid response according to the spec,
+461:             // meaning the server does not support explicit session termination
+462:             if (!response.ok && response.status !== 405) {
+463:                 throw new StreamableHTTPError(response.status, `Failed to terminate session: ${this._unfollowedRedirect(response, this._url) ?? response.statusText}`);
+464:             }
+465:             this._sessionId = undefined;
