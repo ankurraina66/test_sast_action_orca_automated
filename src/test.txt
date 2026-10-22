@@ -1,8 +1,1 @@
-pendingScans.set(token, {
-  appId,
-  targetDir,
-  scanType,
-  ...(scanName !== undefined ? { scanName } : {}),
-  ...(comment !== undefined ? { comment } : {}),
-  provider: service.getProvider(),
-});
+
