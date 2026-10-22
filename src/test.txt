@@ -1,205 +1,379 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+import { createAppScanService } from "./services/appscan-service-factory.js";
+import crypto from "node:crypto";
 
-import type {
-  AppScanMcpConnector,
-  McpTool,
-  McpToolCallResult,
-} from "../mcp/connector.js";
-import type { AppScanProvider } from "../config/config.js";
+async function main(): Promise<void> {
+  const service = createAppScanService();
+  await service.connect();
 
-type ConnectorFactory = (
-  provider: AppScanProvider,
-) => AppScanMcpConnector;
+  const server = new McpServer({
+    name: "hcl-appscan-connector-for-claude",
+    version: "0.1.0",
+  });
+  
+  server.registerTool(
+    "get-provider-status",
+    {
+      description: "Show which AppScan provider is currently active.",
+      inputSchema: {},
+    },
+    async () => ({
+      content: [
+        {
+          type: "text" as const,
+          text: `Active AppScan provider: ${service.getProvider()}`,
+        },
+      ],
+    }),
+  );
 
-export class AppScanService {
-  private activeProvider: AppScanProvider;
-  private operationQueue: Promise<void> = Promise.resolve();
+  server.registerTool(
+    "switch-provider",
+    {
+      description:
+        "Switch the active AppScan backend between local STDIO and remote HTTP without restarting the Claude-facing MCP server.",
+      inputSchema: {
+        provider: z.enum(["local", "remote"]),
+      },
+    },
+    async ({ provider }) => {
+      try {
+        const result = await service.switchProvider(provider);
 
-  constructor(
-    private connector: AppScanMcpConnector,
-    initialProvider: AppScanProvider,
-    private readonly connectorFactory: ConnectorFactory,
-  ) {
-    this.activeProvider = initialProvider;
-  }
-
-  getProvider(): AppScanProvider {
-    return this.activeProvider;
-  }
-
-  private async withLock<T>(
-    operation: () => Promise<T>,
-  ): Promise<T> {
-    const previous = this.operationQueue;
-    let release!: () => void;
-
-    this.operationQueue = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-
-    await previous;
-
-    try {
-      return await operation();
-    } finally {
-      release();
-    }
-  }
-
-  async connect(): Promise<void> {
-    await this.withLock(() => this.connector.connect());
-  }
-
-  async listTools(): Promise<McpTool[]> {
-    return this.withLock(() => this.connector.listTools());
-  }
-
-  async callTool(
-    name: string,
-    args: Record<string, unknown> = {},
-  ): Promise<McpToolCallResult> {
-    return this.withLock(() => this.connector.callTool(name, args));
-  }
-
-  async switchProvider(
-    provider: AppScanProvider,
-  ): Promise<{ provider: AppScanProvider; toolCount: number }> {
-    return this.withLock(async () => {
-      if (provider === this.activeProvider) {
         return {
-          provider: this.activeProvider,
-          toolCount: (await this.connector.listTools()).length,
+          content: [
+            {
+              type: "text" as const,
+              text: [
+                `Active AppScan provider: ${result.provider}`,
+                `Available backend tools: ${result.toolCount}`,
+                "Provider connection and tool discovery succeeded.",
+              ].join("\n"),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text:
+                error instanceof Error
+                  ? error.message
+                  : "Provider switching failed.",
+          },
+          ],
+          isError: true,
         };
       }
+    },
+  );
 
-      const previousConnector = this.connector;
-      let nextConnector: AppScanMcpConnector | undefined;
+  function textResult(result: {
+    content: Array<{ type: string; text?: string }>;
+    isError?: boolean;
+  }) {
+    const text = result.content
+      .map((item) => item.text ?? "")
+      .filter(Boolean)
+      .join("\n");
 
-      try {
-        nextConnector = this.connectorFactory(provider);
-        await nextConnector.connect();
+    return {
+      content: [
+        {
+          type: "text" as const,
+          text: text || "The AppScan tool returned no text content.",
+        },
+      ],
+      ...(result.isError ? { isError: true } : {}),
+    };
+  }
 
-        const tools = await nextConnector.listTools();
+  server.registerTool(
+    "get-apps",
+    {
+      description: "Retrieve AppScan applications.",
+      inputSchema: {
+        filter: z.string().optional(),
+        top: z.number().optional(),
+      },
+    },
+    async (args) => {
+		console.error("[AppScan diagnostic] get-apps invoked");
+		try {
+			const tool = await service.findApplicationDiscoveryTool();
+			if (!tool) {
+				throw new Error("The configured AppScan MCP server does not expose a recognized application discovery tool.", );
+		}
+		console.error(`[AppScan diagnostic] Resolved backend tool: ${tool.name}`, );
+		const result = await service.callTool(tool.name, {
+			...(args.filter !== undefined ? { filter: args.filter } : {}),
+			...(args.top !== undefined ? { top: args.top } : {}),
+		});
+		console.error(`[AppScan diagnostic] get-apps completed; isError=${result.isError ?? false}`, );
+		return textResult(result);
+		} catch (error) {
+			console.error("[AppScan diagnostic] get-apps failed:", error instanceof Error ? error.message : "Unknown error", );
+			throw error;
+		}
+	},
+  );
 
-        if (tools.length === 0) {
-          throw new Error(
-            `The ${provider} AppScan provider returned no tools.`,
-          );
-        }
+  server.registerTool(
+  "get-scans",
+  {
+    description:
+      "Retrieve AppScan scans. Optionally filter by applicationId (GUID) and an additional OData filter.",
+    inputSchema: {
+      applicationId: z.string().uuid().optional(),
+      filter: z.string().optional(),
+      top: z.number().int().positive().optional(),
+    },
+  },
+  async ({ applicationId, filter, top }) => {
+    const filters: string[] = [];
 
-        // Activate only after connecting and validating the new provider.
-        this.connector = nextConnector;
-        this.activeProvider = provider;
+    if (applicationId) {
+      // AppId is an OData GUID field, so do not quote the GUID.
+      filters.push(`AppId eq ${applicationId}`);
+    }
 
-        try {
-          await previousConnector.disconnect();
-        } catch (error) {
-          // The new provider is active; report cleanup failure without
-          // incorrectly rolling back a successful switch.
-          console.error(
-            "The previous AppScan connector could not be cleanly disconnected.",
-            error instanceof Error ? error.message : "Unknown error",
-          );
-        }
+    if (filter?.trim()) {
+      filters.push(`(${filter.trim()})`);
+    }
 
-        return { provider, toolCount: tools.length };
-      } catch (error) {
-        if (nextConnector && nextConnector !== this.connector) {
-          try {
-            await nextConnector.disconnect();
-          } catch {
-            // Preserve the original connection or validation error.
-          }
-        }
+    const result = await service.callFirstAvailableTool(
+	["get-scans", "get_scans"],
+	{
+		...(filters.length ? { filter: filters.join(" and ") } : {}),
+		...(top !== undefined ? { top } : {}),
+	},
+    );
+    return textResult(result);
+  },
+  );
 
-        throw new Error(
-          `Could not switch to the ${provider} AppScan provider: ${
-            error instanceof Error ? error.message : "Unknown error"
-          }`,
-        );
+  server.registerTool(
+    "get-scan-issues",
+    {
+      description: "Retrieve security findings for a specific AppScan scan.",
+      inputSchema: {
+        scanId: z.string().min(1),
+        filter: z.string().optional(),
+        top: z.number().optional(),
+      },
+    },
+    async ({ scanId, filter, top }) => {
+		if (service.getProvider() === "local") {
+			const result = await service.callFirstAvailableTool(
+			["get-scan-issues", "get_scan_issues"],
+			{
+				scanId,
+				...(filter !== undefined ? { filter } : {}),
+				...(top !== undefined ? { top } : {}),
+			},
+			);
+			return textResult(result);
+		}
+		const result = await service.callFirstAvailableTool(
+		["get_issues"],
+		{
+			scope: "Scan",
+			scopeId: scanId,
+			...(filter !== undefined ? { filter } : {}),
+			...(top !== undefined ? { top } : {}),
+		},
+		);
+		return textResult(result);
+	},
+  );
+
+  server.registerTool(
+    "get-issue-details",
+    {
+      description: "Retrieve detailed information about an AppScan finding.",
+      inputSchema: {
+        issueId: z.string().min(1),
+      },
+    },
+   async ({ issueId }) => {
+	   const result = await service.callFirstAvailableTool(
+	   ["get-issue-details", "get_issue_details"],
+	   { issueId },
+	   );
+	   return textResult(result);
+	},
+  );
+  
+const pendingScans = new Map<
+    string,
+    {
+      appId: string;
+      targetDir: string;
+      scanType: "SAST" | "SCA";
+      scanName?: string;
+      comment?: string;
+	  provider: "local" | "remote";
+    }
+  >();
+
+  server.registerTool(
+    "prepare-scan",
+    {
+      description:
+        "Prepare an AppScan scan request and return its exact parameters for user review. This tool must not start a scan. Obtain explicit user confirmation in the conversation before calling execute-prepared-scan.",
+      inputSchema: {
+        appId: z.string().uuid(),
+        targetDir: z.string().min(1),
+        scanType: z.enum(["SAST", "SCA"]).default("SAST"),
+        scanName: z.string().min(1).optional(),
+        comment: z.string().optional(),
+      },
+    },
+    async ({ appId, targetDir, scanType, scanName, comment }) => {
+      const token = crypto.randomUUID();
+
+      pendingScans.set(token, {
+		  appId,
+		  targetDir,
+		  scanType,
+		  ...(scanName !== undefined ? { scanName } : {}),
+		  ...(comment !== undefined ? { comment } : {}),
+		  provider: service.getProvider(),
+	  });
+
+      return {
+        content: [
+          {
+            type: "text" as const,
+            text: [
+              "Scan prepared; no scan has been started.",
+              `Confirmation token: ${token}`,
+              `Application ID: ${appId}`,
+              `Target directory: ${targetDir}`,
+              `Scan type: ${scanType}`,
+              `Scan name: ${scanName ?? "(generated by AppScan)"}`,
+              "",
+              "Before execution, explain that source artifacts may be packaged and uploaded to AppScan, and that the underlying tool may generate configuration files or run a build.",
+              "Obtain explicit user confirmation for these exact parameters before invoking execute-prepared-scan.",
+            ].join("\n"),
+          },
+        ],
+      };
+    },
+  );
+
+  server.registerTool(
+    "execute-prepared-scan",
+    {
+      description:
+        "Execute a previously prepared AppScan scan only after explicit user confirmation of its exact parameters. Never call this tool merely because a preparation token exists.",
+      inputSchema: {
+        confirmationToken: z.string().uuid(),
+      },
+    },
+    async ({ confirmationToken }) => {
+      const prepared = pendingScans.get(confirmationToken);
+
+      if (!prepared) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "No pending scan matches this token. Prepare the request again and obtain user confirmation.",
+            },
+          ],
+          isError: true,
+        };
       }
+	  
+	   if (prepared.provider !== service.getProvider()) {
+		  return {
+			  content: [
+			  {
+				  type: "text" as const,
+				  text:
+				  `This scan was prepared for the ${prepared.provider} provider, ` +
+				  `but the active provider is ${service.getProvider()}. ` +
+				  "The scan was not started. Prepare the request again and obtain explicit confirmation.",
+			  },
+			  ],
+			  isError: true,
+		  };
+	  }
+	  const createScanTool = await service.findToolByNames(["create-scan",  "create_scan",]);
+	  if (!createScanTool) {
+		  return {
+			  content: [
+			  {
+				  type: "text" as const,
+				  text:
+				  `The active ${service.getProvider()} AppScan provider does not support scan creation. ` +
+				  "The scan was not started. Switch to a provider that supports create-scan, then prepare and confirm the request again.",
+			  },
+			  ],
+			  isError: true,
+		  };
+	  }
+      // Consume the token before execution so it cannot be reused.
+      pendingScans.delete(confirmationToken);	  
+      const result = await service.callTool(createScanTool.name, {
+		  appId: prepared.appId,
+		  targetDir: prepared.targetDir,
+		  scanType: prepared.scanType,
+		  ...(prepared.scanName !== undefined
+		  ? { scanName: prepared.scanName }
+		  : {}),
+		  ...(prepared.comment !== undefined
+		  ? { comment: prepared.comment }
+		  : {}),
+		  approved: true,
+	  });
+      return textResult(result);
+    },
+  );
+
+  const transport = new StdioServerTransport();
+
+  try {
+    await server.connect(transport);
+    console.error("HCL AppScan Connector for Claude is running.");
+  } catch (error) {
+    await service.disconnect();
+    throw error;
+  }
+
+  const shutdown = async () => {
+    try {
+      await server.close();
+    } finally {
+      await service.disconnect();
+    }
+  };
+
+  process.once("SIGINT", () => {
+    void shutdown().catch((error: unknown) => {
+      console.error("Shutdown failed:", error);
+      process.exitCode = 1;
     });
-  }
+  });
 
-  async findToolByNames(
-    names: string[],
-  ): Promise<McpTool | undefined> {
-    return this.withLock(async () => {
-      const tools = await this.connector.listTools();
-      const normalizedNames = new Set(
-        names.map((name) => name.toLowerCase()),
-      );
-
-      return tools.find((tool) =>
-        normalizedNames.has(tool.name.toLowerCase()),
-      );
+  process.once("SIGTERM", () => {
+    void shutdown().catch((error: unknown) => {
+      console.error("Shutdown failed:", error);
+      process.exitCode = 1;
     });
-  }
-
-  async callFirstAvailableTool(
-    names: string[],
-    args: Record<string, unknown> = {},
-    expectedProvider?: AppScanProvider,
-  ): Promise<McpToolCallResult> {
-    return this.withLock(async () => {
-      if (
-        expectedProvider !== undefined &&
-        this.activeProvider !== expectedProvider
-      ) {
-        throw new Error(
-          `Provider mismatch: this operation was prepared for ${expectedProvider}, but the active provider is ${this.activeProvider}. The operation was not executed.`,
-        );
-      }
-
-      // Discovery and execution use the same connector while holding the lock.
-      const tools = await this.connector.listTools();
-      const normalizedNames = new Set(
-        names.map((name) => name.toLowerCase()),
-      );
-      const tool = tools.find((item) =>
-        normalizedNames.has(item.name.toLowerCase()),
-      );
-
-      if (!tool) {
-        throw new Error(
-          `The active ${this.activeProvider} AppScan provider does not support this operation. Expected one of: ${names.join(", ")}.`,
-        );
-      }
-
-      return this.connector.callTool(tool.name, args);
-    });
-  }
-
-  async disconnect(): Promise<void> {
-    await this.withLock(() => this.connector.disconnect());
-  }
-
-  async findApplicationDiscoveryTool(): Promise<McpTool | undefined> {
-    return this.withLock(async () => {
-      const tools = await this.connector.listTools();
-
-      return tools.find((tool) =>
-        /^(get[_-]apps|list[_-]applications)$/i.test(tool.name),
-      );
-    });
-  }
-
-  async discoverApplications(
-    args: Record<string, unknown> = {},
-  ): Promise<McpToolCallResult> {
-    return this.withLock(async () => {
-      const tools = await this.connector.listTools();
-      const tool = tools.find((item) =>
-        /^(get[_-]apps|list[_-]applications)$/i.test(item.name),
-      );
-
-      if (!tool) {
-        throw new Error(
-          "The configured AppScan MCP server does not expose a recognized application discovery tool.",
-        );
-      }
-
-      return this.connector.callTool(tool.name, args);
-    });
-  }
+  });
 }
 
+main().catch((error: unknown) => {
+  console.error(
+    "Failed to start HCL AppScan Connector for Claude:",
+    error instanceof Error ? error.message : "Unknown error",
+  );
+  process.exitCode = 1;
+});
+
+in this claude-mcp-server.ts where to make this change?
