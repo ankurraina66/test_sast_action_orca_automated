@@ -1,1 +1,77 @@
 
+it("serializes concurrent provider switches", async () => {
+    const original = createMockConnector();
+    const localConnector = createMockConnector(["get-apps"]);
+    const remoteConnector = createMockConnector(["get_apps"]);
+
+    let finishLocalConnect!: () => void;
+
+    vi.mocked(localConnector.connect).mockImplementation(
+        () =>
+            new Promise<void>((resolve) => {
+                finishLocalConnect = resolve;
+            }),
+    );
+
+    const factory = vi.fn((provider: AppScanProvider) =>
+        provider === "local" ? localConnector : remoteConnector,
+    );
+
+    const service = createService(original, "remote", factory);
+
+    const localSwitch = service.switchProvider("local");
+    const remoteSwitch = service.switchProvider("remote");
+
+    // Allow the first switch to enter its connection step.
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(localConnector.connect).toHaveBeenCalledTimes(1);
+    expect(remoteConnector.connect).not.toHaveBeenCalled();
+
+    finishLocalConnect();
+
+    await expect(localSwitch).resolves.toMatchObject({
+        provider: "local",
+        toolCount: 1,
+    });
+
+    await expect(remoteSwitch).resolves.toMatchObject({
+        provider: "remote",
+        toolCount: 1,
+    });
+
+    expect(service.getProvider()).toBe("remote");
+    expect(remoteConnector.connect).toHaveBeenCalledTimes(1);
+});
+
+it("allows a subsequent provider switch after a failed switch", async () => {
+    const original = createMockConnector();
+    const failedReplacement = createMockConnector();
+    const workingReplacement = createMockConnector(["get_apps"]);
+
+    vi.mocked(failedReplacement.connect).mockRejectedValue(
+        new Error("Connection refused"),
+    );
+
+    const factory = vi.fn()
+        .mockReturnValueOnce(failedReplacement)
+        .mockReturnValueOnce(workingReplacement);
+
+    const service = createService(original, "remote", factory);
+
+    await expect(service.switchProvider("local")).rejects.toThrow(
+        "Could not switch to the local AppScan provider",
+    );
+
+    expect(service.getProvider()).toBe("remote");
+
+    await expect(service.switchProvider("local")).resolves.toMatchObject({
+        provider: "local",
+        toolCount: 1,
+    });
+
+    expect(service.getProvider()).toBe("local");
+    expect(workingReplacement.connect).toHaveBeenCalledTimes(1);
+});
+
