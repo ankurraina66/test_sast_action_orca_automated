@@ -1,1 +1,8 @@
-
+$file = ".\node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js"
+$lines = Get-Content $file
+for ($i = 300; $i -lt [Math]::Min(330, $lines.Length); $i++) {
+    "{0}: {1}" -f ($i + 1), $lines[$i]
+}
+for ($i = 440; $i -lt [Math]::Min(465, $lines.Length); $i++) {
+    "{0}: {1}" -f ($i + 1), $lines[$i]
+}
