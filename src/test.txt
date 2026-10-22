@@ -1,19 +1,1 @@
-/appscan
 
-Continue the read-only validation of the remote AppScan connector.
-
-1. Call "get-provider-status" and confirm the active provider is "remote". Do not switch providers.
-2. Inspect the underlying remote MCP tool named "get_scans" (underscore), not just the facade tool "get-scans" (hyphen). Report its actual input schema and description.
-3. Using the application ID already returned by the earlier validation for "Test_Tayalan" ("39c76747-8617-4e00-8ae8-096e208f72ac"), call the existing facade tool "get-scans" with "applicationId" set to that ID and "top" set to "1".
-4. Report the exact field names present in the first returned scan record, especially any field that represents scan status. Do not infer or invent fields.
-5. If you cannot inspect the underlying tool schema or the returned record, explain which evidence is unavailable.
-
-Safety:
-
-- Read-only calls only.
-- Do not switch providers or create, start, update, or delete resources.
-- Do not call "prepare-scan" or "execute-prepared-scan".
-- Do not retry with altered arguments.
-- Do not expose credentials or secrets.
-
-Conclude whether a connector change is justified by the evidence.
