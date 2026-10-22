@@ -1,1 +1,44 @@
 
+@'
+import { loadConfig } from "./dist/config/config.js";
+import { createConnector } from "./dist/mcp/connector-factory.js";
+
+for (const provider of ["local", "remote"]) {
+  let connector;
+
+  try {
+    const config = loadConfig({
+      ...process.env,
+      APP_SCAN_PROVIDER: provider,
+    });
+
+    connector = createConnector(config);
+    await connector.connect();
+
+    const tools = await connector.listTools();
+
+    console.log(`\n=== ${provider.toUpperCase()} BACKEND ===`);
+    console.log(JSON.stringify(
+      tools.map(({ name, description, inputSchema }) => ({
+        name,
+        description,
+        inputSchema,
+      })),
+      null,
+      2,
+    ));
+  } catch (error) {
+    console.log(`\n=== ${provider.toUpperCase()} BACKEND ERROR ===`);
+    console.log(error instanceof Error ? error.message : "Unknown error");
+  } finally {
+    if (connector) {
+      try {
+        await connector.disconnect();
+      } catch {
+        console.log("Connector cleanup failed.");
+      }
+    }
+  }
+}
+'@ | node --input-type=module
+
