@@ -1,1 +1,14 @@
-
+if (prepared.provider !== service.getProvider()) {
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text:
+          `This scan was prepared for the ${prepared.provider} provider, ` +
+          `but the active provider is ${service.getProvider()}. ` +
+          "The scan was not started. Prepare the request again and obtain explicit confirmation.",
+      },
+    ],
+    isError: true,
+  };
+}
