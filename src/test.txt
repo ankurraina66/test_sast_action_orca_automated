@@ -1,1 +1,15 @@
-Call "switch-provider" with provider "remote", then call "get-provider-status". Report the actual outputs. Do not call any scan-related tools.
+/appscan Call "switch-provider" with provider "remote", then call "get-provider-status". Report the actual outputs. Do not call any scan-related tools.
+
+  Called appscan-connector 2 times
+
+The provider is back on remote.
+
+switch-provider (remote):
+Active AppScan provider: remote
+Available backend tools: 12
+Provider connection and tool discovery succeeded.
+
+get-provider-status:
+Active AppScan provider: remote
+
+I called no scan-related tools.
