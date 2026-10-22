@@ -1,1 +1,1 @@
-
+Select-String -Path .\node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.js -Pattern "createFetchWithInit" -Context 0,25
