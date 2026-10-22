@@ -1,1 +1,28 @@
 
+async (args) => {
+    console.error("[AppScan diagnostic] get-apps invoked");
+
+    try {
+        const result = await service.discoverApplications({
+            ...(args.filter !== undefined
+                ? { filter: args.filter }
+                : {}),
+            ...(args.top !== undefined
+                ? { top: args.top }
+                : {}),
+        });
+
+        console.error(
+            `[AppScan diagnostic] get-apps completed; isError=${result.isError ?? false}`,
+        );
+
+        return textResult(result);
+    } catch (error) {
+        console.error(
+            "[AppScan diagnostic] get-apps failed:",
+            error instanceof Error ? error.message : "Unknown error",
+        );
+        throw error;
+    }
+}
+
