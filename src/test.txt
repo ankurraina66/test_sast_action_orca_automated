@@ -1,42 +1,130 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run typecheck
+import { describe, expect, it, vi } from "vitest";
 
-> ai-coding-assistants-claude-poc@1.0.0 typecheck
-> tsc --noEmit
+import { AppScanService } from "../../src/services/appscan-service.js";
+import type { AppScanMcpConnector, McpTool, McpToolCallResult,  } from "../../src/mcp/connector.js";
 
-src/claude-mcp-server.ts:254:22 - error TS1005: ',' expected.
+describe("AppScanService", () => {
+    function createMockConnector(): AppScanMcpConnector {
+        return {
+            connect: vi.fn().mockResolvedValue(undefined),
+            listTools: vi.fn().mockResolvedValue([{
+                        name: "get-apps",
+                        description: "List AppScan applications",
+                        inputSchema: {
+                            type: "object",
+                            properties: {}
+                        },
+                    }
+                    satisfies McpTool, ]),
+            callTool: vi.fn().mockResolvedValue({
+                content: [{
+                        type: "text",
+                        text: "Success"
+                    }
+                ],
+                isError: false,
+            }
+                satisfies McpToolCallResult),
+            disconnect: vi.fn().mockResolvedValue(undefined),
+        };
+    }
 
-254         appId: string;
-                         ~
+    it("connects through the configured connector", async() => {
+        const connector = createMockConnector();
+        const service = new AppScanService(connector);
 
-src/claude-mcp-server.ts:257:21 - error TS1109: Expression expected.
+        await service.connect();
 
-257         scanName ?  : string;
-                        ~
+        expect(connector.connect).toHaveBeenCalledTimes(1);
+    });
 
-src/claude-mcp-server.ts:258:20 - error TS1109: Expression expected.
+    it("lists tools through the configured connector", async() => {
+        const connector = createMockConnector();
+        const service = new AppScanService(connector);
 
-258         comment ?  : string;
-                       ~
+        await expect(service.listTools()).resolves.toEqual([{
+                    name: "get-apps",
+                    description: "List AppScan applications",
+                    inputSchema: {
+                        type: "object",
+                        properties: {}
+                    },
+                },
+            ]);
 
-src/claude-mcp-server.ts:262:5 - error TS1127: Invalid character.
+        expect(connector.listTools).toHaveBeenCalledTimes(1);
+    });
 
-262     «();
-        ~
+    it("delegates tool calls and arguments to the connector", async() => {
+        const connector = createMockConnector();
+        const service = new AppScanService(connector);
 
-src/claude-mcp-server.ts:262:7 - error TS1109: Expression expected.
+        await expect(
+            service.callTool("get-apps", {
+                top: 5
+            }), ).resolves.toEqual({
+            content: [{
+                    type: "text",
+                    text: "Success"
+                }
+            ],
+            isError: false,
+        });
 
-262     «();
-          ~
+        expect(connector.callTool).toHaveBeenCalledWith("get-apps", {
+            top: 5,
+        });
+    });
 
-src/claude-mcp-server.ts:263:5 - error TS1127: Invalid character.
+    it("recognizes the remote get_apps tool name", async() => {
+        const connector = createMockConnector();
 
-263     »
-        ~
+        vi.mocked(connector.listTools).mockResolvedValue([{
+                    name: "get_apps",
+                    description: "List applications",
+                    inputSchema: {
+                        type: "object",
+                        properties: {}
+                    },
+                },
+            ]);
 
-src/claude-mcp-server.ts:451:1 - error TS1128: Declaration or statement expected.
+        const service = new AppScanService(connector);
 
-451 }
-    ~
+        await expect(service.findApplicationDiscoveryTool()).resolves.toMatchObject({
+            name: "get_apps",
+        });
+    });
 
+    it("discovers applications using the available tool name", async() => {
+        const connector = createMockConnector();
+        const service = new AppScanService(connector);
+        const tool = await service.findApplicationDiscoveryTool();
+        expect(tool?.name).toBe("get-apps");
+        await service.discoverApplications({
+            top: 5
+        });
+        expect(connector.callTool).toHaveBeenCalledWith("get-apps", {
+            top: 5,
+        });
+    });
 
-Found 7 errors in the same file, starting at: src/claude-mcp-server.ts:254
+    it("reports when no recognized application discovery tool exists", async() => {
+        const connector = createMockConnector();
+        vi.mocked(connector.listTools).mockResolvedValue([]);
+
+        const service = new AppScanService(connector);
+
+        await expect(service.discoverApplications()).rejects.toThrow(
+            "The configured AppScan MCP server does not expose a recognized application discovery tool.", );
+    });
+
+    it("disconnects through the configured connector", async() => {
+        const connector = createMockConnector();
+        const service = new AppScanService(connector);
+
+        await service.disconnect();
+
+        expect(connector.disconnect).toHaveBeenCalledTimes(1);
+    });
+});
