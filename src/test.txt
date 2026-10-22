@@ -1,1 +1,3 @@
-Select-String -Path .\src\services\appscan-service.ts -Pattern 'callFirstAvailableToolIfSupported'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\services\appscan-service.ts -Pattern 'callFirstAvailableToolIfSupported'
+
+src\services\appscan-service.ts:178:    async callFirstAvailableToolIfSupported(
