@@ -1,1 +1,7 @@
+Using the active remote AppScan provider, identify an existing scan that is already known to contain security findings.
 
+1. Use existing scan/application information only; do not launch or modify scans.
+2. If a scan with known findings is already identifiable from available results, call "get-scan-issues" for that scan with "top: 5".
+3. If no scan with known findings can be identified, stop and report that the test is blocked. Do not guess a scan ID or treat an empty result as proof of a mapping failure.
+4. Report the scan name and ID, whether issue retrieval succeeded, and the number of findings returned.
+5. Do not update findings, create reports, or execute any scan.
