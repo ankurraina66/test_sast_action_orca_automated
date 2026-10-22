@@ -1,1 +1,19 @@
+/appscan
 
+Review the current live behavior of the AppScan connector's provider switching. Perform only safe, read-only checks.
+
+1. Call "get-provider-status" and record the active provider.
+2. Confirm whether the current session can report provider connection and discovered-tool status without switching providers.
+3. Do not switch providers or intentionally trigger a failed connection in this live test.
+4. Do not call scan-creation or scan-execution tools, or modify any AppScan resources.
+5. Do not expose credentials or secrets.
+6. Do not change code.
+
+Report:
+
+- Exact provider-status output.
+- Any available connection-health or discovered-tool information.
+- Which lifecycle behaviors were actually observed live versus covered only by automated tests.
+- Any limitation preventing further live validation.
+
+Do not claim that rollback, shutdown, timeout, or cleanup has passed live testing unless this session actually tested it.
