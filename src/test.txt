@@ -1,1 +1,19 @@
+/appscan
 
+Perform a read-only live validation of the "get-issue-details" facade mapping against an existing security issue.
+
+1. Confirm the active provider using "get-provider-status". It must be "remote". Do not switch providers.
+2. Use only an issue ID already present in existing AppScan results or prior output. Do not invent or guess an ID.
+3. If a suitable issue ID is available, call "get-issue-details" exactly once with that ID.
+4. Report the exact issue ID and arguments used, whether the call succeeded, the returned result structure, and any available severity, issue type, title, or description fields.
+5. If no known issue ID is available, stop and report that the validation cannot be performed with the available evidence.
+
+Safety:
+
+- Read-only calls only.
+- Do not create, start, update, or delete resources.
+- Do not call "prepare-scan" or "execute-prepared-scan".
+- Do not expose credentials or secrets.
+- Do not change code.
+
+Conclude whether the mapping is validated, failed, or inconclusive.
