@@ -1,44 +1,1389 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> @'
+>> import { loadConfig } from "./dist/config/config.js";
+>> import { createConnector } from "./dist/mcp/connector-factory.js";
+>>
+>> for (const provider of ["local", "remote"]) {
+>>   let connector;
+>>
+>>   try {
+>>     const config = loadConfig({
+>>       ...process.env,
+>>       APP_SCAN_PROVIDER: provider,
+>>     });
+>>
+>>     connector = createConnector(config);
+>>     await connector.connect();
+>>
+>>     const tools = await connector.listTools();
+>>
+>>     console.log(`\n=== ${provider.toUpperCase()} BACKEND ===`);
+>>     console.log(JSON.stringify(
+>>       tools.map(({ name, description, inputSchema }) => ({
+>>         name,
+>>         description,
+>>         inputSchema,
+>>       })),
+>>       null,
+>>       2,
+>>     ));
+>>   } catch (error) {
+>>     console.log(`\n=== ${provider.toUpperCase()} BACKEND ERROR ===`);
+>>     console.log(error instanceof Error ? error.message : "Unknown error");
+>>   } finally {
+>>     if (connector) {
+>>       try {
+>>         await connector.disconnect();
+>>       } catch {
+>>         console.log("Connector cleanup failed.");
+>>       }
+>>     }
+>>   }
+>> }
+>> '@ | node --input-type=module
+[DEBUG] APPSCAN_API_BASE: https://cloud.appscan.com
+[DEBUG] APPSCAN_KEY_ID: SET (ab3f...)
+[DEBUG] APPSCAN_KEY_SECRET: SET (hidden)
+Using direct AppScan API key authentication from environment variables.
+AppScan MCP Server running on stdio
 
-@'
-import { loadConfig } from "./dist/config/config.js";
-import { createConnector } from "./dist/mcp/connector-factory.js";
-
-for (const provider of ["local", "remote"]) {
-  let connector;
-
-  try {
-    const config = loadConfig({
-      ...process.env,
-      APP_SCAN_PROVIDER: provider,
-    });
-
-    connector = createConnector(config);
-    await connector.connect();
-
-    const tools = await connector.listTools();
-
-    console.log(`\n=== ${provider.toUpperCase()} BACKEND ===`);
-    console.log(JSON.stringify(
-      tools.map(({ name, description, inputSchema }) => ({
-        name,
-        description,
-        inputSchema,
-      })),
-      null,
-      2,
-    ));
-  } catch (error) {
-    console.log(`\n=== ${provider.toUpperCase()} BACKEND ERROR ===`);
-    console.log(error instanceof Error ? error.message : "Unknown error");
-  } finally {
-    if (connector) {
-      try {
-        await connector.disconnect();
-      } catch {
-        console.log("Connector cleanup failed.");
-      }
+=== LOCAL BACKEND ===
+[
+  {
+    "name": "get-tenant-info",
+    "description": "Get information about the Tenant (Organization) including subscriptions",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "get-apps",
+    "description": "Get list of applications in AppScan",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "description": "OData filter expression (optional)",
+          "type": "string"
+        },
+        "top": {
+          "description": "Number of records to return (optional)",
+          "type": "number"
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "create-app",
+    "description": "Create a new application in AppScan. Use only after the user explicitly approves application creation. Do not call this tool to guess or unblock a missing appId during create-scan.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Application name"
+        },
+        "description": {
+          "description": "Application description",
+          "type": "string"
+        },
+        "assetGroupId": {
+          "description": "Asset group ID",
+          "type": "string"
+        },
+        "approved": {
+          "default": false,
+          "description": "Set to true only after the user has explicitly approved creating this application.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "get-scans",
+    "description": "Get list of scans in AppScan",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "description": "OData filter expression (optional)",
+          "type": "string"
+        },
+        "top": {
+          "description": "Number of records to return (optional)",
+          "type": "number"
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "get-issues",
+    "description": "Get list of security issues for an application. Use the application ID from get-apps.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "Application ID (get this from get-apps tool first)"
+        },
+        "filter": {
+          "description": "OData filter expression, e.g., \"Severity eq 'High'\" or \"Status eq 'Open'\"",
+          "type": "string"
+        },
+        "top": {
+          "description": "Number of records to return (optional, default 100, max 5000)",
+          "type": "number"
+        },
+        "applyPolicies": {
+          "description": "Which policies to apply for filtering (default: None)",
+          "type": "string",
+          "enum": [
+            "None",
+            "All",
+            "Select"
+          ]
+        }
+      },
+      "required": [
+        "appId"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "get-scan-issues",
+    "description": "Get list of security issues for a specific scan. Use the scan ID from get-scans.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "scanId": {
+          "type": "string",
+          "description": "Scan ID (get this from get-scans tool first)"
+        },
+        "filter": {
+          "description": "OData filter expression, e.g., \"Severity eq 'High'\" or \"Status eq 'Open'\"",
+          "type": "string"
+        },
+        "top": {
+          "description": "Number of records to return (optional, default 100, max 5000)",
+          "type": "number"
+        }
+      },
+      "required": [
+        "scanId"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "get-issue-details",
+    "description": "Get detailed information about a specific security issue",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "issueId": {
+          "type": "string",
+          "description": "Issue ID"
+        }
+      },
+      "required": [
+        "issueId"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "update-scan-issues",
+    "description": "Update security issues for a specific scan. Changes status and optionally adds comments.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "scanId": {
+          "type": "string",
+          "description": "Scan ID (UUID)"
+        },
+        "status": {
+          "type": "string",
+          "description": "New issue status, e.g., 'Fixed', 'InProgress', 'Noise', 'Passed'"
+        },
+        "comment": {
+          "description": "Optional comment to include with the update",
+          "type": "string"
+        },
+        "approved": {
+          "default": false,
+          "description": "Set to true only after the user has explicitly approved this issue update.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "scanId",
+        "status"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "update-individual-issue-by-scan",
+    "description": "Update a specific security issue by ID within a scan context. Changes status and adds a custom comment.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "scanId": {
+          "type": "string",
+          "description": "Scan ID (UUID)"
+        },
+        "issueId": {
+          "type": "string",
+          "description": "Issue ID (UUID)"
+        },
+        "status": {
+          "type": "string",
+          "description": "New issue status, e.g., 'Fixed', 'InProgress', 'Noise', 'Passed', 'Open'"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Comment to add to the issue"
+        },
+        "approved": {
+          "default": false,
+          "description": "Set to true only after the user has explicitly approved this issue update.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "scanId",
+        "issueId",
+        "status",
+        "comment"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "update-individual-issue-by-app",
+    "description": "Update a specific security issue by ID within an application context. Changes status and adds a custom comment.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "Application ID (UUID)"
+        },
+        "issueId": {
+          "type": "string",
+          "description": "Issue ID (UUID)"
+        },
+        "status": {
+          "type": "string",
+          "description": "New issue status, e.g., 'Fixed', 'InProgress', 'Noise', 'Passed', 'Open'"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Comment to add to the issue"
+        },
+        "approved": {
+          "default": false,
+          "description": "Set to true only after the user has explicitly approved this issue update.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "appId",
+        "issueId",
+        "status",
+        "comment"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "update-application-issues",
+    "description": "Update security issues for an application. Changes status and optionally adds comments.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "Application ID (UUID)"
+        },
+        "status": {
+          "type": "string",
+          "description": "New issue status, e.g., 'InProgress', 'Noise', 'Passed'"
+        },
+        "comment": {
+          "description": "Optional comment to include with the update",
+          "type": "string"
+        },
+        "approved": {
+          "default": false,
+          "description": "Set to true only after the user has explicitly approved this issue update.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "appId",
+        "status"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "get-reports",
+    "description": "Get list of generated reports",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "top": {
+          "description": "Number of records to return (optional)",
+          "type": "number"
+        }
+      },
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "create-security-report",
+    "description": "Create a new security report for an application",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "Application ID"
+        },
+        "reportName": {
+          "type": "string",
+          "description": "Report name"
+        },
+        "format": {
+          "description": "Report format (default: PDF)",
+          "type": "string",
+          "enum": [
+            "PDF",
+            "HTML",
+            "XML"
+          ]
+        },
+        "approved": {
+          "default": false,
+          "description": "Set to true only after the user has explicitly approved creating this report.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "appId",
+        "reportName"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "get-asset-groups",
+    "description": "Get list of asset groups (organizational units for applications)",
+    "inputSchema": {
+      "type": "object",
+      "properties": {},
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "create-scan",
+    "description": "Create or start an HCL AppScan SAST scan for a local project, or create an AppScan SCA scan when scanType is set to SCA. Use this whenever the user asks to create a scan, start a scan, run a scan, create a SAST scan, start AppScan on this project, or scan the current workspace for vulnerabilities. The tool packages the local codebase, uploads the IRX artifact, and creates the AppScan scan record. It uses an existing appscan-config.xml when available and can generate a project-aware configuration when missing. If the appId is not passed, missing, or unavailable, do not stop the process. Instead, seamlessly prompt the user with a question asking them to either select from a list of existing applications, enter an app name, or provide a specific app ID. Explicit user approval is required before the scan is finally created.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "description": "Required AppScan application ID that will own the new scan. Use an existing application ID from get-apps or create-app first. If omitted, the tool stops and returns selectable existing applications instead of creating a scan.",
+          "type": "string"
+        },
+        "scanName": {
+          "description": "Optional AppScan scan name. If omitted, the tool generates one from the project folder name and current timestamp.",
+          "type": "string"
+        },
+        "targetDir": {
+          "type": "string",
+          "description": "Required path to the local project, repository checkout, source tree, or prepared build output to package for scanning. For prompts like 'scan this project', use the current workspace folder."
+        },
+        "configFile": {
+          "description": "Optional path to an existing appscan-config.xml file. Use this when the scan configuration lives outside targetDir or when you want to force a specific AppScan configuration. If omitted, the tool looks for appscan-config.xml in targetDir and generates one when missing.",
+          "type": "string"
+        },
+        "scanType": {
+          "default": "SAST",
+          "description": "Type of AppScan scan to create. Use SAST for static application security testing of source or build output. Use SCA for software composition or dependency analysis.",
+          "type": "string",
+          "enum": [
+            "SAST",
+            "SCA"
+          ]
+        },
+        "comment": {
+          "description": "Optional comment stored with the AppScan scan request, such as a branch name, commit, ticket, or execution note.",
+          "type": "string"
+        },
+        "wait": {
+          "default": true,
+          "description": "When true, wait for the AppScan scan execution to reach a terminal ready state before returning. Set false to return immediately after the scan is created.",
+          "type": "boolean"
+        },
+        "workDir": {
+          "description": "Optional working directory used for temporary AppScan artifacts, reports, and intermediate files. Defaults to the system temp directory when omitted.",
+          "type": "string"
+        },
+        "detailedLogs": {
+          "default": false,
+          "description": "When true, include verbose build output and AppScan command logs for troubleshooting. Keep false for normal runs to reduce noise and token usage.",
+          "type": "boolean"
+        },
+        "conserveFiles": {
+          "default": false,
+          "description": "When true, preserve generated local artifacts such as the AppScan output folder, IRX package, and generated configuration for later inspection. Defaults to false and cleans up local artifacts after scan creation.",
+          "type": "boolean"
+        },
+        "approved": {
+          "default": false,
+          "description": "Required approval flag for this write action. Set to true only after the user has explicitly approved creating or starting the AppScan scan.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "targetDir"
+      ],
+      "$schema": "http://json-schema.org/draft-07/schema#"
     }
   }
-}
-'@ | node --input-type=module
+]
 
+=== REMOTE BACKEND ===
+[
+  {
+    "name": "get_licenses",
+    "description": "Query open-source licenses detected in a given scope (Application, Scan, or ScanExecution) using OData v4.\n\nWhat: Returns license findings derived from scanned open-source components.\nWhen: Use for compliance views, license reporting, or filtering by risk.\nInputs: scope, scopeId, plus OData options.\nReturns: JSON array of LicenseModel (or projections). When $count=true, includes @odata.count.\nErrors: 400 for invalid OData or parameters; 403 if caller lacks access. Metadata of the result is available from get_edm_metadata tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "description": "Scope type for the results. Valid values: Application, Scan, or ScanExecution.",
+          "type": "string",
+          "enum": [
+            "Application",
+            "Scan",
+            "ScanExecution",
+            "Applications"
+          ]
+        },
+        "scopeId": {
+          "description": "Identifier of the scoped entity. Provide Application ID when scope is Application, Scan ID when scope is Scan, or Scan Execution ID when scope is ScanExecution.",
+          "type": "string",
+          "format": "uuid"
+        },
+        "filter": {
+          "description": "OData V4 $filter expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "orderby": {
+          "description": "OData V4 $orderby expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "top": {
+          "description": "OData V4 $top",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "skip": {
+          "description": "OData V4 $skip",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "select": {
+          "description": "OData V4 $select projection to control returned fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "expand": {
+          "description": "OData V4 $expand navigation properties to include related entities.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "apply": {
+          "description": "OData V4 $apply aggregation and transformation expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "count": {
+          "description": "OData V4 $count flag to include the total count of items. Example: true.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "scope",
+        "scopeId"
+      ]
+    }
+  },
+  {
+    "name": "get_scans",
+    "description": "Query scans visible to the caller using OData v4.\n\nWhat: Returns a queryable collection of scans (MinScanModel) with organization and access checks.\nWhen: Use to list scans, filter by status, time ranges, technologies, or related entities.\nInputs: Standard OData options ($filter, $select, $expand, $orderby, $top, $skip, $apply, $count).\nReturns: JSON array of MinScanModel (or projections). When $count=true, includes @odata.count.\nErrors: 400 for invalid OData; 403 if caller lacks access. Metadata of the result is available from get_edm_metadata tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "description": "OData V4 $filter expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "orderby": {
+          "description": "OData V4 $orderby expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "top": {
+          "description": "OData V4 $top",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "skip": {
+          "description": "OData V4 $skip",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "select": {
+          "description": "OData V4 $select projection to control returned fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "expand": {
+          "description": "OData V4 $expand navigation properties to include related entities.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "apply": {
+          "description": "OData V4 $apply aggregation and transformation expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "count": {
+          "description": "OData V4 $count flag to include the total count of items. Example: true.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      }
+    }
+  },
+  {
+    "name": "get_edm_metadata",
+    "description": "Returns the merged EDM model in text format for all MCP OData containers used by the other tools.\n\nWhat: Provides schema metadata for OData clients and tooling.\nWhen: Use to generate clients, validate queries, or inspect available entity sets and fields.\nReturns: String containing Odata EDM.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "update_issues",
+    "description": "Bulk update issues matching an OData filter within a specific scope.\n\nWhat: Applies triage changes (status, externalId, comment) to all issues selected by the filter and scope.\nWhen: Use to mass-triage, annotate, or synchronize external tracking IDs.\nInputs: scope, scopeId, odataFilter (use to precisely target issues; if omitted, updates may apply to all issues in scope), newStatus, externalId, comment, applyPolicies, selectPolicyIds.\nReturns: JSON TriageResult with counts of updated/failed items and summary details.\nErrors: 400 for missing/invalid filter or arguments; 403 if caller lacks access; 409 for conflicting updates.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "description": "Scope type for the results. Valid values: Application, Scan, or ScanExecution.",
+          "type": "string",
+          "enum": [
+            "Application",
+            "Scan",
+            "ScanExecution",
+            "Applications"
+          ]
+        },
+        "scopeId": {
+          "description": "Identifier of the scoped entity. Provide Application ID when scope is Application, Scan ID when scope is Scan, or Scan Execution ID when scope is ScanExecution.",
+          "type": "string",
+          "format": "uuid"
+        },
+        "odataFilter": {
+          "description": "An Odata V4 filter that will be applied on the IssueModel objects. Only issues that match the filter will be affected",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "newStatus": {
+          "description": "New issue status. If not provided, the existing value will remain unchanged.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "Open",
+            "InProgress",
+            "Reopened",
+            "Noise",
+            "Passed",
+            "Fixed",
+            "New",
+            null
+          ],
+          "default": null
+        },
+        "externalId": {
+          "description": "External ID to be associated with the issue. It is used to associate the issue with a ticket in an external system (like Jira). If not provided, the existing value will remain unchanged.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "comment": {
+          "description": "Comment that will be associated with the change (string)",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "applyPolicies": {
+          "description": "Policy application mode determining which issues are returned: None - ignore policies and return all issues in scope; All - apply all policies associated with the application containing the scope and return only issues that violate those policies; Select - apply only policies whose IDs are provided via selectPolicyIds (if Select is chosen and no IDs are provided, behavior is equivalent to None).",
+          "type": "string",
+          "enum": [
+            "None",
+            "All",
+            "Select"
+          ],
+          "default": "None"
+        },
+        "selectPolicyIds": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": null
+        }
+      },
+      "required": [
+        "scope",
+        "scopeId",
+        "odataFilter"
+      ]
+    }
+  },
+  {
+    "name": "get_issue_details",
+    "description": "Retrieve comprehensive details for a single issue by Id (XML content).\n\nWhat: Returns the raw XML report excerpt for the specific issue, including technical context, remediation guidance,\nand scanner-specific details beyond the OData issue model.\nWhen: Use for deep-dive analysis, remediation planning, security reviews, or integrations that require full context.\nReturns: UTF-8 XML string.\nErrors: 403 if no access; 402 if plan does not permit access; 500 if scanner type unsupported or XML unavailable.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "issueId": {
+          "description": "The Id of the issue. (guid)",
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "issueId"
+      ]
+    }
+  },
+  {
+    "name": "get_os_libraries",
+    "description": "Query open-source libraries detected in a given scope (Application, Scan, or ScanExecution) using OData v4.\n\nWhat: Returns component inventory (SBOM-like) for the specified scope.\nWhen: Use for dependency analysis, risk assessment, and inventory reporting.\nInputs: scope, scopeId, plus OData options.\nReturns: JSON array of LibraryModel (or projections). When $count=true, includes @odata.count.\nErrors: 400 for invalid OData or parameters; 403 if caller lacks access. Metadata of the result is available from get_edm_metadata tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "description": "Scope type for the results. Valid values: Application, Scan, or ScanExecution.",
+          "type": "string",
+          "enum": [
+            "Application",
+            "Scan",
+            "ScanExecution",
+            "Applications"
+          ]
+        },
+        "scopeId": {
+          "description": "Identifier of the scoped entity. Provide Application ID when scope is Application, Scan ID when scope is Scan, or Scan Execution ID when scope is ScanExecution.",
+          "type": "string",
+          "format": "uuid"
+        },
+        "filter": {
+          "description": "OData V4 $filter expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "orderby": {
+          "description": "OData V4 $orderby expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "top": {
+          "description": "OData V4 $top",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "skip": {
+          "description": "OData V4 $skip",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "select": {
+          "description": "OData V4 $select projection to control returned fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "expand": {
+          "description": "OData V4 $expand navigation properties to include related entities.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "apply": {
+          "description": "OData V4 $apply aggregation and transformation expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "count": {
+          "description": "OData V4 $count flag to include the total count of items. Example: true.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "scope",
+        "scopeId"
+      ]
+    }
+  },
+  {
+    "name": "get_org_libraries",
+    "description": "Query open-source libraries across the entire organization using OData v4.\n\nWhat: Returns the organization-level library inventory aggregated from applications/scans.\nWhen: Use for cross-application inventory, risk posture, and governance views.\nInputs: Standard OData options.\nReturns: JSON array of OrgLibraryModel (or projections). When $count=true, includes @odata.count.\nErrors: 400 for invalid OData; 403 if caller lacks access. Metadata of the result is available from get_edm_metadata tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "description": "OData V4 $filter expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "orderby": {
+          "description": "OData V4 $orderby expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "top": {
+          "description": "OData V4 $top",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "skip": {
+          "description": "OData V4 $skip",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "select": {
+          "description": "OData V4 $select projection to control returned fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "expand": {
+          "description": "OData V4 $expand navigation properties to include related entities.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "apply": {
+          "description": "OData V4 $apply aggregation and transformation expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "count": {
+          "description": "OData V4 $count flag to include the total count of items. Example: true.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      }
+    }
+  },
+  {
+    "name": "get_apps_by_library",
+    "description": "Return applications that contain a specific open-source library using OData v4.\n\nWhat: Resolves all applications that reference the given package (by packageId).\nWhen: Use for impact analysis during vulnerability disclosures or dependency updates.\nInputs: packageId (required), plus OData options.\nReturns: JSON array of ApplicationModel (or projections). When $count=true, includes @odata.count.\nErrors: 400 for invalid inputs/OData; 403 if caller lacks access. Metadata of the result is available from get_edm_metadata tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "packageId": {
+          "description": "The package Id of the library (as it appear in the library models",
+          "type": "string",
+          "format": "uuid"
+        },
+        "filter": {
+          "description": "OData V4 $filter expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "orderby": {
+          "description": "OData V4 $orderby expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "top": {
+          "description": "OData V4 $top",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "skip": {
+          "description": "OData V4 $skip",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "select": {
+          "description": "OData V4 $select projection to control returned fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "expand": {
+          "description": "OData V4 $expand navigation properties to include related entities.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "apply": {
+          "description": "OData V4 $apply aggregation and transformation expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "count": {
+          "description": "OData V4 $count flag to include the total count of items. Example: true.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "packageId"
+      ]
+    }
+  },
+  {
+    "name": "get_apps",
+    "description": "Query applications within the authenticated organization using OData v4.\n\nWhat: Returns a queryable collection of applications scoped to the caller's organization.\nWhen: Use to list, filter, sort, or page application metadata in UI or automation.\nInputs: Standard OData options ($filter, $select, $expand, $orderby, $top, $skip, $apply, $count).\nReturns: JSON array of ApplicationModel (or projected fields if $select). When $count=true, includes @odata.count.\nErrors: 400 for invalid OData; 403 if caller lacks access. Metadata of the result is available from get_edm_metadata tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "description": "OData V4 $filter expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "orderby": {
+          "description": "OData V4 $orderby expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "top": {
+          "description": "OData V4 $top",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "skip": {
+          "description": "OData V4 $skip",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "select": {
+          "description": "OData V4 $select projection to control returned fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "expand": {
+          "description": "OData V4 $expand navigation properties to include related entities.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "apply": {
+          "description": "OData V4 $apply aggregation and transformation expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "count": {
+          "description": "OData V4 $count flag to include the total count of items. Example: true.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      }
+    }
+  },
+  {
+    "name": "get_issues",
+    "description": "Query issues using OData v4 with optional scope, policy application, and localization.\n\nWhat:\n- Returns a queryable collection of issues the caller is authorized to view.\n- Supports optional scoping to `Application`, `Scan`, or `ScanExecution`, as well as organization-wide queries when no scope is provided.\n- Enables policy filtering (`None`|`All`|`Select`) and localized issue details (title, description, recommendation).\n\nInputs:\n- scope (optional): `Application` | `Scan` | `ScanExecution`. If omitted, do not provide `scopeId` and results include all accessible issues across the organization.\n- scopeId (optional): When `scope` is provided, specify the corresponding entity Id. Leave empty if `scope` is omitted.\n- applyPolicies (optional): Determines policy application mode. `None` (default), `All` (apply all application policies. Can be used only when score is provided), or `Select` (apply only policies listed in `selectPolicyIds`). \n- selectPolicyIds (optional): Comma-separated GUIDs of policies to apply when `applyPolicies=Select`.\n- locale (optional): Target locale for issue details (e.g., `en-us`). Defaults to `en-us` if not specified.\n- OData: `$filter`, `$select`, `$expand`, `$orderby`, `$top`, `$skip`, `$apply`, `$count`.\n\nReturns:\n- JSON array of `IssueModel` or projected fields when using `$select`.\n- When `$count=true`, includes `@odata.count` in the payload.\n\nNotes:\n- If issues are requested globally (organization-wide), both `scope` and `scopeId` should be omitted.\n- Global queries (non-scoped) may return a large dataset. To optimize performance, use `$filter`, `$top`, and aggregations via `$apply` to limit the volume of data returned.\n\nErrors:\n- 400: Invalid OData or parameters (e.g., `scopeId` provided without `scope`, malformed `$filter`).\n- 403: Caller lacks access to requested scope or issues.\n- 409: Conflicting inputs (e.g., `applyPolicies=Select` without `selectPolicyIds`). \n\nMetadata of the result is available from get_edm_metadata tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "description": "(optional): `Application` | `Scan` | `ScanExecution`. If omitted, do not provide `scopeId` and results include all accessible issues across the organization.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "Application",
+            "Scan",
+            "ScanExecution",
+            "Applications",
+            null
+          ],
+          "default": null
+        },
+        "scopeId": {
+          "description": "(optional): When `scope` is provided, specify the corresponding entity Id. Leave empty if `scope` is omitted.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid",
+          "default": null
+        },
+        "filter": {
+          "description": "OData V4 $filter expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "orderby": {
+          "description": "OData V4 $orderby expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "top": {
+          "description": "OData V4 $top",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "skip": {
+          "description": "OData V4 $skip",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "select": {
+          "description": "OData V4 $select projection to control returned fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "expand": {
+          "description": "OData V4 $expand navigation properties to include related entities.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "apply": {
+          "description": "OData V4 $apply aggregation and transformation expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "count": {
+          "description": "OData V4 $count flag to include the total count of items. Example: true.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "applyPolicies": {
+          "description": "Policy application mode determining which issues are returned: None - ignore policies and return all issues in scope; All - apply all policies associated with the application containing the scope and return only issues that violate those policies; Select - apply only policies whose IDs are provided via selectPolicyIds (if Select is chosen and no IDs are provided, behavior is equivalent to None).",
+          "type": "string",
+          "enum": [
+            "None",
+            "All",
+            "Select"
+          ],
+          "default": "None"
+        },
+        "selectPolicyIds": {
+          "description": "Comma-separated list of policy IDs to apply when applyPolicies is set to Select.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": null
+        },
+        "locale": {
+          "description": "Target locale for issue details (title, description, recommendation). Defaults to en-us if not specified.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        }
+      }
+    }
+  },
+  {
+    "name": "get_policies",
+    "description": "Query predefined and custom policies using OData v4.\n\nWhat: Returns policies available to the organization (definitions and metadata).\nWhen: Use to list, filter, and inspect policies.\nInputs: Standard OData options.\nReturns: JSON array of PolicyModel (or projections). When $count=true, includes @odata.count.\nErrors: 400 for invalid OData; 403 if caller lacks access. Metadata of the result is available from get_edm_metadata tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "filter": {
+          "description": "OData V4 $filter expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "orderby": {
+          "description": "OData V4 $orderby expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "top": {
+          "description": "OData V4 $top",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "skip": {
+          "description": "OData V4 $skip",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "select": {
+          "description": "OData V4 $select projection to control returned fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "expand": {
+          "description": "OData V4 $expand navigation properties to include related entities.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "apply": {
+          "description": "OData V4 $apply aggregation and transformation expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "count": {
+          "description": "OData V4 $count flag to include the total count of items. Example: true.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        }
+      }
+    }
+  },
+  {
+    "name": "get_fixgroups",
+    "description": "Query fix groups (aggregations of SAST and SCA issues by root cause/fix) for a given scope using OData v4.\n\nWhat: Returns a queryable collection of fix groups derived from issues in the specified scope.\nWhen: Use to prioritize remediation and batch-fix planning; supports policy filtering and localization.\nInputs: scope, scopeId, applyPolicies, selectPolicyIds, locale, plus OData options.\nReturns: JSON array of FixGroup models (or projections). When $count=true, includes @odata.count.\nErrors: 400 for invalid OData or parameters; 403 if caller lacks access. Metadata of the result is available from get_edm_metadata tool.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "description": "Scope type for the results. Valid values: Application, Scan, or ScanExecution.",
+          "type": "string",
+          "enum": [
+            "Application",
+            "Scan",
+            "ScanExecution",
+            "Applications"
+          ]
+        },
+        "scopeId": {
+          "description": "Identifier of the scoped entity. Provide Application ID when scope is Application, Scan ID when scope is Scan, or Scan Execution ID when scope is ScanExecution.",
+          "type": "string",
+          "format": "uuid"
+        },
+        "filter": {
+          "description": "OData V4 $filter expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "orderby": {
+          "description": "OData V4 $orderby expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "top": {
+          "description": "OData V4 $top",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "skip": {
+          "description": "OData V4 $skip",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "default": null
+        },
+        "select": {
+          "description": "OData V4 $select projection to control returned fields.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "expand": {
+          "description": "OData V4 $expand navigation properties to include related entities.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "apply": {
+          "description": "OData V4 $apply aggregation and transformation expression.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "count": {
+          "description": "OData V4 $count flag to include the total count of items. Example: true.",
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "default": null
+        },
+        "applyPolicies": {
+          "description": "Policy application mode determining which issues are returned: None - ignore policies and return all issues in scope; All - apply all policies associated with the application containing the scope and return only issues that violate those policies; Select - apply only policies whose IDs are provided via selectPolicyIds (if Select is chosen and no IDs are provided, behavior is equivalent to None).",
+          "type": "string",
+          "enum": [
+            "None",
+            "All",
+            "Select"
+          ],
+          "default": "None"
+        },
+        "selectPolicyIds": {
+          "description": "Comma-separated list of policy IDs to apply when applyPolicies is set to Select.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default": null
+        },
+        "locale": {
+          "description": "Target locale for issue details (title, description, recommendation). Defaults to en-us if not specified.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "scope",
+        "scopeId"
+      ]
+    }
+  }
+]
