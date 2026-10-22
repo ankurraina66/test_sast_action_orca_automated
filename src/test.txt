@@ -1,1 +1,33 @@
+const createScanTool = await service.findToolByNames([
+  "create-scan",
+  "create_scan",
+]);
 
+if (!createScanTool) {
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text:
+          `The active ${service.getProvider()} AppScan provider does not support scan creation. ` +
+          "The scan was not started. Switch to a provider that supports create-scan, then prepare and confirm the request again.",
+      },
+    ],
+    isError: true,
+  };
+}
+
+**************************
+
+const result = await service.callTool(createScanTool.name, {
+  appId: prepared.appId,
+  targetDir: prepared.targetDir,
+  scanType: prepared.scanType,
+  ...(prepared.scanName !== undefined
+    ? { scanName: prepared.scanName }
+    : {}),
+  ...(prepared.comment !== undefined
+    ? { comment: prepared.comment }
+    : {}),
+  approved: true,
+});
