@@ -1,3 +1,28 @@
-Get-ChildItem .\tests -Recurse -File |
-  Select-String -Pattern "RemoteHttpConnector|requestTimeoutMs|StreamableHTTPClientTransport" |
-  Select-Object Path, LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\tests -Recurse -File |
+>>   Select-String -Pattern "RemoteHttpConnector|requestTimeoutMs|StreamableHTTPClientTransport" |
+>>   Select-Object Path, LineNumber, Line
+
+Path                                                                                            LineNumber Line
+----                                                                                            ---------- ----
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\appscan-service-factory.test.ts         42       requestTimeoutMs: 30000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\appscan-service-factory.test.ts         58       requestTimeoutMs: 30000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\appscan-service-factory.test.ts         78       requestTimeoutMs: 30000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\config.test.ts                          14     expect(config.requestTimeoutMs).toBe(30000);
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts               25   RemoteHttpConnector: class {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts               44       requestTimeoutMs: 30000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts               56       requestTimeoutMs: 30000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts               65       requestTimeoutMs: 30000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts               81       requestTimeoutMs: 30000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts               96         requestTimeoutMs: 30000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\connector-factory.test.ts              105         requestTimeoutMs: 30000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\local-stdio-connector.test.ts           94       requestTimeoutMs: 10000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\local-stdio-connector.test.ts          136       requestTimeoutMs: 15000,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts           22 StreamableHTTPClientTransport: mockTransport,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts           26 import { RemoteHttpConnector } from "../../src/…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts           28 describe("RemoteHttpConnector", () => {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts           29 let connector: RemoteHttpConnector;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts           46 connector = new RemoteHttpConnector({
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts          156   new RemoteHttpConnector({
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\tests\unit\remote-http-connector.test.ts          159     requestTimeoutMs: 5000,
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
