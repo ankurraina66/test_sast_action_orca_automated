@@ -1,4 +1,181 @@
-Get-Content .\tests\unit\appscan-service.test.ts |
-    Select-Object -Skip 330 -First 100
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\unit\appscan-service.test.ts |
+>>     Select-Object -Skip 330 -First 100
+        await disconnectPromise;
 
-Get-Content .\src\services\scan-workflow.ts
+        expect(connector.disconnect).toHaveBeenCalledTimes(1);
+    });
+
+    it("releases the service lock when disconnect fails", async() => {
+        const connector = createMockConnector();
+        const service = createService(connector);
+
+        vi.mocked(connector.disconnect).mockRejectedValueOnce(
+            new Error("Close failed"), );
+
+        await expect(service.disconnect()).rejects.toThrow("Close failed");
+
+        await expect(service.listTools()).resolves.toEqual(
+            await connector.listTools(), );
+    });
+
+    it("checks capability and executes using the same locked provider operation", async() => {
+        const connector = createMockConnector(["create-scan"]);
+        const service = createService(connector, "local");
+
+        await expect(
+            service.callFirstAvailableToolIfSupported(
+                ["create-scan", "create_scan"], {
+                approved: true
+            },
+                "local", ), ).resolves.toMatchObject({
+            content: [{
+                    type: "text",
+                    text: "Success"
+                }
+            ],
+            isError: false,
+        });
+
+        expect(connector.listTools).toHaveBeenCalledTimes(1);
+        expect(connector.callTool).toHaveBeenCalledWith("create-scan", {
+            approved: true,
+        });
+    });
+
+    it("does not execute when the expected provider is not active", async() => {
+        const connector = createMockConnector(["create-scan"]);
+        const service = createService(connector, "remote");
+
+        await expect(
+            service.callFirstAvailableToolIfSupported(
+                ["create-scan"], {
+                approved: true
+            },
+                "local", ), ).rejects.toThrow("Provider mismatch");
+
+        expect(connector.callTool).not.toHaveBeenCalled();
+    });
+
+    it("does not execute when the requested tool is unavailable", async() => {
+        const connector = createMockConnector(["get-apps"]);
+        const service = createService(connector, "remote");
+
+        await expect(
+            service.callFirstAvailableToolIfSupported(
+                ["create-scan", "create_scan"], {
+                approved: true
+            },
+                "remote", ), ).rejects.toThrow("does not support this operation");
+
+        expect(connector.callTool).not.toHaveBeenCalled();
+    });
+
+    it("waits for an in-flight tool call before switching providers", async() => {
+        const original = createMockConnector();
+        const replacement = createMockConnector(["get_apps"]);
+
+        let finishCall!: (value: McpToolCallResult) => void;
+
+        vi.mocked(original.callTool).mockImplementation(
+            () =>
+            new Promise < McpToolCallResult > ((resolve) => {
+                finishCall = resolve;
+            }), );
+
+        const service = createService(
+                original,
+                "remote",
+                () => replacement, );
+
+        const callPromise = service.callTool("get-apps");
+        const switchPromise = service.switchProvider("local");
+
+        await Promise.resolve();
+
+        expect(replacement.connect).not.toHaveBeenCalled();
+
+        finishCall({
+            content: [{
+                    type: "text",
+                    text: "Finished"
+                }
+            ],
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\services\scan-workflow.ts
+import { randomUUID } from "node:crypto";
+import type { AppScanService } from "./appscan-service.js";
+
+export interface PreparedScan {
+    appId: string;
+    targetDir: string;
+    scanType: "SAST" | "SCA";
+    scanName ?  : string;
+    comment ?  : string;
+}
+
+export interface ScanWorkflowResult {
+    token ?  : string;
+    text: string;
+    isError ?  : boolean;
+}
+
+export class ScanWorkflow {
+    private readonly pending = new Map < string,
+    PreparedScan > ();
+
+    constructor(private readonly service: AppScanService) {}
+
+    prepare(input: PreparedScan): ScanWorkflowResult {
+        const token = randomUUID();
+        this.pending.set(token, {
+            ...input
+        });
+
+        return {
+            token,
+            text: [
+                "Scan prepared; no scan has been started.",
+                `Confirmation token: ${token}`,
+                `Application ID: ${input.appId}`,
+                `Target directory: ${input.targetDir}`,
+                `Scan type: ${input.scanType}`,
+`Scan name: ${input.scanName ?? "(generated by AppScan)"}`,
+                "",
+                "Before execution, explain that source artifacts may be packaged and uploaded to AppScan, and that the underlying tool may generate configuration files or run a build.",
+                "Obtain explicit user confirmation for these exact parameters before execution.",
+            ].join("\n"),
+        };
+    }
+
+    async execute(token: string): Promise < ScanWorkflowResult > {
+        const prepared = this.pending.get(token);
+
+        if (!prepared) {
+            return {
+                text: "No pending scan matches this token. Prepare the request again and obtain user confirmation.",
+                isError: true,
+            };
+        }
+
+        // Consume before invoking AppScan, preventing token reuse after failure.
+        this.pending.delete(token);
+
+        const result = await this.service.callTool("create-scan", {
+            ...prepared,
+            approved: true,
+        });
+
+        const text = result.content
+            .map((item) => item.text ?? "")
+            .filter(Boolean)
+            .join("\n");
+
+        return {
+            text: text || "The AppScan tool returned no text content.",
+            ...(result.isError ? {
+                isError: true
+            }
+                 : {}),
+        };
+    }
+}
