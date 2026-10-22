@@ -1,6 +1,1 @@
 
-Select-String `
-  -Path $path `
-  -Pattern 'Tool: create-scan|registerTool\("create-scan"' `
-  -Context 0,45
-
