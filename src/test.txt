@@ -1,4 +1,4 @@
-Continue the HCL AppScan Connector for Claude validation. Confirm that the active provider is remote.
+/appscan Continue the HCL AppScan Connector for Claude validation. Confirm that the active provider is remote.
 
 Validate the remote create-scan capability without starting a scan:
 
@@ -8,3 +8,46 @@ Validate the remote create-scan capability without starting a scan:
 4. Do not call "execute-prepared-scan", do not create or prepare a scan, and do not invoke any write-capable AppScan operation.
 
 Report the provider, available scan-creation capability, and conclusion. Do not infer that a real scan was attempted.
+
+  Called appscan-connector
+
+Remote create-scan capability check
+
+Provider: get-provider-status returned "Active AppScan provider: remote".
+
+How I inspected the tools
+- The connector has no tool that lists backend tool names. The only discovery signal is the line switch-provider prints: "Available backend tools: 12" for remote, and 15 for local. It gives a count, not names.
+- The tools this session exposes from the connector are the other source. I listed them from the tool inventory.
+
+Tools exposed by appscan-connector
+
+┌───────────────────────┬─────────────────────────────────────────────┐
+│         Tool          │                    Type                     │
+├───────────────────────┼─────────────────────────────────────────────┤
+│ get-provider-status   │ Read                                        │
+├───────────────────────┼─────────────────────────────────────────────┤
+│ switch-provider       │ Changes the connector's active backend only │
+├───────────────────────┼─────────────────────────────────────────────┤
+│ get-apps              │ Read
+├───────────────────────┼─────────────────────────────────────────────┤
+│ get-scans             │ Read
+├───────────────────────┼─────────────────────────────────────────────┤
+│ get-scan-issues       │ Read
+├───────────────────────┼─────────────────────────────────────────────┤
+│ get-issue-details     │ Read
+├───────────────────────┼─────────────────────────────────────────────┤
+│ prepare-scan          │ Prepares a scan request; does not st
+├───────────────────────┼─────────────────────────────────────────────┤
+│ execute-prepared-scan │ Starts a prepared scan
+└───────────────────────┴─────────────────────────────────────────────┘
+
+Scan-creation capability
+- Neither create-scan nor create_scan is in the exposed invent
+- The only scan-creation route is two steps: prepare-scan, then execute-prepared-scan with a confirmation token. The connector's own descriptions say     preparation must not start a scan and that execution needs e
+                                                                                                                                                          nclusion
+- A direct create-scan or create_scan tool is not available. Scan creation through the remote provider is supported only through the prepare-then-execute workflow, if at all.
+- Whether execute-prepared-scan would succeed on remote is not established. The earlier prepare-scan call succeeded on remote, but I never executed it. I can't say from this check that a remote scan can actually be
+- The remote backend reports 12 tools and the connector exposes 8. I can't see the 4 backend tools that the connector doesn't surface, so I'm not ruling
+  out a backend create-scan. The conclusion covers only the in.
+
+I did not call execute-prepared-scan, prepare a scan, or make l. No scan was attempted or started.
