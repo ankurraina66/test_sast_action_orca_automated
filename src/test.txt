@@ -1,1 +1,14 @@
+Test the AppScan scan-preparation safety workflow using the currently active remote provider.
 
+1. Call "get-provider-status" and confirm the provider is remote.
+2. Call "prepare-scan" with:
+   - appId: "39c76747-8617-4e00-8ae8-096e208f72ac"
+   - targetDir: "C:\appscan-poc-nonexistent-test-target"
+   - scanType: "SAST"
+   - scanName: "POC-Safety-Test-Do-Not-Execute"
+   - comment: "Validation of scan confirmation safety only"
+3. Verify that preparation returns a confirmation token and explicitly states that no scan has been started.
+4. Do not call "execute-prepared-scan", do not create a scan, and do not upload source code.
+5. Report the result and confirm that no scan was launched.
+
+This is a preparation-only test. Do not treat the presence of a token as approval to execute the scan.
