@@ -1,1 +1,3 @@
-
+Get-ChildItem .\node_modules\@modelcontextprotocol\sdk\dist -Recurse -File |
+  Select-String -Pattern "createFetchWithInit" |
+  Select-Object -First 10 Path, LineNumber, Line
