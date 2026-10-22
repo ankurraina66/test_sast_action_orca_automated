@@ -1,1 +1,3 @@
-
+workflow = new ScanWorkflow(
+    { callTool } as unknown as AppScanService,
+);
