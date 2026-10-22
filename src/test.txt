@@ -1,1 +1,29 @@
+// Check capability before consuming the confirmation token.
+// This is read-only and does not start a scan.
+const hasCreateScan = await service.hasAvailableTool(
+    ["create-scan", "create_scan"],
+    prepared.provider,
+);
 
+if (!hasCreateScan) {
+    return {
+        content: [{
+            type: "text" as const,
+            text:
+                `The ${prepared.provider} provider does not support scan creation. ` +
+                "The confirmation token remains available. Switch to a supported provider " +
+                "or prepare a new request after verifying the exact parameters.",
+        }],
+        isError: true,
+    };
+}
+
+// Claim the token only after capability validation.
+executingScanTokens.add(confirmationToken);
+
+try {
+    // Consume before execution to prevent accidental duplicate scans
+    // if the backend starts a scan but its response is lost or times out.
+    pendingScans.delete(confirmationToken);
+
+    const result = await service.callFirstAvailableTool(
