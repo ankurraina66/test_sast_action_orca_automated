@@ -1,1 +1,3 @@
-
+Get-ChildItem .\tests -Recurse -File |
+  Select-String -Pattern "RemoteHttpConnector|requestTimeoutMs|StreamableHTTPClientTransport" |
+  Select-Object Path, LineNumber, Line
