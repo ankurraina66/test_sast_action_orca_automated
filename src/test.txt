@@ -469,10 +469,7 @@ main().catch((error: unknown) => {
 });
 
 ________________________________________________________________________________________________________________________________________
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run typecheck
-
-> ai-coding-assistants-claude-poc@1.0.0 typecheck
-> tsc --noEmit
+Then ran npm test as shown below:
 
 PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm test
 
