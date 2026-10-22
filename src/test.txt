@@ -1,2 +1,165 @@
-Get-Content .\src\services\appscan-service.ts | Select-Object -Skip 145 -First 75
-Get-Content .\tests\unit\scan-workflow.test.ts
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\services\appscan-service.ts | Select-Object -Skip 145 -First 75
+                normalizedNames.has(tool.name.toLowerCase()), );
+        });
+    }
+
+    async callFirstAvailableTool(
+        names: string[],
+        args: Record < string, unknown >  = {},
+        expectedProvider ?  : AppScanProvider, ): Promise < McpToolCallResult > {
+        return this.withLock(async() => {
+            if (
+                expectedProvider !== undefined &&
+                this.activeProvider !== expectedProvider) {
+                throw new Error(
+`Provider mismatch: this operation was prepared for ${expectedProvider}, but the active provider is ${this.activeProvider}. The operation was not executed.`, );
+            }
+
+            // Discovery and execution use the same connector while holding the lock.
+            const tools = await this.connector.listTools();
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+            const tool = tools.find((item) =>
+                    normalizedNames.has(item.name.toLowerCase()), );
+
+            if (!tool) {
+                throw new Error(
+`The active ${this.activeProvider} AppScan provider does not support this operation. Expected one of: ${names.join(", ")}.`, );
+            }
+
+            return this.connector.callTool(tool.name, args);
+        });
+    }
+
+    async callFirstAvailableToolIfSupported(
+        names: string[],
+        args: Record < string, unknown >  = {},
+        expectedProvider ?  : AppScanProvider, ): Promise < McpToolCallResult > {
+        return this.withLock(async() => {
+            if (
+                expectedProvider !== undefined &&
+                this.activeProvider !== expectedProvider) {
+                throw new Error(
+                    `Provider mismatch: this operation was prepared for ${expectedProvider}, ` +
+`but the active provider is ${this.activeProvider}. The operation was not executed.`, );
+            }
+
+            const tools = await this.connector.listTools();
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+            const tool = tools.find((item) =>
+                    normalizedNames.has(item.name.toLowerCase()), );
+
+            if (!tool) {
+                throw new Error(
+                    `The active ${this.activeProvider} AppScan provider does not support this operation. ` +
+`Expected one of: ${names.join(", ")}.`, );
+            }
+
+            return this.connector.callTool(tool.name, args);
+        });
+    }
+
+    async disconnect(): Promise < void > {
+        await this.withLock(() => this.connector.disconnect());
+    }
+
+    async findApplicationDiscoveryTool(): Promise < McpTool | undefined > {
+        return this.withLock(async() => {
+            const tools = await this.connector.listTools();
+
+            return tools.find((tool) =>
+                /^(get[_-]apps|list[_-]applications)$/i.test(tool.name), );
+        });
+    }
+
+    async discoverApplications(
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\unit\scan-workflow.test.ts
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ScanWorkflow } from "../../src/services/scan-workflow.js";
+import type { AppScanService } from "../../src/services/appscan-service.js";
+
+describe("ScanWorkflow", () => {
+    const callTool = vi.fn();
+    let workflow: ScanWorkflow;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+
+        callTool.mockResolvedValue({
+            content: [{
+                    type: "text",
+                    text: "Scan request accepted",
+                }
+            ],
+            isError: false,
+        });
+
+        workflow = new ScanWorkflow(
+            { callTool } as unknown as AppScanService,
+        );
+    });
+
+    const input = {
+        appId: "39c76747-8617-4e00-8ae8-096e208f72ac",
+        targetDir: "C:\\app\\source",
+        scanType: "SAST" as const,
+        scanName: "Approval workflow test",
+        comment: "Unit test",
+    };
+
+    it("prepares a scan without calling AppScan", () => {
+        const result = workflow.prepare(input);
+
+        expect(result.token).toBeDefined();
+        expect(result.text).toContain("Scan prepared");
+        expect(result.text).toContain(input.appId);
+        expect(result.text).toContain(input.targetDir);
+        expect(callTool).not.toHaveBeenCalled();
+    });
+
+    it("rejects an unknown token without calling AppScan", async() => {
+        const result = await workflow.execute(
+                "00000000-0000-4000-8000-000000000000", );
+
+        expect(result.isError).toBe(true);
+        expect(callTool).not.toHaveBeenCalled();
+    });
+
+    it("forwards the prepared parameters when executed", async() => {
+        const prepared = workflow.prepare(input);
+
+        const result = await workflow.execute(prepared.token!);
+
+        expect(callTool).toHaveBeenCalledTimes(1);
+        expect(callTool).toHaveBeenCalledWith("create-scan", {
+            ...input,
+            approved: true,
+        });
+        expect(result.text).toBe("Scan request accepted");
+    });
+
+    it("does not allow a token to be reused", async() => {
+        const prepared = workflow.prepare(input);
+
+        await workflow.execute(prepared.token!);
+        const secondResult = await workflow.execute(prepared.token!);
+
+        expect(secondResult.isError).toBe(true);
+        expect(callTool).toHaveBeenCalledTimes(1);
+    });
+
+    it("consumes the token if the AppScan request fails", async() => {
+        callTool.mockRejectedValueOnce(new Error("Simulated failure"));
+
+        const prepared = workflow.prepare(input);
+
+        await expect(
+            workflow.execute(prepared.token!), ).rejects.toThrow("Simulated failure");
+
+        const retry = await workflow.execute(prepared.token!);
+
+        expect(retry.isError).toBe(true);
+        expect(callTool).toHaveBeenCalledTimes(1);
+    });
+});
