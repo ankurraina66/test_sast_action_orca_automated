@@ -1,1 +1,1 @@
-
+Select-String -Path .\node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js -Pattern "async start|async close|_abortController =" -Context 3,10
