@@ -1,1 +1,6 @@
 
+Get-Content .\tests\unit\index.test.ts
+
+Get-Content .\src\claude-mcp-server.ts |
+    Select-Object -Skip 380 -First 75
+
