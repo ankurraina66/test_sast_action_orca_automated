@@ -1,1 +1,18 @@
+/appscan
 
+Perform a read-only validation of the "get-scan-issues" mapping against an existing scan known to contain security findings.
+
+1. Confirm the active provider using "get-provider-status". It must be "remote"; do not switch providers.
+2. Use only an existing scan ID that is already known to contain findings from prior AppScan results. Do not assume the previously tested scan contains findings.
+3. Call "get-scan-issues" once with that scan ID and "top: 3".
+4. Report the exact scan ID and arguments used, whether the tool call succeeded, and the returned result structure, including issue IDs and severity fields if present.
+5. If no scan known to contain findings is available, stop and report that the test cannot be performed with the available evidence. Do not guess an ID or repeatedly query different scans.
+
+Safety:
+
+- Read-only calls only.
+- Do not create, start, update, or delete resources.
+- Do not call "prepare-scan" or "execute-prepared-scan".
+- Do not expose credentials or secrets.
+
+Conclude whether the mapping is validated, failed, or remains inconclusive. Do not change code.
