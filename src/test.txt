@@ -1,1 +1,42 @@
 
+it("waits for an in-flight tool call before disconnecting", async () => {
+    const connector = createMockConnector();
+    let finishCall!: (value: McpToolCallResult) => void;
+
+    vi.mocked(connector.callTool).mockImplementation(
+        () => new Promise<McpToolCallResult>((resolve) => {
+            finishCall = resolve;
+        }),
+    );
+
+    const service = createService(connector);
+
+    const callPromise = service.callTool("get-apps");
+    await Promise.resolve();
+
+    const disconnectPromise = service.disconnect();
+
+    expect(connector.disconnect).not.toHaveBeenCalled();
+
+    finishCall(successResult);
+    await callPromise;
+    await disconnectPromise;
+
+    expect(connector.disconnect).toHaveBeenCalledTimes(1);
+});
+
+it("releases the service lock when disconnect fails", async () => {
+    const connector = createMockConnector();
+    const service = createService(connector);
+
+    vi.mocked(connector.disconnect).mockRejectedValueOnce(
+        new Error("Close failed"),
+    );
+
+    await expect(service.disconnect()).rejects.toThrow("Close failed");
+
+    await expect(service.listTools()).resolves.toEqual(
+        await connector.listTools(),
+    );
+});
+
