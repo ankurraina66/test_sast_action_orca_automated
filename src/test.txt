@@ -1,1 +1,54 @@
 
+it("aborts a stalled request when the timeout expires", async () => {
+  const timeoutMs = 20;
+
+  const testConnector = new RemoteHttpConnector({
+    endpoint: "https://cloud.appscan.com/mcp",
+    apiKey: "test-key",
+    requestTimeoutMs: timeoutMs,
+  });
+
+  const transportOptions = mockTransport.mock.calls.at(-1)?.[1] as {
+    fetch: typeof fetch;
+  };
+
+  const mockFetch = vi.fn(
+    (_input: RequestInfo | URL, init?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        const signal = init?.signal;
+
+        if (!signal) {
+          reject(new Error("Expected request to have an abort signal."));
+          return;
+        }
+
+        if (signal.aborted) {
+          reject(signal.reason);
+          return;
+        }
+
+        signal.addEventListener(
+          "abort",
+          () => reject(signal.reason),
+          { once: true },
+        );
+      }),
+  );
+
+  const originalFetch = globalThis.fetch;
+  vi.stubGlobal("fetch", mockFetch);
+
+  try {
+    await expect(
+      transportOptions.fetch("https://cloud.appscan.com/mcp", {
+        method: "POST",
+      }),
+    ).rejects.toMatchObject({ name: "TimeoutError" });
+
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  } finally {
+    vi.stubGlobal("fetch", originalFetch);
+    await testConnector.disconnect();
+  }
+});
+
