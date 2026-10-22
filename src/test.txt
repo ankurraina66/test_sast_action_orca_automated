@@ -1,1 +1,10 @@
+Using the existing AppScan confirmation token "64600781-a99f-405f-9dbb-c196f1047da6", validate provider-mismatch protection.
 
+1. Call "switch-provider" to select "local".
+2. Call "get-provider-status" and verify the active provider is "local".
+3. Call "execute-prepared-scan" with the existing token.
+4. Verify that the operation is rejected because the scan was prepared for "remote" but "local" is active.
+5. Verify the response says the scan was not started and the token remains available.
+6. Do not retry execution, do not prepare another scan, and do not launch or upload anything.
+
+Report the actual output for each step. If the provider-mismatch check does not reject the request before execution, stop immediately and report FAIL.
