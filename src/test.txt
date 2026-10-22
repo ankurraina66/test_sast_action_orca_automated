@@ -1,1 +1,7 @@
 
+Get-Content .\package.json
+
+Get-Content .\vitest.config.ts -ErrorAction SilentlyContinue
+
+Get-Content .\src\services\appscan-service.ts
+
