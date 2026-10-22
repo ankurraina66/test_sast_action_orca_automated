@@ -1,7 +1,47 @@
-Using the active remote AppScan provider, identify an existing scan that is already known to contain security findings.
+/appscan Using the active remote AppScan provider, identify an existing scan that is already known to contain security findings.
 
 1. Use existing scan/application information only; do not launch or modify scans.
 2. If a scan with known findings is already identifiable from available results, call "get-scan-issues" for that scan with "top: 5".
 3. If no scan with known findings can be identified, stop and report that the test is blocked. Do not guess a scan ID or treat an empty result as proof of a mapping failure.
 4. Report the scan name and ID, whether issue retrieval succeeded, and the number of findings returned.
 5. Do not update findings, create reports, or execute any scan.
+
+  Called appscan-connector 2 times
+
+Remote is active. Test_Tayalan has 218 open issues and 4 scans in the earlier get-apps result, so I'll list its scans to find a scan ID.
+
+  Called appscan-connector
+
+Test status: BLOCKED
+
+I couldn't identify a scan that is individually known to contain findings, so I did not call get-scan-issues.
+
+Provider: get-provider-status returned "Active AppScan provider: remote".
+
+Test_Tayalan (Application ID: 39c76747-8617-4e00-8ae8-096e208f72ac)
+
+┌───────────────────────────────────┬──────────────────────────────────────┬────────────────────────┬──────────────┬────────────┐
+│             Scan name             │               Scan ID                │       Scan type        │    Status    │  Created   │
+├───────────────────────────────────┼──────────────────────────────────────┼────────────────────────┼──────────────┼────────────┤
+│ SASTIncrementalscan               │ 3fe02f9a-e8df-4395-9a0d-593b315f1242 │ SAST (StaticAnalyzer)  │ Not returned │ 2026-10-12 │
+├───────────────────────────────────┼──────────────────────────────────────┼────────────────────────┼──────────────┼────────────┤
+│ staging-check_2026-10-13_16-13-44 │ 32fe2b86-2f61-4c2c-8803-99ac6d42a37d │ DAST (DynamicAnalyzer) │ Not returned │ 2026-10-13 │
+├───────────────────────────────────┼──────────────────────────────────────┼────────────────────────┼──────────────┼────────────┤
+│ SAST 2026-09-30 demo (2).irx      │ 36dcd4ac-36bf-40ef-af78-d9fc0d54b1ed │ SAST (StaticAnalyzer)  │ Not returned │ 2026-09-30 │
+├───────────────────────────────────┼──────────────────────────────────┼──────────────┼────────────┤
+│ SCA 2026-10-1 demo (2).irx        │ b0b5685c-216a-4f31-a16f-e4e322b4c980 │ SCA (ScaAnalyzer)      │ Not returned │ 2026-10-01 │
+└───────────────────────────────────┴──────────────────────────────────┴──────────────┴────────────┘
+
+The scan endpoint returns no status or risk-rating field.
+
+Why this is blocked
+- The only findings information available is application-level. The earlier get-apps result showed that Test_Tayalan has open issues.
+- Nothing returned ties those findings to any one of the four no issue counts.
+- Picking a scan would be a guess. An empty result from a guessed scan would also be ambiguous. You told me not to do either.
+
+Ways to unblock
+1. Give me a scan ID you know has findings. I'll call get-scan
+2. Let me run get-scan-issues with top: 5 against each of the four scans. This is read-only. A scan that returns findings would then be identified from
+   actual results. Empty scans would be reported as empty, not
+
+I made no write calls, and nothing was launched, modified, or
