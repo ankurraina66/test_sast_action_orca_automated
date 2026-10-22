@@ -1,1 +1,11 @@
+/appscan
 
+Perform a read-only inspection of the remote AppScan MCP tool schema for "get_scans".
+
+1. Confirm that the active provider is "remote" using "get-provider-status".
+2. Inspect the available input schema and documentation for the remote "get_scans" tool, including whether it supports a "select" parameter.
+3. Identify the documented scan status field, if any, and the exact field name.
+4. If the schema does not document a status field, explicitly report that it is unknown from the available schema.
+5. Do not switch providers, modify resources, or start scans. Do not guess field names.
+
+Report the tool schema evidence and your conclusion.
