@@ -1,3 +1,8 @@
-Using appscan-connector, call switch-provider with provider="local".
-
-Report whether the switch succeeded, the active provider, and the number of backend tools discovered. Do not create, modify, or launch any scans.
+pendingScans.set(token, {
+  appId,
+  targetDir,
+  scanType,
+  ...(scanName !== undefined ? { scanName } : {}),
+  ...(comment !== undefined ? { comment } : {}),
+  provider: service.getProvider(),
+});
