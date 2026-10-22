@@ -1,1 +1,1 @@
-
+Call "switch-provider" with provider "remote", then call "get-provider-status". Report the actual outputs. Do not call any scan-related tools.
