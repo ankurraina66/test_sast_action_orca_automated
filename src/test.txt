@@ -1,1 +1,4 @@
+Get-Content .\tests\unit\appscan-service.test.ts |
+    Select-Object -Skip 330 -First 100
 
+Get-Content .\src\services\scan-workflow.ts
