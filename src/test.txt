@@ -1,1 +1,14 @@
 
+      listTools: vi.fn().mockResolvedValue(
+        toolNames.map(
+          (name): McpTool => ({
+            name,
+            description: `Mock tool ${name}`,
+            inputSchema: {
+              type: "object",
+              properties: {},
+            },
+          }),
+        ),
+      ),
+
