@@ -1,74 +1,4 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\unit\appscan-service.test.ts | Select-Object -Skip 280 -First 100
-        vi.mocked(failedReplacement.connect).mockRejectedValue(
-            new Error("Connection refused"), );
-
-        const factory = vi.fn()
-            .mockReturnValueOnce(failedReplacement)
-            .mockReturnValueOnce(workingReplacement);
-
-        const service = createService(original, "remote", factory);
-
-        await expect(service.switchProvider("local")).rejects.toThrow(
-            "Could not switch to the local AppScan provider", );
-
-        expect(service.getProvider()).toBe("remote");
-
-        await expect(service.switchProvider("local")).resolves.toMatchObject({
-            provider: "local",
-            toolCount: 1,
-        });
-
-        expect(service.getProvider()).toBe("local");
-        expect(workingReplacement.connect).toHaveBeenCalledTimes(1);
-    });
-
-    it("waits for an in-flight tool call before disconnecting", async() => {
-        const connector = createMockConnector();
-        let finishCall!: (value: McpToolCallResult) => void;
-
-        vi.mocked(connector.callTool).mockImplementation(
-            () => new Promise < McpToolCallResult > ((resolve) => {
-                finishCall = resolve;
-            }), );
-
-        const service = createService(connector);
-
-        const callPromise = service.callTool("get-apps");
-        await Promise.resolve();
-
-        const disconnectPromise = service.disconnect();
-
-        expect(connector.disconnect).not.toHaveBeenCalled();
-
-        finishCall({
-            content: [{
-                    type: "text",
-                    text: "ok"
-                }
-            ],
-            isError: false,
-        });
-        await callPromise;
-        await disconnectPromise;
-
-        expect(connector.disconnect).toHaveBeenCalledTimes(1);
-    });
-
-    it("releases the service lock when disconnect fails", async() => {
-        const connector = createMockConnector();
-        const service = createService(connector);
-
-        vi.mocked(connector.disconnect).mockRejectedValueOnce(
-            new Error("Close failed"), );
-
-        await expect(service.disconnect()).rejects.toThrow("Close failed");
-
-        await expect(service.listTools()).resolves.toEqual(
-            await connector.listTools(), );
-    });
-
-    it("checks capability and executes using the same locked provider operation", async() => {
-        const connector = createMockConnector(["create-scan"]);
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\unit\appscan-service.test.ts | Select-Object -Skip 350 -First 115
         const service = createService(connector, "local");
 
         await expect(
@@ -99,4 +29,68 @@ PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\uni
             service.callFirstAvailableToolIfSupported(
                 ["create-scan"], {
                 approved: true
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+            },
+                "local", ), ).rejects.toThrow("Provider mismatch");
+
+        expect(connector.callTool).not.toHaveBeenCalled();
+    });
+
+    it("does not execute when the requested tool is unavailable", async() => {
+        const connector = createMockConnector(["get-apps"]);
+        const service = createService(connector, "remote");
+
+        await expect(
+            service.callFirstAvailableToolIfSupported(
+                ["create-scan", "create_scan"], {
+                approved: true
+            },
+                "remote", ), ).rejects.toThrow("does not support this operation");
+
+        expect(connector.callTool).not.toHaveBeenCalled();
+    });
+
+    it("waits for an in-flight tool call before switching providers", async() => {
+        const original = createMockConnector();
+        const replacement = createMockConnector(["get_apps"]);
+
+        let finishCall!: (value: McpToolCallResult) => void;
+
+        vi.mocked(original.callTool).mockImplementation(
+            () =>
+            new Promise < McpToolCallResult > ((resolve) => {
+                finishCall = resolve;
+            }), );
+
+        const service = createService(
+                original,
+                "remote",
+                () => replacement, );
+
+        const callPromise = service.callTool("get-apps");
+        const switchPromise = service.switchProvider("local");
+
+        await Promise.resolve();
+
+        expect(replacement.connect).not.toHaveBeenCalled();
+
+        finishCall({
+            content: [{
+                    type: "text",
+                    text: "Finished"
+                }
+            ],
+            isError: false,
+        });
+
+        await callPromise;
+
+        await expect(switchPromise).resolves.toMatchObject({
+            provider: "local",
+            toolCount: 1,
+        });
+
+        expect(original.callTool).toHaveBeenCalledTimes(1);
+        expect(original.disconnect).toHaveBeenCalledTimes(1);
+        expect(service.getProvider()).toBe("local");
+    });
+});
