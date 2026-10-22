@@ -1,1 +1,17 @@
 
+Select-String -Path .\tests\unit\appscan-service.test.ts `
+  -Pattern 'disconnect|shutdown|cleanup|rollback|concurrent|in.flight|timeout|reject|throw|switchProvider' `
+  -Context 3,5
+
+Select-String -Path .\tests\unit\local-stdio-connector.test.ts,.\tests\unit\remote-http-connector.test.ts `
+  -Pattern 'disconnect|close|timeout|AbortSignal|reject|throw|terminate|abort' `
+  -Context 3,5
+
+Select-String -Path .\tests\unit\index.test.ts,.\tests\unit\connector-factory.test.ts `
+  -Pattern 'disconnect|close|shutdown|cleanup|timeout|reject|throw' `
+  -Context 3,5
+
+Select-String -Path .\src\claude-mcp-server.ts `
+  -Pattern 'setRequestHandler|SIGINT|SIGTERM|close\(|disconnect\(' `
+  -Context 3,5
+
