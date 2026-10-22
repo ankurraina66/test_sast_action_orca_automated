@@ -1,1 +1,12 @@
+Use the AppScan connector to perform a provider-switching regression test.
 
+1. Call "get-provider-status" and record the active provider.
+2. Call "switch-provider" to select "local".
+3. Call "get-provider-status" and verify the active provider is "local".
+4. Call "get-apps" with "top: 2" and verify that the request succeeds through the local provider.
+5. Call "switch-provider" to select "remote".
+6. Call "get-provider-status" and verify the active provider is "remote".
+7. Call "get-apps" with "top: 2" and verify that the request succeeds through the remote provider.
+8. Do not restart the MCP server between switches. Do not create applications, modify findings, or launch scans.
+
+Report each step as PASS or FAIL, including the actual provider status and whether each application request succeeded. Do not claim a backend was used unless the connector's status and tool results support that conclusion.
