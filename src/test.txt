@@ -1,1 +1,9 @@
+Using the active remote provider, call "prepare-scan" with these exact parameters:
 
+- appId: "39c76747-8617-4e00-8ae8-096e208f72ac"
+- targetDir: "C:\appscan-poc-nonexistent-test-target"
+- scanType: "SAST"
+- scanName: "POC-Duplicate-Token-Safety-Test"
+- comment: "Safety validation only; do not execute"
+
+Return the confirmation token and confirm that no scan has started. Do not call "execute-prepared-scan" or any other scan execution tool. Do not upload source code.
