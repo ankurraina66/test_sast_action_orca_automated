@@ -1,4 +1,3 @@
-
 async hasAvailableTool(
     names: string[],
     expectedProvider?: AppScanProvider,
