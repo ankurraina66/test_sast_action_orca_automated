@@ -1,278 +1,145 @@
+This is remote-hhtp-connector.ts
 
-import { describe, expect, it, vi } from "vitest";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-import { AppScanService } from "../../src/services/appscan-service.js";
 import type {
-  AppScanMcpConnector,
-  McpTool,
-  McpToolCallResult,
-} from "../../src/mcp/connector.js";
-import type { AppScanProvider } from "../../src/config/config.js";
+AppScanMcpConnector,
+McpTool,
+McpToolCallResult,
+} from "./connector.js";
 
-describe("AppScanService", () => {
-  function createMockConnector(
-    toolNames: string[] = ["get-apps"],
-  ): AppScanMcpConnector {
-    const tools: McpTool[] = toolNames.map((name) => ({
-      name,
-      description: `Mock tool ${name}`,
-      inputSchema: {
-        type: "object",
-        properties: {},
-      },
-    }));
+export interface RemoteHttpConnectorOptions {
+endpoint: string;
+apiKey?: string;
+requestTimeoutMs?: number;
+}
 
-    const successResult: McpToolCallResult = {
-      content: [{ type: "text", text: "Success" }],
-      isError: false,
-    };
+export class RemoteHttpConnector implements AppScanMcpConnector {
+private readonly client: Client;
+private readonly transport: StreamableHTTPClientTransport;
+private connected = false;
 
-    return {
-      connect: vi.fn().mockResolvedValue(undefined),
-      listTools: vi.fn().mockResolvedValue(tools),
-      callTool: vi.fn().mockResolvedValue(successResult),
-      disconnect: vi.fn().mockResolvedValue(undefined),
-    };
-  }
-
-  function createService(
-    connector: AppScanMcpConnector = createMockConnector(),
-    provider: AppScanProvider = "remote",
-    connectorFactory: (
-      provider: AppScanProvider,
-    ) => AppScanMcpConnector = () => createMockConnector(),
-  ): AppScanService {
-    return new AppScanService(connector, provider, connectorFactory);
-  }
-
-  it("connects through the configured connector", async () => {
-    const connector = createMockConnector();
-    const service = createService(connector);
-
-    await service.connect();
-
-    expect(connector.connect).toHaveBeenCalledTimes(1);
-  });
-
-  it("lists tools through the configured connector", async () => {
-    const connector = createMockConnector();
-    const service = createService(connector);
-
-    await expect(service.listTools()).resolves.toMatchObject([
-      { name: "get-apps" },
-    ]);
-
-    expect(connector.listTools).toHaveBeenCalledTimes(1);
-  });
-
-  it("delegates tool calls and arguments to the connector", async () => {
-    const connector = createMockConnector();
-    const service = createService(connector);
-
-    await expect(
-      service.callTool("get-apps", { top: 5 }),
-    ).resolves.toMatchObject({
-      content: [{ type: "text", text: "Success" }],
-      isError: false,
-    });
-
-    expect(connector.callTool).toHaveBeenCalledWith("get-apps", {
-      top: 5,
-    });
-  });
-
-  it("recognizes the remote get_apps tool name", async () => {
-    const connector = createMockConnector(["get_apps"]);
-    const service = createService(connector);
-
-    await expect(
-      service.findApplicationDiscoveryTool(),
-    ).resolves.toMatchObject({ name: "get_apps" });
-  });
-
-  it("discovers applications using the available tool name", async () => {
-    const connector = createMockConnector();
-    const service = createService(connector);
-
-    await service.discoverApplications({ top: 5 });
-
-    expect(connector.callTool).toHaveBeenCalledWith("get-apps", {
-      top: 5,
-    });
-  });
-
-  it("reports when no recognized application discovery tool exists", async () => {
-    const connector = createMockConnector(["unrelated-tool"]);
-    const service = createService(connector);
-
-    await expect(service.discoverApplications()).rejects.toThrow(
-      "does not expose a recognized application discovery tool",
-    );
-  });
-
-  it("disconnects through the configured connector", async () => {
-    const connector = createMockConnector();
-    const service = createService(connector);
-
-    await service.disconnect();
-
-    expect(connector.disconnect).toHaveBeenCalledTimes(1);
-  });
-
-  it("switches providers after the replacement is validated", async () => {
-    const original = createMockConnector();
-    const replacement = createMockConnector(["get_apps", "get_scans"]);
-    const factory = vi.fn(
-      (_provider: AppScanProvider) => replacement,
-    );
-    const service = createService(original, "remote", factory);
-
-    await expect(service.switchProvider("local")).resolves.toEqual({
-      provider: "local",
-      toolCount: 2,
-    });
-
-    expect(factory).toHaveBeenCalledWith("local");
-    expect(replacement.connect).toHaveBeenCalledTimes(1);
-    expect(original.disconnect).toHaveBeenCalledTimes(1);
-    expect(service.getProvider()).toBe("local");
-  });
-
-  it("preserves the current provider if the replacement fails to connect", async () => {
-    const original = createMockConnector();
-    const replacement = createMockConnector();
-
-    vi.mocked(replacement.connect).mockRejectedValue(
-      new Error("Connection refused"),
-    );
-
-    const service = createService(
-      original,
-      "remote",
-      () => replacement,
-    );
-
-    await expect(service.switchProvider("local")).rejects.toThrow(
-      "Could not switch to the local AppScan provider",
-    );
-
-    expect(service.getProvider()).toBe("remote");
-    expect(original.disconnect).not.toHaveBeenCalled();
-    expect(replacement.disconnect).toHaveBeenCalledTimes(1);
-  });
-
-  it("preserves the current provider if the replacement exposes no tools", async () => {
-    const original = createMockConnector();
-    const replacement = createMockConnector([]);
-    const service = createService(
-      original,
-      "remote",
-      () => replacement,
-    );
-
-    await expect(service.switchProvider("local")).rejects.toThrow(
-      "returned no tools",
-    );
-
-    expect(service.getProvider()).toBe("remote");
-    expect(original.disconnect).not.toHaveBeenCalled();
-    expect(replacement.disconnect).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not switch when the requested provider is already active", async () => {
-    const original = createMockConnector();
-    const factory = vi.fn(
-      (_provider: AppScanProvider) => createMockConnector(),
-    );
-    const service = createService(original, "remote", factory);
-
-    await expect(service.switchProvider("remote")).resolves.toEqual({
-      provider: "remote",
-      toolCount: 1,
-    });
-
-    expect(factory).not.toHaveBeenCalled();
-    expect(original.disconnect).not.toHaveBeenCalled();
-  });
-
-  it("maps tool names case-insensitively", async () => {
-    const connector = createMockConnector(["get_apps"]);
-    const service = createService(connector);
-
-    await service.callFirstAvailableTool(["GET_APPS"], { top: 3 });
-
-    expect(connector.callTool).toHaveBeenCalledWith("get_apps", {
-      top: 3,
-    });
-  });
-
-  it("rejects calls when the expected provider is not active", async () => {
-    const connector = createMockConnector(["create-scan"]);
-    const service = createService(connector, "remote");
-
-    await expect(
-      service.callFirstAvailableTool(
-        ["create-scan"],
-        { approved: true },
-        "local",
-      ),
-    ).rejects.toThrow("Provider mismatch");
-
-    expect(connector.callTool).not.toHaveBeenCalled();
-  });
-
-  it("does not execute an operation when its tool is unavailable", async () => {
-    const connector = createMockConnector(["get-apps"]);
-    const service = createService(connector);
-
-    await expect(
-      service.callFirstAvailableTool(["create-scan"]),
-    ).rejects.toThrow("does not support this operation");
-
-    expect(connector.callTool).not.toHaveBeenCalled();
-  });
-
-  it("waits for an in-flight tool call before switching providers", async () => {
-    const original = createMockConnector();
-    const replacement = createMockConnector(["get_apps"]);
-
-    let finishCall!: (value: McpToolCallResult) => void;
-
-    vi.mocked(original.callTool).mockImplementation(
-      () =>
-        new Promise<McpToolCallResult>((resolve) => {
-          finishCall = resolve;
-        }),
-    );
-
-    const service = createService(
-      original,
-      "remote",
-      () => replacement,
-    );
-
-    const callPromise = service.callTool("get-apps");
-    const switchPromise = service.switchProvider("local");
-
-    await Promise.resolve();
-
-    expect(replacement.connect).not.toHaveBeenCalled();
-
-    finishCall({
-      content: [{ type: "text", text: "Finished" }],
-      isError: false,
-    });
-
-    await callPromise;
-
-    await expect(switchPromise).resolves.toMatchObject({
-      provider: "local",
-      toolCount: 1,
-    });
-
-    expect(original.callTool).toHaveBeenCalledTimes(1);
-    expect(original.disconnect).toHaveBeenCalledTimes(1);
-    expect(service.getProvider()).toBe("local");
-  });
+constructor(options: RemoteHttpConnectorOptions) {
+this.client = new Client({
+name: "hcl-appscan-connector-for-claude",
+version: "0.1.0",
 });
 
+const headers: Record<string, string> = {};
+
+if (options.apiKey) {
+  headers["X-API-KEY"] = options.apiKey;
+}
+
+this.transport = new StreamableHTTPClientTransport(
+  new URL(options.endpoint),
+  {
+    requestInit: {
+      headers,
+      signal: options.requestTimeoutMs
+        ? AbortSignal.timeout(options.requestTimeoutMs)
+        : undefined,
+    },
+  },
+);
+
+}
+
+async connect(): Promise<void> {
+if (this.connected) {
+return;
+}
+
+await this.client.connect(this.transport);
+this.connected = true;
+
+}
+
+async listTools(): Promise<McpTool[]> {
+this.ensureConnected();
+
+const result = await this.client.listTools();
+
+return result.tools.map((tool: Tool) => ({
+  name: tool.name,
+  description: tool.description,
+  inputSchema: tool.inputSchema as Record<string, unknown>,
+}));
+
+}
+
+async callTool(
+name: string,
+args: Record<string, unknown>,
+): Promise<McpToolCallResult> {
+this.ensureConnected();
+
+const result: unknown = await this.client.callTool({
+  name,
+  arguments: args,
+});
+
+if (
+  typeof result !== "object" ||
+  result === null ||
+  !("content" in result) ||
+  !Array.isArray(result.content)
+) {
+  throw new Error(
+    `MCP tool "${name}" returned an unsupported result format.`,
+  );
+}
+
+const content: McpToolCallResult["content"] = result.content.map(
+  (item: unknown) => {
+    if (typeof item !== "object" || item === null || !("type" in item)) {
+      throw new Error(
+        `MCP tool "${name}" returned an invalid content item.`,
+      );
+    }
+
+    if (typeof item.type !== "string") {
+      throw new Error(
+        `MCP tool "${name}" returned a content item with an invalid type.`,
+      );
+    }
+
+    if ("text" in item && typeof item.text === "string") {
+      return { type: item.type, text: item.text };
+    }
+
+    return { type: item.type };
+  },
+);
+
+return {
+  content,
+  isError:
+    "isError" in result && typeof result.isError === "boolean"
+      ? result.isError
+      : undefined,
+};
+
+}
+
+async disconnect(): Promise<void> {
+if (!this.connected) {
+return;
+}
+
+try {
+  await this.client.close();
+} finally {
+  this.connected = false;
+}
+
+}
+
+private ensureConnected(): void {
+if (!this.connected) {
+throw new Error("Remote AppScan MCP connector is not connected.");
+}
+}
+}
