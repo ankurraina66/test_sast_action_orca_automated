@@ -1,16 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path $path -Pattern 'create-scan' |
->>   Select-Object LineNumber, Line
 
-LineNumber Line
----------- ----
-        45 Before running the create-scan tool, ensure the following:
-        46 First check if in the root directory of your target codebase there is an existing AppScan configuration file (appscan-config.xml). If such a fi…
-        52 Then proceed with create-scan.`,
-        60  * This prompt helps assistants map natural scan requests to the create-scan tool.
-        69                     text: `When the user asks to create a scan, run a scan, start a SAST scan, start an SCA scan, scan this project, security t…
-        77 6. If the user wants a new app for the scan, get approval for create-app, call create-app with approved=true, wait for the real application ID …
-        79 8. Treat create-app and create-scan as two separate writes. Approval for one does not imply approval for the other unless the user clearly gran…
-        85 14. Call create-scan only after appId is known and scan approval is explicit.`,
-       238     description: "Create a new application in AppScan. Use only after the user explicitly approves application creation. Do not call this tool …
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
