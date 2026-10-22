@@ -1,1 +1,3 @@
+/appscan
 
+Call "get-provider-status" exactly once. Report the active provider returned by the tool. Verify that the response contains the actual provider value ("remote" or "local"), not a literal template placeholder. Do not switch providers or call any write-capable tools. Report the exact response.
