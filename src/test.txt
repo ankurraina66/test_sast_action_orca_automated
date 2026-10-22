@@ -1,4 +1,4 @@
-Perform a read-only live validation of the "get-scan-issues" mapping in the HCL AppScan Connector for Claude.
+/appscan Perform a read-only live validation of the "get-scan-issues" mapping in the HCL AppScan Connector for Claude.
 
 1. Call "get-provider-status". Continue only if the active provider is "remote". Do not switch providers.
 2. Use an existing scan ID only if prior AppScan results establish that the scan contains security findings.
@@ -14,3 +14,19 @@ Safety constraints:
 - Do not guess scan IDs or expose credentials.
 
 Conclude with one status: VALIDATED, FAILED, or INCONCLUSIVE. Do not change code.
+
+  Read 1 file, called appscan-connector, recalled 1 memory
+
+Status: INCONCLUSIVE
+
+Validation result
+
+- Provider check: get-provider-status returned "Active AppScan provider: remote". That meets the condition to continue, and I did not switch providers.
+- Scan ID: None. This session has no earlier AppScan results (no get-apps, get-scans, or get-scan-issues output) showing that any scan contains security findings. I also found no saved memory notes that name such a scan.
+- get-scan-issues: Not called. Your instructions allow the call only with a scan ID that existing evidence shows has findings. I did not guess an ID or run get-apps or get-scans to discover one, because the task said to stop in this case.
+
+Not validated, because the call was never made: the call arguments, whether the call succeeds, the returned structure, issue IDs, and severity fields.
+
+Safety: I made no write-capable calls and did not call prepare-scan or execute-prepared-scan. I used no credentials and changed no code.
+
+What would complete this: Give me a scan ID that you know has findings, and I will run get-scan-issues once with top: 3. Alternatively, you can allow read-only discovery with get-apps and get-scans. Those would show scan IDs, but they would not show whether a scan has findings.
