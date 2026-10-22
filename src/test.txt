@@ -1,1 +1,7 @@
-
+const result = await service.callFirstAvailableTool(
+  ["get-scans", "get_scans"],
+  {
+    ...(filters.length ? { filter: filters.join(" and ") } : {}),
+    ...(top !== undefined ? { top } : {}),
+  },
+);
