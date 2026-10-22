@@ -1,1 +1,5 @@
+Get-Content .\src\services\appscan-service.ts |
+    Select-Object -Skip 115 -First 45
 
+Get-Content .\tests\unit\appscan-service.test.ts |
+    Select-Object -Skip 200 -First 65
