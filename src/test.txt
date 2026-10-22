@@ -1,3 +1,51 @@
-Select-String -Path .\src\services\appscan-service.ts,.\tests\unit\appscan-service.test.ts `
-  -Pattern 'hasAvailableTool|expectedProvider|Provider mismatch' `
-  -Context 3,6
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\services\appscan-service.ts,.\tests\unit\appscan-service.test.ts `
+>>   -Pattern 'hasAvailableTool|expectedProvider|Provider mismatch' `
+>>   -Context 3,6
+
+  src\services\appscan-service.ts:126:        });
+  src\services\appscan-service.ts:127:    }
+  src\services\appscan-service.ts:128:
+> src\services\appscan-service.ts:129:    async hasAvailableTool(
+  src\services\appscan-service.ts:130:        names: string[],
+> src\services\appscan-service.ts:131:        expectedProvider ?  : AppScanProvider, ): Promise < boolean > {
+  src\services\appscan-service.ts:132:        return this.withLock(async() => {
+  src\services\appscan-service.ts:133:            if (
+> src\services\appscan-service.ts:134:                expectedProvider !== undefined &&
+> src\services\appscan-service.ts:135:                this.activeProvider !== expectedProvider) {
+  src\services\appscan-service.ts:136:                throw new Error(
+> src\services\appscan-service.ts:137:                    `Provider mismatch: expected ${expectedProvider}, ` +
+  src\services\appscan-service.ts:138:`but active provider is ${this.activeProvider}.`, );
+  src\services\appscan-service.ts:139:            }
+  src\services\appscan-service.ts:140:
+  src\services\appscan-service.ts:141:            const tools = await this.connector.listTools();
+  src\services\appscan-service.ts:142:            const normalizedNames = new Set(
+  src\services\appscan-service.ts:143:                    names.map((name) => name.toLowerCase()), );
+  src\services\appscan-service.ts:150:    async callFirstAvailableTool(
+  src\services\appscan-service.ts:151:        names: string[],
+  src\services\appscan-service.ts:152:        args: Record < string, unknown >  = {},
+> src\services\appscan-service.ts:153:        expectedProvider ?  : AppScanProvider, ): Promise < McpToolCallResult > {
+  src\services\appscan-service.ts:154:        return this.withLock(async() => {
+  src\services\appscan-service.ts:155:            if (
+> src\services\appscan-service.ts:156:                expectedProvider !== undefined &&
+> src\services\appscan-service.ts:157:                this.activeProvider !== expectedProvider) {
+  src\services\appscan-service.ts:158:                throw new Error(
+> src\services\appscan-service.ts:159:`Provider mismatch: this operation was prepared for ${expectedProvider}, but the active provider is
+${this.activeProvider}. The operation was not executed.`, );
+  src\services\appscan-service.ts:160:            }
+  src\services\appscan-service.ts:161:
+  src\services\appscan-service.ts:162:            // Discovery and execution use the same connector while holding the lock.
+  src\services\appscan-service.ts:163:            const tools = await this.connector.listTools();
+  src\services\appscan-service.ts:164:            const normalizedNames = new Set(
+  src\services\appscan-service.ts:165:                    names.map((name) => name.toLowerCase()), );
+  tests\unit\appscan-service.test.ts:214:                ["create-scan"], {
+  tests\unit\appscan-service.test.ts:215:                approved: true
+  tests\unit\appscan-service.test.ts:216:            },
+> tests\unit\appscan-service.test.ts:217:                "local", ), ).rejects.toThrow("Provider mismatch");
+  tests\unit\appscan-service.test.ts:218:
+  tests\unit\appscan-service.test.ts:219:        expect(connector.callTool).not.toHaveBeenCalled();
+  tests\unit\appscan-service.test.ts:220:    });
+  tests\unit\appscan-service.test.ts:221:
+  tests\unit\appscan-service.test.ts:222:    it("does not execute an operation when its tool is unavailable", async() => {
+  tests\unit\appscan-service.test.ts:223:        const connector = createMockConnector(["get-apps"]);
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
