@@ -1,1 +1,15 @@
+beforeEach(() => {
+    vi.clearAllMocks();
 
+    callTool.mockResolvedValue({
+        content: [{
+            type: "text",
+            text: "Scan request accepted",
+        }],
+        isError: false,
+    });
+
+    workflow = new ScanWorkflow(
+        { callTool } as unknown as AppScanService,
+    );
+});
