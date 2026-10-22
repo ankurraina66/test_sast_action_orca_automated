@@ -1,3 +1,13 @@
-/appscan
+> /appscan Call "get-provider-status" exactly once. Report the active provider returned by the tool. Verify that the response contains the actual provider value ("remote" or "local"), not a literal template placeholder. Do not switch providers or call any write-capable tools. Report the exact response.
 
-Call "get-provider-status" exactly once. Report the active provider returned by the tool. Verify that the response contains the actual provider value ("remote" or "local"), not a literal template placeholder. Do not switch providers or call any write-capable tools. Report the exact response.
+  Called appscan-connector
+
+The active AppScan provider is remote.
+
+The exact response from get-provider-status was:
+
+Active AppScan provider: remote
+
+The response holds the actual value remote, not a template placeholder. I called the tool once. I didn't switch providers or call any write-capable tools.
+
+✻ Brewed for 8s · done 12:40 PM
