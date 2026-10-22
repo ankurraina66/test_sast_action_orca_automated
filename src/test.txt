@@ -1,4 +1,4 @@
-Continue the HCL AppScan Connector for Claude validation. The remote provider is active.
+/appscan Continue the HCL AppScan Connector for Claude validation. The remote provider is active.
 
 From the existing findings returned by "get-scan-issues" for scan "32fe2b86-2f61-4c2c-8803-99ac6d42a37d" ("staging-check_2026-10-13_16-13-44"), select one returned finding and use its actual issue ID to call "get-issue-details".
 
@@ -8,3 +8,50 @@ Requirements:
 - Report whether the call succeeded and summarize the returned issue details.
 - Do not update findings, create reports, launch scans, or make other write-capable calls.
 - If the previous finding IDs are no longer available in context, stop and report that limitation rather than guessing.
+
+This is the same request I completed in the previous turn. That call used 4763c516-f3c6-f111-bf5b-000d3ae5cac2 (Encryption Not Enforced). I'll run it again against a different finding from the same earlier result, so this run adds coverage. I'm using the fifth one, "Cookie with Insecure or Improper SameSite attribute".
+
+  Called appscan-connector 2 times
+
+get-issue-details result (second finding)
+
+The call succeeded on the remote provider, which get-provider-status confirmed. It returned an XML report for one finding. I used the exact issue ID from the earlier get-scan-issues result for scan 32fe2b86-2f61-4c2c-8803-99ac6d42a37d. This is a different finding from the previous turn's 4763c516-f3c6-f111-bf5b-000d3ae5cac2.
+
+Issue ID: 5363c516-f3c6-f111-bf5b-000d3ae5cac2
+
+Facts returned by AppScan
+
+┌──────────────────────┬───────────────────────────────────────────────────────────────────────────────────────┐
+│        Field         │                                         Value                                         │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Title                │ Cookie with Insecure or Improper SameSite attribute (from the get-scan-issues result) │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Issue type reference │ attSameSiteCookie                                                                     │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Severity             │ Medium                                                   │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Status               │ Open (from the get-scan-issues result                    │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan                 │ staging-check_2026-10-13_16-13-44                        │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ CVSS                 │ 4.7, vector AV:N/AC:L/PR:L/UI:N/S:U/C                    │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ CWE                  │ 1275 (primary); 284 and 923 are also                     │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Threat class         │ catServerMisconfiguration                                │
+├──────────────────────┼───────────────────────────────────────────────────────────────────────────────────────┤
+│ Affected element     │ JSESSIONID (Cookie) on https://demo.t                    │
+└──────────────────────┴───────────────────────────────────────────────────────────────────────────────────────┘
+
+Evidence in the report
+- AppScan's reasoning: The response sets a sensitive cookie wimissing SameSite attribute. AppScan says this "may lead toCookie information leakage, which may extend to Cross-Site-Request-Forgery(CSRF) attacks if there are no additional protections in place."
+- Observed response: The captured response is HTTP/1.1 200 OK.JSESSIONID with Path=/; Secure; HttpOnly and no SameSiteattribute. The absence of SameSite is my reading of the header. AppScan highlights the header but does not state this itself.
+- Request variant: This is an unmodified GET /. The report lis
+
+Not provided in the response
+- The remediation and advisory fields contain only reference IDs (fix_61797 and attSameSiteCookie). The report has no description or fix text.
+- The report has no source file or line. This is a DAST findinso there is nothing in the workspace to map it to.
+
+Note: The raw output contains a captured JSESSIONID value. I'v.
+
+I made no write calls. I updated no findings and created no re
