@@ -1,3 +1,89 @@
-Get-ChildItem .\node_modules\@modelcontextprotocol\sdk\dist -Recurse -File |
-  Select-String -Pattern "createFetchWithInit" |
-  Select-Object -First 10 Path, LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js -Pattern "createFetchWithInit" -Context 5,25
+
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:1:import { mediaTypeEssence } from '../shared/mediaType.js';
+> node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:2:import { createFetchWithInit, fetchLeavingRedirects, fetchWithinOrigin,
+followWithinOrigin, normalizeHeaders, unfollowedRedirect } from '../shared/transport.js';
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:3:import { isInitializedNotification, isJSONRPCRequest,
+isJSONRPCResultResponse, JSONRPCMessageSchema } from '../types.js';
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:4:import { auth, extractWWWAuthenticateParams, UnauthorizedError } from
+'./auth.js';
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:5:import { EventSourceParserStream } from 'eventsource-parser/stream';
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:6:// Default reconnection options for StreamableHTTP connections
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:7:const DEFAULT_STREAMABLE_HTTP_RECONNECTION_OPTIONS = {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:8:    initialReconnectionDelay: 1000,
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:9:    maxReconnectionDelay: 30000,
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:10:    reconnectionDelayGrowFactor: 1.5,
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:11:    maxRetries: 2
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:12:};
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:13:export class StreamableHTTPError extends Error {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:14:    constructor(code, message) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:15:        super(`Streamable HTTP error: ${message}`);
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:16:        this.code = code;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:17:    }
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:18:}
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:19:/**
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:20: * Client transport for Streamable HTTP: this implements the MCP Streamable
+HTTP transport specification.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:21: * It will connect to a server using HTTP POST for sending messages and HTTP
+GET with Server-Sent Events
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:22: * for receiving messages.
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:23: */
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:24:export class StreamableHTTPClientTransport {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:25:    constructor(url, opts) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:26:        this._hasCompletedAuthFlow = false; // Circuit breaker: detect auth
+success followed by immediate 401
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:27:        this._url = url;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:28:        this._resourceMetadataUrl = undefined;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:29:        this._scope = undefined;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:30:        this._requestInit = opts?.requestInit;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:31:        this._authProvider = opts?.authProvider;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:32:        this._fetch = opts?.fetch;
+> node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:33:        this._fetchWithInit = createFetchWithInit(opts?.fetch,
+opts?.requestInit);
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:34:        this._followRedirects = opts?.redirectPolicy === 'follow';
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:35:        if (this._followRedirects) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:36:            this._fetch = fetchLeavingRedirects(this._fetch);
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:37:            this._fetchWithInit = fetchLeavingRedirects(this._fetchWithInit);
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:38:        }
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:39:        this._sessionId = opts?.sessionId;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:40:        this._reconnectionOptions = opts?.reconnectionOptions ??
+DEFAULT_STREAMABLE_HTTP_RECONNECTION_OPTIONS;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:41:    }
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:42:    /** Error text for a redirect `response` that was not followed, or
+`undefined` for any other response. */
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:43:    _unfollowedRedirect(response, url) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:44:        const text = unfollowedRedirect(response, url);
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:45:        return text && !this._followRedirects ? `${text} (redirectPolicy:
+'same-origin')` : text;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:46:    }
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:47:    async _authThenStart() {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:48:        if (!this._authProvider) {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:49:            throw new UnauthorizedError('No auth provider');
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:50:        }
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:51:        let result;
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:52:        try {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:53:            result = await auth(this._authProvider, {
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:54:                serverUrl: this._url,
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:55:                resourceMetadataUrl: this._resourceMetadataUrl,
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:56:                scope: this._scope,
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:57:                fetchFn: this._fetchWithInit
+  node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js:58:            });
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\node_modules\@modelcontextprotocol\sdk\dist -Recurse -File |
+>>   Select-String -Pattern "createFetchWithInit" |
+>>   Select-Object -First 10 Path, LineNumber, Line
+
+Path                                                                                                                          LineNumber Line
+----                                                                                                                          ---------- ----
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\cjs\client\sse.js                    30         this._fet…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\cjs\client\streamableHttp.js         37         this._fet…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\cjs\shared\transport.d.ts            16 export declare fu…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\cjs\shared\transport.js               4 exports.createFet…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\cjs\shared\transport.js              33 function createFe…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\esm\client\sse.js                     2 import { createFe…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\esm\client\sse.js                    26         this._fet…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js          2 import { createFe…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\esm\client\streamableHttp.js         33         this._fet…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\node_modules\@modelcontextprotocol\sdk\dist\esm\shared\transport.d.ts            16 export declare fu…
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
