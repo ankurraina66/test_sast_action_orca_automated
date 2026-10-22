@@ -1,1 +1,16 @@
+Perform a read-only live validation of the "get-scan-issues" mapping in the HCL AppScan Connector for Claude.
 
+1. Call "get-provider-status". Continue only if the active provider is "remote". Do not switch providers.
+2. Use an existing scan ID only if prior AppScan results establish that the scan contains security findings.
+3. Call "get-scan-issues" exactly once with that scan ID and "top: 3".
+4. Report the exact scan ID, arguments, whether the call succeeded, the returned structure, and any issue IDs and severity fields present.
+5. If no scan known to contain findings is available from existing evidence, stop and report that the validation cannot be completed with the current evidence.
+
+Safety constraints:
+
+- Read-only operations only.
+- Do not create, start, update, or delete resources.
+- Do not call "prepare-scan" or "execute-prepared-scan".
+- Do not guess scan IDs or expose credentials.
+
+Conclude with one status: VALIDATED, FAILED, or INCONCLUSIVE. Do not change code.
