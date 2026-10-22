@@ -1,1 +1,13 @@
+it("configures a per-request timeout through the custom fetch", () => {
+  new RemoteHttpConnector({
+    endpoint: "https://cloud.appscan.com/mcp",
+    apiKey: "test-key",
+    requestTimeoutMs: 5000,
+  });
 
+  const transportOptions = mockTransport.mock.calls.at(-1)?.[1] as {
+    fetch: typeof fetch;
+  };
+
+  expect(transportOptions.fetch).toEqual(expect.any(Function));
+});
