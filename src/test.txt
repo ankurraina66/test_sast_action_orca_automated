@@ -1,236 +1,90 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\claude-mcp-server.ts `
->>   -Pattern 'execute-prepared-scan|pendingScans|executingScanTokens|confirmationToken|callFirstAvailableTool' `
->>   -Context 8,12
+this is scan-workflow.test.ts
 
-  src\claude-mcp-server.ts:151:            // The remote OData property name still needs runtime validation.
-  src\claude-mcp-server.ts:152:            filters.push(`AppId eq ${applicationId}`);
-  src\claude-mcp-server.ts:153:        }
-  src\claude-mcp-server.ts:154:
-  src\claude-mcp-server.ts:155:        if (filter?.trim()) {
-  src\claude-mcp-server.ts:156:            filters.push(`(${filter.trim()})`);
-  src\claude-mcp-server.ts:157:        }
-  src\claude-mcp-server.ts:158:
-> src\claude-mcp-server.ts:159:        const result = await service.callFirstAvailableTool(
-  src\claude-mcp-server.ts:160:                ["get-scans", "get_scans"], {
-  src\claude-mcp-server.ts:161:                ...(filters.length ? {
-  src\claude-mcp-server.ts:162:                    filter: filters.join(" and ")
-  src\claude-mcp-server.ts:163:                }
-  src\claude-mcp-server.ts:164:                     : {}),
-  src\claude-mcp-server.ts:165:                ...(top !== undefined ? {
-  src\claude-mcp-server.ts:166:                    top
-  src\claude-mcp-server.ts:167:                }
-  src\claude-mcp-server.ts:168:                     : {}),
-  src\claude-mcp-server.ts:169:            }, );
-  src\claude-mcp-server.ts:170:
-  src\claude-mcp-server.ts:171:        return textResult(result);
-  src\claude-mcp-server.ts:183:        async({
-  src\claude-mcp-server.ts:184:            scanId,
-  src\claude-mcp-server.ts:185:            filter,
-  src\claude-mcp-server.ts:186:            top
-  src\claude-mcp-server.ts:187:        }) => {
-  src\claude-mcp-server.ts:188:        const provider = service.getProvider();
-  src\claude-mcp-server.ts:189:
-  src\claude-mcp-server.ts:190:        if (provider === "local") {
-> src\claude-mcp-server.ts:191:            const result = await service.callFirstAvailableTool(
-  src\claude-mcp-server.ts:192:                    ["get-scan-issues", "get_scan_issues"], {
-  src\claude-mcp-server.ts:193:                    scanId,
-  src\claude-mcp-server.ts:194:                    ...(filter !== undefined ? {
-  src\claude-mcp-server.ts:195:                        filter
-  src\claude-mcp-server.ts:196:                    }
-  src\claude-mcp-server.ts:197:                         : {}),
-  src\claude-mcp-server.ts:198:                    ...(top !== undefined ? {
-  src\claude-mcp-server.ts:199:                        top
-  src\claude-mcp-server.ts:200:                    }
-  src\claude-mcp-server.ts:201:                         : {}),
-  src\claude-mcp-server.ts:202:                },
-  src\claude-mcp-server.ts:203:                    "local", );
-  src\claude-mcp-server.ts:204:
-  src\claude-mcp-server.ts:205:            return textResult(result);
-  src\claude-mcp-server.ts:206:        }
-  src\claude-mcp-server.ts:207:
-> src\claude-mcp-server.ts:208:        const result = await service.callFirstAvailableTool(
-  src\claude-mcp-server.ts:209:                ["get_issues"], {
-  src\claude-mcp-server.ts:210:                scope: "Scan",
-  src\claude-mcp-server.ts:211:                scopeId: scanId,
-  src\claude-mcp-server.ts:212:                ...(filter !== undefined ? {
-  src\claude-mcp-server.ts:213:                    filter
-  src\claude-mcp-server.ts:214:                }
-  src\claude-mcp-server.ts:215:                     : {}),
-  src\claude-mcp-server.ts:216:                ...(top !== undefined ? {
-  src\claude-mcp-server.ts:217:                    top
-  src\claude-mcp-server.ts:218:                }
-  src\claude-mcp-server.ts:219:                     : {}),
-  src\claude-mcp-server.ts:220:            },
-  src\claude-mcp-server.ts:228:        description: "Retrieve detailed information about an AppScan finding.",
-  src\claude-mcp-server.ts:229:        inputSchema: {
-  src\claude-mcp-server.ts:230:            issueId: z.string().min(1),
-  src\claude-mcp-server.ts:231:        },
-  src\claude-mcp-server.ts:232:    },
-  src\claude-mcp-server.ts:233:        async({
-  src\claude-mcp-server.ts:234:            issueId
-  src\claude-mcp-server.ts:235:        }) => {
-> src\claude-mcp-server.ts:236:        const result = await service.callFirstAvailableTool(
-  src\claude-mcp-server.ts:237:                ["get-issue-details", "get_issue_details"], {
-  src\claude-mcp-server.ts:238:                issueId
-  src\claude-mcp-server.ts:239:            }, );
-  src\claude-mcp-server.ts:240:
-  src\claude-mcp-server.ts:241:        return textResult(result);
-  src\claude-mcp-server.ts:242:    }, );
-  src\claude-mcp-server.ts:243:
-> src\claude-mcp-server.ts:244:    const pendingScans = new Map <
-  src\claude-mcp-server.ts:245:        string, {
-  src\claude-mcp-server.ts:246:        appId: string;
-  src\claude-mcp-server.ts:247:        targetDir: string;
-  src\claude-mcp-server.ts:248:        scanType: "SAST" | "SCA";
-  src\claude-mcp-server.ts:249:        scanName ?  : string;
-  src\claude-mcp-server.ts:250:        comment ?  : string;
-  src\claude-mcp-server.ts:251:        provider: "local" | "remote";
-  src\claude-mcp-server.ts:252:    }
-  src\claude-mcp-server.ts:253:     > ();
-  src\claude-mcp-server.ts:254:
-  src\claude-mcp-server.ts:255:    // Prevent concurrent requests from executing the same confirmation token.
-> src\claude-mcp-server.ts:256:    const executingScanTokens = new Set < string > ();
-  src\claude-mcp-server.ts:257:
-  src\claude-mcp-server.ts:258:    server.registerTool(
-  src\claude-mcp-server.ts:259:        "prepare-scan", {
-  src\claude-mcp-server.ts:260:        description:
-> src\claude-mcp-server.ts:261:        "Prepare an AppScan scan request and return its exact parameters for user review. This tool must not start a scan.
-Obtain explicit user confirmation in the conversation before calling execute-prepared-scan.",
-  src\claude-mcp-server.ts:262:        inputSchema: {
-  src\claude-mcp-server.ts:263:            appId: z.string().uuid(),
-  src\claude-mcp-server.ts:264:            targetDir: z.string().min(1),
-  src\claude-mcp-server.ts:265:            scanType: z.enum(["SAST", "SCA"]).default("SAST"),
-  src\claude-mcp-server.ts:266:            scanName: z.string().min(1).optional(),
-  src\claude-mcp-server.ts:267:            comment: z.string().optional(),
-  src\claude-mcp-server.ts:268:        },
-  src\claude-mcp-server.ts:269:    },
-  src\claude-mcp-server.ts:270:        async({
-  src\claude-mcp-server.ts:271:            appId,
-  src\claude-mcp-server.ts:272:            targetDir,
-  src\claude-mcp-server.ts:273:            scanType,
-  src\claude-mcp-server.ts:274:            scanName,
-  src\claude-mcp-server.ts:275:            comment
-  src\claude-mcp-server.ts:276:        }) => {
-  src\claude-mcp-server.ts:277:        const token = crypto.randomUUID();
-  src\claude-mcp-server.ts:278:        const provider = service.getProvider();
-  src\claude-mcp-server.ts:279:
-> src\claude-mcp-server.ts:280:        pendingScans.set(token, {
-  src\claude-mcp-server.ts:281:            appId,
-  src\claude-mcp-server.ts:282:            targetDir,
-  src\claude-mcp-server.ts:283:            scanType,
-  src\claude-mcp-server.ts:284:            ...(scanName !== undefined ? {
-  src\claude-mcp-server.ts:285:                scanName
-  src\claude-mcp-server.ts:286:            }
-  src\claude-mcp-server.ts:287:                 : {}),
-  src\claude-mcp-server.ts:288:            ...(comment !== undefined ? {
-  src\claude-mcp-server.ts:289:                comment
-  src\claude-mcp-server.ts:290:            }
-  src\claude-mcp-server.ts:291:                 : {}),
-  src\claude-mcp-server.ts:292:            provider,
-  src\claude-mcp-server.ts:300:                        `Confirmation token: ${token}`,
-  src\claude-mcp-server.ts:301:                        `Application ID: ${appId}`,
-  src\claude-mcp-server.ts:302:                        `Target directory: ${targetDir}`,
-  src\claude-mcp-server.ts:303:                        `Scan type: ${scanType}`,
-  src\claude-mcp-server.ts:304:                        `Scan name: ${scanName ?? "(generated by AppScan)"}`,
-  src\claude-mcp-server.ts:305:`Provider: ${provider}`,
-  src\claude-mcp-server.ts:306:                        "",
-  src\claude-mcp-server.ts:307:                        "Before execution, explain that source artifacts may be packaged and uploaded to AppScan, and that
-the underlying tool may generate configuration files or run a build.",
-> src\claude-mcp-server.ts:308:                        "Obtain explicit user confirmation for these exact parameters before invoking
-execute-prepared-scan.",
-  src\claude-mcp-server.ts:309:                    ].join("\n"),
-  src\claude-mcp-server.ts:310:                },
-  src\claude-mcp-server.ts:311:            ],
-  src\claude-mcp-server.ts:312:        };
-  src\claude-mcp-server.ts:313:    }, );
-  src\claude-mcp-server.ts:314:
-  src\claude-mcp-server.ts:315:    server.registerTool(
-> src\claude-mcp-server.ts:316:        "execute-prepared-scan", {
-  src\claude-mcp-server.ts:317:        description:
-  src\claude-mcp-server.ts:318:        "Execute a previously prepared AppScan scan only after explicit user confirmation of its exact parameters. Never
-call this tool merely because a preparation token exists.",
-  src\claude-mcp-server.ts:319:        inputSchema: {
-> src\claude-mcp-server.ts:320:            confirmationToken: z.string().uuid(),
-  src\claude-mcp-server.ts:321:        },
-  src\claude-mcp-server.ts:322:    },
-  src\claude-mcp-server.ts:323:        async({
-> src\claude-mcp-server.ts:324:            confirmationToken
-  src\claude-mcp-server.ts:325:        }) => {
-> src\claude-mcp-server.ts:326:        const prepared = pendingScans.get(confirmationToken);
-  src\claude-mcp-server.ts:327:
-  src\claude-mcp-server.ts:328:        if (!prepared) {
-  src\claude-mcp-server.ts:329:            return {
-  src\claude-mcp-server.ts:330:                content: [{
-  src\claude-mcp-server.ts:331:                        type: "text" as const,
-  src\claude-mcp-server.ts:332:                        text: "No pending scan matches this token. Prepare the request again and obtain user confirmation.",
-  src\claude-mcp-server.ts:333:                    },
-  src\claude-mcp-server.ts:334:                ],
-  src\claude-mcp-server.ts:335:                isError: true,
-  src\claude-mcp-server.ts:336:            };
-  src\claude-mcp-server.ts:337:        }
-  src\claude-mcp-server.ts:338:
-> src\claude-mcp-server.ts:339:        if (executingScanTokens.has(confirmationToken)) {
-  src\claude-mcp-server.ts:340:            return {
-  src\claude-mcp-server.ts:341:                content: [{
-  src\claude-mcp-server.ts:342:                        type: "text" as const,
-  src\claude-mcp-server.ts:343:                        text: "This confirmation token is already being processed. Do not submit it again.",
-  src\claude-mcp-server.ts:344:                    },
-  src\claude-mcp-server.ts:345:                ],
-  src\claude-mcp-server.ts:346:                isError: true,
-  src\claude-mcp-server.ts:347:            };
-  src\claude-mcp-server.ts:348:        }
-  src\claude-mcp-server.ts:349:
-  src\claude-mcp-server.ts:350:        // Reject provider mismatches before claiming the token.
-  src\claude-mcp-server.ts:351:        if (prepared.provider !== service.getProvider()) {
-  src\claude-mcp-server.ts:359:                    },
-  src\claude-mcp-server.ts:360:                ],
-  src\claude-mcp-server.ts:361:                isError: true,
-  src\claude-mcp-server.ts:362:            };
-  src\claude-mcp-server.ts:363:        }
-  src\claude-mcp-server.ts:364:
-  src\claude-mcp-server.ts:365:        // JavaScript executes this check-and-add synchronously, so another
-  src\claude-mcp-server.ts:366:        // handler cannot claim the same token between these two statements.
-> src\claude-mcp-server.ts:367:        executingScanTokens.add(confirmationToken);
-  src\claude-mcp-server.ts:368:
-  src\claude-mcp-server.ts:369:        try {
-  src\claude-mcp-server.ts:370:            // Consume before execution to avoid accidental duplicate scans if
-  src\claude-mcp-server.ts:371:            // the backend starts a scan but its response is lost or times out.
-> src\claude-mcp-server.ts:372:            pendingScans.delete(confirmationToken);
-  src\claude-mcp-server.ts:373:
-> src\claude-mcp-server.ts:374:            const result = await service.callFirstAvailableTool(
-  src\claude-mcp-server.ts:375:                    ["create-scan", "create_scan"], {
-  src\claude-mcp-server.ts:376:                    appId: prepared.appId,
-  src\claude-mcp-server.ts:377:                    targetDir: prepared.targetDir,
-  src\claude-mcp-server.ts:378:                    scanType: prepared.scanType,
-  src\claude-mcp-server.ts:379:                    ...(prepared.scanName !== undefined
-  src\claude-mcp-server.ts:380:                         ? {
-  src\claude-mcp-server.ts:381:                        scanName: prepared.scanName
-  src\claude-mcp-server.ts:382:                    }
-  src\claude-mcp-server.ts:383:                         : {}),
-  src\claude-mcp-server.ts:384:                    ...(prepared.comment !== undefined
-  src\claude-mcp-server.ts:385:                         ? {
-  src\claude-mcp-server.ts:386:                        comment: prepared.comment
-  src\claude-mcp-server.ts:398:                        text:
-  src\claude-mcp-server.ts:399:                        "Scan execution failed or could not be confirmed. The confirmation token has been consumed to
-prevent accidental duplicate scans. Review the AppScan backend before preparing another request. Details: " +
-  src\claude-mcp-server.ts:400:                        (error instanceof Error ? error.message : "Unknown error"),
-  src\claude-mcp-server.ts:401:                    },
-  src\claude-mcp-server.ts:402:                ],
-  src\claude-mcp-server.ts:403:                isError: true,
-  src\claude-mcp-server.ts:404:            };
-  src\claude-mcp-server.ts:405:        } finally {
-> src\claude-mcp-server.ts:406:            executingScanTokens.delete(confirmationToken);
-  src\claude-mcp-server.ts:407:        }
-  src\claude-mcp-server.ts:408:    }, );
-  src\claude-mcp-server.ts:409:
-  src\claude-mcp-server.ts:410:    const transport = new StdioServerTransport();
-  src\claude-mcp-server.ts:411:
-  src\claude-mcp-server.ts:412:    try {
-  src\claude-mcp-server.ts:413:        await server.connect(transport);
-  src\claude-mcp-server.ts:414:        console.error("HCL AppScan Connector for Claude is running.");
-  src\claude-mcp-server.ts:415:    } catch (error) {
-  src\claude-mcp-server.ts:416:        await service.disconnect();
-  src\claude-mcp-server.ts:417:        throw error;
-  src\claude-mcp-server.ts:418:    }
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ScanWorkflow } from "../../src/services/scan-workflow.js";
+import type { AppScanService } from "../../src/services/appscan-service.js";
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+describe("ScanWorkflow", () => {
+    const callTool = vi.fn();
+    let workflow: ScanWorkflow;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        callTool.mockResolvedValue({
+            content: [{
+                    type: "text",
+                    text: "Scan request accepted"
+                }
+            ],
+            isError: false,
+        });
+
+        workflow = new ScanWorkflow({
+            callTool,
+        }
+                as unknown as AppScanService);
+    });
+
+    const input = {
+        appId: "39c76747-8617-4e00-8ae8-096e208f72ac",
+        targetDir: "C:\\app\\source",
+        scanType: "SAST" as const,
+        scanName: "Approval workflow test",
+        comment: "Unit test",
+    };
+
+    it("prepares a scan without calling AppScan", () => {
+        const result = workflow.prepare(input);
+
+        expect(result.token).toBeDefined();
+        expect(result.text).toContain("Scan prepared");
+        expect(result.text).toContain(input.appId);
+        expect(result.text).toContain(input.targetDir);
+        expect(callTool).not.toHaveBeenCalled();
+    });
+
+    it("rejects an unknown token without calling AppScan", async() => {
+        const result = await workflow.execute(
+                "00000000-0000-4000-8000-000000000000", );
+
+        expect(result.isError).toBe(true);
+        expect(callTool).not.toHaveBeenCalled();
+    });
+
+    it("forwards the prepared parameters when executed", async() => {
+        const prepared = workflow.prepare(input);
+
+        const result = await workflow.execute(prepared.token!);
+
+        expect(callTool).toHaveBeenCalledTimes(1);
+        expect(callTool).toHaveBeenCalledWith("create-scan", {
+            ...input,
+            approved: true,
+        });
+        expect(result.text).toBe("Scan request accepted");
+    });
+
+    it("does not allow a token to be reused", async() => {
+        const prepared = workflow.prepare(input);
+
+        await workflow.execute(prepared.token!);
+        const secondResult = await workflow.execute(prepared.token!);
+
+        expect(secondResult.isError).toBe(true);
+        expect(callTool).toHaveBeenCalledTimes(1);
+    });
+
+    it("consumes the token if the AppScan request fails", async() => {
+        callTool.mockRejectedValueOnce(new Error("Simulated failure"));
+
+        const prepared = workflow.prepare(input);
+
+        await expect(
+            workflow.execute(prepared.token!), ).rejects.toThrow("Simulated failure");
+
+        const retry = await workflow.execute(prepared.token!);
+
+        expect(retry.isError).toBe(true);
+        expect(callTool).toHaveBeenCalledTimes(1);
+    });
+});
