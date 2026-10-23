@@ -1,92 +1,16 @@
-statusChecker.js
+/appscan
 
-import asoc from './asoc.js';
+HCL AppScan Security Review
 
-let start = null;
-const timed_out = 'timed_out';
-const timeout_minutes = process.env.INPUT_ANALYSIS_TIMEOUT ? parseInt(process.env.INPUT_ANALYSIS_TIMEOUT) : 30;
-const running_statuses = ['Running', 'InQueue', 'Pending'];
+I can help you with the following AppScan tasks:
 
-function waitForAnalysis(sastScanId, scaScanId) {
-    return new Promise((resolve, reject) => {
-        waitForSastAnalysis(sastScanId)
-        .then(() => {
-            return waitForScaAnalysis(scaScanId);
-        })
-        .then((status) => {
-            resolve(status === timed_out);
-        })
-        .catch((error) => {
-            reject(error);
-        })
-    });
-}
+- Find applications and scans: Look up an application by name and list its scans, with scan type, status, and creation date.
+- Investigate findings: Retrieve the issues for a scan and the details of a specific finding, including any description, evidence, trace, and remediation guidance AppScan returns.
+- Correlate with your code: Locate the file and line a finding references in this workspace and read the surrounding code. I'll explain the vulnerability and its likely impact.
+- Propose a fix: Suggest a minimal remediation for your review. I won't edit any source files until you explicitly approve.
+- Verify changes: After an approved edit, run the available tests or checks and report what actually ran.
+- Create a new scan (only on explicit request): Prepare a SAST or SCA scan, show you the exact application ID, source directory, scan type, and scan name, and run it only after you confirm.
 
-async function waitForScaAnalysis(scanId) {
-    if(!scanId) {
-        return;
-    }
+Routine reviews are read-only and never create scans or change AppScan issues.
 
-    if(!start) {
-        start = Date.now();
-    }
-    
-    let result = await asoc.getScaScanStatus(scanId);
-    while(running_statuses.includes(result)) {
-        await sleep(30000);
-        if(analysisTimedOut()) {
-            return timed_out;
-        }
-        result = await asoc.getScaScanStatus(scanId);
-    }
-    return result;
-}
-
-async function waitForSastAnalysis(scanId) {
-    if(!scanId) {
-        return;
-    }
-
-    if(!start) {
-        start = Date.now();
-    }
-
-    let result = await asoc.getSastScanStatus(scanId);
-    while(running_statuses.includes(result)) {
-        await sleep(30000);
-        if(analysisTimedOut()) {
-            return timed_out;
-        }
-        result = await asoc.getSastScanStatus(scanId);
-    }
-    return result;
-}
-
-async function waitForSecurityReport(reportId) {
-	if(!reportId) {
-		return null;
-	}
-	let report = await asoc.getSecurityReport(reportId);
-	while(report && report.Status !== "Ready" && report.Status !== "Failed") {
-		await sleep(30000);
-		if(analysisTimedOut()) {
-            return timed_out;
-        }
-		report = await asoc.getSecurityReport(reportId);
-	}
-	return report;
-}
-
-async function sleep(ms) {
-    return new Promise(resolve => {
-        setTimeout(resolve, ms);
-    })
-}
-
-function analysisTimedOut() {
-    let seconds = (Date.now() - start) / 1000;
-    let minutes = seconds / 60;
-    return minutes > timeout_minutes;
-}
-
-export default { waitForAnalysis, waitForSecurityReport }
+What would you like to review? For example, give me an application name to list its scans, or a scan and finding to investigate.
