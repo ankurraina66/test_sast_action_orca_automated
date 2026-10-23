@@ -1,1 +1,1 @@
-
+/appscan Use the existing AppScan connector to call "get-apps" and find the exact application named "Demo_Test_Ankur". Return its application ID. If it isn't found in the first 10 results, search further using supported filtering or pagination. This is read-only: do not create an application, start a scan, or modify any files.
