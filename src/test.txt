@@ -1,1 +1,1 @@
-
+Get-ChildItem .\tests -Recurse -File | Select-String -Pattern "timeout|create-scan|execute-prepared-scan"
