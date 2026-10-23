@@ -1,143 +1,236 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\mcp\local-stdio-connector.ts
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import type { Tool } from "@modelcontextprotocol/sdk/types.js";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\services\appscan-service.ts
+import type { AppScanMcpConnector, McpTool, McpToolCallResult,  } from "../mcp/connector.js";
+import type { AppScanProvider } from "../config/config.js";
 
-import type {
-  AppScanMcpConnector,
-  McpTool,
-  McpToolCallResult,
-} from "./connector.js";
+type ConnectorFactory = (
+    provider: AppScanProvider, ) => AppScanMcpConnector;
 
-export interface LocalStdioConnectorOptions {
-  command: string;
-  args: string[];
-  env?: Record<string, string>;
-  cwd?: string;
-  requestTimeoutMs?: number;
-}
+export class AppScanService {
+    private activeProvider: AppScanProvider;
+    private operationQueue: Promise < void >  = Promise.resolve();
 
-export class LocalStdioConnector implements AppScanMcpConnector {
-  private readonly client: Client;
-  private readonly transport: StdioClientTransport;
-  private readonly requestTimeoutMs: number;
-  private connected = false;
-
-  constructor(options: LocalStdioConnectorOptions) {
-    this.requestTimeoutMs = options.requestTimeoutMs ?? 30000;
-
-    this.client = new Client({
-      name: "hcl-appscan-connector-for-claude",
-      version: "0.1.0",
-    });
-
-    this.transport = new StdioClientTransport({
-      command: options.command,
-      args: options.args,
-      env: options.env,
-      cwd: options.cwd,
-      stderr: "inherit",
-    });
-  }
-
-  async connect(): Promise<void> {
-    if (this.connected) {
-      return;
+    constructor(
+        private connector: AppScanMcpConnector,
+        initialProvider: AppScanProvider,
+        private readonly connectorFactory: ConnectorFactory, ) {
+        this.activeProvider = initialProvider;
     }
 
-    await this.client.connect(this.transport);
-    this.connected = true;
-  }
-
-  async listTools(): Promise<McpTool[]> {
-    this.ensureConnected();
-
-    const result = await this.client.listTools(
-      {},
-      { timeout: this.requestTimeoutMs },
-    );
-
-    return result.tools.map((tool: Tool) => ({
-      name: tool.name,
-      description: tool.description,
-      inputSchema: tool.inputSchema as Record<string, unknown>,
-    }));
-  }
-
-  async callTool(
-    name: string,
-    args: Record<string, unknown>,
-  ): Promise<McpToolCallResult> {
-    this.ensureConnected();
-
-    const result: unknown = await this.client.callTool(
-      {
-        name,
-        arguments: args,
-      },
-      undefined,
-      { timeout: this.requestTimeoutMs },
-    );
-
-    if (
-      typeof result !== "object" ||
-      result === null ||
-      !("content" in result) ||
-      !Array.isArray(result.content)
-    ) {
-      throw new Error(
-        `MCP tool "${name}" returned an unsupported result format.`,
-      );
+    getProvider(): AppScanProvider {
+        return this.activeProvider;
     }
 
-    const content: McpToolCallResult["content"] = result.content.map(
-      (item: unknown) => {
-        if (typeof item !== "object" || item === null || !("type" in item)) {
-          throw new Error(
-            `MCP tool "${name}" returned an invalid content item.`,
-          );
+    private async withLock < T > (
+        operation: () => Promise < T > , ): Promise < T > {
+        const previous = this.operationQueue;
+        let release!: () => void;
+
+        this.operationQueue = new Promise < void > ((resolve) => {
+            release = resolve;
+        });
+
+        await previous;
+
+        try {
+            return await operation();
+        } finally {
+            release();
         }
-
-        const type = item.type;
-
-        if (typeof type !== "string") {
-          throw new Error(
-            `MCP tool "${name}" returned a content item with an invalid type.`,
-          );
-        }
-
-        if ("text" in item && typeof item.text === "string") {
-          return { type, text: item.text };
-        }
-
-        return { type };
-      },
-    );
-
-    return {
-      content,
-      isError:
-        "isError" in result && typeof result.isError === "boolean"
-          ? result.isError
-          : undefined,
-    };
-  }
-
-  async disconnect(): Promise<void> {
-    if (!this.connected) {
-      return;
     }
 
-    try {
-      await this.client.close();
-    } finally {
-      this.connected = false;
+    async connect(): Promise < void > {
+        await this.withLock(() => this.connector.connect());
     }
-  }
 
-  private ensureConnected(): void {
-    if (!this.connected) {
-      throw new Error("Local AppScan MCP connector is not connected.");
+    async listTools(): Promise < McpTool[] > {
+        return this.withLock(() => this.connector.listTools());
     }
-  }
+
+    async callTool(
+        name: string,
+        args: Record < string, unknown >  = {}, ): Promise < McpToolCallResult > {
+        return this.withLock(() => this.connector.callTool(name, args));
+    }
+
+    async switchProvider(
+        provider: AppScanProvider, ): Promise < {
+        provider: AppScanProvider;
+        toolCount: number
+    }
+     > {
+        return this.withLock(async() => {
+            if (provider === this.activeProvider) {
+                return {
+                    provider: this.activeProvider,
+                    toolCount: (await this.connector.listTools()).length,
+                };
+            }
+
+            const previousConnector = this.connector;
+            let nextConnector: AppScanMcpConnector | undefined;
+
+            try {
+                nextConnector = this.connectorFactory(provider);
+                await nextConnector.connect();
+
+                const tools = await nextConnector.listTools();
+
+                if (tools.length === 0) {
+                    throw new Error(
+`The ${provider} AppScan provider returned no tools.`, );
+                }
+
+                // Activate only after connecting and validating the new provider.
+                this.connector = nextConnector;
+                this.activeProvider = provider;
+
+                try {
+                    await previousConnector.disconnect();
+                } catch (error) {
+                    // The new provider is active; report cleanup failure without
+                    // incorrectly rolling back a successful switch.
+                    console.error(
+                        "The previous AppScan connector could not be cleanly disconnected.",
+                        error instanceof Error ? error.message : "Unknown error", );
+                }
+
+                return {
+                    provider,
+                    toolCount: tools.length
+                };
+            } catch (error) {
+                if (nextConnector && nextConnector !== this.connector) {
+                    try {
+                        await nextConnector.disconnect();
+                    } catch {
+                        // Preserve the original connection or validation error.
+                    }
+                }
+
+                throw new Error(
+`Could not switch to the ${provider} AppScan provider: ${
+                    error instanceof Error ? error.message : "Unknown error"
+}`, );
+            }
+        });
+    }
+
+    async findToolByNames(
+        names: string[], ): Promise < McpTool | undefined > {
+        return this.withLock(async() => {
+            const tools = await this.connector.listTools();
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+
+            return tools.find((tool) =>
+                normalizedNames.has(tool.name.toLowerCase()), );
+        });
+    }
+
+    async hasAvailableTool(
+        names: string[],
+        expectedProvider ?  : AppScanProvider, ): Promise < boolean > {
+        return this.withLock(async() => {
+            if (
+                expectedProvider !== undefined &&
+                this.activeProvider !== expectedProvider) {
+                throw new Error(
+                    `Provider mismatch: expected ${expectedProvider}, ` +
+`but active provider is ${this.activeProvider}.`, );
+            }
+
+            const tools = await this.connector.listTools();
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+
+            return tools.some((tool) =>
+                normalizedNames.has(tool.name.toLowerCase()), );
+        });
+    }
+
+    async callFirstAvailableTool(
+        names: string[],
+        args: Record < string, unknown >  = {},
+        expectedProvider ?  : AppScanProvider, ): Promise < McpToolCallResult > {
+        return this.withLock(async() => {
+            if (
+                expectedProvider !== undefined &&
+                this.activeProvider !== expectedProvider) {
+                throw new Error(
+`Provider mismatch: this operation was prepared for ${expectedProvider}, but the active provider is ${this.activeProvider}. The operation was not executed.`, );
+            }
+
+            // Discovery and execution use the same connector while holding the lock.
+            const tools = await this.connector.listTools();
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+            const tool = tools.find((item) =>
+                    normalizedNames.has(item.name.toLowerCase()), );
+
+            if (!tool) {
+                throw new Error(
+`The active ${this.activeProvider} AppScan provider does not support this operation. Expected one of: ${names.join(", ")}.`, );
+            }
+
+            return this.connector.callTool(tool.name, args);
+        });
+    }
+
+    async callFirstAvailableToolIfSupported(
+        names: string[],
+        args: Record < string, unknown >  = {},
+        expectedProvider ?  : AppScanProvider, ): Promise < McpToolCallResult > {
+        return this.withLock(async() => {
+            if (
+                expectedProvider !== undefined &&
+                this.activeProvider !== expectedProvider) {
+                throw new Error(
+                    `Provider mismatch: this operation was prepared for ${expectedProvider}, ` +
+`but the active provider is ${this.activeProvider}. The operation was not executed.`, );
+            }
+
+            const tools = await this.connector.listTools();
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+            const tool = tools.find((item) =>
+                    normalizedNames.has(item.name.toLowerCase()), );
+
+            if (!tool) {
+                throw new Error(
+                    `The active ${this.activeProvider} AppScan provider does not support this operation. ` +
+`Expected one of: ${names.join(", ")}.`, );
+            }
+
+            return this.connector.callTool(tool.name, args);
+        });
+    }
+
+    async disconnect(): Promise < void > {
+        await this.withLock(() => this.connector.disconnect());
+    }
+
+    async findApplicationDiscoveryTool(): Promise < McpTool | undefined > {
+        return this.withLock(async() => {
+            const tools = await this.connector.listTools();
+
+            return tools.find((tool) =>
+                /^(get[_-]apps|list[_-]applications)$/i.test(tool.name), );
+        });
+    }
+
+    async discoverApplications(
+        args: Record < string, unknown >  = {}, ): Promise < McpToolCallResult > {
+        return this.withLock(async() => {
+            const tools = await this.connector.listTools();
+            const tool = tools.find((item) =>
+                    /^(get[_-]apps|list[_-]applications)$/i.test(item.name), );
+
+            if (!tool) {
+                throw new Error(
+                    "The configured AppScan MCP server does not expose a recognized application discovery tool.", );
+            }
+
+            return this.connector.callTool(tool.name, args);
+        });
+    }
 }
