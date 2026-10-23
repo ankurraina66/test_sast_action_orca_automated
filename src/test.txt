@@ -1,1 +1,12 @@
+$package = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package"
 
+Select-String `
+  -Path "$package\build\index.js" `
+  -Pattern 'registerCreateScanTool|createScan.js'
+
+
+
+
+Select-String `
+  -Path "$package\build\tools\createScan.js" `
+  -Pattern 'registerTool\("create-scan"|targetDir:|approved:|z.enum'
