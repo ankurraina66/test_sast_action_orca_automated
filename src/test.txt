@@ -1,1 +1,11 @@
 /appscan Use the existing AppScan connector to call "get-scan-issues" for scan ID "c3e61fb5-cae8-46df-9d77-68c96c5757d8", using the active remote provider. Return the total number of findings available and, if supported, a summary of severity and status. Do not create, execute, retry, or modify any scan. If the scan is not ready for issue retrieval or the request fails, report the exact result without retrying or starting another scan.
+
+  Called appscan-connector 2 times
+
+The request succeeded and returned: No issues found for this scan. The scan ID was c3e61fb5-cae8-46df-9d77-68c96c5757d8.
+
+- Findings: the tool reported none, so the count is 0. There are no severity or status values to summarize.
+- Provider: you asked for the remote provider, but the active provider is local. We switched to local earlier in this session. I didn't switch back because you didn't ask me to, so this result came from local.
+- What the result means: the tool didn't say whether the scan finished analysis or the project has no vulnerabilities. The scan list earlier showed the status "Ready", but I haven't verified that this empty result is complete. I made no retry and started no new scan.
+
+If you want the result from the remote provider, I can switch and rerun this read-only query.
