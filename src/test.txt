@@ -1,1 +1,3 @@
-
+Get-ChildItem "$env:USERPROFILE\.claude\projects" -Recurse -File -Filter "*.jsonl" -ErrorAction SilentlyContinue |
+  Select-String -Pattern "MCP error -32001|Request timed out|Maximum total timeout exceeded" |
+  Select-Object -Last 10 Path,Line
