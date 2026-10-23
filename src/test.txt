@@ -1,1 +1,20 @@
-Get-ChildItem .\node_modules\@modelcontextprotocol\sdk -Recurse -File | Select-String -Pattern "-32001|Request timed out" | Select-Object -First 10
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\node_modules\@modelcontextprotocol\sdk -Recurse -File | Select-String -Pattern "-32001|Request timed out" | Select-Object -First 10
+
+node_modules\@modelcontextprotocol\sdk\dist\cjs\types.d.ts:259:    RequestTimeout = -32001,
+node_modules\@modelcontextprotocol\sdk\dist\cjs\types.js:197:    ErrorCode[ErrorCode["RequestTimeout"] = -32001] = "RequestTimeout";
+node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\server\elicitationFormExample.js:391:                res.status(404).json({ jsonrpc: '2.0',
+error: { code: -32001, message: 'Session not found' }, id: null });
+node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\server\elicitationFormExample.js:434:            res.status(404).json({ jsonrpc: '2.0', error: {
+code: -32001, message: 'Session not found' }, id: null });
+node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\server\elicitationFormExample.js:452:            res.status(404).json({ jsonrpc: '2.0', error: {
+code: -32001, message: 'Session not found' }, id: null });
+node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\server\elicitationUrlExample.js:571:            res.status(404).json({ jsonrpc: '2.0', error: {
+code: -32001, message: 'Session not found' }, id: null });
+node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\server\elicitationUrlExample.js:616:        res.status(404).json({ jsonrpc: '2.0', error: { code:
+-32001, message: 'Session not found' }, id: null });
+node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\server\elicitationUrlExample.js:656:        res.status(404).json({ jsonrpc: '2.0', error: { code:
+-32001, message: 'Session not found' }, id: null });
+node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\server\jsonResponseStreamableHttp.js:158:            res.status(404).json({ jsonrpc: '2.0',
+error: { code: -32001, message: 'Session not found' }, id: null });
+node_modules\@modelcontextprotocol\sdk\dist\cjs\examples\server\simpleStreamableHttp.js:660:            res.status(404).json({ jsonrpc: '2.0', error: {
+code: -32001, message: 'Session not found' }, id: null });
