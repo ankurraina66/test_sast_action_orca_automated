@@ -1,12 +1,27 @@
-$package = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $package = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String `
+>>   -Path "$package\build\index.js" `
+>>   -Pattern 'registerCreateScanTool|createScan.js'
 
-Select-String `
-  -Path "$package\build\index.js" `
-  -Pattern 'registerCreateScanTool|createScan.js'
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:5:import { registerCreateScanTool } from
+"./tools/createScan.js";
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:1007:    registerCreateScanTool(server);
 
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String `
+>>   -Path "$package\build\tools\createScan.js" `
+>>   -Pattern 'registerTool\("create-scan"|targetDir:|approved:|z.enum'
 
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:63:
+server.registerTool("create-scan", {
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:79:            targetDir:
+z.string().describe("Required path to the local project, repository checkout, source tree, or prepared build output to package for scanning. For prompts
+like 'scan this project', use the current workspace folder."),
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:81:            scanType:
+z.enum(["SAST", "SCA"]).default("SAST").describe("Type of AppScan scan to create. Use SAST for static application security testing of source or build
+output. Use SCA for software composition or dependency analysis."),
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:87:            approved:
+z.boolean().optional().default(false).describe("Required approval flag for this write action. Set to true only after the user has explicitly approved
+creating or starting the AppScan scan."),
 
-
-Select-String `
-  -Path "$package\build\tools\createScan.js" `
-  -Pattern 'registerTool\("create-scan"|targetDir:|approved:|z.enum'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
