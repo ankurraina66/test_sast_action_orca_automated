@@ -1,1 +1,7 @@
-List scans for the application Demo_Claude_POC, including scan name, status, creation date, and scan ID.
+/appscan List scans for the application Demo_Claude_POC, including scan name, status, creation date, and scan ID.
+
+  Called appscan-connector 2 times
+
+Demo_Claude_POC (Application ID: a892fce6-630b-44b4-8f47-d6f6f7d63be5)
+
+AppScan returned no scans for this application, so there are no rows for the scan table.
