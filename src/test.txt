@@ -1,1 +1,1 @@
-
+Select-String -Path ".\node_modules\@modelcontextprotocol\sdk\dist\esm\shared\protocol.js" -Pattern "timeout|RequestTimeout" -Context 3,5
