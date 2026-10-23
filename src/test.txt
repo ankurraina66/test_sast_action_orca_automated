@@ -1,3 +1,12 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp add appscan-timeout-check -s local -e APP_SCAN_REQUEST_TIMEOUT_MS=300000 -- node -e "console.log(process.env.APP_SCAN_REQUEST_TIMEOUT_MS)"
-Added stdio MCP server appscan-timeout-check with command: node -e console.log(process.env.APP_SCAN_REQUEST_TIMEOUT_MS) to local config
-File modified: C:\Users\ankur.raina\.claude.json [project: C:\Users\ankur.raina\ai-coding-assistants-claude-poc]
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp get appscan-timeout-check
+appscan-timeout-check:
+  Scope: Local config (private to you in this project)
+  Status: × Failed to connect
+  Issue: CONNECTION_CLOSED: Connection closed
+  Type: stdio
+  Command: node
+  Args: -e console.log(process.env.APP_SCAN_REQUEST_TIMEOUT_MS)
+  Environment:
+    APP_SCAN_REQUEST_TIMEOUT_MS=300000
+
+To remove this server, run: claude mcp remove appscan-timeout-check -s local
