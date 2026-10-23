@@ -1,1 +1,5 @@
 
+$toolPath = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js"
+
+Select-String -Path $toolPath -Pattern "registerTool|inputSchema|targetDir|configFile|scanType|approved|conserveFiles|detailedLogs|workDir|wait" -Context 2,8
+
