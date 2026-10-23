@@ -1,1 +1,187 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\unit\local-stdio-connector.test.ts | Select-Object -First 220
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const { mockClient, mockTransport } = vi.hoisted(() => ({
+  mockClient: {
+    connect: vi.fn(),
+    listTools: vi.fn(),
+    callTool: vi.fn(),
+    close: vi.fn(),
+  },
+  mockTransport: vi.fn(),
+}));
+
+vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
+  Client: vi.fn(function () {
+    return mockClient;
+  }),
+}));
+
+vi.mock("@modelcontextprotocol/sdk/client/stdio.js", () => ({
+  StdioClientTransport: mockTransport,
+}));
+
+import { LocalStdioConnector } from "../../src/mcp/local-stdio-connector.js";
+
+describe("LocalStdioConnector", () => {
+  let connector: LocalStdioConnector;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockClient.connect.mockResolvedValue(undefined);
+
+    mockClient.listTools.mockResolvedValue({
+      tools: [],
+    });
+
+    mockClient.callTool.mockResolvedValue({
+      content: [{ type: "text", text: "Success" }],
+      isError: false,
+    });
+
+    mockClient.close.mockResolvedValue(undefined);
+
+    connector = new LocalStdioConnector({
+      command: "node",
+      args: ["build/index.js"],
+    });
+  });
+
+  it("connects to the local MCP server", async () => {
+    await connector.connect();
+
+    expect(mockClient.connect).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not connect twice when already connected", async () => {
+    await connector.connect();
+    await connector.connect();
+
+    expect(mockClient.connect).toHaveBeenCalledTimes(1);
+  });
+
+  it("lists tools exposed by the MCP server", async () => {
+    mockClient.listTools.mockResolvedValue({
+      tools: [
+        {
+          name: "get-apps",
+          description: "List AppScan applications",
+          inputSchema: { type: "object", properties: {} },
+        },
+      ],
+    });
+
+    await connector.connect();
+
+    await expect(connector.listTools()).resolves.toEqual([
+      {
+        name: "get-apps",
+        description: "List AppScan applications",
+        inputSchema: { type: "object", properties: {} },
+      },
+    ]);
+
+    expect(mockClient.listTools).toHaveBeenCalledWith(
+      {},
+      { timeout: 30000 },
+    );
+  });
+
+  it("uses the configured timeout when listing tools", async () => {
+    connector = new LocalStdioConnector({
+      command: "node",
+      args: ["build/index.js"],
+      requestTimeoutMs: 10000,
+    });
+
+    await connector.connect();
+    await connector.listTools();
+
+    expect(mockClient.listTools).toHaveBeenCalledWith(
+      {},
+      { timeout: 10000 },
+    );
+  });
+
+  it("rejects tool listing before connecting", async () => {
+    await expect(connector.listTools()).rejects.toThrow(
+      "Local AppScan MCP connector is not connected.",
+    );
+  });
+
+  it("calls a tool and normalizes its result", async () => {
+    await connector.connect();
+
+    await expect(
+      connector.callTool("get-apps", { top: 5 }),
+    ).resolves.toEqual({
+      content: [{ type: "text", text: "Success" }],
+      isError: false,
+    });
+
+    expect(mockClient.callTool).toHaveBeenCalledWith(
+      {
+        name: "get-apps",
+        arguments: { top: 5 },
+      },
+      undefined,
+      { timeout: 30000 },
+    );
+  });
+
+  it("uses the configured timeout when calling a tool", async () => {
+    connector = new LocalStdioConnector({
+      command: "node",
+      args: ["build/index.js"],
+      requestTimeoutMs: 15000,
+    });
+
+    await connector.connect();
+    await connector.callTool("get-apps", {});
+
+    expect(mockClient.callTool).toHaveBeenCalledWith(
+      {
+        name: "get-apps",
+        arguments: {},
+      },
+      undefined,
+      { timeout: 15000 },
+    );
+  });
+
+  it("rejects a tool call before connecting", async () => {
+    await expect(
+      connector.callTool("get-apps", {}),
+    ).rejects.toThrow(
+      "Local AppScan MCP connector is not connected.",
+    );
+  });
+
+  it("rejects an unsupported tool result format", async () => {
+    await connector.connect();
+
+    mockClient.callTool.mockResolvedValue({
+      unexpected: true,
+    });
+
+    await expect(
+      connector.callTool("get-apps", {}),
+    ).rejects.toThrow(
+      'MCP tool "get-apps" returned an unsupported result format.',
+    );
+  });
+
+  it("disconnects the client", async () => {
+    await connector.connect();
+    await connector.disconnect();
+
+    expect(mockClient.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("does nothing when disconnecting before connecting", async () => {
+    await connector.disconnect();
+
+    expect(mockClient.close).not.toHaveBeenCalled();
+  });
+});
