@@ -1,1 +1,1 @@
-
+Select-String -Path .\dist\config\config.js -Pattern "APP_SCAN_REQUEST_TIMEOUT_MS|30000|300000"
