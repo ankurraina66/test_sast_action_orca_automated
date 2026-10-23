@@ -1,1 +1,14 @@
+/appscan
 
+Prepare a new SAST scan for my existing Spring Boot project using the active local AppScan provider.
+
+- Project directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+- Application name: "Test_Tayalan"
+- Application ID: "39c76747-8617-4e00-8ae8-096e208f72ac"
+- Scan type: SAST
+- Scan name: "SpringBoot-REST-POC-SAST-2026-10-23"
+- Comment: "POC validation of local AppScan create-scan workflow"
+
+Use "prepare-scan" only. Do not call "execute-prepared-scan", "create-scan", or any other tool that starts a scan. Do not create an application or modify project files.
+
+Return the prepared confirmation token and the exact parameters that were recorded. If preparation fails, report the error without attempting another approach.
