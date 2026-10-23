@@ -1,1 +1,42 @@
-Get-ChildItem .\tests -Recurse -File | Select-String -Pattern "timeout|create-scan|execute-prepared-scan"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\tests -Recurse -File | Select-String -Pattern "timeout|create-scan|execute-prepared-scan"
+
+tests\unit\appscan-service-factory.test.ts:42:      requestTimeoutMs: 30000,
+tests\unit\appscan-service-factory.test.ts:58:      requestTimeoutMs: 30000,
+tests\unit\appscan-service-factory.test.ts:78:      requestTimeoutMs: 30000,
+tests\unit\appscan-service.test.ts:209:        const connector = createMockConnector(["create-scan"]);
+tests\unit\appscan-service.test.ts:214:                ["create-scan"], {
+tests\unit\appscan-service.test.ts:227:            service.callFirstAvailableTool(["create-scan"]), ).rejects.toThrow("does not support this operation");
+tests\unit\appscan-service.test.ts:350:        const connector = createMockConnector(["create-scan"]);
+tests\unit\appscan-service.test.ts:355:                ["create-scan", "create_scan"], {
+tests\unit\appscan-service.test.ts:368:        expect(connector.callTool).toHaveBeenCalledWith("create-scan", {
+tests\unit\appscan-service.test.ts:374:        const connector = createMockConnector(["create-scan"]);
+tests\unit\appscan-service.test.ts:379:                ["create-scan"], {
+tests\unit\appscan-service.test.ts:393:                ["create-scan", "create_scan"], {
+tests\unit\config.test.ts:14:    expect(config.requestTimeoutMs).toBe(30000);
+tests\unit\config.test.ts:73:  it("rejects invalid timeout values", () => {
+tests\unit\config.test.ts:77:        APP_SCAN_REQUEST_TIMEOUT_MS: "0",
+tests\unit\config.test.ts:80:      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
+tests\unit\connector-factory.test.ts:44:      requestTimeoutMs: 30000,
+tests\unit\connector-factory.test.ts:56:      requestTimeoutMs: 30000,
+tests\unit\connector-factory.test.ts:65:      requestTimeoutMs: 30000,
+tests\unit\connector-factory.test.ts:81:      requestTimeoutMs: 30000,
+tests\unit\connector-factory.test.ts:96:        requestTimeoutMs: 30000,
+tests\unit\connector-factory.test.ts:105:        requestTimeoutMs: 30000,
+tests\unit\local-stdio-connector.test.ts:86:      { timeout: 30000 },
+tests\unit\local-stdio-connector.test.ts:90:  it("uses the configured timeout when listing tools", async () => {
+tests\unit\local-stdio-connector.test.ts:94:      requestTimeoutMs: 10000,
+tests\unit\local-stdio-connector.test.ts:102:      { timeout: 10000 },
+tests\unit\local-stdio-connector.test.ts:128:      { timeout: 30000 },
+tests\unit\local-stdio-connector.test.ts:132:  it("uses the configured timeout when calling a tool", async () => {
+tests\unit\local-stdio-connector.test.ts:136:      requestTimeoutMs: 15000,
+tests\unit\local-stdio-connector.test.ts:148:      { timeout: 15000 },
+tests\unit\remote-http-connector.test.ts:159:            requestTimeoutMs: 5000,
+tests\unit\remote-http-connector.test.ts:186:    it("configures a per-request timeout through the custom fetch", () => {
+tests\unit\remote-http-connector.test.ts:190:            requestTimeoutMs: 5000,
+tests\unit\remote-http-connector.test.ts:200:    it("aborts a stalled request when the timeout expires", async() => {
+tests\unit\remote-http-connector.test.ts:201:        const timeoutMs = 20;
+tests\unit\remote-http-connector.test.ts:206:            requestTimeoutMs: timeoutMs,
+tests\unit\remote-http-connector.test.ts:243:                name: "TimeoutError"
+tests\unit\scan-workflow.test.ts:58:        expect(callTool).toHaveBeenCalledWith("create-scan", {
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
