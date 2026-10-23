@@ -1,1 +1,23 @@
+Continue the HCL AppScan connector validation with these strict steps:
 
+1. Call "switch-provider" to switch to "local".
+
+2. Call "get-provider-status" and verify that the active provider is "local". If the switch fails or the status is not local, stop.
+
+3. Verify that the local backend supports "create-scan". Use the connector's available tools and capability information; do not infer support solely from the provider name.
+
+4. If the provider is local and "create-scan" is supported, call only "prepare-scan" with these exact parameters:
+   
+   - Application ID: "39c76747-8617-4e00-8ae8-096e208f72ac"
+   - Project directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+   - Scan type: "SAST"
+   - Scan name: "POC-Spring-Boot-Create-Scan-E2E"
+   - Comment: "End-to-end validation of the HCL AppScan Claude connector create-scan workflow."
+
+5. Return the confirmation token and all prepared parameters. Explain the known backend side effects: target-directory validation, possible generation of "appscan-config.xml", a possible "npm run build" if "package.json" exists, source packaging into an IRX file, upload to AppScan, scan creation, and cleanup of generated artifacts. Clarify that the preparation step itself should not perform those scan-creation operations.
+
+6. Do not call "execute-prepared-scan", the backend "create-scan" tool, or any other tool that starts a scan. Do not modify project files.
+
+7. Stop and wait for my explicit approval before execution.
+
+If capability support cannot be verified, stop and report what is missing. Do not bypass any precondition.
