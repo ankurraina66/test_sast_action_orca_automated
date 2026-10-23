@@ -1,18 +1,1 @@
-/appscan I explicitly confirm execution of the prepared SAST scan using confirmation token "a72203b5-6fbc-4258-bd99-d27142f86343". Execute only this prepared scan using the local provider. Do not prepare another scan.
 
-  Called appscan-connector
-
-I started the prepared scan with the token you confirmed. It hasn't finished yet, so I can't say whether a scan was created.
-
-The call was still running after 120 seconds, so it moved to the background as task kor4svtl2. Packaging, uploading and any build step can take a while. I'll report the actual result when it completes. I haven't prepared any other scan.
-
-✻ Churned for 2m 10s · done 9:33 PM
-
-● MCP task kor4svtl2 (appscan-connector/execute-prepared-scan) failed.
-
-The scan did not complete. Task kor4svtl2 failed with MCP error -32001: Request timed out.
-
-- Scan status is unknown. The tool said the execution "failed or could not be confirmed." The request may have timed out on the client side while the backend kept working, so a scan may or may not exist in AppScan.
-- The token is spent. a72203b5-6fbc-4258-bd99-d27142f86343 was consumed to prevent duplicate scans, so it can't be reused.
-- Next step. The tool advises checking the AppScan backend before preparing another request. I can list scans for Demo_Claude_POC (Application ID: a892fce6-630b-44b4-8f47-d6f6f7d63be5) to see whether "Claude Local MCP Timeout POC - IntelliJ Plugin" was created. That is a read-only check.
-- Retry. I won't prepare a new scan unless you ask. A retry would need a fresh preparation and your explicit confirmation again.
