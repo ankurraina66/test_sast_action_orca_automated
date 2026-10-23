@@ -1,1 +1,19 @@
 /appscan Use the existing AppScan connector to call "get-scans" for application ID "39c76747-8617-4e00-8ae8-096e208f72ac" (Test_Tayalan). List the most recent scans, including scan name, scan ID, creation time, and status if available. Check specifically for "Spring Boot REST Service - POC SAST Validation". This is strictly a read-only verification: do not create, execute, retry, or modify any scan.
+
+  Called appscan-connector
+
+Test_Tayalan (Application ID: 39c76747-8617-4e00-8ae8-096e208f72ac)
+
+┌────────────────────────────────────────────────┬──────────────────────────────────────┬────────────────────────┬────────┬──────────────────────┐
+│                   Scan name                    │               Scan ID                │       Scan type        │ Status │       Created        │
+├────────────────────────────────────────────────┼──────────────────────────────────────┼────────────────────────┼────────┼──────────────────────┤
+│ Spring Boot REST Service - POC SAST Validation │ c3e61fb5-cae8-46df-9d77-68c96c5757d8 │ SAST (StaticAnalyzer)  │ Ready  │ 2026-10-23T11:53:14Z │
+├────────────────────────────────────────────────┼──────────────────────────────────────┼────────────────────────┼────────┼──────────────────────┤
+│ staging-check_2026-10-13_16-13-44              │ 32fe2b86-2f61-4c2c-8803-99ac6d42a37d │ DAST (DynamicAnalyzer) │ Ready  │ 2026-10-13T10:43:45Z │
+├────────────────────────────────────────────────┼──────────────────────────────────────┼────────────────────────┼────────┼──────────────────────┤
+│ SASTIncrementalscan                            │ 3fe02f9a-e8df-4395-9a0d-593b315f1242 │ SAST (StaticAnalyzer)  │ Ready  │ 2026-10-12T06:51:39Z │
+└────────────────────────────────────────────────┴──────────────────────────────────────┴────────────────────────┴────────┴──────────────────────┘
+
+"Spring Boot REST Service - POC SAST Validation" is present, so the scan was created even though the execute call timed out. The scan list shows only one scan with that name, so there is no sign of a duplicate. Its status is "Ready", which is the status the scan endpoint returned. I haven't checked whether it contains results.
+
+The scan endpoint does not return a risk-rating field.
