@@ -1,14 +1,26 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp add appscan-connector -s local -e APP_SCAN_REQUEST_TIMEOUT_MS=300000 -- node "C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js"
-Added stdio MCP server appscan-connector with command: node C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js to local config
-File modified: C:\Users\ankur.raina\.claude.json [project: C:\Users\ankur.raina\ai-coding-assistants-claude-poc]
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp get appscan-connector
-appscan-connector:
-  Scope: Local config (private to you in this project)
-  Status: √ Connected
-  Type: stdio
-  Command: node
-  Args: C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js
-  Environment:
-    APP_SCAN_REQUEST_TIMEOUT_MS=300000
+output of /mcp
 
-To remove this server, run: claude mcp remove appscan-connector -s local
+Manage MCP servers
+   38 servers
+
+     Local MCPs (C:\Users\ankur.raina\.claude.json [project: C:\Users\ankur.raina\ai-coding-assistants-claude-poc])
+   > √   appscan-connector                   8 tools
+
+     claude.ai
+     √   claude.ai Claude Docs               8 tools
+     √   claude.ai claude_security           10 tools
+     →   Show unused connectors              30 hidden
+     claude.ai Adobe for creativity · ( ) hidden — same URL as your server 'plugin:adobe-for-creativity:Adobe'
+       To use this connector instead, disable the plugin server in /plugins
+     claude.ai Figma · ( ) hidden — same URL as your server 'plugin:figma:figma'
+       To use this connector instead, disable the plugin server in /plugins
+
+     Built-in MCPs (always available)
+     ‼   plugin:adobe-for-creativity:Adobe   needs authentication
+     ‼   plugin:figma:figma                  needs authentication
+     ‼   plugin:miro:miro                    needs authentication
+     √   plugin:pdf-viewer:pdf               9 tools
+     ‼   plugin:zoominfo:zoominfo            needs authentication
+
+   https://code.claude.com/docs/en/mcp for help
+   ↑/↓ to navigate · Enter to confirm · Esc to cancel
