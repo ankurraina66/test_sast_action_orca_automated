@@ -1,19 +1,1 @@
-Below is the timeout error we got while executing prepared scan, you find why and where the error could have occurred?
 
-
-appscan Execute the prepared scan using confirmation token "e3ffa1c5-5e65-442e-ae9f-8a3acf97730a". I authorize creation of the SAST scan named "Spring Boot REST Service - POC SAST Validation" for application ID "39c76747-8617-4e00-8ae8-096e208f72ac", using the local provider and target directory "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master". I understand that the tool may generate configuration files, package and upload source artifacts, and create a scan. Execute only this prepared request; do not prepare another scan or change any parameters. Report the actual result and scan ID, or the exact error if execution fails.
-
-The user explicitly confirmed the exact parameters, matching the prepared request. Executing.
-
-  Called appscan-connector
-
-The scan was not confirmed as created. The execution call failed, and no scan ID was returned.
-
-Exact error:
-Scan execution failed or could not be confirmed. The confirmation token has been consumed to prevent accidental duplicate scans. Review the AppScan backend before preparing another request. Details: MCP error -32001: Request timed out
-
-- Outcome unknown: the request timed out, so I can't say whether the backend started packaging, uploading or creating the scan. I won't claim it was created or that it failed to be created.
-- Token consumed: e3ffa1c5-5e65-442e-ae9f-8a3acf97730a can't be reused. A retry needs a new prepare-scan and a new confirmation from you.
-- Project files: I didn't change any files. The underlying tool may have generated configuration files in the target directory before it timed out. I haven't checked.
-
-Suggested next step: check whether a scan named "Spring Boot REST Service - POC SAST Validation" now exists for Test_Tayalan, either in the AppScan UI or with get-scans. That avoids creating a duplicate. I haven't called get-scans because you asked me to run only this execution.
