@@ -1,1 +1,8 @@
+Using the existing AppScan connector, perform read-only checks only:
 
+1. Call "get-provider-status" and confirm the active provider.
+2. Call "get-apps" and identify whether an application suitable for a new Spring Boot REST service SAST test already exists. Do not assume any existing application is suitable based only on its name.
+3. Switch to the local provider if necessary, then confirm the local backend exposes "create-scan". Do not execute it.
+4. Report the active provider, candidate application names and IDs, and whether "create-scan" is available locally.
+
+Do not create an application, start a scan, or modify any files.
