@@ -1,1 +1,9 @@
+Use the existing AppScan connector to call "prepare-scan" with these exact parameters:
 
+- appId: "39c76747-8617-4e00-8ae8-096e208f72ac"
+- targetDir: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+- scanType: "SAST"
+- scanName: "Spring Boot REST Service - Connector POC"
+- comment: "Validation of AppScan connector create-scan workflow"
+
+Preparation only. Do not call "execute-prepared-scan", do not create or start a scan, and do not modify project files. Return the confirmation token and the exact prepared parameters.
