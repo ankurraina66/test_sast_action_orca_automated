@@ -1,1 +1,1 @@
-Inspect the configuration and files available to this workspace for the local AppScan MCP server. Identify the server executable or entry point, how requestTimeoutMs or APP_SCAN_REQUEST_TIMEOUT_MS is configured, and whether execute-prepared-scan waits for scan completion or only for scan submission. Read-only inspection only: do not edit files, run scans, or expose API keys, secrets, or credentials.
+
