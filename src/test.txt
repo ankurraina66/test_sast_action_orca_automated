@@ -1,1 +1,3 @@
-
+Get-ChildItem -Recurse -File -Include *.ts,*.js |
+  Select-String -Pattern 'SAClientUtil|prepareScan|prepare-scan|extractClient|\.irx' |
+  Select-Object Path, LineNumber, Line
