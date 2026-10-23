@@ -1,4 +1,4 @@
-Continue the HCL AppScan connector validation with these strict steps:
+/appscan Continue the HCL AppScan connector validation with these strict steps:
 
 1. Call "switch-provider" to switch to "local".
 
@@ -7,7 +7,7 @@ Continue the HCL AppScan connector validation with these strict steps:
 3. Verify that the local backend supports "create-scan". Use the connector's available tools and capability information; do not infer support solely from the provider name.
 
 4. If the provider is local and "create-scan" is supported, call only "prepare-scan" with these exact parameters:
-   
+
    - Application ID: "39c76747-8617-4e00-8ae8-096e208f72ac"
    - Project directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
    - Scan type: "SAST"
@@ -21,3 +21,28 @@ Continue the HCL AppScan connector validation with these strict steps:
 7. Stop and wait for my explicit approval before execution.
 
 If capability support cannot be verified, stop and report what is missing. Do not bypass any precondition.
+
+  Called appscan-connector 2 times
+
+● listMcpResources(List MCP resources from server "appscan-conne
+(No resources found)
+
+I switched to local and confirmed it, but I'm stopping at the create-scan support check. I haven't called prepare-scan.
+
+Done:
+- switch-provider to local succeeded. It reported "Provider coucceeded" with 15 backend tools.
+- get-provider-status confirms the active provider is local.
+
+Why I stopped: I can't verify that the local backend supports create-scan.
+- The switch result gives only a count of 15 backend tools, no
+- The status tool reports only the provider name.
+- The connector exposes no resources to list.
+- My own tool list has prepare-scan and execute-prepared-scan but no backend create-scan entry.
+
+Inferring support from the provider name or from prepare-scan existing would break your instruction, so I haven't done that. prepare-scan and           cute-prepared-scan are connector wrapper tools. They don't te-scan exists.
+                                                                                                                                                        hing was prepared or executed, no scan was started, and no The only state change is the provider switch from remote tolocal, which you asked for.                                                                                                                             
+Options:                                                                                                                                                You confirm create-scan support. For example, you can checkt or its config. I then call prepare-scan with your exactparameters and return the token. It would cover the side effects you listed: directory validation, a possible appscan-config.xml, a possible npm run build if package.json exists, IRX packaging, upload, scan cion alone shouldn't perform any of those.
+2. You authorize calling prepare-scan anyway. It doesn't start a scan, and a failure or an unsupported-tool error would itself show whether the backend
+   supports create-scan. I'd treat that as indirect evidence a
+
+Which would you like?
