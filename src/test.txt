@@ -1,5 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\dist\config\config.js -Pattern "APP_SCAN_REQUEST_TIMEOUT_MS|30000|300000"
 
-dist\config\config.js:8:    const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
-dist\config\config.js:9:    if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 300000) {
-dist\config\config.js:10:        throw new Error("APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.");
