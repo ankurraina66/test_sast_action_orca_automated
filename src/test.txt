@@ -1,1 +1,15 @@
+/appscan
 
+Execute the already-prepared SAST scan using confirmation token "b6b4fbd4-e3dc-408a-828a-d8001497fcf2".
+
+I explicitly approve execution with these parameters:
+
+- Application: Demo_Test_Ankur
+- Application ID: "21b194f5-cea5-4ff6-a4d1-a03103a3e2fb"
+- Scan type: SAST
+- Scan name: "Spring-Boot-REST-POC-Ankur"
+- Target directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+- Comment: "POC validation of AppScan Connector create-scan workflow"
+- Confirmation token: "b6b4fbd4-e3dc-408a-828a-d8001497fcf2"
+
+Call "execute-prepared-scan" for this token only. Do not prepare another scan, change the parameters, switch providers, or execute any other scan. If the token is missing, the provider does not match, or execution is unsupported, report the error without creating a replacement scan. Report the final result and scan ID if available.
