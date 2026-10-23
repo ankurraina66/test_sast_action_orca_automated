@@ -1,1 +1,1 @@
-/appscan prepare a SAST scan for Demo_Claude_POC using target directory "C:\full\path\to\your\test-project". Use the local provider. Prepare only; do not execute the scan.
+prepare a SAST scan for Demo_Claude_POC using target directory "C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin". Use the local provider. Prepare only; do not execute the scan.
