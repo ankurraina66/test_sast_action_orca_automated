@@ -1,1 +1,1 @@
-
+/appscan Check the scan execution status using get-scan-execution-status with confirmationToken "b00fb860-1975-4949-9c0c-0639d09fff35". Do not execute or submit another scan. Return the current status and, if completed, the scan summary and issue count.
