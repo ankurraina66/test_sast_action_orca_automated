@@ -1,1 +1,3 @@
+/appscan
 
+Use the existing AppScan connector to call "get-scans" for application ID "21b194f5-cea5-4ff6-a4d1-a03103a3e2fb" (Demo_Test_Ankur). This is strictly a read-only verification. Look for a scan named "Spring-Boot-REST-POC-Ankur", including recently created scans. Report its scan ID, creation time, and status if available. Do not create, prepare, execute, cancel, or modify any scan. Do not switch providers.
