@@ -1,1 +1,1 @@
-
+Get-ChildItem -Recurse -File -Include *.js,*.ts,*.yml,*.yaml,*.json | Select-String -Pattern "wait_for_analysis|waitForAnalysis|timeout|poll" -CaseSensitive:$false | Select-Object -First 40
