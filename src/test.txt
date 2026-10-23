@@ -1,1 +1,1 @@
-
+/appscan Use the existing AppScan connector to call "get-provider-status". Return the active provider and connection status. If the tool call times out or fails, report the exact error message and timeout duration, if available. Do not switch providers, create scans, modify files, or expose credentials.
