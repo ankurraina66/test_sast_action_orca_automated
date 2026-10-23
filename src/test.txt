@@ -1,9 +1,1 @@
-/appscan Use the existing AppScan connector to call "get-apps" and find the exact application named "Demo_Test_Ankur". Return its application ID. If it isn't found in the first 10 results, search further using supported filtering or pagination. This is read-only: do not create an application, start a scan, or modify any files.
 
-  Called appscan-connector
-
-The application Demo_Test_Ankur exists, and its Application ID is 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb.
-
-This matches the ID used in the earlier scan preparations. It was found in the first call, which returned all 23 applications, so no filtering or pagination was needed. The name matched exactly, and no other application has the same name.
-
-I made no changes. I did not create an application, start a scan, or modify any files.
