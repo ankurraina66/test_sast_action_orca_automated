@@ -1,1 +1,44 @@
+/appscan Prepare a new SAST scan for my Spring Boot project using the existing AppScan connector.
 
+Project directory: C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master
+
+Use AppScan application Demo_Test_Ankur, ID 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb.
+
+Use scan name: Spring-Boot-RESTful-Service-POC
+
+Comment: Initial SAST validation of the Spring Boot RESTful web service example.
+
+Call only "prepare-scan". Do not call "execute-prepared-scan", "create-scan", or any other operation that starts a scan, builds or packages the project, uploads files, or modifies the project. Return the confirmation token and the exact prepared parameters.
+
+  Called appscan-connector
+
+The scan is prepared but not started.
+
+┌────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       Field        │                                                            Value                                                             │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Confirmation token │ 682ebb22-bb53-4793-a56c-83df578d2729                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application        │ Demo_Test_Ankur (Application ID: 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb)                                                       │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Target directory   │ C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan type          │ SAST                                                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan name          │ Spring-Boot-RESTful-Service-POC                                                                                              │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Provider           │ local                                                                                                                        │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Comment (supplied) │ Initial SAST validation of the Spring Boot RESTful web service example.                                                      │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+The connector's confirmation output did not echo the comment. but I can't confirm it was stored.
+
+I called only prepare-scan. I didn't build, package or upload  any files.
+
+Earlier preparations are still pending and unexecuted. They arfadd3ad6c (Demo_Test_Ankur) and370142a0-d752-4e9b-9692-5cd55d2b5f8d (Test_Tayalan). I haven't confirmed whether tokens expire, so use only the token above for this request.
+
+If you execute this scan, source artifacts from the target directory may be packaged and uploaded to AppScan. The underlying tool may also generate
+configuration files in that directory or run a build.
+
+Do you confirm these exact parameters for execution? I'll callfter you give explicit confirmation.
