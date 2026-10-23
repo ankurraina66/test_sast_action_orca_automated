@@ -1,1 +1,1 @@
-
+Select-String -Path .\src\claude-mcp-server.ts -Pattern "execute-prepared-scan|create-scan|create_scan|callFirstAvailableToolIfSupported" -Context 5,10
