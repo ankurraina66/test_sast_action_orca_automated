@@ -1,1 +1,1 @@
-
+List scans for the application Demo_Claude_POC, including scan name, status, creation date, and scan ID.
