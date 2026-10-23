@@ -1,1 +1,18 @@
 
+$package = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package"
+
+# Confirm the local backend registers create-scan
+Select-String -Path "$package\build\index.js" `
+  -Pattern 'registerCreateScanTool|createScan.js'
+
+# Inspect the create-scan schema and approval guard
+Select-String -Path "$package\build\tools\createScan.js" `
+  -Pattern 'registerTool\("create-scan"|appId:|targetDir:|scanType:|scanName:|comment:|approved:|approved\)|approved === true' `
+  -Context 2,3
+
+# Locate the connector's production workflow mapping
+$connector = "C:\Users\ankur.raina\ai-coding-assistants-claude-poc"
+Get-ChildItem "$connector\src" -Recurse -File |
+  Select-String -Pattern 'callFirstAvailableToolIfSupported|create-scan|create_scan|prepare-scan|execute-prepared-scan' |
+  Select-Object Path, LineNumber, Line
+
