@@ -1,3 +1,4 @@
+remote provider displayed here in the response does not have create scan capability, its with local provider
 
 /appscan Prepare a new SAST scan request for the existing AppScan application "Sample_project" (application ID "a516afa4-4659-4866-990e-ea1e7d5d8fe3").
 
@@ -8,3 +9,36 @@ Scan name: "SpringBoot-REST-POC-SAST"
 Comment: "POC validation of the AppScan Connector create-scan workflow"
 
 Use "prepare-scan" only. Do not execute the prepared scan, create an application, or modify files. Return the confirmation token and the exact parameters that were prepared.
+
+  Called appscan-connector
+
+The scan is prepared but not started. The tool returned a confirmation token. I did not call execute-prepared-scan, create an application, or modify any files.
+
+Prepared parameters
+
+┌────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│     Parameter      │                                                            Value                                                             │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Confirmation token │ 5249dddd-3e07-49d0-a335-5a4244f6b458                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application        │ Sample_project                                                                                                               │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application ID     │ a516afa4-4659-4866-990e-ea1e7d5d8fe3                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan type          │ SAST                                                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan name          │ SpringBoot-REST-POC-SAST                                                                                                     │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Source directory   │ C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master │
+├────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Provider           │ remote                                                                                                                       │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+You supplied the comment "POC validation of the AppScan Connecd I passed it to prepare-scan. The tool's response did not echo the comment back, so I can't confirm it was recorded.
+
+What executing would do
+
+- Upload: Source artifacts from that directory may be packaged and uploaded to AppScan. The provider is remote, so the code would leave this machine.
+- Side effects: The underlying tool may generate configurationy or run a build.
+- Scope: Approval covers only this scan. It doesn't approve any source-code edits.                                                                        
+To run it, confirm these exact parameters, for example by replying "Confirmed, execute the prepared scan". If you change any parameter, I'll prepare a new request and ask you to confirm again.
