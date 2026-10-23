@@ -1,22 +1,44 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\services\appscan-service-factory.ts
-import { loadConfig } from "../config/config.js";
-import type { AppScanProvider } from "../config/config.js";
-import { createConnector } from "../mcp/connector-factory.js";
-import { AppScanService } from "./appscan-service.js";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\mcp\connector-factory.ts
+import type { ConnectorConfig } from "../config/config.js";
+import type { AppScanMcpConnector } from "./connector.js";
+import { LocalStdioConnector } from "./local-stdio-connector.js";
+import { RemoteHttpConnector } from "./remote-http-connector.js";
 
-export function createAppScanService(): AppScanService {
-  const config = loadConfig();
-  const connector = createConnector(config);
+export function createConnector(
+  config: ConnectorConfig,
+): AppScanMcpConnector {
+  if (config.provider === "local") {
+    if (!config.local) {
+      throw new Error(
+        "Local connector configuration is missing.",
+      );
+    }
 
-  return new AppScanService(
-    connector,
-    config.provider,
-    (provider: AppScanProvider) =>
-      createConnector(
-        loadConfig({
-          ...process.env,
-          APP_SCAN_PROVIDER: provider,
-        }),
-      ),
-  );
+    return new LocalStdioConnector({
+      command: config.local.command,
+      args: config.local.args,
+      requestTimeoutMs: config.requestTimeoutMs,
+      env: {
+        APPSCAN_API_BASE: config.local.apiBase,
+        ...(config.local.keyId
+          ? { APPSCAN_KEY_ID: config.local.keyId }
+          : {}),
+        ...(config.local.keySecret
+          ? { APPSCAN_KEY_SECRET: config.local.keySecret }
+          : {}),
+      },
+    });
+  }
+
+  if (!config.remote) {
+    throw new Error(
+      "Remote connector configuration is missing.",
+    );
+  }
+
+  return new RemoteHttpConnector({
+    endpoint: config.remote.endpoint,
+    apiKey: config.remote.apiKey,
+    requestTimeoutMs: config.requestTimeoutMs,
+  });
 }
