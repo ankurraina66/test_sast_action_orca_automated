@@ -1,1 +1,37 @@
 /appscan List the available AppScan connector tools and their descriptions, focusing on scan creation, scan status, scan details, and timeout configuration. Do not create or execute a scan.
+
+The connector exposes eight tools in this session. The local provider reported 15 backend tools earlier, but only these eight are visible to me, so I can't describe the other seven. I haven't called any scan tool.
+
+┌───────────────────────┬──────────────────────────────────────────────────────────────┬──────────────────────────────────────────────────────────────┐
+│         Tool          │                         Description                          │                          Parameters                          │
+├───────────────────────┼──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ prepare-scan          │ Prepares a scan request and returns its exact parameters for │ appId and targetDir are required. scanName, comment, and     │
+│                       │  review. It does not start a scan.                           │ scanType (SAST or SCA, default SAST) are optional.           │
+├───────────────────────┼──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ execute-prepared-scan │ Runs a previously prepared scan. It is meant to be called    │ confirmationToken (UUID, required)                           │
+│                       │ only after you explicitly confirm the exact parameters.      │                                                              │
+├───────────────────────┼──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ get-scans             │ Lists scans, optionally filtered by application and an OData │ applicationId, filter, top (all optional)                    │
+│                       │  filter.                                                     │                                                              │
+├───────────────────────┼──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ get-scan-issues       │ Retrieves the findings for one scan.                         │ scanId (required), filter, top                               │
+├───────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ get-issue-details     │ Retrieves the details of one finding.                        │ issueId (required)                                           │
+├───────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ get-apps              │ Lists applications.                                          │ filter, top (optional)                                       │
+├───────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ get-provider-status   │ Shows which provider is active (currently local).            │ None                                                         │
+├───────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ switch-provider       │ Switches the backend between local STDIO and remote HTTP.    │ provider: local or remote                                    │
+└───────────────────────┴────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Scan creation: prepare-scan followed by execute-prepared-scan an see.
+
+Scan status: I found no dedicated status or progress tool. getnce it returns the scan records. I haven't checked whetherthose records include a status field for a running scan.
+
+Scan details: get-scans returns scan records, get-scan-issues returns a scan's findings, and get-issue-details returns one finding.
+
+Timeout configuration: No visible tool or parameter sets a timeout. If the local provider has a timeout setting, it isn't in the tool schemas I can see.
+It could be in the MCP server's own configuration, but I haven
+
+If you want, I can look at the MCP server configuration for ti the files, and I wouldn't change anything.
