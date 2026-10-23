@@ -1,1 +1,14 @@
+/appscan
 
+Using the existing AppScan connector with the active local provider:
+
+1. Call "get-provider-status" and confirm the provider is local.
+2. Verify that the local backend supports "create-scan" without invoking it.
+3. Call "prepare-scan" for a new SAST scan using:
+   - Application ID: "39c76747-8617-4e00-8ae8-096e208f72ac" (Test_Tayalan)
+   - Target directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+   - Scan type: "SAST"
+   - Scan name: "Spring Boot REST Service - POC Validation"
+   - Comment: "New application scan to validate the HCL AppScan Claude connector create-scan workflow"
+
+Do not call "execute-prepared-scan" or "create-scan" directly. Do not create an AppScan application, start a scan, or modify project files. Return the preparation token and the exact parameters for review.
