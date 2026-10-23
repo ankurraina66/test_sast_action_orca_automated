@@ -1,4 +1,4 @@
-Use the existing AppScan connector to prepare a new SAST scan for the local Spring Boot project at "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master", associated with application "Test_Tayalan" (ID "39c76747-8617-4e00-8ae8-096e208f72ac").
+/appscan Use the existing AppScan connector to prepare a new SAST scan for the local Spring Boot project at "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master", associated with application "Test_Tayalan" (ID "39c76747-8617-4e00-8ae8-096e208f72ac").
 
 Call "prepare-scan" with:
 
@@ -9,3 +9,34 @@ Call "prepare-scan" with:
 - "comment": "Authorized POC validation of AppScan create-scan workflow"
 
 Do not call "execute-prepared-scan" or any scan-creation tool. Return the confirmation token and the exact prepared parameters. This step must not start a scan or modify project files.
+
+  Called appscan-connector
+
+The scan is prepared only. No scan has been started, I did not call execute-prepared-scan, and I did not modify any files.
+
+Confirmation token: e3ffa1c5-5e65-442e-ae9f-8a3acf97730a
+
+Prepared parameters returned by the tool
+
+┌──────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│    Parameter     │                                                            Value                                                             │
+├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application      │ Test_Tayalan (Application ID: 39c76747-8617-4e00-8ae8-096e208f72ac)                                                          │
+├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Target directory │ C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master │
+├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan type        │ SAST                                                                                                                         │
+├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan name        │ Spring Boot REST Service - POC SAST Validation                                                                               │
+├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Provider         │ local                                                                                           │
+└──────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+- Application name: the tool echoes only the application ID. The name "Test_Tayalan" comes from your request, and I did not resolve it with get-apps.
+- Comment: the tool's response does not echo the comment valueof AppScan create-scan workflow"). I submitted it, but I can'tconfirm from the output that it was stored.
+- Earlier token: the token from the previous preparation (e397caf, scan name "Spring Boot REST Service - Connector POC") is a separate request. This new token applies only to the parameters above.
+
+If you later execute this scan, source artifacts may be packaged and uploaded to AppScan. The underlying tool may also generate configuration files or run
+a build in the target directory.
+
+I will call execute-prepared-scan only if you explicitly confi
