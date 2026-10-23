@@ -1,1 +1,9 @@
-appscan what is the current provider and what request timeout configuration is active? Do not change any settings or execute a scan.
+/appscan what is the current provider and what request timeout configuration is active? Do not change any settings or execute a scan.
+
+  Called appscan-connector
+
+The current provider is local.
+
+The status tool returns only the provider name, not any timeout settings. I can't tell you the active request timeout from AppScan, and I haven't guessed one.
+
+The timeout is probably set in the connector's own configuration, such as the MCP server definition in your Claude Code settings (.mcp.json or similar) or its environment variables. I haven't opened those files. If you'd like, I can look for the connector's config in the workspace and read the timeout from there. That would be read-only, and I wouldn't change anything.
