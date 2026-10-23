@@ -1,12 +1,1 @@
-appscan Switch the active AppScan provider to "local". Then call "get-provider-status" and report the active provider and available backend tool count. Do not execute any prepared scan, create an application, or modify files.
 
-  Called appscan-connector 2 times
-
-The active AppScan provider is now local, and the backend reports 15 available tools.
-
-- Switch result: switch-provider returned "Active AppScan provider: local", "Available backend tools: 15", and "Provider connection and tool discovery succeeded."
-- Status check: get-provider-status confirmed the active provider is local. It returned only the provider name, with no tool count, so the count of 15 comes from the switch response.
-
-The scan I prepared earlier was prepared under the remote provider. I don't know whether its confirmation token (5249dddd-3e07-49d0-a335-5a4244f6b458) is still valid under local. If you want to run that scan, I'd prepare it again under local and ask you to confirm the new parameters.
-
-I didn't execute any scan, create an application, or modify any files.
