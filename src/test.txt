@@ -1,1 +1,1 @@
-
+appscan what is the current provider and what request timeout configuration is active? Do not change any settings or execute a scan.
