@@ -1,1 +1,7 @@
-I explicitly confirm execution of the prepared SAST scan using confirmation token "a72203b5-6fbc-4258-bd99-d27142f86343". Execute only this prepared scan using the local provider. Do not prepare another scan.
+ /appscan I explicitly confirm execution of the prepared SAST scan using confirmation token "a72203b5-6fbc-4258-bd99-d27142f86343". Execute only this prepared scan using the local provider. Do not prepare another scan.
+
+  Called appscan-connector
+
+I started the prepared scan with the token you confirmed. It hasn't finished yet, so I can't say whether a scan was created.
+
+The call was still running after 120 seconds, so it moved to the background as task kor4svtl2. Packaging, uploading and any build step can take a while. I'll report the actual result when it completes. I haven't prepared any other scan.
