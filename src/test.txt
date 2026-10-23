@@ -1,2 +1,105 @@
-Get-Content "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js" |
-  Select-Object -Skip 235 -First 180
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js" |
+>>   Select-Object -Skip 235 -First 180
+                // Try to run build command if package.json exists
+                const packageJsonPath = path.join(targetDir, "package.json");
+                if (fs.existsSync(packageJsonPath)) {
+                    await sendProgress("🔨 Building project with npm...", 50, 100);
+                    console.error("[createScan] Found package.json, running npm run build...");
+                    const { execSync } = require('child_process');
+                    const buildOutput = execSync('npm run build', {
+                        cwd: targetDir,
+                        encoding: 'utf-8',
+                        maxBuffer: 1024 * 1024 * 10,
+                        stdio: 'pipe',
+                    });
+                    if (detailedLogs && buildOutput) {
+                        console.error(`[createScan] Build output:\n${truncateForLog(buildOutput, 12000)}`);
+                    }
+                    console.error("[createScan] Build completed successfully");
+                    await sendProgress("Build completed successfully", 55, 100);
+                }
+                else {
+                    await sendProgress("ℹ️ No package.json found, skipping build step", 55, 100);
+                    console.error("[createScan] No package.json found, skipping build step");
+                }
+            }
+            catch (buildError) {
+                const buildOutput = [buildError?.stdout, buildError?.stderr]
+                    .filter(Boolean)
+                    .map((value) => truncateForLog(value, detailedLogs ? 12000 : 2000))
+                    .join("\n");
+                if (buildOutput) {
+                    console.error(`[createScan] Build output excerpt:\n${buildOutput}`);
+                }
+                console.error(`[createScan] Warning: Build failed or no build script: ${buildError instanceof Error ? buildError.message : String(buildError)}`);
+                console.error("[createScan] Continuing with scan of source directory...");
+            }
+            // Use build directory if it exists, otherwise use target directory
+            const scanDir = fs.existsSync(buildDir) ? buildDir : targetDir;
+            console.error(`[createScan] Scanning directory: ${scanDir}`);
+            // Step 3: Generate IRX with enhanced options
+            await sendProgress("Generating IRX file (this may take several minutes)...", 60, 100);
+            console.error("[createScan] Step 3: Generate IRX file using appscan-config.xml");
+            // Create output directory with timestamp
+            const now = new Date();
+            const dateTimeStr = now.toISOString().replace(/[-:]/g, '_').split('.')[0];
+            outputDir = path.join(targetDir, `HCLAppScan_${dateTimeStr}`);
+            const irxPath = await generateIRX(appscanPath, scanDir, `Static_${path.basename(targetDir)}_${dateTimeStr.split('T')[0]}_${dateTimeStr.split('T')[1]}`, outputDir, resolvedConfigFile, undefined, // scanFlag - not used when config file is required
+            false, // secretScanning - configured in XML file
+            "thorough", // scanLevel - use thorough scan by default
+            true, // analysisOnly - use -sao flag
+            detailedLogs);
+            await sendProgress("IRX file generated successfully", 70, 100);
+            // Step 4: Upload IRX
+            await sendProgress("Uploading IRX file to AppScan...", 75, 100);
+            console.error("[createScan] Step 4: Upload IRX file");
+            const fileId = await uploadIRXFile(irxPath);
+            await sendProgress("✓ IRX file uploaded", 80, 100);
+            // Step 5: Create scan
+            await sendProgress("🚀 Creating scan in AppScan...", 85, 100);
+            console.error("[createScan] Step 5: Create scan");
+            const { scanId, scanData } = await createScan(appId, scanName, fileId, scanType, comment);
+            await sendProgress(`✓ Scan created (ID: ${scanId})`, 90, 100);
+            const artifactMessage = conserveFiles
+                ? `Local scan artifacts preserved: ${outputDir}`
+                : cleanupScanArtifacts(outputDir);
+            console.error(`[createScan] ${artifactMessage}`);
+            // Early return when not waiting
+            if (!wait) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: `Scan created. ID: ${scanId} | Name: ${scanData?.Name || scanName} | Type: ${scanType}\nIRX: ${irxPath}\nFileId: ${fileId}\n${artifactMessage}`,
+                        },
+                    ],
+                };
+            }
+            // Step 6: Wait for scan completion
+            await sendProgress("Waiting for scan to complete (checking every 15 seconds)...", 95, 100);
+            console.error("[createScan] Step 6: Wait for scan completion");
+            const { lastPayload } = await waitForScanReady(scanId, 15000, sendProgress, detailedLogs);
+            await sendProgress("Scan completed!", 100, 100);
+            const summary = formatScanSummary(scanId, scanName, scanType, lastPayload, irxPath, fileId);
+            return {
+                content: [
+                    { type: "text", text: `Scan completed.\n${summary}\n${artifactMessage}` },
+                ],
+            };
+        }
+        catch (error) {
+            const cleanupMessages = cleanupGeneratedFiles();
+            const cleanupText = cleanupMessages.length > 0 ? `\n${cleanupMessages.join("\n")}` : "";
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error creating scan: ${error instanceof Error ? error.message : String(error)}${cleanupText}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+}
+//# sourceMappingURL=createScan.js.map
