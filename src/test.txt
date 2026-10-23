@@ -1,27 +1,45 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp add --help
-Usage: claude mcp add [options] <name> <commandOrUrl> [args...]
-
-Add an MCP server to Claude Code.
-
-Examples:
-  # Add HTTP server:
-  claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
-
-  # Add HTTP server with headers:
-  claude mcp add --transport http corridor https://app.corridor.dev/api/mcp --header "Authorization: Bearer ..."
-
-  # Add stdio server with environment variables:
-  claude mcp add my-server -e API_KEY=xxx -- npx my-mcp-server
-
-  # Add stdio server with subprocess flags:
-  claude mcp add my-server -- my-command --some-flag arg1
-
-Options:
-  --callback-port <port>       Fixed port for OAuth callback (for servers requiring pre-registered redirect URIs)
-  --client-id <clientId>       OAuth client ID for HTTP/SSE servers
-  --client-secret              Prompt for OAuth client secret (or set MCP_CLIENT_SECRET env var)
-  -e, --env <env...>           Set environment variables (e.g. -e KEY=value)
-  -H, --header <header...>     Set headers for HTTP/SSE servers (e.g. -H "X-Api-Key: abc123" -H "X-Custom: value")
-  -h, --help                   Display help for command
-  -s, --scope <scope>          Configuration scope (local, user, or project) (default: "local")
-  -t, --transport <transport>  Transport type (stdio, sse, http). Defaults to stdio if not specified.
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp list
+claude.ai Claude Docs: https://api.anthropic.com/v1/pages/mcp - √ Connected
+claude.ai claude_security: https://api.anthropic.com/v1/claude/security/mcp - √ Connected
+claude.ai Google Sheets: https://sheetsmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai Google Slides: https://slidesmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai Google Docs: https://docsmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai HCLSW Devops Automation Build: https://devopsautomation.hcl-software.com/build/mcp - × Failed to connect — Version negotiation probe timed out
+after 5000ms
+claude.ai HCLSW Devops Automation Control: https://devopsautomation.hcl-software.com/control/mcp - × Failed to connect — Version negotiation probe timed out
+after 5000ms
+claude.ai HCLSW Devops Automation Deploy: https://devopsautomation.hcl-software.com/deploy/mcp - × Failed to connect — Version negotiation probe timed out
+after 5000ms
+claude.ai HCLSW Devops Automation Test: https://devopsautomation.hcl-software.com/test/mcp - × Failed to connect — Version negotiation probe timed out after
+5000ms
+claude.ai HCLSW Devops Automation Loop: https://devopsautomation.hcl-software.com/loop/mcp - × Failed to connect — Version negotiation probe timed out after
+5000ms
+claude.ai HCLSW Devops Automation Plan: https://devopsautomation.hcl-software.com/plan/mcp - × Failed to connect — Version negotiation probe timed out after
+5000ms
+claude.ai ADO Prod SETeam: https://mcp-data-observability.actian.com/jTBrZQAATiM/mcp - ! Needs authentication
+claude.ai ADO Dev Devops: https://mcp.use1.gcp.data-observability.dev.actian.com/OakCWQAATiQ/mcp - ! Needs authentication
+claude.ai Actian Gong: https://mcp.gong.io/mcp - ! Needs authentication
+claude.ai Demandbase: https://gateway.demandbase.com/mcp/servers/db-mcp - ! Needs authentication
+claude.ai HCLSW Google Chat: https://chatmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai CB Insights: https://mcp.cbinsights.com - ! Needs authentication
+claude.ai bioRxiv: https://hcls.mcp.claude.com/biorxiv/mcp - √ Connected
+claude.ai PubMed: https://pubmed.mcp.claude.com/mcp - √ Connected
+claude.ai Clinical Trials: https://hcls.mcp.claude.com/clinical_trials/mcp - √ Connected
+claude.ai ChEMBL: https://hcls.mcp.claude.com/chembl/mcp - √ Connected
+claude.ai ZoomInfo: https://mcp.zoominfo.com/mcp - ! Needs authentication
+claude.ai Aha!: https://hcl-software.aha.io/api/v1/mcp - ! Needs authentication
+claude.ai ChurnZero: https://app.churnzero.net/mcp - ! Needs authentication
+claude.ai Outreach: https://api.outreach.io/mcp - ! Needs authentication
+claude.ai Atlassian Rovo: https://mcp.atlassian.com/v1/mcp - ! Needs authentication
+claude.ai Microsoft 365: https://microsoft365.mcp.claude.com/mcp - ! Needs authentication
+claude.ai Slack: https://mcp.slack.com/mcp - ! Needs authentication
+claude.ai Docusign: https://mcp.docusign.com/mcp - ! Needs authentication
+claude.ai Google Calendar: https://calendarmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai Gmail: https://gmailmcp.googleapis.com/mcp/v1 - √ Connected
+claude.ai Google Drive: https://drivemcp.googleapis.com/mcp/v1 - √ Connected
+plugin:pdf-viewer:pdf: npx -y @modelcontextprotocol/server-pdf --stdio - √ Connected
+plugin:miro:miro: https://mcp.miro.com/ (HTTP) - ! Needs authentication
+plugin:adobe-for-creativity:Adobe: https://adobe-creativity.adobe.io/mcp (HTTP) - ! Needs authentication
+plugin:zoominfo:zoominfo: https://mcp.zoominfo.com/mcp (HTTP) - ! Needs authentication
+plugin:figma:figma: https://mcp.figma.com/mcp (HTTP) - ! Needs authentication
+appscan-connector: node C:\Users\ankur.raina\ai-coding-assistants-claude-poc/dist/claude-mcp-server.js - √ Connected
