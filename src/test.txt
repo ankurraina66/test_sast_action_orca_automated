@@ -1,2 +1,25 @@
-Get-ChildItem .\src -Recurse -File -Include *.js,*.ts |
-  Select-String -Pattern "analysis_timeout_minutes|wait_for_analysis|scan.*status|setTimeout|sleep" -CaseSensitive:$false
+PS C:\Users\ankur.raina\Downloads\sast_github_action_workspace\ASPL-2251-Fixing-SupplyChain-Vulnerabilities\appscan-sast-action> Get-ChildItem .\src -Recurse -File -Include *.js,*.ts |
+>>   Select-String -Pattern "analysis_timeout_minutes|wait_for_analysis|scan.*status|setTimeout|sleep" -CaseSensitive:$false
+
+src\asoc.js:383:async function getScaScanStatus(scanId) {
+src\asoc.js:385:    let status = await getScanStatus(url, scanId);
+src\asoc.js:389:async function getSastScanStatus(scanId) {
+src\asoc.js:391:    let status = await getScanStatus(url, scanId);
+src\asoc.js:395:async function getScanStatus(url, scanId) {
+src\asoc.js:409:    getSastScanStatus,
+src\asoc.js:410:    getScaScanStatus,
+src\constants.js:58:const _WAIT_FOR_ANALYSIS = 'Waiting for analysis to complete...';
+src\constants.js:59:export { _WAIT_FOR_ANALYSIS as WAIT_FOR_ANALYSIS };
+src\main.js:63:    if(process.env.INPUT_WAIT_FOR_ANALYSIS !== 'true') {
+src\main.js:92:    core.info(constants.WAIT_FOR_ANALYSIS);
+src\main.js:96: if(timedOut === true && process.env.INPUT_WAIT_FOR_ANALYSIS !== 'true') {
+src\main.js:108:    if(results && process.env.INPUT_WAIT_FOR_ANALYSIS === 'true') {
+src\statusChecker.js:48:    let result = await asoc.getScaScanStatus(scanId);
+src\statusChecker.js:50:        await sleep(30000);
+src\statusChecker.js:54:        result = await asoc.getScaScanStatus(scanId);
+src\statusChecker.js:68:    let result = await asoc.getSastScanStatus(scanId);
+src\statusChecker.js:70:        await sleep(30000);
+src\statusChecker.js:74:        result = await asoc.getSastScanStatus(scanId);
+src\statusChecker.js:85:                await sleep(30000);
+src\statusChecker.js:94:async function sleep(ms) {
+src\statusChecker.js:96:        setTimeout(resolve, ms);
