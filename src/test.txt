@@ -1,6 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> node -e "const c=require('./dist/config/config.js'); console.log(JSON.stringify({provider:c.loadConfig().provider,requestTimeoutMs:c.loadConfig().requestTimeoutMs},null,2))"
-{
-  "provider": "remote",
-  "requestTimeoutMs": 300000
-}
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+
