@@ -1,1 +1,1 @@
-
+Write-Output "Provider: $env:APP_SCAN_PROVIDER; Timeout: $env:APP_SCAN_REQUEST_TIMEOUT_MS ms"
