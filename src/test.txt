@@ -1,12 +1,3 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp get appscan-timeout-check
-appscan-timeout-check:
-  Scope: Local config (private to you in this project)
-  Status: × Failed to connect
-  Issue: CONNECTION_CLOSED: Connection closed
-  Type: stdio
-  Command: node
-  Args: -e console.log(process.env.APP_SCAN_REQUEST_TIMEOUT_MS)
-  Environment:
-    APP_SCAN_REQUEST_TIMEOUT_MS=300000
-
-To remove this server, run: claude mcp remove appscan-timeout-check -s local
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp remove appscan-timeout-check -s local
+Removed MCP server appscan-timeout-check from local config
+File modified: C:\Users\ankur.raina\.claude.json [project: C:\Users\ankur.raina\ai-coding-assistants-claude-poc]
