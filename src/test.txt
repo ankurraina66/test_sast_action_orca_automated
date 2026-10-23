@@ -1,11 +1,2 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp get appscan-connector
-appscan-connector:
-  Scope: Local config (private to you in this project)
-  Status: √ Connected
-  Type: stdio
-  Command: node
-  Args: C:\Users\ankur.raina\ai-coding-assistants-claude-poc/dist/claude-mcp-server.js
-  Environment:
-
-To remove this server, run: claude mcp remove appscan-connector -s local
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $env:APP_SCAN_REQUEST_TIMEOUT_MS
+300000
