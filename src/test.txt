@@ -1,1 +1,19 @@
+/appscan
 
+Call "prepare-scan" only to prepare a new SAST scan with these exact parameters:
+
+- Application ID: "21b194f5-cea5-4ff6-a4d1-a03103a3e2fb"
+- Target directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+- Scan type: "SAST"
+- Scan name: "Spring-Boot-REST-POC-Ankur"
+- Comment: "POC validation of AppScan Connector create-scan workflow"
+
+Return the generated confirmation token and the exact parameters stored with it.
+
+Strict safety requirements:
+
+- Call "prepare-scan" only.
+- Do not call "execute-prepared-scan", "create-scan", or any other scan-starting tool.
+- Do not switch providers.
+- Do not modify project files or start a scan.
+- If preparation fails, report the error without attempting another operation.
