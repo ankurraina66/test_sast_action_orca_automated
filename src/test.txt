@@ -1,1 +1,1 @@
-
+claude mcp add appscan-timeout-check -s local -e APP_SCAN_REQUEST_TIMEOUT_MS=300000 -- node -e "console.log(process.env.APP_SCAN_REQUEST_TIMEOUT_MS)"
