@@ -1,1 +1,489 @@
 
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+import { createAppScanService } from "./services/appscan-service-factory.js";
+import crypto from "node:crypto";
+
+type AppScanProvider = "local" | "remote";
+
+type PreparedScan = {
+    appId: string;
+    targetDir: string;
+    scanType: "SAST" | "SCA";
+    scanName?: string;
+    comment?: string;
+    provider: AppScanProvider;
+};
+
+type ScanExecutionState =
+    | {
+        status: "running";
+        startedAt: string;
+    }
+    | {
+        status: "completed";
+        startedAt: string;
+        completedAt: string;
+        result: unknown;
+    }
+    | {
+        status: "failed";
+        startedAt: string;
+        completedAt: string;
+        error: string;
+    };
+
+async function main(): Promise<void> {
+    const service = createAppScanService();
+    await service.connect();
+
+    const server = new McpServer({
+        name: "hcl-appscan-connector-for-claude",
+        version: "0.1.0",
+    });
+
+    function textResult(result: {
+        content: Array<{
+            type: string;
+            text?: string;
+        }>;
+        isError?: boolean;
+    }) {
+        const text = result.content
+            .map((item) => item.text ?? "")
+            .filter(Boolean)
+            .join("\n");
+
+        return {
+            content: [{
+                type: "text" as const,
+                text: text || "The AppScan tool returned no text content.",
+            }],
+            ...(result.isError ? { isError: true } : {}),
+        };
+    }
+
+    function messageResult(text: string, isError = false) {
+        return {
+            content: [{
+                type: "text" as const,
+                text,
+            }],
+            ...(isError ? { isError: true } : {}),
+        };
+    }
+
+    server.registerTool(
+        "get-provider-status",
+        {
+            description: "Show which AppScan provider is currently active.",
+            inputSchema: {},
+        },
+        async () => ({
+            content: [{
+                type: "text" as const,
+                text: `Active AppScan provider: ${service.getProvider()}`,
+            }],
+        }),
+    );
+
+    server.registerTool(
+        "switch-provider",
+        {
+            description:
+                "Switch the active AppScan backend between local STDIO and remote HTTP without restarting the Claude-facing MCP server.",
+            inputSchema: {
+                provider: z.enum(["local", "remote"]),
+            },
+        },
+        async ({ provider }) => {
+            try {
+                const result = await service.switchProvider(provider);
+
+                return messageResult([
+                    `Active AppScan provider: ${result.provider}`,
+                    `Available backend tools: ${result.toolCount}`,
+                    "Provider connection and tool discovery succeeded.",
+                ].join("\n"));
+            } catch (error) {
+                return messageResult(
+                    error instanceof Error
+                        ? error.message
+                        : "Provider switching failed.",
+                    true,
+                );
+            }
+        },
+    );
+
+    server.registerTool(
+        "get-apps",
+        {
+            description: "Retrieve AppScan applications.",
+            inputSchema: {
+                filter: z.string().optional(),
+                top: z.number().optional(),
+            },
+        },
+        async (args) => {
+            console.error("[AppScan diagnostic] get-apps invoked");
+
+            try {
+                const result = await service.discoverApplications({
+                    ...(args.filter !== undefined
+                        ? { filter: args.filter }
+                        : {}),
+                    ...(args.top !== undefined
+                        ? { top: args.top }
+                        : {}),
+                });
+
+                console.error(
+                    `[AppScan diagnostic] get-apps completed; isError=${result.isError ?? false}`,
+                );
+
+                return textResult(result);
+            } catch (error) {
+                console.error(
+                    "[AppScan diagnostic] get-apps failed:",
+                    error instanceof Error ? error.message : "Unknown error",
+                );
+                throw error;
+            }
+        },
+    );
+
+    server.registerTool(
+        "get-scans",
+        {
+            description:
+                "Retrieve AppScan scans. Optionally filter by applicationId (GUID) and an additional OData filter.",
+            inputSchema: {
+                applicationId: z.string().uuid().optional(),
+                filter: z.string().optional(),
+                top: z.number().int().positive().optional(),
+            },
+        },
+        async ({ applicationId, filter, top }) => {
+            const filters: string[] = [];
+
+            if (applicationId) {
+                filters.push(`AppId eq ${applicationId}`);
+            }
+
+            if (filter?.trim()) {
+                filters.push(`(${filter.trim()})`);
+            }
+
+            const result = await service.callFirstAvailableTool(
+                ["get-scans", "get_scans"],
+                {
+                    ...(filters.length
+                        ? { filter: filters.join(" and ") }
+                        : {}),
+                    ...(top !== undefined ? { top } : {}),
+                },
+            );
+
+            return textResult(result);
+        },
+    );
+
+    server.registerTool(
+        "get-scan-issues",
+        {
+            description: "Retrieve security findings for a specific AppScan scan.",
+            inputSchema: {
+                scanId: z.string().min(1),
+                filter: z.string().optional(),
+                top: z.number().int().positive().optional(),
+            },
+        },
+        async ({ scanId, filter, top }) => {
+            const provider = service.getProvider();
+
+            if (provider === "local") {
+                const result = await service.callFirstAvailableTool(
+                    ["get-scan-issues", "get_scan_issues"],
+                    {
+                        scanId,
+                        ...(filter !== undefined ? { filter } : {}),
+                        ...(top !== undefined ? { top } : {}),
+                    },
+                    "local",
+                );
+
+                return textResult(result);
+            }
+
+            const result = await service.callFirstAvailableTool(
+                ["get_issues"],
+                {
+                    scope: "Scan",
+                    scopeId: scanId,
+                    ...(filter !== undefined ? { filter } : {}),
+                    ...(top !== undefined ? { top } : {}),
+                },
+                "remote",
+            );
+
+            return textResult(result);
+        },
+    );
+
+    server.registerTool(
+        "get-issue-details",
+        {
+            description: "Retrieve detailed information about an AppScan finding.",
+            inputSchema: {
+                issueId: z.string().min(1),
+            },
+        },
+        async ({ issueId }) => {
+            const result = await service.callFirstAvailableTool(
+                ["get-issue-details", "get_issue_details"],
+                { issueId },
+            );
+
+            return textResult(result);
+        },
+    );
+
+    const pendingScans = new Map<string, PreparedScan>();
+    const executingScanTokens = new Set<string>();
+    const scanExecutions = new Map<string, ScanExecutionState>();
+
+    server.registerTool(
+        "prepare-scan",
+        {
+            description:
+                "Prepare an AppScan scan request and return its exact parameters for user review. This tool must not start a scan. Obtain explicit user confirmation in the conversation before calling execute-prepared-scan.",
+            inputSchema: {
+                appId: z.string().uuid(),
+                targetDir: z.string().min(1),
+                scanType: z.enum(["SAST", "SCA"]).default("SAST"),
+                scanName: z.string().min(1).optional(),
+                comment: z.string().optional(),
+            },
+        },
+        async ({ appId, targetDir, scanType, scanName, comment }) => {
+            const token = crypto.randomUUID();
+            const provider = service.getProvider();
+
+            pendingScans.set(token, {
+                appId,
+                targetDir,
+                scanType,
+                ...(scanName !== undefined ? { scanName } : {}),
+                ...(comment !== undefined ? { comment } : {}),
+                provider,
+            });
+
+            return messageResult([
+                "Scan prepared; no scan has been started.",
+                `Confirmation token: ${token}`,
+                `Application ID: ${appId}`,
+                `Target directory: ${targetDir}`,
+                `Scan type: ${scanType}`,
+                `Scan name: ${scanName ?? "(generated by AppScan)"}`,
+                `Provider: ${provider}`,
+                "",
+                "Before execution, explain that source artifacts may be packaged and uploaded to AppScan, and that the underlying tool may generate configuration files or run a build.",
+                "Obtain explicit user confirmation for these exact parameters before invoking execute-prepared-scan.",
+            ].join("\n"));
+        },
+    );
+
+    server.registerTool(
+        "execute-prepared-scan",
+        {
+            description:
+                "Execute a previously prepared AppScan scan only after explicit user confirmation of its exact parameters. Returns promptly; use get-scan-execution-status to retrieve its eventual result. Never call this tool merely because a preparation token exists.",
+            inputSchema: {
+                confirmationToken: z.string().uuid(),
+            },
+        },
+        async ({ confirmationToken }) => {
+            const prepared = pendingScans.get(confirmationToken);
+
+            if (!prepared) {
+                return messageResult(
+                    "No pending scan matches this token. Prepare the request again and obtain user confirmation.",
+                    true,
+                );
+            }
+
+            if (executingScanTokens.has(confirmationToken)) {
+                return messageResult(
+                    "This confirmation token is already being processed. Do not submit it again.",
+                    true,
+                );
+            }
+
+            if (prepared.provider !== service.getProvider()) {
+                return messageResult(
+                    `This scan was prepared for the ${prepared.provider} provider, but the active provider is ${service.getProvider()}. The scan was not started. Prepare the request again and obtain explicit confirmation.`,
+                    true,
+                );
+            }
+
+            // Claim and consume the approval token before starting asynchronous work.
+            executingScanTokens.add(confirmationToken);
+            pendingScans.delete(confirmationToken);
+
+            const startedAt = new Date().toISOString();
+
+            scanExecutions.set(confirmationToken, {
+                status: "running",
+                startedAt,
+            });
+
+            // The backend call retains wait:true so its final summary can be returned.
+            // This task is intentionally detached from the MCP handler response.
+            void (async () => {
+                try {
+                    const result = await service.callFirstAvailableToolIfSupported(
+                        ["create-scan", "create_scan"],
+                        {
+                            appId: prepared.appId,
+                            targetDir: prepared.targetDir,
+                            scanType: prepared.scanType,
+                            ...(prepared.scanName !== undefined
+                                ? { scanName: prepared.scanName }
+                                : {}),
+                            ...(prepared.comment !== undefined
+                                ? { comment: prepared.comment }
+                                : {}),
+                            approved: true,
+                            wait: true,
+                        },
+                        prepared.provider,
+                    );
+
+                    scanExecutions.set(confirmationToken, {
+                        status: "completed",
+                        startedAt,
+                        completedAt: new Date().toISOString(),
+                        result,
+                    });
+                } catch (error) {
+                    const message =
+                        error instanceof Error
+                            ? error.message
+                            : "Unknown error";
+
+                    console.error(
+                        `[AppScan scan execution] token=${confirmationToken} failed: ${message}`,
+                    );
+
+                    scanExecutions.set(confirmationToken, {
+                        status: "failed",
+                        startedAt,
+                        completedAt: new Date().toISOString(),
+                        error: message,
+                    });
+                } finally {
+                    executingScanTokens.delete(confirmationToken);
+                }
+            })();
+
+            return messageResult([
+                "Scan execution was accepted by the connector and is running in the background.",
+                `Confirmation token: ${confirmationToken}`,
+                "Use get-scan-execution-status with this token to retrieve the final result.",
+                "Do not submit another scan while the status is running or uncertain.",
+            ].join("\n"));
+        },
+    );
+
+    server.registerTool(
+        "get-scan-execution-status",
+        {
+            description:
+                "Retrieve the status and final result of a previously approved scan execution. This tool never starts a scan.",
+            inputSchema: {
+                confirmationToken: z.string().uuid(),
+            },
+        },
+        async ({ confirmationToken }) => {
+            const execution = scanExecutions.get(confirmationToken);
+
+            if (!execution) {
+                return messageResult(
+                    "No execution record exists for this token. Do not retry the scan automatically; verify the AppScan backend first.",
+                    true,
+                );
+            }
+
+            if (execution.status === "running") {
+                return messageResult(JSON.stringify({
+                    status: execution.status,
+                    startedAt: execution.startedAt,
+                    confirmationToken,
+                }, null, 2));
+            }
+
+            if (execution.status === "failed") {
+                return messageResult(JSON.stringify({
+                    status: execution.status,
+                    startedAt: execution.startedAt,
+                    completedAt: execution.completedAt,
+                    error: execution.error,
+                    confirmationToken,
+                    warning:
+                        "The final backend outcome may require verification. Do not automatically start another scan.",
+                }, null, 2), true);
+            }
+
+            return messageResult(JSON.stringify({
+                status: execution.status,
+                startedAt: execution.startedAt,
+                completedAt: execution.completedAt,
+                confirmationToken,
+                result: execution.result,
+            }, null, 2));
+        },
+    );
+
+    const transport = new StdioServerTransport();
+
+    try {
+        await server.connect(transport);
+        console.error("HCL AppScan Connector for Claude is running.");
+    } catch (error) {
+        await service.disconnect();
+        throw error;
+    }
+
+    const shutdown = async (): Promise<void> => {
+        try {
+            await server.close();
+        } finally {
+            await service.disconnect();
+        }
+    };
+
+    process.once("SIGINT", () => {
+        void shutdown().catch((error: unknown) => {
+            console.error("Shutdown failed:", error);
+            process.exitCode = 1;
+        });
+    });
+
+    process.once("SIGTERM", () => {
+        void shutdown().catch((error: unknown) => {
+            console.error("Shutdown failed:", error);
+            process.exitCode = 1;
+        });
+    });
+}
+
+main().catch((error: unknown) => {
+    console.error(
+        "Failed to start HCL AppScan Connector for Claude:",
+        error instanceof Error ? error.message : "Unknown error",
+    );
+    process.exitCode = 1;
+});
+
