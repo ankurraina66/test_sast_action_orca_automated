@@ -1,1 +1,9 @@
+Prepare a SAST scan using the local AppScan provider with these details:
 
+- Application name: Demo_Claude_POC
+- Application ID: a892fce6-630b-44b4-8f47-d6f6f7d63be5
+- Target directory: C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin
+- Scan name: Claude Local MCP Timeout POC - IntelliJ Plugin
+- Scan type: SAST
+
+Validate the application ID and target directory, and return the prepared scan details and a fresh confirmation token. Do not execute the scan yet.
