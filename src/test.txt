@@ -1,1 +1,1 @@
-
+Use the existing AppScan connector to call "get-apps" and identify whether a dedicated test application exists for validating a new SAST scan of my local Spring Boot project. List the available application names and IDs. Do not create an application, prepare a scan, start a scan, or modify any files. If no clearly dedicated test application can be identified, say so rather than choosing one.
