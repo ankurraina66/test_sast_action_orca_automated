@@ -1,1 +1,55 @@
+/appscan Inspect the configuration and files available to this workspace for the local AppScan MCP server. Identify the server executable or entry point, how requestTimeoutMs or APP_SCAN_REQUEST_TIMEOUT_MS is configured, and whether execute-prepared-scan waits for scan completion or only for scan submission. Read-only inspection only: do not edit files, run scans, or expose API keys, secrets, or credentials.
 
+  Searched for 10 patterns, read 6 files
+
+Neither file sets the timeout or local server path as a JSON env key. I'll look for where the MCP server is registered, printing only the command and path lines so no secrets are shown.
+
+  Searched for 5 patterns, read 1 file, ran 1 shell command
+
+I've found the key piece: the backend's create-scan has a wait parameter that defaults to true. I'll confirm how the wrapper's call interacts with it.
+
+  Searched for 1 pattern
+
+I only read files. I didn't edit anything, run a scan, or print any secret values.
+
+Entry point
+
+- Registration: appscan-connector is registered as a stdio server in the user-level C:\Users\ankur.raina\.claude.json, under this project's entry (line ~1676). It runs node C:\Users\ankur.raina\ai-coding-assistants-claude-poc/dist/claude-mcp-server.js. The env block there is empty.
+- Source: The source is src/claude-mcp-server.ts, built with npm run build. I read src and did not diff it against dist.
+- Local backend: Local mode starts a second MCP server over STDIO. Its path comes from APP_SCAN_LOCAL_SERVER_PATH, which is C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js. The command defaults to node.
+
+Timeout configuration
+
+- Where it is read: src/config/config.ts:35 reads APP_SCAN_REQUEST_TIMEOUT_MS. The default is 30000 ms, and values must be integers from 1 to 300000, so 5 minutes is the maximum.
+- Where it is applied: The value becomes requestTimeoutMs. LocalStdioConnector passes it as { timeout } to every listTools and callTool call (src/mcp/local-stdio-connector.ts:78). The remote connector gets the same value.
+- Current value: APP_SCAN_REQUEST_TIMEOUT_MS is 300000 in this shell's process environment. It is not set at user or machine level, and it is not in .claude.json or any workspace file. I could not find where it is set. Because the MCP registration has an empty env, the server presumably inherits it from Claude Code's launch environment. I read this shell's environment, so I haven't confirmed it matches the MCP server process.
+- Other settings seen: The same environment has APP_SCAN_PROVIDER=remote at startup, APPSCAN_API_BASE=https://cloud.appscan.com, and APP_SCAN_REMOTE_ENDPOINT=https://cloud.appscan.com/mcp. The API key, key ID, and key secret are not set at user or machine level. I didn't check whether they are set in this process.
+
+Does execute-prepared-scan wait for completion or only for submission?
+
+By default it waits for completion, up to the 5-minute timeout
+
+1. The wrapper (src/claude-mcp-server.ts:372) calls the backengetDir, scanType, optional scanName and comment, and approved:true. It does not pass wait.
+2. The backend (build/tools/createScan.js:83) defaults wait toteps:
+   - validate the directory;
+   - download SAClientUtil;
+   - possibly run an npm build;
+   - generate the IRX file, which the backend describes as tak
+   - upload the IRX;
+   - create the scan;
+   - poll waitForScanReady every 15 seconds until the scan reaches Ready or Abort (scanService.js:82).
+
+   With wait=false it returns right after the scan is created (createScan.js:301).
+3. The 5-minute client timeout applies to that whole call. I sreset in the wrapper.
+
+Consequences, from the code:
+
+- A SAST scan that takes more than 5 minutes end to end will mort an error. The backend may still be running or may alreadyhave created the scan.
+- The wrapper then consumes the confirmation token (claude-mcpry would need a new prepare-scan and a new confirmation. Before re-preparing, check AppScan for a scan that was already created.
+
+Not verified
+
+- I didn't confirm that dist/claude-mcp-server.js matches src.
+- I didn't check whether Claude Code applies its own MCP tool-ne.
+- I didn't check whether ensureAuth reads credentials from the environment or from somewhere else.                                                        
+If you want submission-only behavior, the wrapper would need to pass wait: false, and scan progress would then come from get-scans. That is a code change, so I would wait for your approval before making it.
