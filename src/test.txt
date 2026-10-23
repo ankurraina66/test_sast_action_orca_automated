@@ -1,1 +1,1 @@
-
+/appscan list the scans for application Test_Tayalan (ID 39c76747-8617-4e00-8ae8-096e208f72ac) using the local provider
