@@ -1,42 +1,187 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\tests -Recurse -File | Select-String -Pattern "timeout|create-scan|execute-prepared-scan"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\tests\unit\local-stdio-connector.test.ts
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-tests\unit\appscan-service-factory.test.ts:42:      requestTimeoutMs: 30000,
-tests\unit\appscan-service-factory.test.ts:58:      requestTimeoutMs: 30000,
-tests\unit\appscan-service-factory.test.ts:78:      requestTimeoutMs: 30000,
-tests\unit\appscan-service.test.ts:209:        const connector = createMockConnector(["create-scan"]);
-tests\unit\appscan-service.test.ts:214:                ["create-scan"], {
-tests\unit\appscan-service.test.ts:227:            service.callFirstAvailableTool(["create-scan"]), ).rejects.toThrow("does not support this operation");
-tests\unit\appscan-service.test.ts:350:        const connector = createMockConnector(["create-scan"]);
-tests\unit\appscan-service.test.ts:355:                ["create-scan", "create_scan"], {
-tests\unit\appscan-service.test.ts:368:        expect(connector.callTool).toHaveBeenCalledWith("create-scan", {
-tests\unit\appscan-service.test.ts:374:        const connector = createMockConnector(["create-scan"]);
-tests\unit\appscan-service.test.ts:379:                ["create-scan"], {
-tests\unit\appscan-service.test.ts:393:                ["create-scan", "create_scan"], {
-tests\unit\config.test.ts:14:    expect(config.requestTimeoutMs).toBe(30000);
-tests\unit\config.test.ts:73:  it("rejects invalid timeout values", () => {
-tests\unit\config.test.ts:77:        APP_SCAN_REQUEST_TIMEOUT_MS: "0",
-tests\unit\config.test.ts:80:      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
-tests\unit\connector-factory.test.ts:44:      requestTimeoutMs: 30000,
-tests\unit\connector-factory.test.ts:56:      requestTimeoutMs: 30000,
-tests\unit\connector-factory.test.ts:65:      requestTimeoutMs: 30000,
-tests\unit\connector-factory.test.ts:81:      requestTimeoutMs: 30000,
-tests\unit\connector-factory.test.ts:96:        requestTimeoutMs: 30000,
-tests\unit\connector-factory.test.ts:105:        requestTimeoutMs: 30000,
-tests\unit\local-stdio-connector.test.ts:86:      { timeout: 30000 },
-tests\unit\local-stdio-connector.test.ts:90:  it("uses the configured timeout when listing tools", async () => {
-tests\unit\local-stdio-connector.test.ts:94:      requestTimeoutMs: 10000,
-tests\unit\local-stdio-connector.test.ts:102:      { timeout: 10000 },
-tests\unit\local-stdio-connector.test.ts:128:      { timeout: 30000 },
-tests\unit\local-stdio-connector.test.ts:132:  it("uses the configured timeout when calling a tool", async () => {
-tests\unit\local-stdio-connector.test.ts:136:      requestTimeoutMs: 15000,
-tests\unit\local-stdio-connector.test.ts:148:      { timeout: 15000 },
-tests\unit\remote-http-connector.test.ts:159:            requestTimeoutMs: 5000,
-tests\unit\remote-http-connector.test.ts:186:    it("configures a per-request timeout through the custom fetch", () => {
-tests\unit\remote-http-connector.test.ts:190:            requestTimeoutMs: 5000,
-tests\unit\remote-http-connector.test.ts:200:    it("aborts a stalled request when the timeout expires", async() => {
-tests\unit\remote-http-connector.test.ts:201:        const timeoutMs = 20;
-tests\unit\remote-http-connector.test.ts:206:            requestTimeoutMs: timeoutMs,
-tests\unit\remote-http-connector.test.ts:243:                name: "TimeoutError"
-tests\unit\scan-workflow.test.ts:58:        expect(callTool).toHaveBeenCalledWith("create-scan", {
+const { mockClient, mockTransport } = vi.hoisted(() => ({
+  mockClient: {
+    connect: vi.fn(),
+    listTools: vi.fn(),
+    callTool: vi.fn(),
+    close: vi.fn(),
+  },
+  mockTransport: vi.fn(),
+}));
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
+  Client: vi.fn(function () {
+    return mockClient;
+  }),
+}));
+
+vi.mock("@modelcontextprotocol/sdk/client/stdio.js", () => ({
+  StdioClientTransport: mockTransport,
+}));
+
+import { LocalStdioConnector } from "../../src/mcp/local-stdio-connector.js";
+
+describe("LocalStdioConnector", () => {
+  let connector: LocalStdioConnector;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    mockClient.connect.mockResolvedValue(undefined);
+
+    mockClient.listTools.mockResolvedValue({
+      tools: [],
+    });
+
+    mockClient.callTool.mockResolvedValue({
+      content: [{ type: "text", text: "Success" }],
+      isError: false,
+    });
+
+    mockClient.close.mockResolvedValue(undefined);
+
+    connector = new LocalStdioConnector({
+      command: "node",
+      args: ["build/index.js"],
+    });
+  });
+
+  it("connects to the local MCP server", async () => {
+    await connector.connect();
+
+    expect(mockClient.connect).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not connect twice when already connected", async () => {
+    await connector.connect();
+    await connector.connect();
+
+    expect(mockClient.connect).toHaveBeenCalledTimes(1);
+  });
+
+  it("lists tools exposed by the MCP server", async () => {
+    mockClient.listTools.mockResolvedValue({
+      tools: [
+        {
+          name: "get-apps",
+          description: "List AppScan applications",
+          inputSchema: { type: "object", properties: {} },
+        },
+      ],
+    });
+
+    await connector.connect();
+
+    await expect(connector.listTools()).resolves.toEqual([
+      {
+        name: "get-apps",
+        description: "List AppScan applications",
+        inputSchema: { type: "object", properties: {} },
+      },
+    ]);
+
+    expect(mockClient.listTools).toHaveBeenCalledWith(
+      {},
+      { timeout: 30000 },
+    );
+  });
+
+  it("uses the configured timeout when listing tools", async () => {
+    connector = new LocalStdioConnector({
+      command: "node",
+      args: ["build/index.js"],
+      requestTimeoutMs: 10000,
+    });
+
+    await connector.connect();
+    await connector.listTools();
+
+    expect(mockClient.listTools).toHaveBeenCalledWith(
+      {},
+      { timeout: 10000 },
+    );
+  });
+
+  it("rejects tool listing before connecting", async () => {
+    await expect(connector.listTools()).rejects.toThrow(
+      "Local AppScan MCP connector is not connected.",
+    );
+  });
+
+  it("calls a tool and normalizes its result", async () => {
+    await connector.connect();
+
+    await expect(
+      connector.callTool("get-apps", { top: 5 }),
+    ).resolves.toEqual({
+      content: [{ type: "text", text: "Success" }],
+      isError: false,
+    });
+
+    expect(mockClient.callTool).toHaveBeenCalledWith(
+      {
+        name: "get-apps",
+        arguments: { top: 5 },
+      },
+      undefined,
+      { timeout: 30000 },
+    );
+  });
+
+  it("uses the configured timeout when calling a tool", async () => {
+    connector = new LocalStdioConnector({
+      command: "node",
+      args: ["build/index.js"],
+      requestTimeoutMs: 15000,
+    });
+
+    await connector.connect();
+    await connector.callTool("get-apps", {});
+
+    expect(mockClient.callTool).toHaveBeenCalledWith(
+      {
+        name: "get-apps",
+        arguments: {},
+      },
+      undefined,
+      { timeout: 15000 },
+    );
+  });
+
+  it("rejects a tool call before connecting", async () => {
+    await expect(
+      connector.callTool("get-apps", {}),
+    ).rejects.toThrow(
+      "Local AppScan MCP connector is not connected.",
+    );
+  });
+
+  it("rejects an unsupported tool result format", async () => {
+    await connector.connect();
+
+    mockClient.callTool.mockResolvedValue({
+      unexpected: true,
+    });
+
+    await expect(
+      connector.callTool("get-apps", {}),
+    ).rejects.toThrow(
+      'MCP tool "get-apps" returned an unsupported result format.',
+    );
+  });
+
+  it("disconnects the client", async () => {
+    await connector.connect();
+    await connector.disconnect();
+
+    expect(mockClient.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("does nothing when disconnecting before connecting", async () => {
+    await connector.disconnect();
+
+    expect(mockClient.close).not.toHaveBeenCalled();
+  });
+});
