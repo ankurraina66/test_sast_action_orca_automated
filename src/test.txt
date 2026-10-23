@@ -1,1 +1,11 @@
+/appscan
 
+Use the existing AppScan connector to call "prepare-scan" for a new SAST scan with these exact parameters:
+
+- Application ID: "21b194f5-cea5-4ff6-a4d1-a03103a3e2fb"
+- Target directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+- Scan type: "SAST"
+- Scan name: "POC-Spring-Boot-Create-Scan-E2E"
+- Comment: "Validation of HCL AppScan Claude connector create-scan workflow"
+
+Return the confirmation token and the exact prepared parameters. Do not call "execute-prepared-scan", do not start a scan, and do not modify files.
