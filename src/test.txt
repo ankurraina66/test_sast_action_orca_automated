@@ -1,9 +1,1 @@
-appscan Use the existing AppScan connector to call "get-apps" and search for the application named "sample_project". Show its exact application name and ID. This is read-only. Do not create an application, start a scan, or modify any files. If it is not found in the returned results, report that clearly rather than selecting another application.
 
-  Called appscan-connector
-
-The application was found, with a case-insensitive match on "sample_project". The exact name in AppScan is Sample_project, with a capital "S".
-
-Sample_project (Application ID: a516afa4-4659-4866-990e-ea1e7d5d8fe3)
-
-The filter returned one application and no others. This was read-only. I created nothing, started no scan, and modified no files.
