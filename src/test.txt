@@ -1,1 +1,1 @@
-
+Using the local AppScan provider, list scans for application Demo_Claude_POC (ID a892fce6-630b-44b4-8f47-d6f6f7d63be5). Check whether a scan named "Claude Local MCP Timeout POC - IntelliJ" or "Claude Local MCP Timeout POC - IntelliJ Plugin" exists. Do not prepare or execute any scan.
