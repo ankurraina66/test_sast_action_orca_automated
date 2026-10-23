@@ -1,25 +1,92 @@
-PS C:\Users\ankur.raina\Downloads\sast_github_action_workspace\ASPL-2251-Fixing-SupplyChain-Vulnerabilities\appscan-sast-action> Get-ChildItem .\src -Recurse -File -Include *.js,*.ts |
->>   Select-String -Pattern "analysis_timeout_minutes|wait_for_analysis|scan.*status|setTimeout|sleep" -CaseSensitive:$false
+statusChecker.js
 
-src\asoc.js:383:async function getScaScanStatus(scanId) {
-src\asoc.js:385:    let status = await getScanStatus(url, scanId);
-src\asoc.js:389:async function getSastScanStatus(scanId) {
-src\asoc.js:391:    let status = await getScanStatus(url, scanId);
-src\asoc.js:395:async function getScanStatus(url, scanId) {
-src\asoc.js:409:    getSastScanStatus,
-src\asoc.js:410:    getScaScanStatus,
-src\constants.js:58:const _WAIT_FOR_ANALYSIS = 'Waiting for analysis to complete...';
-src\constants.js:59:export { _WAIT_FOR_ANALYSIS as WAIT_FOR_ANALYSIS };
-src\main.js:63:    if(process.env.INPUT_WAIT_FOR_ANALYSIS !== 'true') {
-src\main.js:92:    core.info(constants.WAIT_FOR_ANALYSIS);
-src\main.js:96: if(timedOut === true && process.env.INPUT_WAIT_FOR_ANALYSIS !== 'true') {
-src\main.js:108:    if(results && process.env.INPUT_WAIT_FOR_ANALYSIS === 'true') {
-src\statusChecker.js:48:    let result = await asoc.getScaScanStatus(scanId);
-src\statusChecker.js:50:        await sleep(30000);
-src\statusChecker.js:54:        result = await asoc.getScaScanStatus(scanId);
-src\statusChecker.js:68:    let result = await asoc.getSastScanStatus(scanId);
-src\statusChecker.js:70:        await sleep(30000);
-src\statusChecker.js:74:        result = await asoc.getSastScanStatus(scanId);
-src\statusChecker.js:85:                await sleep(30000);
-src\statusChecker.js:94:async function sleep(ms) {
-src\statusChecker.js:96:        setTimeout(resolve, ms);
+import asoc from './asoc.js';
+
+let start = null;
+const timed_out = 'timed_out';
+const timeout_minutes = process.env.INPUT_ANALYSIS_TIMEOUT ? parseInt(process.env.INPUT_ANALYSIS_TIMEOUT) : 30;
+const running_statuses = ['Running', 'InQueue', 'Pending'];
+
+function waitForAnalysis(sastScanId, scaScanId) {
+    return new Promise((resolve, reject) => {
+        waitForSastAnalysis(sastScanId)
+        .then(() => {
+            return waitForScaAnalysis(scaScanId);
+        })
+        .then((status) => {
+            resolve(status === timed_out);
+        })
+        .catch((error) => {
+            reject(error);
+        })
+    });
+}
+
+async function waitForScaAnalysis(scanId) {
+    if(!scanId) {
+        return;
+    }
+
+    if(!start) {
+        start = Date.now();
+    }
+    
+    let result = await asoc.getScaScanStatus(scanId);
+    while(running_statuses.includes(result)) {
+        await sleep(30000);
+        if(analysisTimedOut()) {
+            return timed_out;
+        }
+        result = await asoc.getScaScanStatus(scanId);
+    }
+    return result;
+}
+
+async function waitForSastAnalysis(scanId) {
+    if(!scanId) {
+        return;
+    }
+
+    if(!start) {
+        start = Date.now();
+    }
+
+    let result = await asoc.getSastScanStatus(scanId);
+    while(running_statuses.includes(result)) {
+        await sleep(30000);
+        if(analysisTimedOut()) {
+            return timed_out;
+        }
+        result = await asoc.getSastScanStatus(scanId);
+    }
+    return result;
+}
+
+async function waitForSecurityReport(reportId) {
+	if(!reportId) {
+		return null;
+	}
+	let report = await asoc.getSecurityReport(reportId);
+	while(report && report.Status !== "Ready" && report.Status !== "Failed") {
+		await sleep(30000);
+		if(analysisTimedOut()) {
+            return timed_out;
+        }
+		report = await asoc.getSecurityReport(reportId);
+	}
+	return report;
+}
+
+async function sleep(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    })
+}
+
+function analysisTimedOut() {
+    let seconds = (Date.now() - start) / 1000;
+    let minutes = seconds / 60;
+    return minutes > timeout_minutes;
+}
+
+export default { waitForAnalysis, waitForSecurityReport }
