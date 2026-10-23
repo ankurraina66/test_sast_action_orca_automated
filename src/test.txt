@@ -1,1 +1,1 @@
-
+Use the existing AppScan connector to call "get-provider-status". Then switch the active provider to "local" using "switch-provider", and call "get-provider-status" again to verify the switch. Do not create or start any scan, and do not modify project files.
