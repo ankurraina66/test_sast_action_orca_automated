@@ -1,1 +1,1 @@
-Use the existing AppScan connector to inspect whether the active provider supports "create-app" and "create-scan". Do not call either tool to create anything or start a scan. Report which operations are supported and the required input parameters for each.
+
