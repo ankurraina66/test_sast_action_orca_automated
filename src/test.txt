@@ -1,1 +1,25 @@
 /appscan Check the scan execution status using get-scan-execution-status with confirmationToken "b00fb860-1975-4949-9c0c-0639d09fff35". Do not execute or submit another scan. Return the current status and, if completed, the scan summary and issue count.
+
+  Called appscan-connector
+
+The scan completed, and AppScan reported no issues.
+
+Demo_Claude_POC (Application ID: a892fce6-630b-44b4-8f47-d6f6f7d63be5)
+
+┌─────────────────────────────────┬──────────────────────────────────────┬───────────┬────────┬────────────────────────────────┐
+│            Scan name            │               Scan ID                │ Scan type │ Status │         Creation date          │
+├─────────────────────────────────┼──────────────────────────────────────┼───────────┼────────┼────────────────────────────────┤
+│ intellij-plugin_20261023_174714 │ ee4a0c97-a282-475f-8ef8-a696a407a057 │ SAST      │ Ready  │ Unknown (returned by the tool) │
+└─────────────────────────────────┴──────────────────────────────────────┴───────────┴────────┴────────────────────────────────┘
+
+Issue counts: Critical 0, High 0, Medium 0, Low 0, Info 0. The reported risk is NoIssues.
+
+Execution:
+- Started: 2026-10-23T17:47:13.033Z
+- Completed: 2026-10-23T17:51:11.117Z
+- Scan duration reported by AppScan: 29 seconds
+- Confirmation token: b00fb860-1975-4949-9c0c-0639d09fff35
+
+The scan generated a HCLAppScan_2026_10_23T17_47_14 folder in the target directory, containing an .irx file. The tool reports that it deleted these local artifacts afterward. I did not check the directory myself.
+
+A 29-second SAST scan with zero findings is plausible, but I can't tell from this result how much code was analysed. If you expected findings in this plugin, check the scan's coverage in the AppScan console.
