@@ -1,5 +1,27 @@
-cd "C:\Users\ankur.raina\ai-coding-assistants-claude-poc"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\src -Recurse -File |
+>>     Select-String -Pattern "requestTimeoutMs|AbortSignal.timeout|TimeoutError|timeout" |
+>>     Select-Object Path, LineNumber, Line
 
-Get-ChildItem .\src -Recurse -File |
-    Select-String -Pattern "requestTimeoutMs|AbortSignal.timeout|TimeoutError|timeout" |
-    Select-Object Path, LineNumber, Line
+Path                                                                                  LineNumber Line
+----                                                                                  ---------- ----
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                      5   requestTimeoutMs: number;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     35   const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS …
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     37   if (!Number.isSafeInteger(timeout) || timeout < 1 || ti…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     39       "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer bet…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     66       requestTimeoutMs: timeout,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\config\config.ts                     84     requestTimeoutMs: timeout,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector-factory.ts             19       requestTimeoutMs: config.requestTimeoutMs,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\connector-factory.ts             41     requestTimeoutMs: config.requestTimeoutMs,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         16   requestTimeoutMs?: number;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         22   private readonly requestTimeoutMs: number;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         26     this.requestTimeoutMs = options.requestTimeoutMs ?? 3…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         56       { timeout: this.requestTimeoutMs },
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\local-stdio-connector.ts         78       { timeout: this.requestTimeoutMs },
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         10     requestTimeoutMs ?  : number;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         31         const requestTimeoutMs = options.requestTimeoutMs;
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         34             if (!requestTimeoutMs || requestTimeoutMs <= …
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         46             const timeoutSignal = AbortSignal.timeout(req…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         50                  ? AbortSignal.any([requestSignal, timeou…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\mcp\remote-http-connector.ts         51                  : timeoutSignal;
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
