@@ -1,1 +1,3 @@
-Write-Output "Provider: $env:APP_SCAN_PROVIDER; Timeout: $env:APP_SCAN_REQUEST_TIMEOUT_MS ms"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Write-Output "Provider: $env:APP_SCAN_PROVIDER; Timeout: $env:APP_SCAN_REQUEST_TIMEOUT_MS ms"
+Provider: remote; Timeout: 30000 ms
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
