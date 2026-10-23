@@ -12,3 +12,22 @@ Scan type: SAST
 Comment: End-to-end validation of the HCL AppScan Claude connector create-scan workflow.
 
 First verify that the active provider is local and that "create-scan" is supported. Prepare the request using the connector's "prepare-scan" tool only. Do not call "execute-prepared-scan" or the backend "create-scan" tool, and do not start a scan. Return the confirmation token and the exact parameters that would be used, including any file changes, build operations, packaging, or uploads that the scan may perform. Wait for my explicit approval before execution.
+
+  Called appscan-connector
+
+I stopped before preparing the scan because the active provider is remote, not local. Your instructions said to verify it's local first, so I haven't called prepare-scan. I also couldn't confirm that create-scan is supported. The status tool only reports the active provider, and it doesn't list capabilities.
+
+Nothing was prepared, executed or started, and no files were touched.
+
+The connector has a switch-provider tool that could change the provider to local. I haven't used it, because it changes connector state and you only asked me to verify the provider.
+
+How do you want to proceed?
+1. Switch to local. I call switch-provider, re-check the status, and then call prepare-scan with these parameters:
+   - Application ID: 39c76747-8617-4e00-8ae8-096e208f72ac (Test_Tayalan)
+   - Source directory: C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master
+   - Scan type: SAST
+   - Scan name: POC-Spring-Boot-Create-Scan-E2E
+   - Comment: "End-to-end validation of the HCL AppScan Claudeow."
+2. Prepare on remote. I call prepare-scan with the same parameters even though the provider is remote. This breaks your precondition, so I'd only do it if you say so.
+3. Stop. You check the provider configuration yourself.                                                                                                  
+Whichever you choose, I'll return the confirmation token and the exact parameters. They will include any file changes, build steps, packaging or uploads the tool reports. Then I'll wait for your explicit approval be
