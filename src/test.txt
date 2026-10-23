@@ -1,3 +1,6 @@
+Lets stick to using Demo_Test_Ankur (ID: 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb) and no deviating from that and below is the output of the prompt you wanted.
+
+
 /appscan Using the existing AppScan connector, perform read-only checks only:
 
 1. Call "get-provider-status" and confirm the active provider.
