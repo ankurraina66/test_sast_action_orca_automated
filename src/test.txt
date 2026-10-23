@@ -1,1 +1,1 @@
-/appscan prepare a SAST scan for Demo_Claude_POC using the existing approved test target directory. Do not execute the scan yet.
+/appscan prepare a SAST scan for Demo_Claude_POC using target directory "C:\full\path\to\your\test-project". Use the local provider. Prepare only; do not execute the scan.
