@@ -1,1 +1,1 @@
-
+/appscan Use the existing AppScan connector to verify whether the active local provider supports the "create-scan" operation and inspect its required input parameters. Use read-only tool discovery or capability checks only. Do not call "create-scan", prepare or execute a scan, switch providers, modify files, or expose credentials. Report whether "create-scan" is available and list its required and optional parameters.
