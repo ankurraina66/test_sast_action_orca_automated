@@ -1,1 +1,5 @@
 
+Get-ChildItem -Recurse -File -Include *.ts,*.js,package.json |
+  Where-Object { $_.FullName -notmatch '\\(node_modules|\.git|dist|build)\\' } |
+  Select-Object -ExpandProperty FullName
+
