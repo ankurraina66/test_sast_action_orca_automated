@@ -1,1 +1,64 @@
-Use the existing AppScan connector to call "get-apps" and identify whether a dedicated test application exists for validating a new SAST scan of my local Spring Boot project. List the available application names and IDs. Do not create an application, prepare a scan, start a scan, or modify any files. If no clearly dedicated test application can be identified, say so rather than choosing one.
+/appscan Use the existing AppScan connector to call "get-apps" and identify whether a dedicated test application exists for validating a new SAST scan of my local Spring Boot project. List the available application names and IDs. Do not create an application, prepare a scan, start a scan, or modify any files. If no clearly dedicated test application can be identified, say so rather than choosing one.
+
+  Called appscan-connector
+
+No clearly dedicated test application exists for validating a new SAST scan of your Spring Boot project, so I haven't chosen one. I made no changes. I didn't create an application, prepare a scan, start a scan, or modify any files.
+
+Available applications
+
+┌──────────────────────┬──────────────────────────────────────┐
+│   Application name   │            Application ID            │
+├──────────────────────┼──────────────────────────────────────┤
+│ Demo_HCLF            │ 5a0bcbb2-c309-489b-badc-0112e619bce7 │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Tayalan         │ 39c76747-8617-4e00-8ae8-096e208f72ac │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Tanmoy_SN       │ e0d855ec-4ec3-4dd3-9ac1-0ea69740cc8b │
+├──────────────────────┼──────────────────────────────────────┤
+│ charvi               │ e59ef14d-3342-47ae-8b17-21cb37a705fd │
+├──────────────────────┼──────────────────────────────────────┤
+│ AltoroMutual         │ 4111c5d9-d355-4b9d-95c7-25ee45351928 │
+├──────────────────────┼──────────────────────────────────────┤
+│ AzureBoardsPluginGit │ 072732e0-61a9-4185-bca4-30166831e72e │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Vinod           │ 2e38956e-1dce-4742-8278-3ee80509a732 │
+├──────────────────────┼──────────────────────────────────────┤
+│ DemoTestFireApp      │ c89e2e91-eb9c-49f7-9fe8-6428ba3f1b15 │
+├──────────────────────┼──────────────────────────────────────┤
+│ Bitbucket plugin     │ b106ec10-235a-42d6-aa0a-69c77bad4879 │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_vishal          │ 7b3f217f-988c-41d5-9e91-877353174267 │
+├──────────────────────┼──────────────────────────────────────┤
+│ Test_Tanmoy_SN3      │ 5122bf79-751c-4836-8dcd-8ec90a611e77 │
+├──────────────────────┼──────────────────────────────────────
+│ TestVinita           │ 8aa628ec-a475-4dae-93e3-99e1e92f85fd │
+├──────────────────────┼──────────────────────────────────────
+│ Demo_Test_Ankur      │ 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb │
+├──────────────────────┼──────────────────────────────────────
+│ Test_Ankita          │ ae0bcb39-4c80-4dda-a236-a13ac7e65c84 │
+├──────────────────────┼──────────────────────────────────────
+│ Test_Kranthi         │ 20c6ebe3-aded-462c-8bd2-a320c5d09c3f │
+├──────────────────────┼──────────────────────────────────────
+│ TestApp1             │ e5626722-aa85-44df-8c53-b564ff5a1ccb │
+├──────────────────────┼──────────────────────────────────────
+│ Test_Tanmoy          │ ab0e20b0-0638-4fd4-aa67-b5df30ef1538 │
+├──────────────────────┼──────────────────────────────────────
+│ Test_Joy             │ c77eb298-9b34-4aef-801f-d404a6960f43 │
+├──────────────────────┼──────────────────────────────────────
+│ ASRADotnet           │ 672d6c33-fed5-4883-98fa-deb1977154a0 │
+├──────────────────────┼──────────────────────────────────────
+│ TestApp3             │ ccf35b47-af1b-4154-a02d-e8a23e5dbe18 │
+├──────────────────────┼──────────────────────────────────────
+│ TestApp2             │ f435c008-3d6c-4866-a6ae-e973a6e652b6 │
+├──────────────────────┼──────────────────────────────────────
+│ Sample_project       │ a516afa4-4659-4866-990e-ea1e7d5d8fe3 │
+├──────────────────────┼──────────────────────────────────────
+│ Test_Hema            │ b826d4b1-57b8-412e-8619-f06c4c6d3f16 │
+└──────────────────────┴──────────────────────────────────────
+
+Why none qualifies
+
+- Personal or team names: Most names are of the form Test_<pern the API response marks any of them as a shared validationtarget for SAST scans. Their Description, Type and Technology fields are empty or null.
+- Demo_Test_Ankur: The name suggests it may be yours. Its Scanly, so it has no SAST history.
+- Sample_project: This is the closest generic match by name, but its ScanTechnologies value is NONE, and its name doesn't say it is a test application
+If you tell me which application you want to use, I can resolve it and move on to the scan-creation workflow. That workflow still needs your explicit confirmation before anything is prepared or started.
