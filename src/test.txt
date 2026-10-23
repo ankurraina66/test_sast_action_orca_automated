@@ -1,19 +1,1 @@
-For your information, this scan "Spring Boot REST Service - POC SAST Validation" was created when we had earlier tried to create scan from claude but it returned with an error that I shared earlier which was a timeout that we are investigating.
 
-/appscan list the scans for application Test_Tayalan (ID 39c76747-8617-4e00-8ae8-096e208f72ac) using the local provider
-
-  Called appscan-connector
-
-Test_Tayalan (Application ID: 39c76747-8617-4e00-8ae8-096e208f72ac)
-
-┌────────────────────────────────────────────────┬──────────────────────────────────────┬────────────────────────┬────────┬──────────────────────┐
-│                   Scan name                    │               Scan ID                │       Scan type        │ Status │       Created        │
-├────────────────────────────────────────────────┼──────────────────────────────────────┼────────────────────────┼────────┼──────────────────────┤
-│ SASTIncrementalscan                            │ 3fe02f9a-e8df-4395-9a0d-593b315f1242 │ SAST (StaticAnalyzer)  │ Ready  │ 2026-10-12 06:51 UTC │
-├────────────────────────────────────────────────┼──────────────────────────────────────┼────────────────────────┼────────┼──────────────────────┤
-│ Spring Boot REST Service - POC SAST Validation │ c3e61fb5-cae8-46df-9d77-68c96c5757d8 │ SAST (StaticAnalyzer)  │ Ready  │ 2026-10-23 11:53 UTC │
-├────────────────────────────────────────────────┼──────────────────────────────────────┼────────────────────────┼────────┼──────────────────────┤
-│ staging-check_2026-10-13_16-13-44              │ 32fe2b86-2f61-4c2c-8803-99ac6d42a37d │ DAST (DynamicAnalyzer) │ Ready  │ 2026-10-13 10:43 UTC │
-└────────────────────────────────────────────────┴──────────────────────────────────────┴────────────────────────┴────────┴──────────────────────┘
-
-Note: the scan endpoint does not return a risk-rating field.
