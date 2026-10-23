@@ -1,1 +1,10 @@
 
+/appscan Prepare a new SAST scan request for the existing AppScan application "Sample_project" (application ID "a516afa4-4659-4866-990e-ea1e7d5d8fe3").
+
+Use this project directory:
+"C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+
+Scan name: "SpringBoot-REST-POC-SAST"
+Comment: "POC validation of the AppScan Connector create-scan workflow"
+
+Use "prepare-scan" only. Do not execute the prepared scan, create an application, or modify files. Return the confirmation token and the exact parameters that were prepared.
