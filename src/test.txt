@@ -1,11 +1,26 @@
-Get-ChildItem "$env:USERPROFILE\.claude\projects\C--Users-ankur-raina-ai-coding-assistants-claude-poc" -File -Filter "*.jsonl" |
-  Select-String -Pattern "MCP error -32001|Request timed out|Maximum total timeout exceeded" |
-  ForEach-Object {
-    $j = $_.Line | ConvertFrom-Json
-    [PSCustomObject]@{
-      File = Split-Path $_.Path -Leaf
-      Timestamp = $j.timestamp
-      Type = $j.type
-      Error = ($_.Line -replace '^.{0,300}', '')
-    }
-  } | Select-Object -Last 10
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem "$env:USERPROFILE\.claude\projects\C--Users-ankur-raina-ai-coding-assistants-claude-poc" -File -Filter "*.jsonl" |
+>>   Select-String -Pattern "MCP error -32001|Request timed out|Maximum total timeout exceeded" |
+>>   ForEach-Object {
+>>     $j = $_.Line | ConvertFrom-Json
+>>     [PSCustomObject]@{
+>>       File = Split-Path $_.Path -Leaf
+>>       Timestamp = $j.timestamp
+>>       Type = $j.type
+>>       Error = ($_.Line -replace '^.{0,300}', '')
+>>     }
+>>   } | Select-Object -Last 10
+
+File                                       Timestamp           Type             Error
+----                                       ---------           ----             -----
+64cdcb51-529b-47d2-9253-afa13111252d.jsonl 23-10-2026 11:53:32 user             revent accidental duplicate scans. Review the AppScan backend before prepa…
+64cdcb51-529b-47d2-9253-afa13111252d.jsonl 23-10-2026 11:53:37 assistant        ID was returned.\n\n**Exact error:**\n```\nScan execution failed or could …
+c4bf6a11-1803-4fea-b128-1413be9293cd.jsonl                     api-request-blob n consumed to prevent accidental duplicate scans. Review the AppScan backe…
+c4bf6a11-1803-4fea-b128-1413be9293cd.jsonl 23-10-2026 06:37:09 user             revent accidental duplicate scans. Review the AppScan backend before prepa…
+c4bf6a11-1803-4fea-b128-1413be9293cd.jsonl 23-10-2026 06:37:15 assistant        4fbd4-e3dc-408a-828a-d8001497fcf2` failed with `MCP error -32001: Request …
+c4bf6a11-1803-4fea-b128-1413be9293cd.jsonl 23-10-2026 06:59:16 assistant        ed. The most likely cause is the timeout. I could not verify the `create-s…
+cd86692a-79c8-4c48-93a9-56bba80e0313.jsonl 23-10-2026 16:06:01 queue-operation  d.</summary>\n<result>\nTask failed: Scan execution failed or could not be…
+cd86692a-79c8-4c48-93a9-56bba80e0313.jsonl                     api-request-blob d-task event, NOT a message from the user.\nDo NOT interpret this as user …
+cd86692a-79c8-4c48-93a9-56bba80e0313.jsonl 23-10-2026 16:06:01 user             ute-prepared-scan) failed.</summary>\n<result>\nTask failed: Scan executio…
+cd86692a-79c8-4c48-93a9-56bba80e0313.jsonl 23-10-2026 16:06:05 assistant         timed out`.\n\n- **Scan status is unknown.** The tool said the execution …
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
