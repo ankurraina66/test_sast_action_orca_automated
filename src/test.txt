@@ -1,1 +1,11 @@
+Use the existing AppScan connector to prepare a new SAST scan for the local Spring Boot project at "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master", associated with application "Test_Tayalan" (ID "39c76747-8617-4e00-8ae8-096e208f72ac").
 
+Call "prepare-scan" with:
+
+- "appId": "39c76747-8617-4e00-8ae8-096e208f72ac"
+- "targetDir": the project path above
+- "scanType": "SAST"
+- "scanName": "Spring Boot REST Service - POC SAST Validation"
+- "comment": "Authorized POC validation of AppScan create-scan workflow"
+
+Do not call "execute-prepared-scan" or any scan-creation tool. Return the confirmation token and the exact prepared parameters. This step must not start a scan or modify project files.
