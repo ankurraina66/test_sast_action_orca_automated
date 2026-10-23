@@ -1,12 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path "$env:USERPROFILE\.claude.json" -Pattern '"appscan-connector"|"APP_SCAN_REQUEST_TIMEOUT_MS"|"APP_SCAN_PROVIDER"|"command"|"args"|"env"' -Context 0,3
 
-> C:\Users\ankur.raina\.claude.json:1674:        "appscan-connector": {
-  C:\Users\ankur.raina\.claude.json:1675:          "type": "stdio",
-> C:\Users\ankur.raina\.claude.json:1676:          "command": "node",
-> C:\Users\ankur.raina\.claude.json:1677:          "args": [
-  C:\Users\ankur.raina\.claude.json:1678:            "C:\\Users\\ankur.raina\\ai-coding-assistants-claude-poc/dist/claude-mcp-server.js"
-  C:\Users\ankur.raina\.claude.json:1679:          ],
-> C:\Users\ankur.raina\.claude.json:1680:          "env": {}
-  C:\Users\ankur.raina\.claude.json:1681:        }
-  C:\Users\ankur.raina\.claude.json:1682:      },
-  C:\Users\ankur.raina\.claude.json:1683:      "enabledMcpjsonServers": [],
