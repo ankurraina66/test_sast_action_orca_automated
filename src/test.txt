@@ -1,8 +1,1 @@
-
-$project = "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
-
-Test-Path "$project\pom.xml"
-Test-Path "$project\src"
-
-Get-ChildItem $project -Force | Select-Object Name, Mode
-
+Use the existing AppScan connector to call "get-apps" and list up to 10 applications. Show each application's name and ID. This is a read-only operation; do not create or start any scan, and do not modify any files.
