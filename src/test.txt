@@ -1,1 +1,8 @@
 
+$project = "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+
+Test-Path "$project\pom.xml"
+Test-Path "$project\src"
+
+Get-ChildItem $project -Force | Select-Object Name, Mode
+
