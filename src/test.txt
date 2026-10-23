@@ -1,1 +1,17 @@
-Use the existing AppScan connector to call "get-provider-status". Then switch the active provider to "local" using "switch-provider", and call "get-provider-status" again to verify the switch. Do not create or start any scan, and do not modify project files.
+/appscan Use the existing AppScan connector to call "get-provider-status". Then switch the active provider to "local" using "switch-provider", and call "get-provider-status" again to verify the switch. Do not create or start any scan, and do not modify project files.
+
+  Called appscan-connector 3 times
+
+The AppScan provider is now local. It was remote before the switch.
+
+┌─────────────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│            Step             │                                                Result                                                 │
+├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Initial get-provider-status │ Active provider: remote                                                                               │
+├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ switch-provider to local    │ Active provider: local. The connection and tool discovery succeeded, with 15 backend tools available. │
+├─────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Final get-provider-status   │ Active provider: local                                                                                │
+└─────────────────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+I didn't create or start any scan, and I didn't modify any project files.
