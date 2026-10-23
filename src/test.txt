@@ -1,6 +1,4 @@
-/appscan
-
-Prepare a new SAST scan for my existing Spring Boot project using the active local AppScan provider.
+/appscan Prepare a new SAST scan for my existing Spring Boot project using the active local AppScan provider.
 
 - Project directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
 - Application name: "Test_Tayalan"
@@ -12,3 +10,37 @@ Prepare a new SAST scan for my existing Spring Boot project using the active loc
 Use "prepare-scan" only. Do not call "execute-prepared-scan", "create-scan", or any other tool that starts a scan. Do not create an application or modify project files.
 
 Return the prepared confirmation token and the exact parameters that were recorded. If preparation fails, report the error without attempting another approach.
+
+  Called appscan-connector
+
+The scan is prepared but not started. I called only prepare-scan. I did not execute the scan, create an application, or modify any files.
+
+Prepared parameters
+
+┌────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│     Parameter      │                                                            Value                                                             │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Confirmation token │ 04975cff-96d2-4515-acc8-842415f4f12d                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application        │ Test_Tayalan                                                                                                                 │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application ID     │ 39c76747-8617-4e00-8ae8-096e208f72ac                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan type          │ SAST                                                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan name          │ SpringBoot-REST-POC-SAST-2026-10-23                                                                                          │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Source directory   │ C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Provider           │ local                                                                                                                        │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+I passed the comment "POC validation of local AppScan create-s. The response did not echo it back, so I can't confirm it wasrecorded.
+
+What executing would do
+
+- Upload: Source artifacts from that directory may be packaged and uploaded to AppScan.
+- Side effects: The underlying tool may generate configurationy or run a build.
+- Scope: Approval covers only this scan and does not approve source-code edits.
+- Target application: Test_Tayalan already holds existing scantechnologies include DAST, SAST and SCA. A new scan would beadded to that application's history.                                                                                                                    
+To run it, confirm these exact parameters, for example by replying "Confirmed, execute the prepared scan". If you change any parameter, I'll prepare a new request and ask you to confirm again.
