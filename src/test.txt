@@ -1,1 +1,11 @@
+/appscan Diagnose why "execute-prepared-scan" may fail to create a scan. Do not execute a scan, prepare a new scan, switch providers, or modify files.
 
+Inspect the existing connector implementation and report:
+
+1. The exact provider currently active.
+2. Whether the active backend exposes "create-scan" and its required input schema.
+3. Whether any existing unused preparation token is still available, without executing it.
+4. The execution path from "execute-prepared-scan" through capability checking to the backend "create-scan" call.
+5. Any error-handling or argument-mapping issue that could prevent scan creation.
+
+Use code inspection and read-only checks only. Clearly distinguish confirmed findings from hypotheses. Do not expose credentials.
