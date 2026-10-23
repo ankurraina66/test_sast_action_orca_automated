@@ -1,1 +1,1 @@
-
+/appscan prepare a SAST scan for Demo_Claude_POC using the existing approved test target directory. Do not execute the scan yet.
