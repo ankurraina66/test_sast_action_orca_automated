@@ -1,1 +1,1 @@
-
+node -e "const c=require('./dist/config/config.js'); console.log(JSON.stringify({provider:c.loadConfig().provider,requestTimeoutMs:c.loadConfig().requestTimeoutMs},null,2))"
