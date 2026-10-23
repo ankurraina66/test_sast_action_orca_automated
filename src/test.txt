@@ -1,1 +1,118 @@
+Please provide the targeted patch now:
 
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\claude-mcp-server.ts | Select-Object -Skip 315 -First 115
+        "execute-prepared-scan", {
+        description:
+        "Execute a previously prepared AppScan scan only after explicit user confirmation of its exact parameters. Never call this tool merely because a preparation token exists.",
+        inputSchema: {
+            confirmationToken: z.string().uuid(),
+        },
+    },
+        async({
+            confirmationToken
+        }) => {
+        const prepared = pendingScans.get(confirmationToken);
+
+        if (!prepared) {
+            return {
+                content: [{
+                        type: "text" as const,
+                        text: "No pending scan matches this token. Prepare the request again and obtain user confirmation.",
+                    }
+                ],
+                isError: true,
+            };
+        }
+
+        if (executingScanTokens.has(confirmationToken)) {
+            return {
+                content: [{
+                        type: "text" as const,
+                        text: "This confirmation token is already being processed. Do not submit it again.",
+                    }
+                ],
+                isError: true,
+            };
+        }
+
+        // Reject provider mismatches before claiming the token.
+        if (prepared.provider !== service.getProvider()) {
+            return {
+                content: [{
+                        type: "text" as const,
+                        text:
+                        `This scan was prepared for the ${prepared.provider} provider, ` +
+`but the active provider is ${service.getProvider()}. ` +
+                        "The scan was not started. Prepare the request again and obtain explicit confirmation.",
+                    }
+                ],
+                isError: true,
+            };
+        }
+
+        // Claim synchronously so concurrent submissions cannot claim this token.
+        executingScanTokens.add(confirmationToken);
+
+        try {
+            // Provider validation, capability discovery, and execution happen
+            // under one service lock. If the provider or tool is unsupported,
+            // the service rejects before executing the operation.
+            const result = await service.callFirstAvailableToolIfSupported(
+                    ["create-scan", "create_scan"], {
+                    appId: prepared.appId,
+                    targetDir: prepared.targetDir,
+                    scanType: prepared.scanType,
+                    ...(prepared.scanName !== undefined
+                         ? {
+                        scanName: prepared.scanName
+                    }
+                         : {}),
+                    ...(prepared.comment !== undefined
+                         ? {
+                        comment: prepared.comment
+                    }
+                         : {}),
+                    approved: true,
+                },
+                    prepared.provider, );
+
+            // Consume the token after successful completion.
+            pendingScans.delete(confirmationToken);
+
+            return textResult(result);
+        } catch (error) {
+            const message =
+                error instanceof Error ? error.message : "Unknown error";
+
+            // A capability or provider check can fail before execution.
+            // Preserve the token in those cases. Once the backend operation
+            // has been attempted, consume it to avoid accidental duplicates
+            // if the backend started a scan but its response was lost.
+            const failedBeforeExecution =
+                message.includes("Provider mismatch:") ||
+                message.includes("does not support this operation");
+
+            if (!failedBeforeExecution) {
+                pendingScans.delete(confirmationToken);
+            }
+
+            return {
+                content: [{
+                        type: "text" as const,
+                        text: failedBeforeExecution
+                         ? `Scan was not executed: ${message} The confirmation token remains available.`
+                         : "Scan execution failed or could not be confirmed. The confirmation token has been consumed to prevent accidental duplicate scans. Review the AppScan backend before preparing another request. Details: " +
+                        message,
+                    }
+                ],
+                isError: true,
+            };
+        } finally {
+            executingScanTokens.delete(confirmationToken);
+        }
+    }, );
+
+    const transport = new StdioServerTransport();
+
+    try {
+        await server.connect(transport);
