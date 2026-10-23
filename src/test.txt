@@ -1,1 +1,9 @@
+/appscan
 
+Using the existing connector and active local provider, perform read-only verification only.
+
+1. Call "get-provider-status" and confirm the provider is local.
+2. Verify whether "create-scan" is available through the local backend's tool-capability discovery, without invoking the tool.
+3. Inspect the pending preparation associated with token "08e4aa4e-8b07-4db7-975d-1d9fadd3ad6c", if the connector exposes a safe read-only way to do so. Report the exact stored application ID, target directory, scan type, scan name, comment, and provider. Do not execute or consume the token.
+
+Do not call "execute-prepared-scan" or "create-scan", create an application, start a scan, or modify project files. If any detail cannot be verified through the available tools, explicitly report it as unverified.
