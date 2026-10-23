@@ -1,1 +1,2 @@
-
+Get-Content "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js" |
+  Select-Object -Skip 235 -First 180
