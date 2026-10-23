@@ -1,18 +1,105 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $package = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> # Confirm the local backend registers create-scan
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path "$package\build\index.js" `
+>>   -Pattern 'registerCreateScanTool|createScan.js'
 
-$package = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package"
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:5:import { registerCreateScanTool } from
+"./tools/createScan.js";
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js:1007:    registerCreateScanTool(server);
 
-# Confirm the local backend registers create-scan
-Select-String -Path "$package\build\index.js" `
-  -Pattern 'registerCreateScanTool|createScan.js'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> # Inspect the create-scan schema and approval guard
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path "$package\build\tools\createScan.js" `
+>>   -Pattern 'registerTool\("create-scan"|appId:|targetDir:|scanType:|scanName:|comment:|approved:|approved\)|approved === true' `
+>>   -Context 2,3
 
-# Inspect the create-scan schema and approval guard
-Select-String -Path "$package\build\tools\createScan.js" `
-  -Pattern 'registerTool\("create-scan"|appId:|targetDir:|scanType:|scanName:|comment:|approved:|approved\)|approved === true' `
-  -Context 2,3
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:61: */
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:62:export function
+registerCreateScanTool(server) {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:63:
+server.registerTool("create-scan", {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:64:        title: "Create AppScan
+Scan",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:65:        description: "Create or
+start an HCL AppScan SAST scan for a local project, or create an AppScan SCA scan when scanType is set to SCA. Use this whenever the user asks to create a
+scan, start a scan, run a scan, create a SAST scan, start AppScan on this project, or scan the current workspace for vulnerabilities. The tool packages
+the local codebase, uploads the IRX artifact, and creates the AppScan scan record. It uses an existing appscan-config.xml when available and can generate
+a project-aware configuration when missing. If the appId is not passed, missing, or unavailable, do not stop the process. Instead, seamlessly prompt the
+user with a question asking them to either select from a list of existing applications, enter an app name, or provide a specific app ID. Explicit user
+approval is required before the scan is finally created.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:66:        annotations: {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:75:        },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:76:        inputSchema: {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:77:            appId:
+z.string().optional().describe("Required AppScan application ID that will own the new scan. Use an existing application ID from get-apps or create-app
+first. If omitted, the tool stops and returns selectable existing applications instead of creating a scan."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:78:            scanName:
+z.string().optional().describe("Optional AppScan scan name. If omitted, the tool generates one from the project folder name and current timestamp."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:79:            targetDir:
+z.string().describe("Required path to the local project, repository checkout, source tree, or prepared build output to package for scanning. For prompts
+like 'scan this project', use the current workspace folder."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:80:            configFile:
+z.string().optional().describe("Optional path to an existing appscan-config.xml file. Use this when the scan configuration lives outside targetDir or when
+you want to force a specific AppScan configuration. If omitted, the tool looks for appscan-config.xml in targetDir and generates one when missing."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:81:            scanType:
+z.enum(["SAST", "SCA"]).default("SAST").describe("Type of AppScan scan to create. Use SAST for static application security testing of source or build
+output. Use SCA for software composition or dependency analysis."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:82:            comment:
+z.string().optional().describe("Optional comment stored with the AppScan scan request, such as a branch name, commit, ticket, or execution note."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:83:            wait:
+z.boolean().optional().default(true).describe("When true, wait for the AppScan scan execution to reach a terminal ready state before returning. Set false
+to return immediately after the scan is created."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:84:            workDir:
+z.string().optional().describe("Optional working directory used for temporary AppScan artifacts, reports, and intermediate files. Defaults to the system
+temp directory when omitted."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:85:            detailedLogs:
+z.boolean().optional().default(false).describe("When true, include verbose build output and AppScan command logs for troubleshooting. Keep false for
+normal runs to reduce noise and token usage."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:86:            conserveFiles:
+z.boolean().optional().default(false).describe("When true, preserve generated local artifacts such as the AppScan output folder, IRX package, and
+generated configuration for later inspection. Defaults to false and cleans up local artifacts after scan creation."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:87:            approved:
+z.boolean().optional().default(false).describe("Required approval flag for this write action. Set to true only after the user has explicitly approved
+creating or starting the AppScan scan."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:88:        },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:89:    }, async ({ appId, scanName,
+targetDir, configFile, scanType, comment, wait, workDir, detailedLogs, conserveFiles, approved }, extra) => {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:90:        let outputDir;
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:168:                };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:169:            }
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:170:            if (!approved) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:171:                return {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:172:                    content: [
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:173:                        {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:179:
+`Target directory: ${targetDir}`,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:180:
+`Scan type: ${scanType}`,
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:181:
+`Comment: ${comment || "(none)"}`,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:182:
+"Ask the user for approval, then rerun this tool with approved=true.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:183:
+].join("\n"),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:184:                        },
 
-# Locate the connector's production workflow mapping
-$connector = "C:\Users\ankur.raina\ai-coding-assistants-claude-poc"
-Get-ChildItem "$connector\src" -Recurse -File |
-  Select-String -Pattern 'callFirstAvailableToolIfSupported|create-scan|create_scan|prepare-scan|execute-prepared-scan' |
-  Select-Object Path, LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> # Locate the connector's production workflow mapping
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $connector = "C:\Users\ankur.raina\ai-coding-assistants-claude-poc"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem "$connector\src" -Recurse -File |
+>>   Select-String -Pattern 'callFirstAvailableToolIfSupported|create-scan|create_scan|prepare-scan|execute-prepared-scan' |
+>>   Select-Object Path, LineNumber, Line
 
+Path                                                                                 LineNumber Line
+----                                                                                 ---------- ----
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts               259         "prepare-scan", {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts               261         "Prepare an AppScan scan request and return its ex…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts               308                         "Obtain explicit user confirmation…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts               316         "execute-prepared-scan", {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts               372             const result = await service.callFirstAvailabl…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts               373                     ["create-scan", "create_scan"], {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\appscan-service.ts        178     async callFirstAvailableToolIfSupported(
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\services\scan-workflow.ts           59         const result = await this.service.callTool("create…
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
