@@ -1,11 +1,173 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude
 
-cd "C:\Users\ankur.raina\ai-coding-assistants-claude-poc"
+Resume this session with:
+claude --resume 7159f5d7-09b9-41eb-9304-28caf5113090
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> cd "C:\Users\ankur.raina\ai-coding-assistants-claude-poc"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path ".\src\claude-mcp-server.ts" `
+>>   -Pattern 'registerTool|create-app|create-scan|prepare-scan|execute-prepared-scan' `
+>>   -Context 2,4
 
-Select-String -Path ".\src\claude-mcp-server.ts" `
-  -Pattern 'registerTool|create-app|create-scan|prepare-scan|execute-prepared-scan' `
-  -Context 2,4
+  src\claude-mcp-server.ts:14:    });
+  src\claude-mcp-server.ts:15:
+> src\claude-mcp-server.ts:16:    server.registerTool(
+  src\claude-mcp-server.ts:17:        "get-provider-status", {
+  src\claude-mcp-server.ts:18:        description: "Show which AppScan provider is currently active.",
+  src\claude-mcp-server.ts:19:        inputSchema: {},
+  src\claude-mcp-server.ts:20:    },
+  src\claude-mcp-server.ts:27:        }), );
+  src\claude-mcp-server.ts:28:
+> src\claude-mcp-server.ts:29:    server.registerTool(
+  src\claude-mcp-server.ts:30:        "switch-provider", {
+  src\claude-mcp-server.ts:31:        description:
+  src\claude-mcp-server.ts:32:        "Switch the active AppScan backend between local STDIO and remote HTTP without restarting the Claude-facing MCP
+server.",
+  src\claude-mcp-server.ts:33:        inputSchema: {
+  src\claude-mcp-server.ts:93:    }
+  src\claude-mcp-server.ts:94:
+> src\claude-mcp-server.ts:95:    server.registerTool(
+  src\claude-mcp-server.ts:96:        "get-apps", {
+  src\claude-mcp-server.ts:97:        description: "Retrieve AppScan applications.",
+  src\claude-mcp-server.ts:98:        inputSchema: {
+  src\claude-mcp-server.ts:99:            filter: z.string().optional(),
+  src\claude-mcp-server.ts:130:    }, );
+  src\claude-mcp-server.ts:131:
+> src\claude-mcp-server.ts:132:    server.registerTool(
+  src\claude-mcp-server.ts:133:        "get-scans", {
+  src\claude-mcp-server.ts:134:        description:
+  src\claude-mcp-server.ts:135:        "Retrieve AppScan scans. Optionally filter by applicationId (GUID) and an additional OData filter.",
+  src\claude-mcp-server.ts:136:        inputSchema: {
+  src\claude-mcp-server.ts:172:    }, );
+  src\claude-mcp-server.ts:173:
+> src\claude-mcp-server.ts:174:    server.registerTool(
+  src\claude-mcp-server.ts:175:        "get-scan-issues", {
+  src\claude-mcp-server.ts:176:        description: "Retrieve security findings for a specific AppScan scan.",
+  src\claude-mcp-server.ts:177:        inputSchema: {
+  src\claude-mcp-server.ts:178:            scanId: z.string().min(1),
+  src\claude-mcp-server.ts:224:    }, );
+  src\claude-mcp-server.ts:225:
+> src\claude-mcp-server.ts:226:    server.registerTool(
+  src\claude-mcp-server.ts:227:        "get-issue-details", {
+  src\claude-mcp-server.ts:228:        description: "Retrieve detailed information about an AppScan finding.",
+  src\claude-mcp-server.ts:229:        inputSchema: {
+  src\claude-mcp-server.ts:230:            issueId: z.string().min(1),
+  src\claude-mcp-server.ts:256:    const executingScanTokens = new Set < string > ();
+  src\claude-mcp-server.ts:257:
+> src\claude-mcp-server.ts:258:    server.registerTool(
+> src\claude-mcp-server.ts:259:        "prepare-scan", {
+  src\claude-mcp-server.ts:260:        description:
+> src\claude-mcp-server.ts:261:        "Prepare an AppScan scan request and return its exact parameters for user review. This tool must not start a scan.
+Obtain explicit user confirmation in the conversation before calling execute-prepared-scan.",
+  src\claude-mcp-server.ts:262:        inputSchema: {
+  src\claude-mcp-server.ts:263:            appId: z.string().uuid(),
+  src\claude-mcp-server.ts:264:            targetDir: z.string().min(1),
+  src\claude-mcp-server.ts:265:            scanType: z.enum(["SAST", "SCA"]).default("SAST"),
+  src\claude-mcp-server.ts:306:                        "",
+  src\claude-mcp-server.ts:307:                        "Before execution, explain that source artifacts may be packaged and uploaded to AppScan, and that
+the underlying tool may generate configuration files or run a build.",
+> src\claude-mcp-server.ts:308:                        "Obtain explicit user confirmation for these exact parameters before invoking
+execute-prepared-scan.",
+  src\claude-mcp-server.ts:309:                    ].join("\n"),
+  src\claude-mcp-server.ts:310:                }
+  src\claude-mcp-server.ts:311:            ],
+  src\claude-mcp-server.ts:312:        };
+  src\claude-mcp-server.ts:313:    }, );
+  src\claude-mcp-server.ts:314:
+> src\claude-mcp-server.ts:315:    server.registerTool(
+> src\claude-mcp-server.ts:316:        "execute-prepared-scan", {
+  src\claude-mcp-server.ts:317:        description:
+  src\claude-mcp-server.ts:318:        "Execute a previously prepared AppScan scan only after explicit user confirmation of its exact parameters. Never
+call this tool merely because a preparation token exists.",
+  src\claude-mcp-server.ts:319:        inputSchema: {
+  src\claude-mcp-server.ts:320:            confirmationToken: z.string().uuid(),
+  src\claude-mcp-server.ts:371:            // the service rejects before executing the operation.
+  src\claude-mcp-server.ts:372:            const result = await service.callFirstAvailableToolIfSupported(
+> src\claude-mcp-server.ts:373:                    ["create-scan", "create_scan"], {
+  src\claude-mcp-server.ts:374:                    appId: prepared.appId,
+  src\claude-mcp-server.ts:375:                    targetDir: prepared.targetDir,
+  src\claude-mcp-server.ts:376:                    scanType: prepared.scanType,
+  src\claude-mcp-server.ts:377:                    ...(prepared.scanName !== undefined
 
-Select-String -Path ".\src\services\appscan-service.ts" `
-  -Pattern 'listTools|callFirstAvailableToolIfSupported|callFirstAvailableTool' `
-  -Context 2,4
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path ".\src\services\appscan-service.ts" `
+>>   -Pattern 'listTools|callFirstAvailableToolIfSupported|callFirstAvailableTool' `
+>>   -Context 2,4
 
+  src\services\appscan-service.ts:42:    }
+  src\services\appscan-service.ts:43:
+> src\services\appscan-service.ts:44:    async listTools(): Promise < McpTool[] > {
+> src\services\appscan-service.ts:45:        return this.withLock(() => this.connector.listTools());
+  src\services\appscan-service.ts:46:    }
+  src\services\appscan-service.ts:47:
+  src\services\appscan-service.ts:48:    async callTool(
+  src\services\appscan-service.ts:49:        name: string,
+  src\services\appscan-service.ts:62:                return {
+  src\services\appscan-service.ts:63:                    provider: this.activeProvider,
+> src\services\appscan-service.ts:64:                    toolCount: (await this.connector.listTools()).length,
+  src\services\appscan-service.ts:65:                };
+  src\services\appscan-service.ts:66:            }
+  src\services\appscan-service.ts:67:
+  src\services\appscan-service.ts:68:            const previousConnector = this.connector;
+  src\services\appscan-service.ts:73:                await nextConnector.connect();
+  src\services\appscan-service.ts:74:
+> src\services\appscan-service.ts:75:                const tools = await nextConnector.listTools();
+  src\services\appscan-service.ts:76:
+  src\services\appscan-service.ts:77:                if (tools.length === 0) {
+  src\services\appscan-service.ts:78:                    throw new Error(
+  src\services\appscan-service.ts:79:`The ${provider} AppScan provider returned no tools.`, );
+  src\services\appscan-service.ts:118:        names: string[], ): Promise < McpTool | undefined > {
+  src\services\appscan-service.ts:119:        return this.withLock(async() => {
+> src\services\appscan-service.ts:120:            const tools = await this.connector.listTools();
+  src\services\appscan-service.ts:121:            const normalizedNames = new Set(
+  src\services\appscan-service.ts:122:                    names.map((name) => name.toLowerCase()), );
+  src\services\appscan-service.ts:123:
+  src\services\appscan-service.ts:124:            return tools.find((tool) =>
+  src\services\appscan-service.ts:139:            }
+  src\services\appscan-service.ts:140:
+> src\services\appscan-service.ts:141:            const tools = await this.connector.listTools();
+  src\services\appscan-service.ts:142:            const normalizedNames = new Set(
+  src\services\appscan-service.ts:143:                    names.map((name) => name.toLowerCase()), );
+  src\services\appscan-service.ts:144:
+  src\services\appscan-service.ts:145:            return tools.some((tool) =>
+  src\services\appscan-service.ts:148:    }
+  src\services\appscan-service.ts:149:
+> src\services\appscan-service.ts:150:    async callFirstAvailableTool(
+  src\services\appscan-service.ts:151:        names: string[],
+  src\services\appscan-service.ts:152:        args: Record < string, unknown >  = {},
+  src\services\appscan-service.ts:153:        expectedProvider ?  : AppScanProvider, ): Promise < McpToolCallResult > {
+  src\services\appscan-service.ts:154:        return this.withLock(async() => {
+  src\services\appscan-service.ts:161:
+  src\services\appscan-service.ts:162:            // Discovery and execution use the same connector while holding the lock.
+> src\services\appscan-service.ts:163:            const tools = await this.connector.listTools();
+  src\services\appscan-service.ts:164:            const normalizedNames = new Set(
+  src\services\appscan-service.ts:165:                    names.map((name) => name.toLowerCase()), );
+  src\services\appscan-service.ts:166:            const tool = tools.find((item) =>
+  src\services\appscan-service.ts:167:                    normalizedNames.has(item.name.toLowerCase()), );
+  src\services\appscan-service.ts:176:    }
+  src\services\appscan-service.ts:177:
+> src\services\appscan-service.ts:178:    async callFirstAvailableToolIfSupported(
+  src\services\appscan-service.ts:179:        names: string[],
+  src\services\appscan-service.ts:180:        args: Record < string, unknown >  = {},
+  src\services\appscan-service.ts:181:        expectedProvider ?  : AppScanProvider, ): Promise < McpToolCallResult > {
+  src\services\appscan-service.ts:182:        return this.withLock(async() => {
+  src\services\appscan-service.ts:189:            }
+  src\services\appscan-service.ts:190:
+> src\services\appscan-service.ts:191:            const tools = await this.connector.listTools();
+  src\services\appscan-service.ts:192:            const normalizedNames = new Set(
+  src\services\appscan-service.ts:193:                    names.map((name) => name.toLowerCase()), );
+  src\services\appscan-service.ts:194:            const tool = tools.find((item) =>
+  src\services\appscan-service.ts:195:                    normalizedNames.has(item.name.toLowerCase()), );
+  src\services\appscan-service.ts:211:    async findApplicationDiscoveryTool(): Promise < McpTool | undefined > {
+  src\services\appscan-service.ts:212:        return this.withLock(async() => {
+> src\services\appscan-service.ts:213:            const tools = await this.connector.listTools();
+  src\services\appscan-service.ts:214:
+  src\services\appscan-service.ts:215:            return tools.find((tool) =>
+  src\services\appscan-service.ts:216:                /^(get[_-]apps|list[_-]applications)$/i.test(tool.name), );
+  src\services\appscan-service.ts:217:        });
+  src\services\appscan-service.ts:221:        args: Record < string, unknown >  = {}, ): Promise < McpToolCallResult > {
+  src\services\appscan-service.ts:222:        return this.withLock(async() => {
+> src\services\appscan-service.ts:223:            const tools = await this.connector.listTools();
+  src\services\appscan-service.ts:224:            const tool = tools.find((item) =>
+  src\services\appscan-service.ts:225:                    /^(get[_-]apps|list[_-]applications)$/i.test(item.name), );
+  src\services\appscan-service.ts:226:
+  src\services\appscan-service.ts:227:            if (!tool) {
