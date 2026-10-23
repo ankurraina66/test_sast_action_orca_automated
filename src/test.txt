@@ -1,1 +1,12 @@
-Select-String -Path .\src\config\config.ts,.\src\mcp\local-stdio-connector.ts -Pattern "APP_SCAN_REQUEST_TIMEOUT_MS|requestTimeoutMs|RequestTimeout"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\src\config\config.ts,.\src\mcp\local-stdio-connector.ts -Pattern "APP_SCAN_REQUEST_TIMEOUT_MS|requestTimeoutMs|RequestTimeout"
+
+src\config\config.ts:5:  requestTimeoutMs: number;
+src\config\config.ts:35:  const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
+src\config\config.ts:39:      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
+src\config\config.ts:66:      requestTimeoutMs: timeout,
+src\config\config.ts:84:    requestTimeoutMs: timeout,
+src\mcp\local-stdio-connector.ts:16:  requestTimeoutMs?: number;
+src\mcp\local-stdio-connector.ts:22:  private readonly requestTimeoutMs: number;
+src\mcp\local-stdio-connector.ts:26:    this.requestTimeoutMs = options.requestTimeoutMs ?? 30000;
+src\mcp\local-stdio-connector.ts:56:      { timeout: this.requestTimeoutMs },
+src\mcp\local-stdio-connector.ts:78:      { timeout: this.requestTimeoutMs },
