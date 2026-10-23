@@ -1,1 +1,14 @@
+/appscan Prepare a new SAST scan for my existing Spring Boot project.
 
+Project directory: C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master
+
+Use the existing AppScan application:
+
+- Application name: Test_Tayalan
+- Application ID: 39c76747-8617-4e00-8ae8-096e208f72ac
+
+Scan name: POC-Spring-Boot-Create-Scan-E2E
+Scan type: SAST
+Comment: End-to-end validation of the HCL AppScan Claude connector create-scan workflow.
+
+First verify that the active provider is local and that "create-scan" is supported. Prepare the request using the connector's "prepare-scan" tool only. Do not call "execute-prepared-scan" or the backend "create-scan" tool, and do not start a scan. Return the confirmation token and the exact parameters that would be used, including any file changes, build operations, packaging, or uploads that the scan may perform. Wait for my explicit approval before execution.
