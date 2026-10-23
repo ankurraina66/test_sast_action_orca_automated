@@ -1,1 +1,1 @@
-
+/appscan List the available AppScan connector tools and their descriptions, focusing on scan creation, scan status, scan details, and timeout configuration. Do not create or execute a scan.
