@@ -1,1 +1,1 @@
-
+Use the existing AppScan connector to call "get-apps" and search for the application named "Demo_Test_Ankur". Return its exact application ID. If it is not found, report that clearly. This is read-only: do not create an application, prepare a scan, start a scan, or modify files.
