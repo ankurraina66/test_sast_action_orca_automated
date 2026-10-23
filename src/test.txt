@@ -1,1 +1,2 @@
-
+Get-ChildItem .\src -Recurse -File -Include *.js,*.ts |
+  Select-String -Pattern "analysis_timeout_minutes|wait_for_analysis|scan.*status|setTimeout|sleep" -CaseSensitive:$false
