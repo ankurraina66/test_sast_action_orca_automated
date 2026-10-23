@@ -1,1 +1,1 @@
-
+Select-String -Path "$env:USERPROFILE\.claude.json" -Pattern '"appscan-connector"|"APP_SCAN_REQUEST_TIMEOUT_MS"|"APP_SCAN_PROVIDER"|"command"|"args"|"env"' -Context 0,3
