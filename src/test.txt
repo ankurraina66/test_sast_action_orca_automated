@@ -1,1 +1,1 @@
-/appscan Execute the previously prepared SAST scan using confirmation token b00fb860-1975-4949-9c0c-0639d09fff35. I explicitly approve execution of the reviewed scan. Do not prepare a new scan or execute it more than once. Return the execution confirmation token and status-check instructions.
+
