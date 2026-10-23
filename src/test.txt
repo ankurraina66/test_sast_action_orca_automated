@@ -1,15 +1,1 @@
-/appscan Using the local AppScan provider, list scans for application Demo_Claude_POC (ID a892fce6-630b-44b4-8f47-d6f6f7d63be5). Check whether a scan named "Claude Local MCP Timeout POC - IntelliJ" or "Claude Local MCP Timeout POC - IntelliJ Plugin" exists. Do not prepare or execute any scan.
 
-  Called appscan-connector
-
-Demo_Claude_POC (Application ID: a892fce6-630b-44b4-8f47-d6f6f7d63be5)
-
-┌────────────────────────────────────────────────┬──────────────────────────────────────┬───────────────────────┬─────────┬──────────────────────┐
-│                   Scan name                    │               Scan ID                │       Scan type       │ Status  │       Created        │
-├────────────────────────────────────────────────┼──────────────────────────────────────┼───────────────────────┼─────────┼──────────────────────┤
-│ Claude Local MCP Timeout POC - IntelliJ Plugin │ 26fb6b4a-57aa-4de8-8113-629555b4981e │ SAST (StaticAnalyzer) │ Running │ 2026-10-23T16:06:46Z │
-└────────────────────────────────────────────────┴──────────────────────────────────────┴───────────────────────┴─────────┴──────────────────────┘
-
-The scan named "Claude Local MCP Timeout POC - IntelliJ Plugin" exists. So the earlier timeout only affected the client's wait, and the scan was created and is still running. It is the only scan for this application, and no scan named "Claude Local MCP Timeout POC - IntelliJ" without "Plugin" was returned.
-
-The scan endpoint does not return a risk-rating field.
