@@ -1,1 +1,3 @@
-
+Get-ChildItem "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package" -Recurse -File -Include *.js |
+  Select-String -Pattern 'SAClientUtil|Static_|irx|create-scan|targetDir' |
+  Select-Object Path, LineNumber, Line
