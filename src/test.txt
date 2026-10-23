@@ -1,3 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp remove appscan-connector -s local
-Removed MCP server appscan-connector from local config
-File modified: C:\Users\ankur.raina\.claude.json [project: C:\Users\ankur.raina\ai-coding-assistants-claude-poc]
+
