@@ -1,1 +1,3 @@
+/appscan
 
+Switch the AppScan connector to the local provider. Then inspect the available tools and schema for "create-app" without invoking it. Show the required and optional parameters, and confirm that "create-scan" is available. Do not create an application, start a scan, or modify any project files yet. Report the active provider at the end.
