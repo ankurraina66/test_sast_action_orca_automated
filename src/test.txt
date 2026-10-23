@@ -1,1 +1,5 @@
+cd "C:\Users\ankur.raina\ai-coding-assistants-claude-poc"
 
+Get-ChildItem .\src -Recurse -File |
+    Select-String -Pattern "requestTimeoutMs|AbortSignal.timeout|TimeoutError|timeout" |
+    Select-Object Path, LineNumber, Line
