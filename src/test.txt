@@ -1,1 +1,1 @@
-
+Select-String -Path .\src\config\config.ts,.\src\mcp\local-stdio-connector.ts -Pattern "APP_SCAN_REQUEST_TIMEOUT_MS|requestTimeoutMs|RequestTimeout"
