@@ -1,6 +1,23 @@
-$project = "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $project = "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Test-Path "$project\pom.xml"
+True
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Test-Path "$project\src"
+True
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem $project -Force |
+>>     Select-Object Name, Mode
 
-Test-Path "$project\pom.xml"
-Test-Path "$project\src"
-Get-ChildItem $project -Force |
-    Select-Object Name, Mode
+Name                       Mode
+----                       ----
+.idea                      d----
+config                     d----
+misc                       d----
+ScreenShots                d----
+src                        d----
+target                     d----
+.gitignore                 -a---
+dependency-reduced-pom.xml -a---
+pom.xml                    -a---
+README.md                  -a---
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
