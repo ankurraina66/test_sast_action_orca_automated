@@ -1,2 +1,4 @@
-Get-ChildItem "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0" -Filter "createScan.js" -Recurse |
-  Select-Object -ExpandProperty FullName
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0" -Filter "createScan.js" -Recurse |
+>>   Select-Object -ExpandProperty FullName
+C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
