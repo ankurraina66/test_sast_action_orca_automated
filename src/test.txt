@@ -1,2 +1,105 @@
-Get-Content "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\scanService.js" |
-  Select-String -Pattern 'export async function generateIRX' -Context 0,100
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\scanService.js" |
+>>   Select-String -Pattern 'export async function generateIRX' -Context 0,100
+
+> export async function generateIRX(appscanPath, targetDir, scanName, outputDir, configFile, scanFlag, secretScanning, scanLevel, analysisOnly,
+detailedLogs = false) {
+      console.error("[scanService] Generating IRX file...");
+      const irxFile = `${scanName}.irx`;
+      const isWindows = os.platform() === "win32";
+      // Create output directory with timestamp if not specified
+      const actualOutputDir = outputDir || path.join(targetDir, `HCLAppScan_${new Date().toISOString().replace(/[-:]/g, '_').split('.')[0]}`);
+      if (!fs.existsSync(actualOutputDir)) {
+          fs.mkdirSync(actualOutputDir, { recursive: true });
+      }
+      const irxPath = path.join(actualOutputDir, irxFile);
+      // Normalize paths for Windows - use path.normalize() for consistency
+      const normalizedAppscanPath = isWindows ? path.normalize(appscanPath) : appscanPath;
+      const normalizedConfigFile = configFile && isWindows ? path.normalize(configFile) : configFile;
+      const normalizedOutputDir = isWindows ? path.normalize(actualOutputDir) : actualOutputDir;
+      // Build command
+      let cmd = `"${normalizedAppscanPath}" prepare`;
+      if (normalizedConfigFile && fs.existsSync(configFile)) {
+          cmd += ` -c "${normalizedConfigFile}"`;
+      }
+      // Add -d flag for output directory
+      cmd += ` -d "${normalizedOutputDir}"`;
+      // Add -n flag for IRX filename
+      cmd += ` -n "${irxFile}"`;
+      // Add -sao flag for scan-only analysis if specified
+      if (analysisOnly) {
+          cmd += ` -sao`;
+      }
+      // Add -s flag for scan level
+      if (scanLevel) {
+          cmd += ` -s ${scanLevel}`;
+      }
+      if (scanFlag) {
+          cmd += ` ${scanFlag}`;
+      }
+      if (secretScanning) {
+          cmd += ` -ssc`;
+      }
+      if (detailedLogs) {
+          cmd += ` -v`;
+      }
+      console.error(`[scanService] Running: ${cmd}`);
+      console.error(`[scanService] Working directory: ${targetDir}`);
+      try {
+          const execOptions = {
+              cwd: targetDir,
+              maxBuffer: 1024 * 1024 * 10, // 10MB buffer
+              windowsHide: true,
+              env: { ...process.env }, // Inherit all environment variables
+          };
+          // On Windows, wrap the command with cmd.exe /c for proper batch file execution
+          let finalCmd = cmd;
+          if (isWindows) {
+              finalCmd = `cmd.exe /c "${cmd}"`;
+              execOptions.shell = 'cmd.exe';
+          }
+          const { stdout, stderr } = await execAsync(finalCmd, execOptions);
+          if (detailedLogs && stdout)
+              console.error(`[scanService] stdout: ${truncateForLog(stdout, 12000)}`);
+          if (detailedLogs && stderr)
+              console.error(`[scanService] stderr: ${truncateForLog(stderr, 12000)}`);
+          if (!fs.existsSync(irxPath)) {
+              throw new Error(`IRX file not generated at ${irxPath}`);
+          }
+          const stats = fs.statSync(irxPath);
+          console.error(`[scanService] IRX generated: ${irxPath} (${(stats.size / 1048576).toFixed(2)}MB)`);
+          return irxPath;
+      }
+      catch (error) {
+          const output = [error?.stdout, error?.stderr].filter(Boolean).map((value) => truncateForLog(value, 2000)).join("\n");
+          if (output) {
+              console.error(`[scanService] IRX generation output excerpt:\n${output}`);
+          }
+          throw new Error(`IRX generation failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
+  }
+  /**
+   * Upload IRX file to AppScan and get fileId.
+   */
+  export async function uploadIRXFile(irxPath) {
+      console.error("[scanService] Uploading IRX file...");
+      if (!fs.existsSync(irxPath)) {
+          throw new Error(`IRX file not found: ${irxPath}`);
+      }
+      const fileBuffer = fs.readFileSync(irxPath);
+      const fileName = path.basename(irxPath);
+      // Create multipart form data
+      const boundary = `----Boundary${Date.now()}`;
+      const chunks = [];
+      chunks.push(Buffer.from(`--${boundary}\r\n`));
+      chunks.push(Buffer.from(`Content-Disposition: form-data; name="uploadedFile"; filename="${fileName}"\r\n`));
+      chunks.push(Buffer.from(`Content-Type: application/octet-stream\r\n\r\n`));
+      chunks.push(fileBuffer);
+      chunks.push(Buffer.from(`\r\n--${boundary}--\r\n`));
+      const body = Buffer.concat(chunks);
+      const response = await fetch(`${APPSCAN_API_BASE}/api/v4/FileUpload`, {
+          method: "POST",
+          headers: {
+              "X-Api-Key": getDirectApiKeyHeader(),
+              "Content-Type": `multipart/form-data; boundary=${boundary}`,
+          },
+          body,
