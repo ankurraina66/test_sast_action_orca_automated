@@ -9,3 +9,77 @@ Inspect the existing connector implementation and report:
 5. Any error-handling or argument-mapping issue that could prevent scan creation.
 
 Use code inspection and read-only checks only. Clearly distinguish confirmed findings from hypotheses. Do not expose credentials.
+
+  Searched for 7 patterns, read 6 files, called appscan-connector
+
+I've traced the execute-prepared-scan path through the server, service, config, and connector files. Now I'll check if the compiled dist build matches src, since dist is what actually runs. · summary
+
+  Searched for 2 patterns
+
+I found no bug in the connector code that would stop create-scan from being called. The most likely cause is the timeout. I could not verify the create-scan input schema or whether the other tokens are still usable. I only inspected code and made no changes. I did not execute or prepare anything, switch providers, or read credentials.
+
+1. Active provider
+
+Confirmed: get-provider-status returns local.
+
+2. Does the local backend expose create-scan, and what is its schema?
+
+Unverified.
+- The connector discovers tools at call time with listTools() and looks for create-scan or create_scan, case-insensitive (src/services/appscan-service.ts:191-195).
+- The backend server is the process at APP_SCAN_LOCAL_SERVER_PATH. That path is not in this workspace, and no tool schema is stored anywhere I could read.
+- I found no env or config entry for it in the workspace JSON,d not open user-level Claude config because it can holdcredentials.
+- The connector sends these arguments: appId, targetDir, scanTmment, and approved: true (src/claude-mcp-server.ts:372-389).Whether the backend accepts these names is unverified. The unit tests only check against a mock.
+
+3. Is any unused preparation token still available?
+
+Unverified. It can't be checked read-only.
+- Tokens live in an in-memory Map called pendingScans (claude-ists or inspects it, and the only token-taking tool isexecute-prepared-scan.
+- Consumed: b6b4fbd4-… is gone, as the connector reported.
+- Probably still present: the other four tokens were prepared and never executed. They are lost if the MCP server process restarted.
+- Provider check: any token prepared under local is rejected it execution time.
+
+4. Execution path
+
+All of this is confirmed from src/claude-mcp-server.ts:323-42505.
+1. Look up the token. If it is missing, return an error.
+2. Reject if the token is already executing.
+3. Reject if the prepared provider differs from the active one. The token is not consumed.
+4. Mark the token as executing.
+5. Call callFirstAvailableToolIfSupported. Under a single service lock, it checks the provider, calls listTools(), finds create-scan, then calls
+   connector.callTool("create-scan", args).
+6. Both backend calls (listTools and callTool) use the connector's requestTimeoutMs (local-stdio-connector.ts:54-56, 72-78).
+7. On success, the token is deleted. On error, it is deleted uovider mismatch: or does not support this operation.
+
+The compiled dist matches src for this logic, so the running b
+
+5. Issues that could prevent scan creation
+
+┌─────┬────────────────────────────────────────────────────────────────────────────┬─────────────────────────────────────┐
+│  #  │                                                 Finding                                                 │               Status                │
+├─────┼────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────┤
+│     │ The default request timeout is 30,000 ms (APP_SCAN_REQUEST_TIMEOUT_MS, maximum 300,000). A SAST scan    │ Timeout mechanism confirmed. That   │
+│ A   │ that packages, may build, and uploads source is likelye -32001 Request     │ it was the cause is a hypothesis.   │
+│     │ timed out error is the MCP SDK client timeout.                                                          │                                     │
+├─────┼────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────┤
+│ B   │ The timeout can come from either listTools() or create-scan, because both run inside the same try. The  │ Confirmed from the code.            │
+│     │ error doesn't show which one timed out, so I can't telr called.            │                                     │
+├─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────┤
+│ C   │ Any error other than the two whitelisted messages conseouts raised before  │ Confirmed from the code.            │
+│     │ the backend call. The token was therefore burned even if no scan was started.                           │                                     │
+├─────┼────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────┤
+│ D   │ A client timeout doesn't cancel work in the backend. The backend may still be packaging or uploading,   │ Hypothesis.                         │
+│     │ so a scan could appear later. Two get-scans checks sho                     │                                     │
+├─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────────────────────────────────┤
+│     │ The backend schema is unverified (see item 2). If it r, for example        │                                     │
+│ E   │ applicationId instead of appId, the call would fail with a validation error. That is not what happened  │ Hypothesis, and unlikely.           │
+│     │ here, because a timeout was returned.                                      │                                     │
+├─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────    │ src/services/scan-workflow.ts is a second, older implean with no           │ Confirmed that the server doesn't   │
+│ F   │ capability check and spreads the prepared fields. The server file doesn't import it, so it appears      │ use it. Whether src/index.ts does     │ unused. Only the tests reference it.                                       │ is unchecked.                       │
+├─────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────G   │ The comment is passed through but never echoed. This d                     │ Confirmed.                          │
+└─────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────────────────────────────────
+Suggested next steps (not done)                                                                                                                     
+- Set APP_SCAN_REQUEST_TIMEOUT_MS to the allowed maximum of 300000 in the MCP server environment and restart it. Restarting also clears all pending tokens.
+- Treat the token as not consumed if the failure came from listTools. That would mean moving the capability check out of the consume-on-failure path.
+- Read the backend server's create-scan tool definition at APPnfirm its schema.
+
+I can make any of the code changes on request, but only with y
