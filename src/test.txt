@@ -1,1 +1,1 @@
-
+/appscan Use the existing AppScan connector to call "get-scans" for application ID "39c76747-8617-4e00-8ae8-096e208f72ac" (Test_Tayalan). List the most recent scans, including scan name, scan ID, creation time, and status if available. Check specifically for "Spring Boot REST Service - POC SAST Validation". This is strictly a read-only verification: do not create, execute, retry, or modify any scan.
