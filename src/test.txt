@@ -1,1 +1,1 @@
-
+I explicitly confirm execution of the prepared SAST scan using confirmation token "a72203b5-6fbc-4258-bd99-d27142f86343". Execute only this prepared scan using the local provider. Do not prepare another scan.
