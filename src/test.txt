@@ -1,6 +1,4 @@
-/appscan
-
-Call "prepare-scan" only to prepare a new SAST scan with these exact parameters:
+/appscan Call "prepare-scan" only to prepare a new SAST scan with these exact parameters:
 
 - Application ID: "21b194f5-cea5-4ff6-a4d1-a03103a3e2fb"
 - Target directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
@@ -17,3 +15,39 @@ Strict safety requirements:
 - Do not switch providers.
 - Do not modify project files or start a scan.
 - If preparation fails, report the error without attempting another operation.
+
+  Called appscan-connector
+
+The scan is prepared but not started.
+
+┌─────────────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│      Field      │                                                  Value returned by prepare-scan                                                   │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Confirmation    │ b6b4fbd4-e3dc-408a-828a-d8001497fcf2                                                                                              │
+│ token           │                                                                                                                                   │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application ID  │ 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb (Demo_Test_Ankur)                                                                            │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Target          │ C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master      │
+│ directory       │                                                                                                                                   │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan type       │ SAST                                                                                                                              │
+├─────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan name       │ Spring-Boot-REST-POC-Ankur                                                                                                        │
+├─────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Provider        │ local                                                                                                                             │
+├─────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Comment         │ Not echoed by the connector. I supplied "POC validation of AppScan Connector create-scan workflow", but I can't confirm it was    │
+│                 │ stored.                                                                                              │
+└─────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+The values above are the connector's echo from preparation. I have no read-only way to inspect the stored record, so the stored parameters are unverified.
+
+I called only prepare-scan. I did not switch providers, call execute-prepared-scan or create-scan, start a scan, or modify any files.
+
+This is the second preparation with these exact parameters. a86b7e6f-5a96-486b-89a7-7542d94c8cb2 is a duplicate of it and is still pending. Use only the
+token above if you proceed. The other pending preparations areadd3ad6c and 682ebb22-bb53-4793-a56c-83df578d2729 forDemo_Test_Ankur, and 370142a0-d752-4e9b-9692-5cd55d2b5f8d for Test_Tayalan.
+
+If you execute this scan, source artifacts from the target directory may be packaged and uploaded to AppScan. The underlying tool may also generate configuration files in that directory or run a build.
+
+Do you confirm these exact parameters for execution? I'll callfter you give explicit confirmation.
