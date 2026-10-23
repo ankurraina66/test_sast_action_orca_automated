@@ -1,9 +1,491 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $toolPath = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Test-Path $toolPath
+True
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if (Test-Path $toolPath) {
+>>     Select-String -Path $toolPath -Pattern "registerTool|inputSchema|targetDir|configFile|scanType|approved|conserveFiles|detailedLogs|workDir|wait" -Context 2,8
+>> }
 
-$toolPath = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js"
-
-Test-Path $toolPath
-
-if (Test-Path $toolPath) {
-    Select-String -Path $toolPath -Pattern "registerTool|inputSchema|targetDir|configFile|scanType|approved|conserveFiles|detailedLogs|workDir|wait" -Context 2,8
-}
-
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:3:import * as path from "path";
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:4:import * as os from "os";
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:5:import { ensureAuth,
+downloadSAClient, generateIRX, uploadIRXFile, createScan, waitForScanReady, formatScanSummary, makeAppScanRequest, } from "./scanService.js";
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:6:import { generateAppScanConfig,
+createSmartConfig } from "../helper/create-appscan-config.js";
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:7:function truncateForLog(value,
+maxLength = 4000) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:8:    const text = String(value ||
+"").trim();
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:9:    if (text.length <= maxLength)
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:10:        return text;
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:11:    return `${text.slice(0,
+maxLength)}\n... output truncated ...`;
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:12:}
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:13:function
+cleanupScanArtifacts(outputDir) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:35:        "",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:36:        "Handling the User's
+Selection:",
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:37:        "- If the user selects
+'Create a new application': This acts as explicit approval. Call create-app with approved=true. After create-app returns a real application ID, rerun
+create-scan with that appId and approved=true.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:38:        "- If the user selects an
+existing app from the list: Proceed directly using that application ID.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:39:        "- If the user enters a
+custom app name or ID in the text box: Use the get-apps tool to search for and verify the application details before proceeding.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:40:        "",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:41:        "Forbidden Actions: Do not
+infer application details, do not create an application automatically without the user explicitly selecting the 'Create' option, and never execute
+create-scan without a validated, real application ID.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:42:    ];
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:43:    if (appOptions) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:44:        lines.splice(5, 0,
+appOptions);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:45:    }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:47:}
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:48:async function
+getAppsForSelection() {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:49:    const appsResponse = await
+makeAppScanRequest("/api/v4/Apps?$top=10");
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:50:    return appsResponse.Items ||
+appsResponse || [];
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:51:}
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:52:async function findAppById(appId) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:53:    // OData v4 requires raw GUIDs
+without the guid'' prefix or single quotes
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:54:    const filter =
+encodeURIComponent(`Id eq ${appId}`);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:55:    const response = await
+makeAppScanRequest(`/api/v4/Apps?$filter=${filter}&$top=1`);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:56:    const apps = response.Items ||
+response || [];
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:57:    return apps.length > 0 ?
+apps[0] : null;
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:58:}
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:59:/**
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:60: * Register the create-scan tool.
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:61: */
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:62:export function
+registerCreateScanTool(server) {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:63:
+server.registerTool("create-scan", {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:64:        title: "Create AppScan
+Scan",
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:65:        description: "Create or
+start an HCL AppScan SAST scan for a local project, or create an AppScan SCA scan when scanType is set to SCA. Use this whenever the user asks to create a
+scan, start a scan, run a scan, create a SAST scan, start AppScan on this project, or scan the current workspace for vulnerabilities. The tool packages
+the local codebase, uploads the IRX artifact, and creates the AppScan scan record. It uses an existing appscan-config.xml when available and can generate
+a project-aware configuration when missing. If the appId is not passed, missing, or unavailable, do not stop the process. Instead, seamlessly prompt the
+user with a question asking them to either select from a list of existing applications, enter an app name, or provide a specific app ID. Explicit user
+approval is required before the scan is finally created.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:66:        annotations: {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:67:            title: "Create AppScan
+SAST Scan",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:68:            readOnlyHint: false,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:69:            destructiveHint: false,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:70:            idempotentHint: false,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:71:            openWorldHint: true,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:72:        },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:73:        _meta: {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:74:            tags: ["appscan",
+"sast", "scan", "create", "start", "run"],
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:75:        },
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:76:        inputSchema: {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:77:            appId:
+z.string().optional().describe("Required AppScan application ID that will own the new scan. Use an existing application ID from get-apps or create-app
+first. If omitted, the tool stops and returns selectable existing applications instead of creating a scan."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:78:            scanName:
+z.string().optional().describe("Optional AppScan scan name. If omitted, the tool generates one from the project folder name and current timestamp."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:79:            targetDir:
+z.string().describe("Required path to the local project, repository checkout, source tree, or prepared build output to package for scanning. For prompts
+like 'scan this project', use the current workspace folder."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:80:            configFile:
+z.string().optional().describe("Optional path to an existing appscan-config.xml file. Use this when the scan configuration lives outside targetDir or when
+you want to force a specific AppScan configuration. If omitted, the tool looks for appscan-config.xml in targetDir and generates one when missing."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:81:            scanType:
+z.enum(["SAST", "SCA"]).default("SAST").describe("Type of AppScan scan to create. Use SAST for static application security testing of source or build
+output. Use SCA for software composition or dependency analysis."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:82:            comment:
+z.string().optional().describe("Optional comment stored with the AppScan scan request, such as a branch name, commit, ticket, or execution note."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:83:            wait:
+z.boolean().optional().default(true).describe("When true, wait for the AppScan scan execution to reach a terminal ready state before returning. Set false
+to return immediately after the scan is created."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:84:            workDir:
+z.string().optional().describe("Optional working directory used for temporary AppScan artifacts, reports, and intermediate files. Defaults to the system
+temp directory when omitted."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:85:            detailedLogs:
+z.boolean().optional().default(false).describe("When true, include verbose build output and AppScan command logs for troubleshooting. Keep false for
+normal runs to reduce noise and token usage."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:86:            conserveFiles:
+z.boolean().optional().default(false).describe("When true, preserve generated local artifacts such as the AppScan output folder, IRX package, and
+generated configuration for later inspection. Defaults to false and cleans up local artifacts after scan creation."),
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:87:            approved:
+z.boolean().optional().default(false).describe("Required approval flag for this write action. Set to true only after the user has explicitly approved
+creating or starting the AppScan scan."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:88:        },
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:89:    }, async ({ appId, scanName,
+targetDir, configFile, scanType, comment, wait, workDir, detailedLogs, conserveFiles, approved }, extra) => {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:90:        let outputDir;
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:91:        let generatedConfigFile =
+false;
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:92:        let generatedConfigPath;
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:93:        const
+cleanupGeneratedFiles = () => {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:94:            if (conserveFiles) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:95:                return [];
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:96:            }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:97:            const cleanupMessages
+= [];
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:98:            if (outputDir) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:99:
+cleanupMessages.push(cleanupScanArtifacts(outputDir));
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:100:            }
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:101:            if
+(generatedConfigFile && generatedConfigPath && fs.existsSync(generatedConfigPath)) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:102:
+fs.rmSync(generatedConfigPath, { force: true });
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:103:
+cleanupMessages.push(`Deleted generated configuration file: ${generatedConfigPath}`);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:104:            }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:105:            return
+cleanupMessages;
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:106:        };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:107:        try {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:108:            // Helper function to
+send progress updates via logging
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:109:            const sendProgress =
+async (message, progress, total) => {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:111:                try {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:112:                    // Send
+progress as info-level logging messages
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:113:                    await
+server.sendLoggingMessage({
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:114:                        level:
+"info",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:115:                        data:
+message,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:116:                    });
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:117:                }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:118:                catch (err) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:119:
+console.error(`[Progress] Failed to send logging message: ${err}`);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:120:                }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:121:            };
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:122:            await
+sendProgress("Authenticating with AppScan...", 0, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:123:            // Ensure
+authentication
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:124:            await ensureAuth();
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:125:            await
+sendProgress("Authentication successful", 10, 100);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:126:            await
+sendProgress("Validating target directory...", 15, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:127:            // Validate target
+directory
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:128:            if
+(!fs.existsSync(targetDir)) {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:129:                throw new
+Error(`Target directory does not exist: ${targetDir}`);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:130:            }
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:131:            await sendProgress(`✓
+Target directory validated: ${targetDir}`, 20, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:132:            if (!appId) {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:133:                await
+sendProgress(`[debug only]`, 20, 100);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:134:                const apps =
+await getAppsForSelection();
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:135:                if (apps.length
+=== 0) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:136:                    return {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:137:                        content: [
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:138:                            {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:139:
+type: "text",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:140:
+text: formatAppResolutionMessage("No AppScan applications were found."),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:141:                            },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:142:                        ],
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:155:                };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:156:            }
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:157:            const resolvedApp =
+await findAppById(appId);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:158:            if (!resolvedApp) {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:159:                const apps =
+await getAppsForSelection();
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:160:                return {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:161:                    content: [
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:162:                        {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:163:                            type:
+"text",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:164:                            text:
+formatAppResolutionMessage(`The supplied AppScan application ID was not found: ${appId}.`, apps.length > 0 ? formatAvailableApps(apps) : undefined),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:165:                        },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:166:                    ],
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:167:                    isError: true,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:168:                };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:169:            }
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:170:            if (!approved) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:171:                return {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:172:                    content: [
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:173:                        {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:174:                            type:
+"text",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:175:                            text:
+[
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:176:
+"User approval is required before creating this AppScan scan.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:177:
+`Application ID: ${appId}`,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:178:
+`Scan name: ${scanName || "(default name will be generated)"}`,
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:179:
+`Target directory: ${targetDir}`,
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:180:
+`Scan type: ${scanType}`,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:181:
+`Comment: ${comment || "(none)"}`,
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:182:
+"Ask the user for approval, then rerun this tool with approved=true.",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:183:
+].join("\n"),
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:184:                        },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:185:                    ],
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:186:                    isError: true,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:187:                };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:188:            }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:189:            // Generate default
+scan name if not provided
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:190:            if (!scanName) {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:191:                const projectName
+= path.basename(targetDir);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:192:                const now = new
+Date();
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:193:                const dateTimeStr
+= now.toISOString().replace(/[-:]/g, '').replace(/\..+/, '').replace('T', '_');
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:194:                scanName =
+`${projectName}_${dateTimeStr}`;
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:195:                await
+sendProgress(`Using default scan name: ${scanName}`, 20, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:196:            }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:197:            // Check for required
+configuration file
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:198:            await
+sendProgress("Checking for appscan-config.xml...", 25, 100);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:199:            const
+resolvedConfigFile = configFile ? path.resolve(configFile) : path.join(targetDir, "appscan-config.xml");
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:200:            if
+(!fs.existsSync(resolvedConfigFile)) {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:201:                await
+sendProgress("⚙️ Creating project-aware appscan-config.xml...", 30, 100);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:202:
+console.log(`[createScan] Missing required configuration file: ${resolvedConfigFile}. Creating project-aware appscan-config.xml...`);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:203:                // Create
+intelligent, project-aware configuration
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:204:                const smartConfig
+= createSmartConfig(targetDir, {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:205:                    scanSecrets:
+scanType === "SCA",
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:206:
+scanThirdParty: false // Exclude third-party by default for faster scans
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:207:                });
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:208:                const
+configContent = generateAppScanConfig(smartConfig);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:209:
+fs.writeFileSync(resolvedConfigFile, configContent, 'utf-8');
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:210:
+generatedConfigFile = true;
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:211:
+generatedConfigPath = resolvedConfigFile;
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:212:
+console.log(`[createScan] Created project-aware configuration file: ${resolvedConfigFile}`);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:213:                await
+sendProgress("✓ Configuration file created", 35, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:214:            }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:215:            else {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:216:                await
+sendProgress("✓ Using existing appscan-config.xml", 35, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:217:            }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:218:            // Set up working
+directory for reports (not for SAClient anymore)
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:219:            const baseWorkDir =
+workDir || path.join(os.tmpdir(), "appscan-mcp");
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:220:            const reportsDir =
+path.join(baseWorkDir, "reports");
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:221:            // Create directories
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:222:            [baseWorkDir,
+reportsDir].forEach(dir => {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:223:                if
+(!fs.existsSync(dir)) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:224:
+fs.mkdirSync(dir, { recursive: true });
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:225:                }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:226:            });
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:227:            // Step 1: Download
+SAClient to ~/.appscan
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:228:            await
+sendProgress("Downloading SAClientUtil to ~/.appscan (this may take a moment)...", 40, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:229:
+console.error("[createScan] Step 1: Download SAClientUtil to ~/.appscan");
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:230:            const appscanPath =
+await downloadSAClient();
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:231:            await sendProgress("✓
+SAClientUtil ready", 45, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:232:            // Step 2: Build the
+project
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:233:
+console.error("[createScan] Step 2: Build the project");
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:234:            const buildDir =
+path.join(targetDir, "build");
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:235:            try {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:236:                // Try to run
+build command if package.json exists
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:237:                const
+packageJsonPath = path.join(targetDir, "package.json");
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:238:                if
+(fs.existsSync(packageJsonPath)) {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:239:                    await
+sendProgress("🔨 Building project with npm...", 50, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:240:
+console.error("[createScan] Found package.json, running npm run build...");
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:241:                    const {
+execSync } = require('child_process');
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:242:                    const
+buildOutput = execSync('npm run build', {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:243:                        cwd:
+targetDir,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:244:                        encoding:
+'utf-8',
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:245:
+maxBuffer: 1024 * 1024 * 10,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:246:                        stdio:
+'pipe',
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:247:                    });
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:248:                    if
+(detailedLogs && buildOutput) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:249:
+console.error(`[createScan] Build output:\n${truncateForLog(buildOutput, 12000)}`);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:250:                    }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:251:
+console.error("[createScan] Build completed successfully");
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:252:                    await
+sendProgress("Build completed successfully", 55, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:253:                }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:254:                else {
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:255:                    await
+sendProgress("ℹ️ No package.json found, skipping build step", 55, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:256:
+console.error("[createScan] No package.json found, skipping build step");
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:257:                }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:258:            }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:259:            catch (buildError) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:260:                const buildOutput
+= [buildError?.stdout, buildError?.stderr]
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:261:
+.filter(Boolean)
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:262:                    .map((value)
+=> truncateForLog(value, detailedLogs ? 12000 : 2000))
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:263:                    .join("\n");
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:264:                if (buildOutput) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:265:
+console.error(`[createScan] Build output excerpt:\n${buildOutput}`);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:266:                }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:267:
+console.error(`[createScan] Warning: Build failed or no build script: ${buildError instanceof Error ? buildError.message : String(buildError)}`);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:268:
+console.error("[createScan] Continuing with scan of source directory...");
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:269:            }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:270:            // Use build
+directory if it exists, otherwise use target directory
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:271:            const scanDir =
+fs.existsSync(buildDir) ? buildDir : targetDir;
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:272:
+console.error(`[createScan] Scanning directory: ${scanDir}`);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:273:            // Step 3: Generate
+IRX with enhanced options
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:274:            await
+sendProgress("Generating IRX file (this may take several minutes)...", 60, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:275:
+console.error("[createScan] Step 3: Generate IRX file using appscan-config.xml");
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:276:            // Create output
+directory with timestamp
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:277:            const now = new
+Date();
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:278:            const dateTimeStr =
+now.toISOString().replace(/[-:]/g, '_').split('.')[0];
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:279:            outputDir =
+path.join(targetDir, `HCLAppScan_${dateTimeStr}`);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:280:            const irxPath = await
+generateIRX(appscanPath, scanDir, `Static_${path.basename(targetDir)}_${dateTimeStr.split('T')[0]}_${dateTimeStr.split('T')[1]}`, outputDir,
+resolvedConfigFile, undefined, // scanFlag - not used when config file is required
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:281:            false, //
+secretScanning - configured in XML file
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:282:            "thorough", //
+scanLevel - use thorough scan by default
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:283:            true, // analysisOnly
+- use -sao flag
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:284:            detailedLogs);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:285:            await
+sendProgress("IRX file generated successfully", 70, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:286:            // Step 4: Upload IRX
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:287:            await
+sendProgress("Uploading IRX file to AppScan...", 75, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:288:
+console.error("[createScan] Step 4: Upload IRX file");
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:289:            const fileId = await
+uploadIRXFile(irxPath);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:290:            await sendProgress("✓
+IRX file uploaded", 80, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:291:            // Step 5: Create scan
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:292:            await
+sendProgress("🚀 Creating scan in AppScan...", 85, 100);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:293:
+console.error("[createScan] Step 5: Create scan");
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:294:            const { scanId,
+scanData } = await createScan(appId, scanName, fileId, scanType, comment);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:295:            await sendProgress(`✓
+Scan created (ID: ${scanId})`, 90, 100);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:296:            const artifactMessage
+= conserveFiles
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:297:                ? `Local scan
+artifacts preserved: ${outputDir}`
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:298:                :
+cleanupScanArtifacts(outputDir);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:299:
+console.error(`[createScan] ${artifactMessage}`);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:300:            // Early return when
+not waiting
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:301:            if (!wait) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:302:                return {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:303:                    content: [
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:304:                        {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:305:                            type:
+"text",
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:306:                            text:
+`Scan created. ID: ${scanId} | Name: ${scanData?.Name || scanName} | Type: ${scanType}\nIRX: ${irxPath}\nFileId: ${fileId}\n${artifactMessage}`,
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:307:                        },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:308:                    ],
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:309:                };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:310:            }
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:311:            // Step 6: Wait for
+scan completion
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:312:            await
+sendProgress("Waiting for scan to complete (checking every 15 seconds)...", 95, 100);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:313:
+console.error("[createScan] Step 6: Wait for scan completion");
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:314:            const { lastPayload }
+= await waitForScanReady(scanId, 15000, sendProgress, detailedLogs);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:315:            await
+sendProgress("Scan completed!", 100, 100);
+> C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:316:            const summary =
+formatScanSummary(scanId, scanName, scanType, lastPayload, irxPath, fileId);
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:317:            return {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:318:                content: [
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:319:                    { type:
+"text", text: `Scan completed.\n${summary}\n${artifactMessage}` },
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:320:                ],
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:321:            };
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:322:        }
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:323:        catch (error) {
+  C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js:324:            const cleanupMessages
+= cleanupGeneratedFiles();
