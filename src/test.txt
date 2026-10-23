@@ -1,1 +1,96 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\config\config.ts | Select-Object -First 100
+export type AppScanProvider = "remote" | "local";
 
+export interface ConnectorConfig {
+  provider: AppScanProvider;
+  requestTimeoutMs: number;
+  remote?: {
+    endpoint: string;
+    apiKey?: string;
+  };
+  local?: {
+    command: string;
+    args: string[];
+    serverPath: string;
+    apiBase: string;
+    keyId?: string;
+    keySecret?: string;
+  };
+}
+
+export type Environment = Record<string, string | undefined>;
+
+export function loadConfig(
+  env: Environment = process.env,
+): ConnectorConfig {
+  const provider = (env.APP_SCAN_PROVIDER ?? "remote")
+    .trim()
+    .toLowerCase();
+
+  if (provider !== "remote" && provider !== "local") {
+    throw new Error(
+      'APP_SCAN_PROVIDER must be either "remote" or "local".',
+    );
+  }
+
+  const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
+
+  if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 300000) {
+    throw new Error(
+      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
+    );
+  }
+
+  if (provider === "remote") {
+    const endpoint = env.APP_SCAN_REMOTE_ENDPOINT?.trim();
+
+    if (!endpoint) {
+      throw new Error(
+        "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
+      );
+    }
+
+    let parsed: URL;
+
+    try {
+      parsed = new URL(endpoint);
+    } catch {
+      throw new Error("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+    }
+
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      throw new Error("Remote endpoint must use HTTP or HTTPS.");
+    }
+
+    return {
+      provider,
+      requestTimeoutMs: timeout,
+      remote: {
+        endpoint: parsed.toString(),
+        apiKey: env.APP_SCAN_API_KEY?.trim() || undefined,
+      },
+    };
+  }
+
+  const serverPath = env.APP_SCAN_LOCAL_SERVER_PATH?.trim();
+
+  if (!serverPath) {
+    throw new Error(
+      "APP_SCAN_LOCAL_SERVER_PATH is required for local mode.",
+    );
+  }
+
+  return {
+    provider,
+    requestTimeoutMs: timeout,
+    local: {
+      command: env.APP_SCAN_LOCAL_COMMAND?.trim() || "node",
+      args: [serverPath],
+      serverPath,
+      apiBase:
+        env.APPSCAN_API_BASE?.trim() || "https://cloud.appscan.com",
+      keyId: env.APPSCAN_KEY_ID?.trim() || undefined,
+      keySecret: env.APPSCAN_KEY_SECRET?.trim() || undefined,
+    },
+  };
+}
