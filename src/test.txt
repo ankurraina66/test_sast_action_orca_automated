@@ -1,1 +1,1 @@
-
+/appscan Use the existing AppScan connector to call "get-scan-issues" for scan ID "c3e61fb5-cae8-46df-9d77-68c96c5757d8", using the active remote provider. Return the total number of findings available and, if supported, a summary of severity and status. Do not create, execute, retry, or modify any scan. If the scan is not ready for issue retrieval or the request fails, report the exact result without retrying or starting another scan.
