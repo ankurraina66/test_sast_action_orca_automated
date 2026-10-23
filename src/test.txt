@@ -1,1 +1,1 @@
-
+Get-ChildItem .\node_modules\@modelcontextprotocol\sdk -Recurse -File | Select-String -Pattern "-32001|Request timed out" | Select-Object -First 10
