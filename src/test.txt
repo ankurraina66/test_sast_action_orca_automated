@@ -1,1 +1,9 @@
-Use the existing AppScan connector to call "get-apps" and search for the application named "Demo_Test_Ankur". Return its exact application ID. If it is not found, report that clearly. This is read-only: do not create an application, prepare a scan, start a scan, or modify files.
+/appscan Use the existing AppScan connector to call "get-apps" and search for the application named "Demo_Test_Ankur". Return its exact application ID. If it is not found, report that clearly. This is read-only: do not create an application, prepare a scan, start a scan, or modify files.
+
+  Called appscan-connector
+
+The application Demo_Test_Ankur exists, and its exact Application ID is 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb.
+
+A filtered search on the exact name returned one match. This is the same ID as in the earlier unfiltered listing and the scan preparations.
+
+I made no changes. I did not create an application, prepare or start a scan, or modify any files.
