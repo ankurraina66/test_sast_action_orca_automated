@@ -1,1 +1,11 @@
-
+Get-ChildItem "$env:USERPROFILE\.claude\projects\C--Users-ankur-raina-ai-coding-assistants-claude-poc" -File -Filter "*.jsonl" |
+  Select-String -Pattern "MCP error -32001|Request timed out|Maximum total timeout exceeded" |
+  ForEach-Object {
+    $j = $_.Line | ConvertFrom-Json
+    [PSCustomObject]@{
+      File = Split-Path $_.Path -Leaf
+      Timestamp = $j.timestamp
+      Type = $j.type
+      Error = ($_.Line -replace '^.{0,300}', '')
+    }
+  } | Select-Object -Last 10
