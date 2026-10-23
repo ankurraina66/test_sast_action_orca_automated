@@ -1,1 +1,11 @@
+/appscan
 
+Using the existing AppScan connector, perform read-only capability validation only.
+
+1. Call "get-provider-status" and confirm the provider is "local".
+2. Inspect the local backend's available tool names and input schema, if the connector supports read-only tool discovery. Confirm whether "create-scan" is available and whether it accepts "appId", "targetDir", "scanType", "scanName", "comment", and "approved".
+3. Confirm that the connector's "prepare-scan" and "execute-prepared-scan" workflow maps to the local "create-scan" tool.
+4. Keep the target application fixed as "Demo_Test_Ankur", ID "21b194f5-cea5-4ff6-a4d1-a03103a3e2fb".
+5. Do not call "create-scan" or "execute-prepared-scan". Do not create an application, prepare a scan token, start a scan, or modify files.
+
+Report only what you can verify. If tool discovery is unavailable through the connector, say so rather than inferring availability from the backend tool count.
