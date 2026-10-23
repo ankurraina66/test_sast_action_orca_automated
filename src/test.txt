@@ -1,1 +1,1 @@
-
+Select-String -Path "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js" -Pattern "waitForScanReady|issueCount|issuesCount|totalIssues|scanId|return" -Context 2,4
