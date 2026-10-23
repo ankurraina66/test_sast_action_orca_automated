@@ -1,3 +1,18 @@
-/appscan
+/appscan Use the existing AppScan connector to call "get-scans" for application ID "21b194f5-cea5-4ff6-a4d1-a03103a3e2fb" (Demo_Test_Ankur). This is strictly a read-only verification. Look for a scan named "Spring-Boot-REST-POC-Ankur", including recently created scans. Report its scan ID, creation time, and status if available. Do not create, prepare, execute, cancel, or modify any scan. Do not switch providers.
 
-Use the existing AppScan connector to call "get-scans" for application ID "21b194f5-cea5-4ff6-a4d1-a03103a3e2fb" (Demo_Test_Ankur). This is strictly a read-only verification. Look for a scan named "Spring-Boot-REST-POC-Ankur", including recently created scans. Report its scan ID, creation time, and status if available. Do not create, prepare, execute, cancel, or modify any scan. Do not switch providers.
+  Called appscan-connector
+
+Demo_Test_Ankur (Application ID: 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb)
+
+┌──────────────────────────────────────────────────┬──────────────────────────────────────┬────────────────────┬────────┬─────────────────────────────┐
+│                    Scan name                     │               Scan ID                │     Scan type      │ Status │           Created           │
+├──────────────────────────────────────────────────┼──────────────────────────────────────┼────────────────────┼────────┼─────────────────────────────┤
+│ ankurraina66/sast_action_test_repo               │ 62eedbc6-1cb7-4e73-a586-a366b1a0cd70 │ DAST               │ Ready  │ 2026-09-10T10:57:13.647514Z │
+│ 08c09b50c3fa6aa6c56ef1c2600a122bd9d8c437         │                                      │ (DynamicAnalyzer)  │        │                             │
+└──────────────────────────────────────────────────┴──────────────────────────────────────┴────────────────────┴────────┴─────────────────────────────┘
+
+No scan named "Spring-Boot-REST-POC-Ankur" appears for this application. The only scan returned was created on 2026-09-10, before the timed-out execution attempt, so it isn't related. This supports the scan not having been created, but it doesn't prove it. The scan list may lag behind a scan that was still being packaged or uploaded when the call timed out. Checking again later would settle it.
+
+The scan endpoint does not return a risk-rating field.
+
+I made no changes. I did not create, prepare, execute, cancel or modify any scan, and I did not switch providers.
