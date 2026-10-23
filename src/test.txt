@@ -1,4 +1,4 @@
-Use the existing AppScan connector to prepare a new SAST scan for my local Spring Boot project.
+/appscan Use the existing AppScan connector to prepare a new SAST scan for my local Spring Boot project.
 
 - Application ID: 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb
 - Target directory: C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master
@@ -7,3 +7,36 @@ Use the existing AppScan connector to prepare a new SAST scan for my local Sprin
 - Comment: POC validation of AppScan Connector create-scan workflow
 
 Call "prepare-scan" only. Do not call "execute-prepared-scan", "create-scan", or any other tool that starts a scan. Return the confirmation token and the exact parameters that were prepared.
+
+  Called appscan-connector
+
+The scan is prepared but not started.
+
+┌────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       Field        │                                                            Value                                                             │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Confirmation token │ a86b7e6f-5a96-486b-89a7-7542d94c8cb2                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application        │ Demo_Test_Ankur (Application ID: 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb)                                                       │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Target directory   │ C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan type          │ SAST                                                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan name          │ Spring-Boot-REST-POC-Ankur                                                                                                   │
+├────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Provider           │ local                                                                                                                        │
+├────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Comment (supplied) │ POC validation of AppScan Connector create-scan workflow                                                                     │
+└────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+The connector's confirmation output did not echo the comment. but I can't confirm it was stored.
+
+I called only prepare-scan. I did not call execute-prepared-scnot build, package, upload or modify anything.
+
+Earlier preparations are still pending and unexecuted. For Deme-8b07-4db7-975d-1d9fadd3ad6c and682ebb22-bb53-4793-a56c-83df578d2729. For Test_Tayalan it is 370142a0-d752-4e9b-9692-5cd55d2b5f8d. Use only the token above for this request.
+
+If you execute this scan, source artifacts from the target directory may be packaged and uploaded to AppScan. The underlying tool may also generate
+configuration files in that directory or run a build.
+
+Do you confirm these exact parameters for execution? I'll callfter you give explicit confirmation.
