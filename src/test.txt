@@ -1,6 +1,4 @@
-/appscan
-
-Execute the already-prepared SAST scan using confirmation token "b6b4fbd4-e3dc-408a-828a-d8001497fcf2".
+/appscan Execute the already-prepared SAST scan using confirmation token "b6b4fbd4-e3dc-408a-828a-d8001497fcf2".
 
 I explicitly approve execution with these parameters:
 
@@ -13,3 +11,17 @@ I explicitly approve execution with these parameters:
 - Confirmation token: "b6b4fbd4-e3dc-408a-828a-d8001497fcf2"
 
 Call "execute-prepared-scan" for this token only. Do not prepare another scan, change the parameters, switch providers, or execute any other scan. If the token is missing, the provider does not match, or execution is unsupported, report the error without creating a replacement scan. Report the final result and scan ID if available.
+
+  Called appscan-connector
+
+The scan result is unconfirmed. The call to execute-prepared-scan for token b6b4fbd4-e3dc-408a-828a-d8001497fcf2 failed with MCP error -32001: Request timed out.
+
+- Token consumed: The connector says it consumed the token to prevent duplicate scans, so it can't be reused.
+- Scan ID: None was returned.
+- Scan status: I can't tell whether a scan was created, is still running, or never started. A timeout doesn't show that the backend did nothing. Packaging, a build and the upload may still have been in progress.
+- Replacement scan: I did not prepare or execute a replacement, as you instructed.
+- Other actions: I did not switch providers or modify any files.
+
+To check whether a scan exists, look at the scan list for Demo_Test_Ankur (Application ID: 21b194f5-cea5-4ff6-a4d1-a03103a3e2fb) in AppScan. Look for a scan named "Spring-Boot-REST-POC-Ankur". I can run that read-only get-scans check if you ask. Retrying is your call. If the scan doesn't appear, a retry needs a fresh prepare-scan and your explicit confirmation, since the token is gone.
+
+Several unexecuted preparations remain pending for Demo_Test_Ankur: 08e4aa4e-8b07-4db7-975d-1d9fadd3ad6c, 682ebb22-bb53-4793-a56c-83df578d2729 and a86b7e6f-5a96-486b-89a7-7542d94c8cb2. Test_Tayalan has one, 370142a0-d752-4e9b-9692-5cd55d2b5f8d. I haven't confirmed whether tokens expire.
