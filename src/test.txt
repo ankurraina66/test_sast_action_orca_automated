@@ -1,3 +1,8 @@
-Get-ChildItem -Recurse -File -Include *.ts,*.js |
-  Select-String -Pattern 'SAClientUtil|prepareScan|prepare-scan|extractClient|\.irx' |
-  Select-Object Path, LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem -Recurse -File -Include *.ts,*.js |
+>>   Select-String -Pattern 'SAClientUtil|prepareScan|prepare-scan|extractClient|\.irx' |
+>>   Select-Object Path, LineNumber, Line
+
+Path                                                                           LineNumber Line
+----                                                                           ---------- ----
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js        181     server.registerTool("prepare-scan", {
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts         282         "prepare-scan", {
