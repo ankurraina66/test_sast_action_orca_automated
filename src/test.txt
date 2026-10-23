@@ -1,1 +1,11 @@
 
+cd "C:\Users\ankur.raina\ai-coding-assistants-claude-poc"
+
+Select-String -Path ".\src\claude-mcp-server.ts" `
+  -Pattern 'registerTool|create-app|create-scan|prepare-scan|execute-prepared-scan' `
+  -Context 2,4
+
+Select-String -Path ".\src\services\appscan-service.ts" `
+  -Pattern 'listTools|callFirstAvailableToolIfSupported|callFirstAvailableTool' `
+  -Context 2,4
+
