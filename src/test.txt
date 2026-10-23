@@ -1,3 +1,1 @@
-PS C:\U> Select-String -Path ".\src\**\*.ts", ".\src\**\*.js" -Pattern "timeout|wait.*analysis|scan.*status|poll" -CaseSensitive:$false
 
-The flag is wait_for_analysis for your reference and I ran the command from sast github actions workspace hope that is correct?
