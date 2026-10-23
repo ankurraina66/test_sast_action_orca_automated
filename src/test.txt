@@ -1,1 +1,27 @@
-Check the AppScan scan execution status using get-scan-execution-status with confirmationToken 00000000-0000-0000-0000-000000000000. Do not start or execute any scan.
+ /appscan switch to local provider
+
+  Called appscan-connector
+
+The active AppScan provider is now local. The connection and tool discovery succeeded, and 15 backend tools are available.
+
+I only switched the provider. I didn't run any scans or read any findings.
+
+✻ Churned for 10s · done 11:09 PM
+
+> /appscan confirm the active provider using get-provider-status
+
+  Called appscan-connector
+
+get-provider-status confirms the active AppScan provider is local.
+
+✻ Brewed for 4s · done 11:10 PM
+
+> /appscan Check the AppScan scan execution status using get-scan-execution-status with confirmationToken 00000000-0000-0000-0000-000000000000. Do not start or execute any scan.
+
+  Called appscan-connector
+
+The status check returned the same result as before, now with the local provider active. AppScan has no execution record for confirmation token 00000000-0000-0000-0000-000000000000.
+
+The token is the all-zeros placeholder, so prepare-scan most likely never issued it. I only ran the status check. I didn't start, prepare, or execute any scan, and I didn't retry.
+
+To track a real scan, send me the token that prepare-scan returned.
