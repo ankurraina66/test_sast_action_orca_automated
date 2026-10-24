@@ -1,1 +1,9 @@
+$file = 'C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\helper\create-appscan-config.js'
+$target = 'C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin'
 
+"=== Java target configuration ==="
+Select-String -Path $file -Pattern 'export function createJavaConfig|case ''java-gradle''|path: targetPath|exclude: excludes' -Context 3,8
+
+"=== Existing AppScan configuration in target ==="
+Get-ChildItem $target -File -Filter 'appscan-config.xml' -ErrorAction SilentlyContinue |
+    Select-Object FullName, Length
