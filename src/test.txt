@@ -1,1 +1,25 @@
+/appscan
 
+Investigate additional scan metadata and coverage information for this already completed AppScan scan.
+
+Scan ID: "ee4a0c97-a282-475f-8ef8-a696a407a057"
+
+Application ID: "a892fce6-630b-44b4-8f47-d6f6f7d63be5"
+
+Use only the existing HCL AppScan Connector for Claude MCP tools and read-only operations.
+
+Requirements:
+
+1. First inspect the available MCP tools and identify existing tools that can retrieve scan details, scan status, scan configuration, scan summary, file/language counts, lines of code, or other coverage metadata.
+2. Call the most relevant read-only tools for this scan. Reuse the existing scan ID; do not create or submit a new scan.
+3. If the tools support retrieving scan details or summaries, capture the complete returned data, including fields that may be omitted from the ordinary findings response.
+4. Do not execute, prepare, upload, or rerun a scan.
+5. Do not modify source code, configuration, or server behavior.
+6. If coverage information is unavailable through the exposed tools, say so explicitly. Do not infer it from missing fields.
+7. Return the raw tool responses first, then summarize:
+   - What scan metadata is available.
+   - Whether the API confirms the 12 Java files and 1,303 lines of code.
+   - Whether there is any evidence of incomplete source coverage.
+   - Which specific read-only API or tool would be needed next if the information is unavailable.
+
+Stop after reporting the evidence and wait for approval before making any changes.
