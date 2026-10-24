@@ -1,1 +1,3 @@
+$target = 'C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin'
 
+Get-Content "$target\appscan-config.xml"
