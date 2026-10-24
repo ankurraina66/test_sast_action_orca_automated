@@ -1,1 +1,3 @@
-
+Get-ChildItem .\src -Recurse -File |
+    Select-String -Pattern 'get-scan-execution-status|risk|issueCount|totalIssues|findings|scanId|scanStatus' |
+    Select-Object Path, LineNumber, Line
