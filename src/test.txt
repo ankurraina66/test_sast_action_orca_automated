@@ -1,4 +1,85 @@
-$file = 'C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\helper\create-appscan-config.js'
-
-Get-Content $file | Select-Object -Skip 105 -First 45
-Get-Content $file | Select-Object -Skip 315 -First 35
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $file = 'C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\helper\create-appscan-config.js'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content $file | Select-Object -Skip 105 -First 45
+                include: options?.includes,
+                exclude: options?.excludes
+            }]
+    };
+}
+/**
+ * Create a basic configuration for .NET projects
+ */
+export function createDotNetConfig(targetPath, options) {
+    const customBuildInfo = {};
+    if (options?.references) {
+        customBuildInfo.references = options.references;
+    }
+    if (options?.configuration) {
+        customBuildInfo.configuration = options.configuration;
+    }
+    return {
+        targets: [{
+                path: targetPath,
+                customBuildInfo: Object.keys(customBuildInfo).length > 0 ? customBuildInfo : undefined,
+                include: options?.includes,
+                exclude: options?.excludes
+            }]
+    };
+}
+/**
+ * Create a basic configuration for C/C++ projects
+ */
+export function createCppConfig(targetPath, options) {
+    const customBuildInfo = {};
+    if (options?.configuration) {
+        customBuildInfo.configuration = options.configuration;
+    }
+    if (options?.includePaths) {
+        customBuildInfo.include_paths = options.includePaths;
+    }
+    if (options?.macros) {
+        customBuildInfo.macros = options.macros;
+    }
+    if (options?.compilerOpts) {
+        customBuildInfo.compiler_opts = options.compilerOpts;
+    }
+    return {
+        targets: [{
+                path: targetPath,
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content $file | Select-Object -Skip 315 -First 35
+        case 'nodejs':
+            return [...commonExcludes, 'node_modules/', 'dist/', 'build/', 'coverage/'];
+        case 'python':
+            return [...commonExcludes, '__pycache__/', '*.pyc', '.pytest_cache/', 'venv/', '.venv/', 'env/'];
+        case 'php':
+            return [...commonExcludes, 'vendor/', 'cache/'];
+        default:
+            return commonExcludes;
+    }
+}
+/**
+ * Create an intelligent, project-aware AppScan configuration
+ */
+export function createSmartConfig(targetPath, options) {
+    const projectType = options?.projectType || detectProjectType(targetPath);
+    const excludes = [...getDefaultExcludes(projectType), ...(options?.customExcludes || [])];
+    console.error(`[createSmartConfig] Detected project type: ${projectType}`);
+    const config = {
+        options: {
+            enableSecrets: options?.scanSecrets,
+            thirdParty: options?.scanThirdParty
+        },
+        targets: []
+    };
+    // Configure based on project type
+    switch (projectType) {
+        case 'java-maven':
+        case 'java-gradle':
+        case 'java-ear':
+        case 'java-war':
+        case 'java-jar': {
+            const jdkPath = findJdkPath();
+            const jspCompiler = findJspCompiler(targetPath);
+            const customBuildInfo = {};
+            if (jdkPath) {
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
