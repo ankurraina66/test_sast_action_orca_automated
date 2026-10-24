@@ -1,1 +1,12 @@
+$target = 'C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin'
 
+"=== Java source files ==="
+(Get-ChildItem "$target\src" -Recurse -File -Filter *.java -ErrorAction SilentlyContinue).Count
+
+"=== Java source files under build ==="
+(Get-ChildItem "$target\build" -Recurse -File -Filter *.java -ErrorAction SilentlyContinue).Count
+
+"=== Project build files ==="
+Get-ChildItem $target -File |
+    Where-Object { $_.Name -match '^(build\.gradle(\.kts)?|settings\.gradle(\.kts)?|pom\.xml)$' } |
+    Select-Object -ExpandProperty Name
