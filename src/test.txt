@@ -1,2 +1,242 @@
-Get-Content "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\helper\create-appscan-config.js" |
-  Select-Object -First 240
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\helper\create-appscan-config.js" |
+>>   Select-Object -First 240
+/**
+ * AppScan Configuration File Generator
+ * Based on HCL AppScan official documentation
+ * https://help.hcl-software.com/appscan/ASoC/src_irx_gen_config.html
+ */
+import * as fs from 'fs';
+import * as path from 'path';
+/**
+ * Generate appscan-config.xml content from configuration object
+ */
+export function generateAppScanConfig(config) {
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    // Build Configuration element with optional attributes
+    const configAttrs = [];
+    if (config.options) {
+        if (config.options.enableSecrets !== undefined) {
+            configAttrs.push(`enableSecrets="${config.options.enableSecrets}"`);
+        }
+        if (config.options.openSourceOnly !== undefined) {
+            configAttrs.push(`openSourceOnly="${config.options.openSourceOnly}"`);
+        }
+        if (config.options.secretsOnly !== undefined) {
+            configAttrs.push(`secretsOnly="${config.options.secretsOnly}"`);
+        }
+        if (config.options.sourceCodeOnly !== undefined) {
+            configAttrs.push(`sourceCodeOnly="${config.options.sourceCodeOnly}"`);
+        }
+        if (config.options.staticAnalysisOnly !== undefined) {
+            configAttrs.push(`staticAnalysisOnly="${config.options.staticAnalysisOnly}"`);
+        }
+        if (config.options.thirdParty !== undefined) {
+            configAttrs.push(`thirdParty="${config.options.thirdParty}"`);
+        }
+    }
+    xml += configAttrs.length > 0
+        ? `<Configuration ${configAttrs.join(' ')}>\n`
+        : '<Configuration>\n';
+    xml += '  <Targets>\n';
+    // Build Target elements
+    for (const target of config.targets) {
+        const targetAttrs = [];
+        if (target.outputsOnly !== undefined) {
+            targetAttrs.push(`outputs-only="${target.outputsOnly}"`);
+        }
+        targetAttrs.push(`path="${escapeXml(target.path)}"`);
+        xml += `    <Target ${targetAttrs.join(' ')}>\n`;
+        // Add CustomBuildInfo if present
+        if (target.customBuildInfo) {
+            const buildInfoAttrs = [];
+            for (const [key, value] of Object.entries(target.customBuildInfo)) {
+                if (value !== undefined && value !== null) {
+                    buildInfoAttrs.push(`${key}="${escapeXml(String(value))}"`);
+                }
+            }
+            if (buildInfoAttrs.length > 0) {
+                xml += `      <CustomBuildInfo ${buildInfoAttrs.join(' ')}/>\n`;
+            }
+        }
+        // Add Include patterns
+        if (target.include && target.include.length > 0) {
+            for (const pattern of target.include) {
+                xml += `      <Include>${escapeXml(pattern)}</Include>\n`;
+            }
+        }
+        // Add Exclude patterns
+        if (target.exclude && target.exclude.length > 0) {
+            for (const pattern of target.exclude) {
+                xml += `      <Exclude>${escapeXml(pattern)}</Exclude>\n`;
+            }
+        }
+        xml += '    </Target>\n';
+    }
+    xml += '  </Targets>\n';
+    xml += '</Configuration>\n';
+    return xml;
+}
+/**
+ * Escape special XML characters
+ */
+function escapeXml(unsafe) {
+    return unsafe
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+}
+/**
+ * Create a basic configuration for Java projects
+ */
+export function createJavaConfig(targetPath, options) {
+    const customBuildInfo = {};
+    if (options?.jdkPath) {
+        customBuildInfo.jdk_path = options.jdkPath;
+    }
+    if (options?.additionalClasspath) {
+        customBuildInfo.additional_classpath = options.additionalClasspath;
+    }
+    if (options?.jspCompiler) {
+        customBuildInfo.jsp_compiler = options.jspCompiler;
+    }
+    return {
+        targets: [{
+                path: targetPath,
+                customBuildInfo: Object.keys(customBuildInfo).length > 0 ? customBuildInfo : undefined,
+                include: options?.includes,
+                exclude: options?.excludes
+            }]
+    };
+}
+/**
+ * Create a basic configuration for .NET projects
+ */
+export function createDotNetConfig(targetPath, options) {
+    const customBuildInfo = {};
+    if (options?.references) {
+        customBuildInfo.references = options.references;
+    }
+    if (options?.configuration) {
+        customBuildInfo.configuration = options.configuration;
+    }
+    return {
+        targets: [{
+                path: targetPath,
+                customBuildInfo: Object.keys(customBuildInfo).length > 0 ? customBuildInfo : undefined,
+                include: options?.includes,
+                exclude: options?.excludes
+            }]
+    };
+}
+/**
+ * Create a basic configuration for C/C++ projects
+ */
+export function createCppConfig(targetPath, options) {
+    const customBuildInfo = {};
+    if (options?.configuration) {
+        customBuildInfo.configuration = options.configuration;
+    }
+    if (options?.includePaths) {
+        customBuildInfo.include_paths = options.includePaths;
+    }
+    if (options?.macros) {
+        customBuildInfo.macros = options.macros;
+    }
+    if (options?.compilerOpts) {
+        customBuildInfo.compiler_opts = options.compilerOpts;
+    }
+    return {
+        targets: [{
+                path: targetPath,
+                customBuildInfo: Object.keys(customBuildInfo).length > 0 ? customBuildInfo : undefined,
+                include: options?.includes,
+                exclude: options?.excludes
+            }]
+    };
+}
+/**
+ * Example usage demonstrating the documentation example
+ */
+export function createExampleConfig() {
+    const config = {
+        targets: [{
+                path: 'C:\\test\\MyApplication.ear',
+                customBuildInfo: {
+                    additional_classpath: 'C:\\java\\lib;C:\\java2\\lib',
+                    jdk_path: 'C:\\Program Files\\Java\\jdk1.7',
+                    jsp_compiler: 'C:\\Tomcat'
+                },
+                include: ['ShoppingCart.war', '*Account.jar'],
+                exclude: ['thirdPartyJars/', '*test*']
+            }]
+    };
+    return generateAppScanConfig(config);
+}
+/**
+ * Detect project type from target directory or file
+ */
+export function detectProjectType(targetPath) {
+    const stat = fs.existsSync(targetPath) ? fs.statSync(targetPath) : null;
+    if (!stat) {
+        return 'unknown';
+    }
+    // Check for specific file types
+    if (stat.isFile()) {
+        const ext = path.extname(targetPath).toLowerCase();
+        if (ext === '.ear')
+            return 'java-ear';
+        if (ext === '.war')
+            return 'java-war';
+        if (ext === '.jar')
+            return 'java-jar';
+        if (ext === '.sln') {
+            // Check if it's C++ or .NET by reading the file
+            const content = fs.readFileSync(targetPath, 'utf-8');
+            if (content.includes('.vcxproj') || content.includes('Visual C++')) {
+                return 'cpp-solution';
+            }
+            return 'dotnet-solution';
+        }
+        if (ext === '.csproj' || ext === '.vbproj')
+            return 'dotnet-project';
+        if (ext === '.vcxproj')
+            return 'cpp-solution';
+    }
+    // Check directory for project indicators
+    if (stat.isDirectory()) {
+        const files = fs.readdirSync(targetPath);
+        // Java project detection
+        if (files.includes('pom.xml'))
+            return 'java-maven';
+        if (files.some(f => f.endsWith('.gradle') || f.endsWith('.gradle.kts')))
+            return 'java-gradle';
+        // .NET detection
+        if (files.some(f => f.endsWith('.sln'))) {
+            const slnFile = files.find(f => f.endsWith('.sln'));
+            const content = fs.readFileSync(path.join(targetPath, slnFile), 'utf-8');
+            if (content.includes('.vcxproj') || content.includes('Visual C++')) {
+                return 'cpp-solution';
+            }
+            return 'dotnet-solution';
+        }
+        if (files.some(f => f.endsWith('.csproj') || f.endsWith('.vbproj')))
+            return 'dotnet-project';
+        // Other languages
+        if (files.includes('package.json'))
+            return 'nodejs';
+        if (files.some(f => f === 'requirements.txt' || f === 'setup.py' || f === 'pyproject.toml'))
+            return 'python';
+        if (files.includes('composer.json'))
+            return 'php';
+        return 'directory';
+    }
+    return 'unknown';
+}
+/**
+ * Find JDK installation on the system
+ */
+export function findJdkPath() {
+    // Check JAVA_HOME environment variable
+    if (process.env.JAVA_HOME) {
