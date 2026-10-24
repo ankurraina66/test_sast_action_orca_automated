@@ -1,1 +1,4 @@
+we anyways cant change the irx generation logic as it is not in our control.
 
+Get-Content "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\helper\create-appscan-config.js" |
+  Select-String -Pattern 'function createSmartConfig|export function createSmartConfig' -Context 0,150
