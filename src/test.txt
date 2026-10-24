@@ -1,8 +1,10 @@
-$target = 'C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin'
-
-"=== Existing IRX and manifest artifacts ==="
-Get-ChildItem $target -Recurse -File -ErrorAction SilentlyContinue |
-    Where-Object {
-        $_.Name -match 'scan\.manifest(\.json)?$|scan_logs\.zip$|\.irx$|StaticAnalyzer-Errors.*\.log$'
-    } |
-    Select-Object FullName, Length
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $target = 'C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin'
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> "=== Existing IRX and manifest artifacts ==="
+=== Existing IRX and manifest artifacts ===
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem $target -Recurse -File -ErrorAction SilentlyContinue |
+>>     Where-Object {
+>>         $_.Name -match 'scan\.manifest(\.json)?$|scan_logs\.zip$|\.irx$|StaticAnalyzer-Errors.*\.log$'
+>>     } |
+>>     Select-Object FullName, Length
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
