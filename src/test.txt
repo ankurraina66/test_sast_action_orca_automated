@@ -1,1 +1,5 @@
+$server = 'C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build'
 
+Get-ChildItem $server -Recurse -File -Include *.js |
+    Select-String -Pattern 'scanDir|generateIRX|prepare|conserveFiles|scan\.manifest|scan_logs\.zip' |
+    Select-Object Path, LineNumber, Line
