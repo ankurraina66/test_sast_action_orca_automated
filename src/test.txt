@@ -1,1 +1,16 @@
+Use the existing HCL AppScan Connector for Claude MCP tools to investigate the findings returned for the already completed scan.
 
+Scan ID: "ee4a0c97-a282-475f-8ef8-a696a407a057"
+
+Call the existing "get-scan-issues" tool with this scan ID. Do not provide a filter or top limit, so we can inspect the complete response and any pagination metadata.
+
+Requirements:
+
+1. This is a read-only investigation. Do not execute, prepare, submit, or rerun any scan.
+2. Do not modify any source code or configuration.
+3. Display the complete tool response, including issue totals, pagination information, status, and any errors or warnings.
+4. If the response indicates zero issues, distinguish between an explicit zero-issues result and missing, empty, or incomplete response data.
+5. If the response is paginated, explain what additional read-only calls would be required to retrieve all findings. Do not assume the first page represents all results.
+6. Do not invent findings or infer that the source code is clean merely because zero findings were returned.
+
+Return the raw response first, followed by a brief interpretation. Stop after this investigation and wait for my approval before taking any further action.
