@@ -1,1 +1,3 @@
+$file = 'C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\tools\createScan.js'
 
+Get-Content $file | Select-Object -Skip 250 -First 65
