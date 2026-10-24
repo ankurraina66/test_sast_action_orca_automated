@@ -1,6 +1,4 @@
-/appscan
-
-Investigate additional scan metadata and coverage information for this already completed AppScan scan.
+/appscan Investigate additional scan metadata and coverage information for this already completed AppScan scan.
 
 Scan ID: "ee4a0c97-a282-475f-8ef8-a696a407a057"
 
@@ -23,3 +21,81 @@ Requirements:
    - Which specific read-only API or tool would be needed next if the information is unavailable.
 
 Stop after reporting the evidence and wait for approval before making any changes.
+
+  Called appscan-connector 2 times
+
+Tools inspected. The connector exposes these read-only tools: get-apps, get-scans, get-scan-issues, get-issue-details, get-scan-execution-status and
+get-provider-status. None of them takes a scan ID and returns e summary, file or language counts, or lines of code. I calledthe two that return scan metadata. get-scan-issues (already run for this scan) returned "No issues found for this scan". get-issue-details needs an issue
+ID, and there are none. I didn't call any write-capable tools.
+
+Raw responses
+
+get-scans (applicationId a892fce6-630b-44b4-8f47-d6f6f7d63be5)
+Found 1 scan(s):
+
+Name: intellij-plugin_20261023_174714
+ID: ee4a0c97-a282-475f-8ef8-a696a407a057
+Type: StaticAnalyzer
+Status: Ready
+Created: 2026-10-23T17:49:50.6491258Z
+Risk: Risk rating not available from the scan endpoint
+---
+
+get-scan-execution-status (token b00fb860-1975-4949-9c0c-0639d09fff35):
+{
+  "status": "completed",
+  "startedAt": "2026-10-23T17:47:13.033Z",
+  "completedAt": "2026-10-23T17:51:11.117Z",
+  "confirmationToken": "b00fb860-1975-4949-9c0c-0639d09fff35",
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Scan completed.\nScan ID: ee4a0c97-a282-475f-8ef8-a696a407a057\nName: intellij-plugin_20261023_174714\nType: SAST\nStatus:
+Ready\nCreated: Unknown\nDurationSec: 29\nRisk: NoIssues\nCritLow: 0\nInfo: 0\n---\nIRX Path: C:\\Users\\ankur.raina\\Downloads\\impl_workspace\\master_2.13.1\\intellij-plugin\\HCLAppScan_2026_10_23T17_47_14\\Static_intellij-plugin_2026_10_23_17_47_14.irx\nFileId:
+fc2cdb09-8bb2-4956-a7a9-5157206e9eaf\nDeleted local scan artifC:\\Users\\ankur.raina\\Downloads\\impl_workspace\\master_2.13.1\\intellij-plugin\\HCLAppScan_2026_10_23T17_47_14"
+      }
+    ]
+  }
+}
+
+Summary
+
+Scan metadata available:
+
+┌────────────────┬──────────────────────────────────────┬──────────────────┐
+│     Field      │                Value                 │
+├────────────────┼──────────────────────────────────────┼──────────────────┤
+│ Scan name      │ intellij-plugin_20261023_174714      │ both
+├────────────────┼──────────────────────────────────────┼──────────────────┤
+│ Scan ID        │ ee4a0c97-a282-475f-8ef8-a696a407a057 │ both
+├────────────────┼──────────────────────────────────────┼──────────────────┤
+│ Type           │ StaticAnalyzer (SAST)                │ both
+├────────────────┼──────────────────────────────────────┼──────────────────┤
+│ Status         │ Ready                                │ both
+├────────────────┼──────────────────────────────────────┼──────────────────┤
+│ Creation date  │ 2026-10-23T17:49:50.6491258Z         │ get-
+├────────────────┼──────────────────────────────────────┼──────────────────┤
+│ Duration       │ 29 seconds                           │ exec
+├────────────────┼──────────────────────────────────────┼──────────────────┤
+│ Issue counts   │ 0 in every severity                  │ exec
+├────────────────┼──────────────────────────────────────┼──────────────────┤
+│ Source file ID │ fc2cdb09-8bb2-4956-a7a9-5157206e9eaf │ exec
+└────────────────┴──────────────────────────────────────┴──────────────────┘
+
+The creation date is available from get-scans. The "Created: Unknown" in the execution status is that tool's own field, not a missing value. The scan
+endpoint doesn't return a risk rating. The Risk: NoIssues valuatus result.
+
+12 Java files and 1,303 lines of code: The API does not confironse has a file count, language breakdown, or line count. Ican't tell where the 12 and 1,303 figures came from. If they came from a console or log view, I can't verify them here.
+
+Evidence of incomplete coverage: The responses contain none. They contain no evidence of complete coverage either, because no coverage field is exposed.
+I'm not inferring anything from the 29-second duration or the
+
+What would be needed next (read-only):
+- The AppScan on Cloud REST API's scan-detail and execution endpoints (GET /api/v4/Scans/{id} and GET /api/v4/Scans/StaticAnalyzer/{id}). I haven't
+  verified that they return file and line counts. I'm also noter, the connector would need to wrap. These are not exposed bythe current tools.
+- A new connector tool, or an extension of get-scans, that ret
+- A look at the scan in the AppScan console. I can't view it from here.
+- The .irx file, which would list the analysed files. The tool, so it is not available.
+
+I made no changes and won't take further action without your a
