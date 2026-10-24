@@ -1,3 +1,14 @@
-Get-ChildItem .\src -Recurse -File |
-    Select-String -Pattern 'get-scan-execution-status|risk|issueCount|totalIssues|findings|scanId|scanStatus' |
-    Select-Object Path, LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\src -Recurse -File |
+>>     Select-String -Pattern 'get-scan-execution-status|risk|issueCount|totalIssues|findings|scanId|scanStatus' |
+>>     Select-Object Path, LineNumber, Line
+
+Path                                                                          LineNumber Line
+----                                                                          ---------- ----
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts        207         description: "Retrieve security findings for a specific A…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts        209             scanId: z.string().min(1),
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts        215             scanId,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts        224                     scanId,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts        242                 scopeId: scanId,
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts        335         "Execute a previously prepared AppScan scan only after ex…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts        427                 "Use get-scan-execution-status with this token to…
+C:\Users\ankur.raina\ai-coding-assistants-claude-poc\src\claude-mcp-server.ts        433         "get-scan-execution-status", {
