@@ -1,1 +1,12 @@
+$target = 'C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin'
 
+"=== Compiled Java classes under build ==="
+(Get-ChildItem "$target\build" -Recurse -File -Filter *.class -ErrorAction SilentlyContinue).Count
+
+"=== Java source directories ==="
+Get-ChildItem "$target\src" -Directory -ErrorAction SilentlyContinue |
+    Select-Object -ExpandProperty FullName
+
+"=== Build directory structure ==="
+Get-ChildItem "$target\build" -Directory -ErrorAction SilentlyContinue |
+    Select-Object -ExpandProperty FullName
