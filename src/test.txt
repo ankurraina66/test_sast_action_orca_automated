@@ -32,3 +32,58 @@ Return:
 - The smallest proposed change to our POC, if one is needed.
 
 Stop after the investigation. Do not modify files or initiate another scan.
+
+  Searched for 6 patterns, read 5 files
+
+The AppScan REST API can't be checked from this project. The POC contains no REST client, and the project has no AppScan API documentation. I made no API
+calls beyond the earlier get-scans and get-scan-execution-statles and started no scan.
+
+What the POC does
+
+The POC is an MCP proxy. It never calls the AppScan REST API i
+
+┌────────────────────────────────────┬────────────────────────────────────────────────────────────────────────────────────┐
+│                File                │                                                  What it does                                                   │
+├────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│                                    │ loadConfig() reads APP_SCAN_PROVIDER (remote or local). It also reads the remote endpoint, the local server     │
+│ src/config/config.ts               │ path, APPSCAN_API_BASE n.com), and the key ID and secret environment variables. I  │
+│                                    │ haven't read their values.                                                                                      │
+├────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ src/mcp/remote-http-connector.ts   │ RemoteHttpConnector connects to a remote MCP server over streamable HTTP. Its only authentication is an         │
+│                                    │ X-API-KEY header.                                                                  │
+├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ src/mcp/local-stdio-connector.ts   │ LocalStdioConnector spaocess (node <APP_SCAN_LOCAL_SERVER_PATH>) and talks to it   │
+│                                    │ over STDIO.                                                                                                     │
+├────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ src/services/appscan-service.ts    │ AppScanService offers listTools, callTool, callFirstAvailableTool and switchProvider. It forwards calls to the  │
+│                                    │ active connector.                                                                  │
+├────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ scripts/inspect-appscan-schemas.ts │ Prints the input schema                                                            │
+└────────────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+The AppScan authentication and REST requests happen inside the external MCP server, using the key ID and secret passed through the environment. The POC's
+code can only call whatever tools that server exposes. I found execution details, or diagnostics.
+
+Documented endpoints and response fields
+
+I can't report these, because I found no AppScan API documentat searched the web, and I won't guess paths or schemas. Thescan-detail and execution endpoints I mentioned earlier were from memory and are unverified.
+
+Raw metadata
+
+None retrieved beyond what I already showed. The connector's tools, including the two I already ran for this scan, return no file counts, language breakdown, lines of code, or analysis warnings. The connector etadata for this scan.
+
+Conclusion
+
+Coverage can't be verified through the current POC or connecto itself, someone needs to read AppScan's official APIdocumentation, or query the API directly with the existing key.
+
+The mismatch you describe (12 Java files and 1,303 lines of code in the console, against 126 .java and 582 .class files in the project) is real. I can't explain or rule it out from the API. Neither the project nor tr way.
+
+Smallest proposed change
+
+I haven't implemented anything. The smallest options, in order
+
+1. No code change. Read the official scan-detail documentation and StaticAnalyzer sections). Then make one authenticatedread-only GET for this scan, outside the POC, with the same key. Redact the credentials in any output.
+2. Add one tool to the external MCP server that returns the fu You said that server's IRX-generation logic is off limits, but this would be a separate read-only tool. It needs approval from whoever owns that server.
+3. POC-side: nothing is needed. callFirstAvailableTool would prver automatically.
+
+Do you want me to look up the official documentation online, one check the console's analysis details for this scan?
