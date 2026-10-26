@@ -1,1 +1,12 @@
+Run one AppScan "create-scan" workflow through our existing local AppScan MCP connector, using the IntelliJ plugin Gradle project's build directory as "targetDir".
 
+Target directory:
+"C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin\build"
+
+Use the existing application's configured AppScan application ID and the appropriate scan type for the test. Use a clear test scan name, for example "IntelliJ Plugin Build Folder Test", and a comment stating that this scan tests source coverage when "targetDir" points to the Gradle build directory.
+
+Before starting, confirm the exact "targetDir", application ID, and scan type. If any required value is unavailable or ambiguous, stop and ask me rather than guessing.
+
+Run only one scan workflow. Do not change source files, configuration files, or credentials. Do not expose API keys or secrets in the output.
+
+Capture the returned scan ID, status, any errors or warnings, and any available source-file or IRX-generation details. Do not start any additional scans.
