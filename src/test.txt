@@ -1,2 +1,186 @@
-$config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
-notepad $config
+{
+  "mcpServers": {
+    "hcl-appscan-ai-coding-assistants": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "C:\\Users\\ankur.raina\\ai-coding-assistants-claude-poc\\dist\\claude-mcp-server.js"
+      ],
+      "env": {
+        "APP_SCAN_LOCAL_SERVER_PATH": "C:\\Users\\ankur.raina\\Downloads\\mcp-appscan-server-1.0.0\\mcp-appscan-server-1.0.0\\package\\build\\index.js",
+        "APPSCAN_KEY_SECRET": "Ieuy2iZ0tkwrslDmBEMPCWtXmIuJyZu2T07KRVjbx+Zp",
+        "APPSCAN_KEY_ID": "ab3f2a5f-00f6-21a5-30ee-853650a51b8e",
+        "APP_SCAN_REQUEST_TIMEOUT_MS": "30000",
+        "APP_SCAN_PROVIDER": "local",
+        "APPSCAN_API_BASE": "https://cloud.appscan.com",
+        "APP_SCAN_REMOTE_ENDPOINT": "https://cloud.appscan.com/mcp",
+        "APP_SCAN_API_KEY": "ab3f2a5f-00f6-21a5-30ee-853650a51b8e"
+      }
+    }
+  },
+  "coworkUserFilesPath": "C:\\Users\\ankur.raina\\Claude",
+  "preferences": {
+    "coworkBrowserToolsEnabled": false,
+    "coworkPreferredBrowser": "built_in",
+    "launchPreviewPersistedWorkspaces": [],
+    "launchPreviewSessionScopedSessions": [],
+    "coworkLegacyRootGrantsPruned": true,
+    "coworkScheduledTasksEnabled": true,
+    "coworkHipaaRestricted": false,
+    "orgWorkAcrossAppsDisabled": false,
+    "ccdScheduledTasksEnabled": true,
+    "sidebarMode": "epitaxy",
+    "bypassPermissionsGateByAccount": {
+      "93ad7ba9-bd55-4a11-806b-476b0475d924": false,
+      "fdf98f2c-f411-4f34-bd87-bc4d094796fe": true
+    },
+    "coworkWebSearchEnabled": true,
+    "coworkModelAutoFallbackByAccount": {
+      "93ad7ba9-bd55-4a11-806b-476b0475d924": true,
+      "fdf98f2c-f411-4f34-bd87-bc4d094796fe": true
+    },
+    "remoteToolsDeviceName": "lp1-ap-52372727",
+    "epitaxyPrefs": {
+      "desktop-frame.paneStore.v1": {
+        "state": {
+          "extraPanesByMode": {},
+          "colWeightsByMode": {},
+          "rowSplit": 0.5,
+          "draftNonce": 0,
+          "lastPrimaryCodeSession": {
+            "id": "local_47ff8e22-3744-4714-b0ce-497db5a918e6",
+            "type": "local"
+          }
+        },
+        "version": 4
+      },
+      "starred-local-code-sessions": [],
+      "starred-cowork-spaces": [],
+      "starred-session-groups": [],
+      "starred-local-routines": [],
+      "dframe-group-scopes": {},
+      "dframe-local-slice": {
+        "pinnedOrder": [],
+        "homeProjectsPinnedOrder": []
+      },
+      "dframe-code-sections": {
+        "fdf98f2c-f411-4f34-bd87-bc4d094796fe/33f43141-fe2a-4825-b741-8a7d489a0f7c": {
+          "sections": [
+            {
+              "id": "pinned",
+              "kind": "pinned",
+              "v": 2,
+              "name": "",
+              "order": 0,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false
+              },
+              "collapsed": false,
+              "shown": true
+            },
+            {
+              "id": "routines",
+              "kind": "routines",
+              "v": 2,
+              "name": "",
+              "order": 1,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false
+              },
+              "collapsed": true,
+              "shown": false
+            },
+            {
+              "id": "sessions",
+              "kind": "sessions",
+              "v": 2,
+              "name": "",
+              "order": 2,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false
+              },
+              "collapsed": false,
+              "shown": true
+            }
+          ],
+          "migratedFrom": 1,
+          "prefsSeeded": true
+        },
+        "93ad7ba9-bd55-4a11-806b-476b0475d924/f03ee9f0-ddcb-4333-b6fa-a6bf0c38a1ee": {
+          "sections": [
+            {
+              "id": "pinned",
+              "kind": "pinned",
+              "v": 2,
+              "name": "",
+              "order": 0,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false
+              },
+              "collapsed": false,
+              "shown": true
+            },
+            {
+              "id": "routines",
+              "kind": "routines",
+              "v": 2,
+              "name": "",
+              "order": 1,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false
+              },
+              "collapsed": true,
+              "shown": false
+            },
+            {
+              "id": "sessions",
+              "kind": "sessions",
+              "v": 2,
+              "name": "",
+              "order": 2,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false
+              },
+              "collapsed": false,
+              "shown": true
+            }
+          ],
+          "migratedFrom": 1,
+          "prefsSeeded": true
+        }
+      },
+      "ccd-sessions-filter": {
+        "state": {
+          "selectedProjects": []
+        },
+        "version": 0
+      },
+      "epitaxy-auto-default-notice-seen.fdf98f2c-f411-4f34-bd87-bc4d094796fe": true
+    },
+    "httpCacheZstdLatched": true,
+    "userDataOutsidePackageAnswer": true
+  }
+}
