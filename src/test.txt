@@ -1,1 +1,73 @@
+We need to improve the existing AI Coding Assistants / AppScan MCP POC so that the "create-scan" workflow waits for the SAST scan to actually complete and returns the final results in the same invocation.
 
+Inspect the existing implementation, particularly:
+
+- "src/claude-mcp-server.ts"
+- "src/services/appscan-service.ts"
+- "src/mcp/" connector implementations
+- The local AppScan MCP server's "createScan.js" and "scanService.js"
+- Existing scan-status and scan-results tools and their tests
+
+Implement the following requirements.
+
+1. End-to-end lifecycle
+
+- Preserve the existing prepare-and-confirm safety flow.
+- Validate the application, target directory, scan type and other required inputs.
+- Prepare and execute the approved scan exactly once.
+- Capture the scan ID as soon as it becomes available.
+- Poll the existing scan using its ID until the actual terminal state is confirmed.
+- Retrieve final scan results, including issue counts by severity and any available scan metrics.
+- Return one consolidated result from the existing workflow.
+
+2. Correct status handling
+
+- Inspect the actual AppScan API/status semantics before deciding which statuses are terminal.
+- Do not treat "Ready", scan creation success, or submission success as proof of completed analysis unless the API semantics establish that.
+- Distinguish completed, failed, cancelled (if supported), timed out, and unknown/unconfirmed outcomes.
+- Reuse existing status/results APIs rather than inventing endpoints.
+
+3. Polling and timeout
+
+- Use a configurable polling interval and overall execution timeout, with sensible defaults.
+- Do not busy-loop or poll more frequently than necessary.
+- On timeout, return the known scan ID and last known status as "outcome unconfirmed".
+- Never automatically re-prepare, re-submit, or create another scan after a timeout or ambiguous response.
+
+4. Results
+Return, where available:
+
+- Scan ID and final status
+- Scan type and application ID
+- Start/end timestamps and duration
+- Critical, High, Medium, Low and Informational issue counts
+- File count, language breakdown, lines of code, and coverage data if the API exposes them
+- Relevant errors and warnings
+- IRX generation/upload outcome and artifact references if available
+
+Clearly mark unavailable metrics as unavailable; do not infer coverage from the configured target alone.
+
+5. Compatibility and safety
+
+- Keep both local STDIO and remote HTTP provider switching working.
+- Do not expose credentials or sensitive environment values in logs or results.
+- Do not modify the user's existing scan configuration or change source-selection behavior as part of this task.
+- Do not run any real scan, prepare a scan, or submit a scan during development or testing.
+
+6. Tests
+Add or update mocked unit tests covering:
+
+- Scan completes after several polls
+- Scan fails
+- Scan is still running when the timeout expires
+- Status API errors
+- Missing scan ID after execution
+- Results retrieval failure after completion
+- No duplicate execution or scan creation
+- Existing local/remote provider behavior remains intact
+
+Run the unit tests, typecheck and build. Fix regressions.
+
+Before editing, briefly explain the current lifecycle and identify the actual API calls/status values that support the implementation. Then implement the change, report the files changed, the polling/timeout defaults, the tests run and their results.
+
+Do not invoke any real scan-related tools. Do not expose credentials. Do not use Git.
