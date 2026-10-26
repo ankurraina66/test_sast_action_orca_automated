@@ -1,1 +1,5 @@
-
+[pscustomobject]@{
+    ApiBaseConfigured = [bool]$env:APPSCAN_API_BASE
+    KeyIdConfigured   = [bool]$env:APPSCAN_KEY_ID
+    KeySecretConfigured = [bool]$env:APPSCAN_KEY_SECRET
+}
