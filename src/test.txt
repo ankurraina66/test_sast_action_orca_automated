@@ -1,9 +1,15 @@
-$config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
-$settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
-$envConfig = $settings["mcpServers"]["hcl-appscan-ai-coding-assistants"]["env"]
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $envConfig = $settings["mcpServers"]["hcl-appscan-ai-coding-assistants"]["env"]
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> [PSCustomObject]@{
+>>     LocalProviderPreserved = ($envConfig["APP_SCAN_PROVIDER"] -eq "local")
+>>     RemoteEndpointConfigured = [bool]$envConfig["APP_SCAN_REMOTE_ENDPOINT"]
+>>     RemoteApiKeyConfigured = [bool]$envConfig["APP_SCAN_API_KEY"]
+>> }
 
-[PSCustomObject]@{
-    LocalProviderPreserved = ($envConfig["APP_SCAN_PROVIDER"] -eq "local")
-    RemoteEndpointConfigured = [bool]$envConfig["APP_SCAN_REMOTE_ENDPOINT"]
-    RemoteApiKeyConfigured = [bool]$envConfig["APP_SCAN_API_KEY"]
-}
+LocalProviderPreserved RemoteEndpointConfigured RemoteApiKeyConfigured
+---------------------- ------------------------ ----------------------
+                  True                    False                  False
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
