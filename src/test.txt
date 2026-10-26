@@ -1,2 +1,1 @@
-(Get-Content .\src\claude-mcp-server.ts -Raw) -replace 'name:\s*"hcl-appscan-connector-for-claude"', 'name: "ai-coding-assistants"' |
-    Set-Content .\src\claude-mcp-server.ts -Encoding utf8
+
