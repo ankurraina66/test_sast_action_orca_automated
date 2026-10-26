@@ -1,5 +1,7 @@
-if ($env:APP_SCAN_LOCAL_SERVER_PATH) {
-    "Local MCP server path is configured."
-} else {
-    "Local MCP server path is NOT configured."
-}
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if ($env:APP_SCAN_LOCAL_SERVER_PATH) {
+>>     "Local MCP server path is configured."
+>> } else {
+>>     "Local MCP server path is NOT configured."
+>> }
+Local MCP server path is NOT configured.
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
