@@ -1,4 +1,4 @@
-Investigate how to run the AppScan MCP "create-scan" workflow from the built IntelliJ plugin project.
+/appscan Investigate how to run the AppScan MCP "create-scan" workflow from the built IntelliJ plugin project.
 
 Project directory:
 "C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin"
@@ -19,3 +19,57 @@ Safety:
 - Do not print API keys, secrets, tokens, or credentials.
 
 Return the relevant file paths, findings, and recommended next steps.
+
+  Searched for 7 patterns, read 3 files
+
+Short answer: the built IntelliJ plugin has no MCP integration and no create-scan workflow, so there is nothing in it to run. I made no changes and invoked no scan-creation tool. The plugin is a separate product from the AppScan MCP connector we used earlier.
+
+Findings
+
+Build output (C:\Users\ankur.raina\Downloads\impl_workspace\mauild\):
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                Path                                 │                                  What it is                                   │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ distributions\intellij-plugin-2.13.1.zip                            │ The installable plugin artifact                                               │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ libs\intellij-plugin-2.13.1.jar and                                 │ The plugin jars, not installable on their own                                 │
+│ libs\instrumented-intellij-plugin-2.13.1.jar                                                                           │
+├─────────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+│ idea-sandbox\plugins\intellij-plugin\lib\                    with its dependency jars (appscan.sdk-1.1.0.jar, Jackson, │
+│                                                                     │  BouncyCastle FIPS and others)                                                │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ patchedPluginXmlFiles\plugin.xml                                    │ The generated plugin descriptor                                               │    ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                                                                                                                           ugin identity (from plugin.xml, build.gradle, gradle.propert
+- It is "HCL AppScan" version 2.13.1, plugin id com.ibm.appscan.intellij.plugin, built with Gradle (org.jetbrains.intellij 1.17.2).                        It is built against IntelliJ IDEA 2023.3.6 (ideaVersion in g-build 222 and no upper bound.
+- It requires restart on install.                                                                                                                         
+MCP integration: I found none.                                                                                                                             A case-insensitive search of the project, excluding .git andr mcp, create-scan, create_scan or modelcontextprotocol.
+- plugin.xml registers no MCP server, tool, or action. It registers the AppScan and AppScan Details tool windows, settings pages (AppScan, CodeSweep,      ASoC/AppScan 360° and Login), CodeSweep listeners, and help-
+- mcp hits inside build\idea-sandbox\system\ came from IntelliJ's own files. I only checked file names there, not their contents, so I can't say what they are.
+
+How the plugin scans:
+- The plugin integrates with AppScan directly through the bundled appscan.sdk and custom-scanners-service libraries, plus CodeSweep, IAST and ASoC/AppScan 360° features.
+- It does not go through the MCP server. Per its change notes, it uses the ASoC v4 REST APIs. I didn't trace its scan-start code path. The only
+  scan-related class I located is AppScanCommunityIntentionActt.
+
+Is the build output enough?
+
+The build output is not enough on its own. If you want to try be installed into an IDE. It could also be run from a Gradlesandbox, since idea-sandbox already exists. That exercises the plugin's own features, not the MCP create-scan workflow.
+
+Steps for the plugin itself (later test)
+
+These are standard IntelliJ and Gradle steps. They are not taken from this project's documentation.
+
+1. In IntelliJ IDEA (build 222 or newer): Settings → Plugins → ⚙ → Install Plugin from Disk → select build\distributions\intellij-plugin-2.13.1.zip → restart.
+2. Sign in under Settings → Tools → AppScan → ASoC/AppScan 360° → Login. Use your own credentials and don't paste them anywhere.
+3. Open the AppScan tool window at the bottom of the IDE.
+4. Alternatively, run gradlew runIde from the project directory. This opens a sandbox IDE with the plugin loaded. I haven't confirmed that the Gradle
+   build works. The build file points at internal Nexus reposiain HTTP, so it may fail outside the HCL network.
+
+None of this runs create-scan.
+
+Recommended next steps
+
+- If you want MCP create-scan from an IDE, use the existing co execute-prepared-scan flow works from Claude Code, andJetBrains IDEs can host Claude Code. The plugin isn't needed for it.
+- If you want the plugin to call the MCP server, that would bests for it today, and it would need your approval and a designdecision.
+- Please tell me which of these you intend.
