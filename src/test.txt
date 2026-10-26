@@ -1,1 +1,14 @@
+Inspect our existing local AppScan MCP connector and determine how the "create-scan" tool accepts the target project path.
 
+The target Gradle project is:
+"C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin"
+
+I need to know whether "create-scan" should receive:
+
+- the IntelliJ plugin project root,
+- its "build" directory,
+- or the built plugin ZIP under "build\distributions".
+
+Trace the path from the tool schema through the local MCP server to IRX generation and scan creation. Identify the exact input arguments and any path validation or directory traversal behavior.
+
+Do not modify files. Do not invoke "create-scan", prepare a scan, submit a scan, or execute a scan. Do not expose credentials.
