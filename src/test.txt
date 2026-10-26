@@ -1,1 +1,10 @@
+$config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
+$settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
+$server = $settings["mcpServers"]["hcl-appscan-ai-coding-assistants"]
 
+[PSCustomObject]@{
+    Command = $server["command"]
+    Provider = $server["env"]["APP_SCAN_PROVIDER"]
+    RemoteEndpointVariableExists = $server["env"].ContainsKey("APP_SCAN_REMOTE_ENDPOINT")
+    RemoteApiKeyVariableExists = $server["env"].ContainsKey("APP_SCAN_API_KEY")
+}
