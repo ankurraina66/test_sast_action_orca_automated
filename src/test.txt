@@ -1,1 +1,15 @@
+Use the existing local AppScan MCP connector to check the execution status of the scan that was just started:
 
+"Claude Local MCP - IntelliJ Plugin Build Folder Test"
+
+Use the existing scan execution context or scan ID returned by the previous execution. If the ID is not available, retrieve it from the existing execution result or status tools. Do not create or prepare another scan, and do not execute the scan again.
+
+Report:
+
+1. Scan ID and current/final status.
+2. Any errors or warnings.
+3. IRX generation outcome and IRX path or file ID, if available.
+4. Whether the generated artifacts were retained or deleted.
+5. Any available scan metrics, while clearly distinguishing compiled-JAR analysis from source-file analysis.
+
+If the scan is still running, report that and stop rather than polling in a loop. Do not expose credentials.
