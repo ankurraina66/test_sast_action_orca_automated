@@ -1,5 +1,30 @@
-[pscustomobject]@{
-    ApiBaseConfigured = [bool]$env:APPSCAN_API_BASE
-    KeyIdConfigured   = [bool]$env:APPSCAN_KEY_ID
-    KeySecretConfigured = [bool]$env:APPSCAN_KEY_SECRET
+$config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
+$backup = "$config.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+Copy-Item $config $backup
+
+$keyId = Read-Host "Enter AppScan API Key ID"
+$keySecretSecure = Read-Host "Enter AppScan API Key Secret" -AsSecureString
+$keySecret = [System.Net.NetworkCredential]::new("", $keySecretSecure).Password
+
+$settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
+if (-not $settings.ContainsKey("mcpServers")) { $settings["mcpServers"] = @{} }
+
+$settings["mcpServers"]["hcl-appscan-poc"] = @{
+    command = "C:\Program Files\nodejs\node.exe"
+    args = @("C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js")
+    env = @{
+        APP_SCAN_PROVIDER = "local"
+        APP_SCAN_REQUEST_TIMEOUT_MS = "30000"
+        APP_SCAN_LOCAL_SERVER_PATH = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
+        APPSCAN_API_BASE = "https://cloud.appscan.com"
+        APPSCAN_KEY_ID = $keyId
+        APPSCAN_KEY_SECRET = $keySecret
+    }
 }
+
+$json = $settings | ConvertTo-Json -Depth 100
+$json | ConvertFrom-Json -ErrorAction Stop | Out-Null
+[System.IO.File]::WriteAllText($config, $json, [System.Text.UTF8Encoding]::new($false))
+
+Remove-Variable keyId, keySecret, keySecretSecure
+Write-Output "Configuration written and JSON validated. Backup: $backup"
