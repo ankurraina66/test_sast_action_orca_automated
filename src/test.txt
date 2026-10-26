@@ -1,1 +1,19 @@
+$config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
+$backup = "$config.backup-before-rename-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+Copy-Item $config $backup
 
+$settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
+$servers = $settings["mcpServers"]
+
+if ($servers.ContainsKey("hcl-appscan-poc")) {
+    $servers["hcl-appscan-ai-coding-assistants"] = $servers["hcl-appscan-poc"]
+    $servers.Remove("hcl-appscan-poc")
+} elseif (-not $servers.ContainsKey("hcl-appscan-ai-coding-assistants")) {
+    throw "Neither the old nor the new configuration key exists. No change made."
+}
+
+$json = $settings | ConvertTo-Json -Depth 100
+$json | ConvertFrom-Json -ErrorAction Stop | Out-Null
+[System.IO.File]::WriteAllText($config, $json, [System.Text.UTF8Encoding]::new($false))
+
+Write-Output "Configuration key updated and JSON validated. Backup: $backup"
