@@ -1,1 +1,1 @@
-npm ls --all | grep -Ei 'brotli|zlib|decompress|compression'
+grep -nEi 'brotli|br|createBrotliDecompress|createGunzip|createInflate' node_modules/decompress-response/index.js
