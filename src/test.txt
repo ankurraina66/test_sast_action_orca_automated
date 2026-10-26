@@ -1,1 +1,1 @@
-grep -nEi 'brotli|br|createBrotliDecompress|createGunzip|createInflate' node_modules/decompress-response/index.js
+grep -RniE 'accept-encoding|decompress|decompress-response' node_modules/got/dist/source
