@@ -1,1 +1,16 @@
 
+      - name: Check runner Node.js version
+        shell: powershell
+        run: |
+          Write-Host "Node.js version available on PATH:"
+          node --version
+
+          Write-Host "Node.js executable on PATH:"
+          (Get-Command node).Source
+
+          Write-Host "Runner OS:"
+          $env:RUNNER_OS
+
+          Write-Host "Runner name:"
+          $env:RUNNER_NAME
+
