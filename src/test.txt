@@ -1,1 +1,45 @@
+name: "HCL AppScan SAST"
 
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Check runner Node.js version
+        shell: bash
+        run: |
+          echo "Node.js version available on PATH:"
+          node --version
+
+          echo "Node.js executable on PATH:"
+          which node
+
+          echo "Runner operating system:"
+          uname -a
+
+          echo "Runner name:"
+          echo "${RUNNER_NAME:-unknown}"
+
+      - name: Run AppScan SAST scan
+        uses: HCL-TECH-SOFTWARE/appscan-sast-action@test/cve-2026-111497
+        with:
+          asoc_key: ${{ secrets.ASOC_KEY }}
+          asoc_secret: ${{ secrets.ASOC_SECRET }}
+          application_id: e35ea96d-cae0-499a-a3ed-7a4efd77b269
