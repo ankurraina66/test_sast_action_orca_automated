@@ -1,1 +1,4 @@
-Use the "hcl-appscan-ai-coding-assistants" connector to call "get-provider-status". Report only the active provider. Do not call any scan creation, preparation, or execution tools.
+[pscustomobject]@{
+    RemoteEndpointConfigured = [bool][Environment]::GetEnvironmentVariable("APP_SCAN_REMOTE_ENDPOINT", "User")
+    RemoteApiKeyConfigured   = [bool][Environment]::GetEnvironmentVariable("APP_SCAN_API_KEY", "User")
+}
