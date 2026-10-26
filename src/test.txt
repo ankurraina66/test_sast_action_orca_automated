@@ -1,30 +1,34 @@
-$config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
-$backup = "$config.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-Copy-Item $config $backup
-
-$keyId = Read-Host "Enter AppScan API Key ID"
-$keySecretSecure = Read-Host "Enter AppScan API Key Secret" -AsSecureString
-$keySecret = [System.Net.NetworkCredential]::new("", $keySecretSecure).Password
-
-$settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
-if (-not $settings.ContainsKey("mcpServers")) { $settings["mcpServers"] = @{} }
-
-$settings["mcpServers"]["hcl-appscan-poc"] = @{
-    command = "C:\Program Files\nodejs\node.exe"
-    args = @("C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js")
-    env = @{
-        APP_SCAN_PROVIDER = "local"
-        APP_SCAN_REQUEST_TIMEOUT_MS = "30000"
-        APP_SCAN_LOCAL_SERVER_PATH = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
-        APPSCAN_API_BASE = "https://cloud.appscan.com"
-        APPSCAN_KEY_ID = $keyId
-        APPSCAN_KEY_SECRET = $keySecret
-    }
-}
-
-$json = $settings | ConvertTo-Json -Depth 100
-$json | ConvertFrom-Json -ErrorAction Stop | Out-Null
-[System.IO.File]::WriteAllText($config, $json, [System.Text.UTF8Encoding]::new($false))
-
-Remove-Variable keyId, keySecret, keySecretSecure
-Write-Output "Configuration written and JSON validated. Backup: $backup"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $backup = "$config.backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Copy-Item $config $backup
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $keyId = Read-Host "Enter AppScan API Key ID"
+Enter AppScan API Key ID: ab3f2a5f-00f6-21a5-30ee-853650a51b8e
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $keySecretSecure = Read-Host "Enter AppScan API Key Secret" -AsSecureString
+Enter AppScan API Key Secret: ********************************************
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $keySecret = [System.Net.NetworkCredential]::new("", $keySecretSecure).Password
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if (-not $settings.ContainsKey("mcpServers")) { $settings["mcpServers"] = @{} }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $settings["mcpServers"]["hcl-appscan-poc"] = @{
+>>     command = "C:\Program Files\nodejs\node.exe"
+>>     args = @("C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js")
+>>     env = @{
+>>         APP_SCAN_PROVIDER = "local"
+>>         APP_SCAN_REQUEST_TIMEOUT_MS = "30000"
+>>         APP_SCAN_LOCAL_SERVER_PATH = "C:\Users\ankur.raina\Downloads\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package\build\index.js"
+>>         APPSCAN_API_BASE = "https://cloud.appscan.com"
+>>         APPSCAN_KEY_ID = $keyId
+>>         APPSCAN_KEY_SECRET = $keySecret
+>>     }
+>> }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $json = $settings | ConvertTo-Json -Depth 100
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $json | ConvertFrom-Json -ErrorAction Stop | Out-Null
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> [System.IO.File]::WriteAllText($config, $json, [System.Text.UTF8Encoding]::new($false))
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Remove-Variable keyId, keySecret, keySecretSecure
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Write-Output "Configuration written and JSON validated. Backup: $backup"
+Configuration written and JSON validated. Backup: C:\Users\ankur.raina\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json.backup-20261026-111806
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
