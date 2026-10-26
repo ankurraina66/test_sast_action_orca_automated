@@ -1,101 +1,30 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\claude-mcp-server.ts | Select-Object -Last 100
-            } finally {
-                executingScanTokens.delete(confirmationToken);
-            }
-        })();
-
-        return messageResult([
-                "Scan execution was accepted by the connector and is running in the background.",
-`Confirmation token: ${confirmationToken}`,
-                "Use get-scan-execution-status with this token to retrieve the final result.",
-                "Do not submit another scan while the status is running or uncertain.",
-            ].join("\n"));
-    }, );
-
-    server.registerTool(
-        "get-scan-execution-status", {
-        description:
-        "Retrieve the status and final result of a previously approved scan execution. This tool never starts a scan.",
-        inputSchema: {
-            confirmationToken: z.string().uuid(),
-        },
-    },
-        async({
-            confirmationToken
-        }) => {
-        const execution = scanExecutions.get(confirmationToken);
-
-        if (!execution) {
-            return messageResult(
-                "No execution record exists for this token. Do not retry the scan automatically; verify the AppScan backend first.",
-                true, );
-        }
-
-        if (execution.status === "running") {
-            return messageResult(JSON.stringify({
-                    status: execution.status,
-                    startedAt: execution.startedAt,
-                    confirmationToken,
-                }, null, 2));
-        }
-
-        if (execution.status === "failed") {
-            return messageResult(JSON.stringify({
-                    status: execution.status,
-                    startedAt: execution.startedAt,
-                    completedAt: execution.completedAt,
-                    error: execution.error,
-                    confirmationToken,
-                    warning:
-                    "The final backend outcome may require verification. Do not automatically start another scan.",
-                }, null, 2), true);
-        }
-
-        return messageResult(JSON.stringify({
-                status: execution.status,
-                startedAt: execution.startedAt,
-                completedAt: execution.completedAt,
-                confirmationToken,
-                result: execution.result,
-            }, null, 2));
-    }, );
-
-    const transport = new StdioServerTransport();
-
-    try {
-        await server.connect(transport);
-        console.error("HCL AppScan Connector for Claude is running.");
-    } catch (error) {
-        await service.disconnect();
-        throw error;
-    }
-
-    const shutdown = async(): Promise < void >  => {
-        try {
-            await server.close();
-        } finally {
-            await service.disconnect();
-        }
-    };
-
-    process.once("SIGINT", () => {
-        void shutdown().catch((error: unknown) => {
-            console.error("Shutdown failed:", error);
-            process.exitCode = 1;
-        });
-    });
-
-    process.once("SIGTERM", () => {
-        void shutdown().catch((error: unknown) => {
-            console.error("Shutdown failed:", error);
-            process.exitCode = 1;
-        });
-    });
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\package.json
+{
+  "name": "ai-coding-assistants-claude-poc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test:watch": "vitest",
+    "dev": "tsx watch src/index.ts",
+        "start:claude-mcp": "node dist/claude-mcp-server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  },
+  "private": "true",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.6"
+  }
 }
-
-main().catch((error: unknown) => {
-    console.error(
-        "Failed to start HCL AppScan Connector for Claude:",
-        error instanceof Error ? error.message : "Unknown error", );
-    process.exitCode = 1;
-});
