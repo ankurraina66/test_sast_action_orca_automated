@@ -1,1 +1,1 @@
-
+Use the "get-provider-status" tool from "hcl-appscan-ai-coding-assistants" and tell me which AppScan provider is currently active. Do not switch providers or create, prepare, or execute any scans.
