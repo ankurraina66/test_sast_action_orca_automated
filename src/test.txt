@@ -1,4 +1,4 @@
-Execute exactly one SAST scan using the existing local AppScan MCP connector and its prepare-and-confirm workflow.
+/appscan Execute exactly one SAST scan using the existing local AppScan MCP connector and its prepare-and-confirm workflow.
 
 First, verify these inputs without creating a scan:
 
@@ -29,3 +29,39 @@ Capture the evidence:
 - Whether generated artifacts were retained or deleted.
 
 Do not expose credentials, modify source files or configuration, or start any additional scans. Report the actual results without claiming full source coverage unless supported by evidence.
+
+  Read 1 file, listed 2 directories, called appscan-connector 3 times, ran 1 shell command
+
+Prepared parameters match your request exactly: same application, build directory, SAST, scan name and provider. You've explicitly approved executing this exact scan, so I'm executing it once.
+
+  Called appscan-connector 2 times
+
+The scan was prepared once and executed once. It is still runntus or coverage evidence exists yet. I did not retry or startany other scan.
+
+Validation (before preparing):
+- Application: a892fce6-630b-44b4-8f47-d6f6f7d63be5 is Demo_Clt get-apps returned earlier.
+- Provider: local is active.
+- Directory: the build directory exists, and I could list its
+- Parameters: scanName and comment are supported. wait: true and approved: true are set automatically by execute-prepared-scan, as in the earlier scan.
+
+Execution so far:
+- Prepared and executed: the target, SAST type and scan name m
+- Confirmation token: 30337f25-e3da-4e58-8680-607f389f3643
+- Started: 2026-10-26T10:32:05.413Z
+- Errors and warnings: none reported yet.
+
+Existing config in build: There is already an appscan-config.xml in build\ (22,644 bytes, last modified Oct 23 23:17). I did not modify it.
+- The connector will use this file instead of generating one, ool only deletes configs it generated.
+- It targets the built jar build\libs\intellij-plugin-2.13.1.jar with package_includes="com.hcl".
+- It includes a long classpath of Gradle-cached jars and Intel
+- This scan will therefore analyse the compiled jar's com.hcl classes, not Java source files. That is why this scan may not show source-file counts.
+
+Correction to my earlier trace: I said the connector generates a config for the project root and deletes it afterwards. There is already an
+appscan-config.xml in the project root too. I haven't read it,r the earlier scan. The earlier scan's 12-file and 1,303-linecount may come from that config's own settings, not from generated exclusions.
+
+Still to be reported when the scan finishes:
+- The scan ID and final status.
+- The IRX path and file ID.
+- The retained-or-deleted status of artifacts. By default the folder, and the generated folder will sit inside build\.
+
+To check the result, ask me to run get-scan-execution-status wpoll it in a loop.
