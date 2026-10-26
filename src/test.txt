@@ -1,30 +1,33 @@
-$config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
-$backup = "$config.backup-before-remote-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-
-Copy-Item $config $backup -ErrorAction Stop
-
-$settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
-$server = $settings["mcpServers"]["hcl-appscan-ai-coding-assistants"]
-$envConfig = $server["env"]
-
-$remoteKeySecure = Read-Host "Enter the API key for the remote MCP endpoint" -AsSecureString
-$remoteKey = [System.Net.NetworkCredential]::new("", $remoteKeySecure).Password
-
-try {
-    $envConfig["APP_SCAN_REMOTE_ENDPOINT"] = "https://cloud.appscan.com/mcp"
-    $envConfig["APP_SCAN_API_KEY"] = $remoteKey
-
-    $json = $settings | ConvertTo-Json -Depth 100
-    $json | ConvertFrom-Json -ErrorAction Stop | Out-Null
-    [System.IO.File]::WriteAllText(
-        $config, $json, [System.Text.UTF8Encoding]::new($false)
-    )
-}
-finally {
-    Remove-Variable remoteKey, remoteKeySecure -ErrorAction SilentlyContinue
-}
-
-"Backup created: $(Test-Path $backup)"
-"Local default preserved: $($envConfig['APP_SCAN_PROVIDER'] -eq 'local')"
-"Remote endpoint configured: $($envConfig['APP_SCAN_REMOTE_ENDPOINT'] -eq 'https://cloud.appscan.com/mcp')"
-"Remote API key configured: $([bool]$envConfig['APP_SCAN_API_KEY'])"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $backup = "$config.backup-before-remote-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Copy-Item $config $backup -ErrorAction Stop
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $server = $settings["mcpServers"]["hcl-appscan-ai-coding-assistants"]
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $envConfig = $server["env"]
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $remoteKeySecure = Read-Host "Enter the API key for the remote MCP endpoint" -AsSecureString
+Enter the API key for the remote MCP endpoint: ************************************
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $remoteKey = [System.Net.NetworkCredential]::new("", $remoteKeySecure).Password
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> try {
+>>     $envConfig["APP_SCAN_REMOTE_ENDPOINT"] = "https://cloud.appscan.com/mcp"
+>>     $envConfig["APP_SCAN_API_KEY"] = $remoteKey
+>>
+>>     $json = $settings | ConvertTo-Json -Depth 100
+>>     $json | ConvertFrom-Json -ErrorAction Stop | Out-Null
+>>     [System.IO.File]::WriteAllText(
+>>         $config, $json, [System.Text.UTF8Encoding]::new($false)
+>>     )
+>> }
+>> finally {
+>>     Remove-Variable remoteKey, remoteKeySecure -ErrorAction SilentlyContinue
+>> }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> "Backup created: $(Test-Path $backup)"
+Backup created: True
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> "Local default preserved: $($envConfig['APP_SCAN_PROVIDER'] -eq 'local')"
+Local default preserved: True
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> "Remote endpoint configured: $($envConfig['APP_SCAN_REMOTE_ENDPOINT'] -eq 'https://cloud.appscan.com/mcp')"
+Remote endpoint configured: True
