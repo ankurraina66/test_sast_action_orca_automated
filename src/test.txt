@@ -1,1 +1,5 @@
-
+if ($env:APP_SCAN_REMOTE_ENDPOINT) {
+    "Remote endpoint is configured."
+} else {
+    "Remote endpoint is NOT configured."
+}
