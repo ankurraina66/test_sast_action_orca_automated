@@ -1,1 +1,1 @@
-
+Use the "hcl-appscan-ai-coding-assistants" connector to call "get-provider-status". Report only the active provider. Do not call any scan creation, preparation, or execution tools.
