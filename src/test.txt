@@ -1,1 +1,1 @@
-
+Use the "switch-provider" tool from "hcl-appscan-ai-coding-assistants" to switch the active AppScan provider to "remote". Then call "get-provider-status" and report the result. Do not create, prepare, or execute any scans.
