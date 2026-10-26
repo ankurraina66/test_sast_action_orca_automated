@@ -1,7 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-StartApps | Where-Object { $_.Name -like "*Claude*" }
 
-Name   AppID
-----   -----
-Claude Claude_pzs8sxrjxfjjc!Claude
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
