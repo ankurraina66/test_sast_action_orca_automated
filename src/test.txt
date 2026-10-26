@@ -1,9 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-AppxPackage |
->>     Where-Object { $_.Name -like "*Claude*" } |
->>     Select-Object Name, PackageFamilyName, InstallLocation
 
-Name   PackageFamilyName    InstallLocation
-----   -----------------    ---------------
-Claude Claude_pzs8sxrjxfjjc C:\Program Files\WindowsApps\Claude_2.31226.0.0_x64__pzs8sxrjxfjjc
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
