@@ -1,96 +1,180 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\config\config.ts
-export type AppScanProvider = "remote" | "local";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\claude-mcp-server.ts -TotalCount 180
 
-export interface ConnectorConfig {
-  provider: AppScanProvider;
-  requestTimeoutMs: number;
-  remote?: {
-    endpoint: string;
-    apiKey?: string;
-  };
-  local?: {
-    command: string;
-    args: string[];
-    serverPath: string;
-    apiBase: string;
-    keyId?: string;
-    keySecret?: string;
-  };
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+import { createAppScanService } from "./services/appscan-service-factory.js";
+import crypto from "node:crypto";
+
+type AppScanProvider = "local" | "remote";
+
+type PreparedScan = {
+    appId: string;
+    targetDir: string;
+    scanType: "SAST" | "SCA";
+    scanName ?  : string;
+    comment ?  : string;
+    provider: AppScanProvider;
+};
+
+type ScanExecutionState =
+     | {
+    status: "running";
+    startedAt: string;
 }
+ | {
+    status: "completed";
+    startedAt: string;
+    completedAt: string;
+    result: unknown;
+}
+ | {
+    status: "failed";
+    startedAt: string;
+    completedAt: string;
+    error: string;
+};
 
-export type Environment = Record<string, string | undefined>;
+async function main(): Promise < void > {
+    const service = createAppScanService();
+    await service.connect();
 
-export function loadConfig(
-  env: Environment = process.env,
-): ConnectorConfig {
-  const provider = (env.APP_SCAN_PROVIDER ?? "remote")
-    .trim()
-    .toLowerCase();
+    const server = new McpServer({
+        name: "hcl-appscan-connector-for-claude",
+        version: "0.1.0",
+    });
 
-  if (provider !== "remote" && provider !== "local") {
-    throw new Error(
-      'APP_SCAN_PROVIDER must be either "remote" or "local".',
-    );
-  }
+    function textResult(result: {
+        content: Array < {
+            type: string;
+            text ?  : string;
+        }
+         > ;
+        isError ?  : boolean;
+    }) {
+        const text = result.content
+            .map((item) => item.text ?? "")
+            .filter(Boolean)
+            .join("\n");
 
-  const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
-
-  if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 300000) {
-    throw new Error(
-      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
-    );
-  }
-
-  if (provider === "remote") {
-    const endpoint = env.APP_SCAN_REMOTE_ENDPOINT?.trim();
-
-    if (!endpoint) {
-      throw new Error(
-        "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
-      );
+        return {
+            content: [{
+                    type: "text" as const,
+                    text: text || "The AppScan tool returned no text content.",
+                }
+            ],
+            ...(result.isError ? {
+                isError: true
+            }
+                 : {}),
+        };
     }
 
-    let parsed: URL;
-
-    try {
-      parsed = new URL(endpoint);
-    } catch {
-      throw new Error("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+    function messageResult(text: string, isError = false) {
+        return {
+            content: [{
+                    type: "text" as const,
+                    text,
+                }
+            ],
+            ...(isError ? {
+                isError: true
+            }
+                 : {}),
+        };
     }
 
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-      throw new Error("Remote endpoint must use HTTP or HTTPS.");
-    }
-
-    return {
-      provider,
-      requestTimeoutMs: timeout,
-      remote: {
-        endpoint: parsed.toString(),
-        apiKey: env.APP_SCAN_API_KEY?.trim() || undefined,
-      },
-    };
-  }
-
-  const serverPath = env.APP_SCAN_LOCAL_SERVER_PATH?.trim();
-
-  if (!serverPath) {
-    throw new Error(
-      "APP_SCAN_LOCAL_SERVER_PATH is required for local mode.",
-    );
-  }
-
-  return {
-    provider,
-    requestTimeoutMs: timeout,
-    local: {
-      command: env.APP_SCAN_LOCAL_COMMAND?.trim() || "node",
-      args: [serverPath],
-      serverPath,
-      apiBase:
-        env.APPSCAN_API_BASE?.trim() || "https://cloud.appscan.com",
-      keyId: env.APPSCAN_KEY_ID?.trim() || undefined,
-      keySecret: env.APPSCAN_KEY_SECRET?.trim() || undefined,
+    server.registerTool(
+        "get-provider-status", {
+        description: "Show which AppScan provider is currently active.",
+        inputSchema: {},
     },
-  };
-}
+        async() => ({
+            content: [{
+                    type: "text" as const,
+                    text: `Active AppScan provider: ${service.getProvider()}`,
+                }
+            ],
+        }), );
+
+    server.registerTool(
+        "switch-provider", {
+        description:
+        "Switch the active AppScan backend between local STDIO and remote HTTP without restarting the Claude-facing MCP server.",
+        inputSchema: {
+            provider: z.enum(["local", "remote"]),
+        },
+    },
+        async({
+            provider
+        }) => {
+        try {
+            const result = await service.switchProvider(provider);
+
+            return messageResult([
+                    `Active AppScan provider: ${result.provider}`,
+`Available backend tools: ${result.toolCount}`,
+                    "Provider connection and tool discovery succeeded.",
+                ].join("\n"));
+        } catch (error) {
+            return messageResult(
+                error instanceof Error
+                 ? error.message
+                 : "Provider switching failed.",
+                true, );
+        }
+    }, );
+
+    server.registerTool(
+        "get-apps", {
+        description: "Retrieve AppScan applications.",
+        inputSchema: {
+            filter: z.string().optional(),
+            top: z.number().optional(),
+        },
+    },
+        async(args) => {
+        console.error("[AppScan diagnostic] get-apps invoked");
+
+        try {
+            const result = await service.discoverApplications({
+                ...(args.filter !== undefined
+                     ? {
+                    filter: args.filter
+                }
+                     : {}),
+                ...(args.top !== undefined
+                     ? {
+                    top: args.top
+                }
+                     : {}),
+            });
+
+            console.error(
+`[AppScan diagnostic] get-apps completed; isError=${result.isError ?? false}`, );
+
+            return textResult(result);
+        } catch (error) {
+            console.error(
+                "[AppScan diagnostic] get-apps failed:",
+                error instanceof Error ? error.message : "Unknown error", );
+            throw error;
+        }
+    }, );
+
+    server.registerTool(
+        "get-scans", {
+        description:
+        "Retrieve AppScan scans. Optionally filter by applicationId (GUID) and an additional OData filter.",
+        inputSchema: {
+            applicationId: z.string().uuid().optional(),
+            filter: z.string().optional(),
+            top: z.number().int().positive().optional(),
+        },
+    },
+        async({
+            applicationId,
+            filter,
+            top
+        }) => {
+        const filters: string[] = [];
