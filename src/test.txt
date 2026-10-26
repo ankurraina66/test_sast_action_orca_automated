@@ -1,5 +1,7 @@
-if ($env:APP_SCAN_REMOTE_ENDPOINT) {
-    "Remote endpoint is configured."
-} else {
-    "Remote endpoint is NOT configured."
-}
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> if ($env:APP_SCAN_REMOTE_ENDPOINT) {
+>>     "Remote endpoint is configured."
+>> } else {
+>>     "Remote endpoint is NOT configured."
+>> }
+Remote endpoint is NOT configured.
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
