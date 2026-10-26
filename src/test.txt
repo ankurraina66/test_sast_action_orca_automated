@@ -1,2 +1,12 @@
-Get-ChildItem .\tests -Recurse -File |
-    Select-String -Pattern "switchProvider|switch-provider|get-provider-status"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem .\tests -Recurse -File |
+>>     Select-String -Pattern "switchProvider|switch-provider|get-provider-status"
+
+tests\unit\appscan-service.test.ts:133:        await expect(service.switchProvider("local")).resolves.toEqual({
+tests\unit\appscan-service.test.ts:156:        await expect(service.switchProvider("local")).rejects.toThrow(
+tests\unit\appscan-service.test.ts:172:        await expect(service.switchProvider("local")).rejects.toThrow(
+tests\unit\appscan-service.test.ts:186:        await expect(service.switchProvider("remote")).resolves.toEqual({
+tests\unit\appscan-service.test.ts:250:        const localSwitch = service.switchProvider("local");
+tests\unit\appscan-service.test.ts:251:        const remoteSwitch = service.switchProvider("remote");
+tests\unit\appscan-service.test.ts:290:        await expect(service.switchProvider("local")).rejects.toThrow(
+tests\unit\appscan-service.test.ts:295:        await expect(service.switchProvider("local")).resolves.toMatchObject({
+tests\unit\appscan-service.test.ts:419:        const switchPromise = service.switchProvider("local");
