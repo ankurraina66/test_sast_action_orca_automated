@@ -1,4 +1,4 @@
-Inspect our existing local AppScan MCP connector and determine how the "create-scan" tool accepts the target project path.
+/appscan Inspect our existing local AppScan MCP connector and determine how the "create-scan" tool accepts the target project path.
 
 The target Gradle project is:
 "C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin"
@@ -12,3 +12,68 @@ I need to know whether "create-scan" should receive:
 Trace the path from the tool schema through the local MCP server to IRX generation and scan creation. Identify the exact input arguments and any path validation or directory traversal behavior.
 
 Do not modify files. Do not invoke "create-scan", prepare a scan, submit a scan, or execute a scan. Do not expose credentials.
+
+  Searched for 3 patterns, read 6 files
+
+Recommendation: pass the Gradle project root, C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin. Don't pass build or the ZIP. I read the source only and invoked no scan-related tool.
+
+Path trace
+
+┌────────────────────────┬────────────────────────────────────────────────────────────┬────────────────────────────────────────────────────────────────┐
+│         Layer          │                            File                            │                    What happens to the path                    │
+├────────────────────────┼────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│                        │                                                            │ The schema is appId (uuid), targetDir (string, min length 1),  │
+│ POC prepare-scan       │ src\claude-mcp-server.ts:285                               │ scanType, scanName, comment. The path is stored unchanged with │
+│                        │                                                            │  no validation.                                                │
+├────────────────────────┼────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ POC                    │ src\claude-mcp-server.ts:378       ls the backend create-scan with appId, targetDir, scanType, │
+│ execute-prepared-scan  │                                                            │  scanName, comment, approved: true, wait: true.                │
+├────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Backend create-scan    │ mcp-appscan-server-1.0.0\package\build\tools\createScan.js │ Its schema also accepts configFile, workDir, detailedLogs and  │
+│                        │                                    serveFiles. The POC passes none of these.                   │
+├────────────────────────┼────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ Validation             │ createScan.js:128                   only check is fs.existsSync(targetDir).                    │
+├────────────────────────┼────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ Config                 │ createScan.js:199                  uses targetDir\appscan-config.xml. If that file is missing, │
+│                        │                                                            │  it generates one and deletes it afterward.                    │
+├────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                        │                                                            │ It sets scanDir to targetDir\build if that folder exists,      │
+│ Build step             │ createScan.js:234-271              erwise targetDir. It runs npm run build only if             │
+│                        │                                                            │ package.json exists.                                           │
+├────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                        │                                                            │ It runs appscan prepare -c <config> -d <outputDir> -n <irx>    │
+│ IRX generation         │ scanService.js:305-378             o -s thorough with cwd = scanDir. The output goes to        │
+│                        │                                                            │ targetDir\HCLAppScan_<timestamp>.                              │
+├────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Upload and scan        │ scanService.js:383-447                                     │ It uploads the IRX, then POSTs /api/v4/Scans/Sast (or /Sca).   │
+└────────────────────────┴────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+What each option does
+
+┌─────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────┐
+│         Option          │                                                          Result                                                           │
+├─────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Project root            │ The auto-generated config targets the root, matching this Gradle project. scanDir becomes ...\build, but that only sets   │
+│ (recommended)           │ the working directory.                                                                       │
+├─────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ build directory         │ It would be treated as a plain dironfig lands in build\, and the output folder is created    │
+│                         │ inside build\.                                                                                                            │
+├─────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
+│ ZIP                     │ It passes the existsSync check, but a config path inside a file fails. I expect an error, though I didn't run it.         │
+└─────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────┘
+
+The root is also what produced your earlier scan.
+
+Path validation and traversal
+
+- No sanitisation. There is no normalisation, containment chec path is accepted, and relative paths resolve against theserver's working directory.
+- Unrestricted extras. configFile and workDir can point anywhe
+- Shell command. The command string is built with "..." quoting. The IRX file name includes the target folder's base name (-n "..."). I didn't test hostile names.
+- Existing safeguards. The only controls are the POC's prepare-and-confirm flow and the approved flag.                                              
+Findings worth knowing                                                                                                                              
+- Why the earlier scan may have missed files. The generated config for a Gradle project excludes *test*, *Test*, *tests*, build/, bin/, target/, .grand others. I haven't confirmed these exclusions explain the's the first thing to check against the 126 .java files.
+- Deleted evidence. The POC can't set conserveFiles, so the config and IRX are deleted after each run. That is why the earlier scan left nothing to inspect.
+- Build step bug. createScan.js:241 uses require inside an ES module. For projects with a package.json, the build probably fails silently, because the error is caught and the scan continues. It doesn't affect thas no package.json.
+- Not verified. I don't know whether SAClientUtil needs compiled classes for Java analysis.
+
+Smallest next step, if you want it: add an appscan-config.xml at the project root. It would remove the test exclusions, so you control what's scanned. I haven't proposed content. I'd need your approval, and a scan w
