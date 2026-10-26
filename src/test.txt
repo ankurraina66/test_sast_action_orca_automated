@@ -1,41 +1,96 @@
-Subject: Potential IRX source-coverage issue in Gradle projects
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\config\config.ts
+export type AppScanProvider = "remote" | "local";
 
-We investigated a completed SAST scan of the IntelliJ plugin project and found a potential mismatch in the MCP server's IRX preparation logic.
+export interface ConnectorConfig {
+  provider: AppScanProvider;
+  requestTimeoutMs: number;
+  remote?: {
+    endpoint: string;
+    apiKey?: string;
+  };
+  local?: {
+    command: string;
+    args: string[];
+    serverPath: string;
+    apiBase: string;
+    keyId?: string;
+    keySecret?: string;
+  };
+}
 
-Observed results
+export type Environment = Record<string, string | undefined>;
 
-- Project contains 126 Java source files under "src/main".
-- Project contains 582 compiled ".class" files under "build".
-- AppScan reported 12 Java files and 1,303 lines of code.
-- The completed scan reported zero findings.
-- The original generated IRX and preparation artifacts were deleted after upload, so we cannot inspect the exact contents of that IRX.
+export function loadConfig(
+  env: Environment = process.env,
+): ConnectorConfig {
+  const provider = (env.APP_SCAN_PROVIDER ?? "remote")
+    .trim()
+    .toLowerCase();
 
-Relevant implementation evidence
+  if (provider !== "remote" && provider !== "local") {
+    throw new Error(
+      'APP_SCAN_PROVIDER must be either "remote" or "local".',
+    );
+  }
 
-In "tools/createScan.js", the server selects the preparation directory as follows:
+  const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
 
-const scanDir = fs.existsSync(buildDir) ? buildDir : targetDir;
+  if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 300000) {
+    throw new Error(
+      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
+    );
+  }
 
-The server generates "appscan-config.xml" for the project root. The existing configuration contains:
+  if (provider === "remote") {
+    const endpoint = env.APP_SCAN_REMOTE_ENDPOINT?.trim();
 
-<Target path="C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin">
-  <CustomBuildInfo jdk_path="C:\Program Files\Java\jdk-25.0.2" additional_classpath="C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin\build\libs"/>
-  <Exclude>build/</Exclude>
-</Target>
+    if (!endpoint) {
+      throw new Error(
+        "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
+      );
+    }
 
-In "tools/scanService.js", "generateIRX()" passes the selected directory as the command working directory and invokes "appscan prepare" with the generated configuration file.
+    let parsed: URL;
 
-Concern
+    try {
+      parsed = new URL(endpoint);
+    } catch {
+      throw new Error("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+    }
 
-For this Gradle project, the configured target is the project root, while the preparation command's working directory is "build", which is also excluded by the configuration. This may affect discovery or interpretation of the intended source tree. We have not yet established that this is the definitive cause of the lower file count.
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      throw new Error("Remote endpoint must use HTTP or HTTPS.");
+    }
 
-Request
+    return {
+      provider,
+      requestTimeoutMs: timeout,
+      remote: {
+        endpoint: parsed.toString(),
+        apiKey: env.APP_SCAN_API_KEY?.trim() || undefined,
+      },
+    };
+  }
 
-1. Please confirm the intended semantics of the "-c" configuration target and relative exclusions when "appscan prepare" is executed from a different working directory.
-2. Please review whether Gradle projects should use the project root as the preparation directory when the generated configuration targets that root.
-3. For a controlled reproduction, please preserve the IRX and diagnostic artifacts (using the existing "conserveFiles" option where supported) and retain the preparation logs or "scan_logs.zip", including the manifests.
-4. Compare the files discovered and included in the resulting IRX against the 126 Java source files in the project.
+  const serverPath = env.APP_SCAN_LOCAL_SERVER_PATH?.trim();
 
-We have not changed the external server, modified the configuration, or rerun the scan. We would like to confirm the root cause before implementing a correction.
+  if (!serverPath) {
+    throw new Error(
+      "APP_SCAN_LOCAL_SERVER_PATH is required for local mode.",
+    );
+  }
 
-Acceptance criteria: a controlled reproduction demonstrates that the expected Java source files are included in the IRX, and the resulting AppScan scan reports coverage consistent with the intended source set.
+  return {
+    provider,
+    requestTimeoutMs: timeout,
+    local: {
+      command: env.APP_SCAN_LOCAL_COMMAND?.trim() || "node",
+      args: [serverPath],
+      serverPath,
+      apiBase:
+        env.APPSCAN_API_BASE?.trim() || "https://cloud.appscan.com",
+      keyId: env.APPSCAN_KEY_ID?.trim() || undefined,
+      keySecret: env.APPSCAN_KEY_SECRET?.trim() || undefined,
+    },
+  };
+}
