@@ -1,16 +1,21 @@
+Hi Vinita,
 
-      - name: Check runner Node.js version
-        shell: powershell
-        run: |
-          Write-Host "Node.js version available on PATH:"
-          node --version
+We investigated CVE-2026-111497 in our HCL AppScan SAST GitHub Action.
 
-          Write-Host "Node.js executable on PATH:"
-          (Get-Command node).Source
+Findings:
 
-          Write-Host "Runner OS:"
-          $env:RUNNER_OS
+- Our "action.yaml" specifies "using: 'node24'".
+- Runtime diagnostics reported Node.js "v24.21.0" across all three tested environments: GitHub-hosted Ubuntu, GitHub-hosted Windows, and a self-hosted Windows runner used for AppScan 360.
+- The patched Node.js 24 version identified in our investigation is "v24.22.1".
+- The action uses the Node.js runtime bundled with the GitHub Actions runner, not necessarily the system-wide Node.js installation.
+- We have not identified a direct impact on the SAST Action's application code from this CVE. The finding relates to the underlying Node.js runtime. However, the outdated runtime still requires remediation, and further assessment may be needed to determine exploitability through the action's specific code paths.
 
-          Write-Host "Runner name:"
-          $env:RUNNER_NAME
+Ownership and required actions:
 
+- GitHub-hosted runners: GitHub manages the runner infrastructure and bundled runtime. We should monitor the update and verify the runtime version.
+- AppScan 360 self-hosted runners: Customers or their runner administrators are responsible for ensuring their runner uses a patched runtime. They may need to update the runner software if automatic updates do not provide the fix.
+- Our responsibility: Publish security guidance, document the required runtime version, test action compatibility with the patched runtime, and consider adding a runtime-version check.
+
+Conclusion: We do not control the GitHub-hosted or customer-managed runner environments, so we should not undertake their runtime upgrades ourselves. We should communicate the security requirement and provide remediation instructions. We should retain "using: 'node24'", since "action.yaml" does not allow us to pin a specific Node.js patch version.
+
+The investigation establishes the runtime versions observed, but we should confirm the official security advisory and validate the patched runtime before declaring the issue remediated.
