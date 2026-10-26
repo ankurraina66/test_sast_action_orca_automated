@@ -1,1 +1,31 @@
+Execute exactly one SAST scan using the existing local AppScan MCP connector and its prepare-and-confirm workflow.
 
+First, verify these inputs without creating a scan:
+
+- Application ID: "a892fce6-630b-44b4-8f47-d6f6f7d63be5"
+- Target directory: "C:\Users\ankur.raina\Downloads\impl_workspace\master_2.13.1\intellij-plugin\build"
+- Confirm that the target directory exists and is accessible.
+- Scan type: "SAST"
+- Scan name: "Claude Local MCP - IntelliJ Plugin Build Folder Test"
+- Comment: "Build-folder target test to investigate Java source coverage and IRX generation through the local AppScan MCP connector."
+- "wait: true"
+- "approved: true"
+
+If the application ID is invalid, the directory is inaccessible, or any required parameter is unsupported, stop without creating a scan and report the issue.
+
+If validation succeeds:
+
+1. Prepare the scan once using the exact parameters above.
+2. Review the prepared result and confirm that its target and scan type match.
+3. Execute that same prepared scan once, using the existing confirmation flow.
+4. Do not retry, prepare a second scan, or create another scan if execution fails or the result is ambiguous.
+
+Capture the evidence:
+
+- Scan ID and final status, if available.
+- Preparation and execution errors or warnings.
+- IRX-generation result and output location, if reported.
+- Available evidence of which source files were included, especially Java files.
+- Whether generated artifacts were retained or deleted.
+
+Do not expose credentials, modify source files or configuration, or start any additional scans. Report the actual results without claiming full source coverage unless supported by evidence.
