@@ -1,4 +1,1 @@
-[pscustomobject]@{
-    RemoteEndpointConfigured = [bool][Environment]::GetEnvironmentVariable("APP_SCAN_REMOTE_ENDPOINT", "User")
-    RemoteApiKeyConfigured   = [bool][Environment]::GetEnvironmentVariable("APP_SCAN_API_KEY", "User")
-}
+
