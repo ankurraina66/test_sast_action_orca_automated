@@ -1,1 +1,9 @@
+$config = "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
+$settings = Get-Content $config -Raw | ConvertFrom-Json -AsHashtable
+$envConfig = $settings["mcpServers"]["hcl-appscan-ai-coding-assistants"]["env"]
 
+[PSCustomObject]@{
+    LocalDefaultPreserved = ($envConfig["APP_SCAN_PROVIDER"] -eq "local")
+    RemoteEndpointConfigured = ($envConfig["APP_SCAN_REMOTE_ENDPOINT"] -eq "https://cloud.appscan.com/mcp")
+    RemoteApiKeyConfigured = [bool]$envConfig["APP_SCAN_API_KEY"]
+}
