@@ -1,1 +1,5 @@
-
+[PSCustomObject]@{
+    BuiltServerExists = Test-Path .\dist\claude-mcp-server.js
+    PackageLockExists = Test-Path .\package-lock.json
+    NodeModulesExists = Test-Path .\node_modules
+}
