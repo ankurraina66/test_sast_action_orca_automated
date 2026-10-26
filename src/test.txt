@@ -1,4 +1,4 @@
-We need to improve the existing AI Coding Assistants / AppScan MCP POC so that the "create-scan" workflow waits for the SAST scan to actually complete and returns the final results in the same invocation.
+/appscan We need to improve the existing AI Coding Assistants / AppScan MCP POC so that the "create-scan" workflow waits for the SAST scan to actually complete and returns the final results in the same invocation.
 
 Inspect the existing implementation, particularly:
 
@@ -50,9 +50,9 @@ Clearly mark unavailable metrics as unavailable; do not infer coverage from the 
 5. Compatibility and safety
 
 - Keep both local STDIO and remote HTTP provider switching working.
-- Do not expose credentials or sensitive environment values in logs or results.
+- Do not expose credentials or sensitive environment values in l
 - Do not modify the user's existing scan configuration or change source-selection behavior as part of this task.
-- Do not run any real scan, prepare a scan, or submit a scan during development or testing.
+- Do not run any real scan, prepare a scan, or submit a scan dur
 
 6. Tests
 Add or update mocked unit tests covering:
@@ -63,11 +63,158 @@ Add or update mocked unit tests covering:
 - Status API errors
 - Missing scan ID after execution
 - Results retrieval failure after completion
-- No duplicate execution or scan creation
-- Existing local/remote provider behavior remains intact
-
-Run the unit tests, typecheck and build. Fix regressions.
-
-Before editing, briefly explain the current lifecycle and identify the actual API calls/status values that support the implementation. Then implement the change, report the files changed, the polling/timeout defaults, the tests run and their results.
-
-Do not invoke any real scan-related tools. Do not expose credentials. Do not use Git.
+- No duplicate execution or scan creation                                                                                                                   isting local/remote provider behavior remains intact
+                                                                                                                                                            the unit tests, typecheck and build. Fix regressions.
+                                                                                                                                                            re editing, briefly explain the current lifecycle and identis values that support the implementation. Then implement thechange, report the files changed, the polling/timeout defaults, the tests run and their results.                                                            
+Do not invoke any real scan-related tools. Do not expose credentials. Do not use Git.                                                                       
+I'll start by reading the current implementation, the backend API reference, and the existing tests, and I won't call any scan tools.                     
+  Searched for 4 patterns, read 6 files                                                                                                                     
+● Web Search("HCL AppScan on Cloud API v4 scan execution Status values Ready Running Failed Abort LatestExecution")                                         Did 1 search in 6s
+                                                                                                                                                            e official AppScan docs only cover UI states, not API v4 stae confirmed from the connector's code and live responsesinstead. Next I'll check the compiler settings, then summarize and implement. · summary                                                                   
+  Searched for 1 pattern, ran 2 shell commands                                                                                                              
+I've traced the current scan lifecycle and identified its gaps (no visible scan ID until completion, no distinction between Ready/Abort, no reusable      unts on timeout), and confirmed that terminal status values not officially documented. I'll now implement a fix usingcreate-scan with wait: false plus get-scans/get-scan-issues for status and counts, treating status as terminal only after two consecutive matching polls. summary
+                                                                                                                                                            ite(src\services\scan-lifecycle.ts)
+Wrote 718 lines to src\services\scan-lifecycle.ts                                                                                                      import type { McpToolCallResult } from "../mcp/connecto
+import type {                                                                                                                                          AppScanProvider,
+    ScanLifecycleConfig, } from "../config/config.js";                                                                                             
+export type ScanOutcome =                                                                                                                               | "completed"
+     | "failed"                                                                                                                                         | "cancelled"
+     | "timed_out"                                                                                                                                 … +714 lines
+                                                                                                                                                            date(src\config\config.ts)
+Added 51 lines                                                                                                                                         
+export type Environment = Record<string, string | undefined>;                                                                                     
+export interface ScanLifecycleConfig {                                                                                                              pollIntervalMs: number;
+  timeoutMs: number;                                                                                                                              }
+                                                                                                                                                  export const DEFAULT_SCAN_POLL_INTERVAL_MS = 15000;
+export const DEFAULT_SCAN_TIMEOUT_MS = 30 * 60 * 1000;                                                                                            
+function readBoundedInteger(                                                                                                                        env: Environment,
+  name: string,                                                                                                                                     fallback: number,
+  min: number,                                                                                                                                      max: number,
+): number {                                                                                                                                         const raw = env[name]?.trim();
+                                                                                                                                                    if (!raw) {
+    return fallback;                                                                                                                                }
+                                                                                                                                                    const value = Number(raw);
+                                                                                                                                                    if (!Number.isSafeInteger(value) || value < min || v
+    throw new Error(`${name} must be an integer between ${min} and ${max}.`);                                                                       }
+                                                                                                                                                    return value;
+}                                                                                                                                                 
+export function loadScanLifecycleConfig(                                                                                                            env: Environment = process.env,
+): ScanLifecycleConfig {                                                                                                                            return {
+    pollIntervalMs: readBoundedInteger(                                                                                                                 env,
+      "APP_SCAN_POLL_INTERVAL_MS",                                                                                                                      DEFAULT_SCAN_POLL_INTERVAL_MS,
+      1000,                                                                                                                                             300000,
+    ),                                                                                                                                                timeoutMs: readBoundedInteger(
+      env,                                                                                                                                              "APP_SCAN_SCAN_TIMEOUT_MS",
+      DEFAULT_SCAN_TIMEOUT_MS,                                                                                                                          10000,      10000,
+      86400000,                                                                                                                                       ),
+  };                                                                                                                                              }
+                                                                                                                                                  export function loadConfig(
+  env: Environment = process.env,                                                                                                                 ): ConnectorConfig {
+                                                                                                                                                            n 4 shell commands
+                                                                                                                                                             splice script mangled backslash escapes since the file usesl write the replacement blocks as plain files and splice themin while preserving the line endings. · summary                                                                                                           
+  Made 3 scratchpad edits +204, ran 1 shell command                                                                                                         
+● Update(src\claude-mcp-server.ts)                                                                                                                          Added 11 lines
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";                                                                 import { z } from "zod";
+import { createAppScanService } from "./services/appscan-service-factory.js";                                                                     import { loadScanLifecycleConfig } from "./config/conf
+import {                                                                                                                                              DEFAULT_LIFECYCLE_OPTIONS,
+    createRedactor,                                                                                                                                   formatScanLifecycleResult,
+    runScanLifecycle,                                                                                                                             } from "./services/scan-lifecycle.js";
+import type {                                                                                                                                         ScanLifecycleResult,
+    ScanOutcome,                                                                                                                                  } from "./services/scan-lifecycle.js";
+import crypto from "node:crypto";                                                                                                                 
+type AppScanProvider = "local" | "remote";                                                                                                        
+● Update(src\claude-mcp-server.ts)                                                                                                                          Added 6 lines, removed 8 lines
+     | {                                                                                                                                              status: "running";
+    startedAt: string;                                                                                                                                phase ?  : string;
+    scanId ?  : string;                                                                                                                               lastKnownStatus ?  : string;
+}                                                                                                                                                  | {
+    status: "completed";                                                                                                                              status: ScanOutcome;
+    startedAt: string;                                                                                                                                completedAt: string;
+    result: unknown;                                                                                                                              }
+ | {                                                                                                                                                  status: "failed";
+    startedAt: string;                                                                                                                                completedAt: string;
+    error: string;                                                                                                                                    result ?  : ScanLifecycleResult;
+    error ?  : string;                                                                                                                            };
+                                                                                                                                                  async function main(): Promise < void > {
+                                                                                                                                                            date(src\claude-mcp-server.ts)
+Added 5 lines, removed 1 line                                                                                                                                  "Execute a previously prepared AppScan scan ormation of its exact parameters. Returns promptly; use g
+et-scan-execution-status to retrieve its eventual result. Never call this tool merely because a preparation token exists.",                              inputSchema: {
+            confirmationToken: z.string().uuid(),                                                                                                            // Default true: wait for a confirmed out
+            // consolidated result. False restores the earlier detached mode.                                                                                waitForCompletion: z.boolean().default(tr
+        },                                                                                                                                           },
+        async({                                                                                                                                              confirmationToken
+            confirmationToken,                                                                                                                               waitForCompletion
+        }) => {                                                                                                                                          const prepared = pendingScans.get(confirmatio
+                                                                                                                                                 
+● Update(src\claude-mcp-server.ts)                                                                                                                          Added 1 line
+    const executingScanTokens = new Set < string > ();                                                                                               const scanExecutions = new Map < string,
+    ScanExecutionState > ();                                                                                                                         const lifecycleConfig = loadScanLifecycleConfig()
+                                                                                                                                                     server.registerTool(
+        "prepare-scan", {                                                                                                                        
+  Ran 1 shell command                                                                                                                                       
+Typecheck is clean. Next, the mocked unit tests. None of them can reach a real scan, because every backend call goes through a stub.                      
+● Write(tests\unit\scan-lifecycle.test.ts)                                                                                                                  Wrote 746 lines to tests\unit\scan-lifecycle.test.ts
+import { describe, expect, it, vi } from "vitest";                                                                                                 
+import {                                                                                                                                               DEFAULT_LIFECYCLE_OPTIONS,
+    classifyStatus,                                                                                                                                    countIssuesBySeverity,
+    createRedactor,                                                                                                                                    formatScanLifecycleResult,
+    parseCreateScanOutput,                                                                                                                             parseScanRecords,
+… +736 lines                                                                                                                                           
+● Update(tests\unit\scan-lifecycle.test.ts)                                                                                                                 Removed 7 lines
+    });                                                                                                                                          
+    it("treats a tool-level error result from get-scans as a status error", async() => {                                                                 const h = harness({
+            statuses: ["Ready"]                                                                                                                          });
+        const original = h.run;                                                                                                                  
+        expect(original).toBeDefined();                                                                                                          
+        const failingDeps: ScanLifecycleDeps = {                                                                                                             now: () => 0,
+            sleep: async() => undefined,                                                                                                         
+  Ran 2 shell commands                                                                                                                                      
+All 8 files and 106 tests pass (64 existing plus 42 new). Typecheck and build next.                                                                       
+  Ran 1 shell command                                                                                                                                       
+The create-scan workflow now waits for a confirmed outcome and returns one consolidated result. Tests (106 pass), typecheck and build are all clean. The  rver wiring itself isn't covered by a test, and I invoked nose Git.
+                                                                                                                                                          les changed
+                                                                                                                                                          ─────────────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────┐
+│                 File                 │                                                    Change                                                    │   ─────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ src/services/scan-lifecycle.ts (new) │ Create-once, poll, collect-results lifecycle, plus parsers, status classifier, report formatter and          │                                        │ credential redactor                                                             │
+├──────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────┤   src/config/config.ts                 │ Added loadScanLifecyceout settings                                              │
+├──────────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────┤   src/claude-mcp-server.ts             │ execute-prepared-scaneturns the final report. get-scan-execution-status reports │
+│                                      │  the scan ID, phase and last status while running, and the final outcome afterwards.                         │   ─────────────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ tests/unit/scan-lifecycle.test.ts    │ 42 mocked tests                                                                                              │   (new)                                │                                                                                 │
+└──────────────────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────┘   
+I changed nothing in the external AppScan server, the scan configuration, or how source is selected.                                                      
+How it works                                                                                                                                              
+- Safety flow: prepare-scan is unchanged. The token is still consumed before any work starts.                                                             Creation: the backend create-scan is called once with wait: hat call returns the scan ID, IRX path, file ID, and whetherlocal artifacts were kept or deleted.                                                                                                                   Polling: the scan is polled through the existing get-scans tan-issues, or get_issues on the remote provider.
+- Optional detached mode: waitForCompletion defaults to true. Setting it to false restores the earlier detached behaviour.                                
+Status handling                                                                                                                                           
+The AppScan help pages I found don't document the API status values. Ready and Abort come only from the connector's own code and live responses.          
+┌────────────────────────────────────────────────┬──────────────────────────────────────────────┐                                                                        Observed status                 │                 │
+├────────────────────────────────────────────────┼──────────────────────────────────────────────┤                                                         Ready, seen on two consecutive polls           │ completed       │
+├────────────────────────────────────────────────┼──────────────────────────────────────────────┤                                                         Failed, Error                                  │ failed          │
+├────────────────────────────────────────────────┼──────────────────────────────────────────────┤                                                         Abort, Cancelled                               │ cancelled       │
+├────────────────────────────────────────────────┼──────────────────────────────────────────────┤                                                         Queued, Running, Under review and similar      │ keeps polli     │
+├────────────────────────────────────────────────┼──────────────────────────────────────────────┤                                                         Anything unrecognised                          │ keeps polli     │
+├────────────────────────────────────────────────┼──────────────────────────────────────────────┤                                                         Still unfinished at the timeout                │ timed_out, med" │
+├────────────────────────────────────────────────┼──────────────────────────────────────────────┤                                                         Repeated status errors, or no scan ID returned │ unconfirmed     │
+└────────────────────────────────────────────────┴──────────────────────────────────────────────┘                                                         
+After a timeout, status errors, or a missing ID, nothing is re-prepared or re-submitted.                                                                  
+Defaults                                                                                                                                                  
+┌───────────────────────────┬─────────────────────────────────────────────────────────────────────┬───────────────────┐                                            Setting          │                               De       │   Allowed range   │
+├───────────────────────────┼─────────────────────────────────────────────────────────────────────┼───────────────────┤                                   APP_SCAN_POLL_INTERVAL_MS │ 15,000 ms                              │ 1,000–300,000     │
+├───────────────────────────┼─────────────────────────────────────────────────────────────────────┼───────────────────┤                                   APP_SCAN_SCAN_TIMEOUT_MS  │ 1,800,000 ms (30 minutes), measuecycle │ 10,000–86,400,000 │
+├───────────────────────────┼─────────────────────────────────────────────────────────────────────┼───────────────────┤                                   Terminal confirmation     │ 2 consecutive polls                    │ —                 │
+├───────────────────────────┼─────────────────────────────────────────────────────────────────────┼───────────────────┤                                   Status-error tolerance    │ 3 consecutive errors                   │ —                 │
+├───────────────────────────┼─────────────────────────────────────────────────────────────────────┼───────────────────┤                                   Issue page size           │ 5,000                                  │ —                 │
+└───────────────────────────┴─────────────────────────────────────────────────────────────────────┴───────────────────┘                                   
+Results returned                                                                                                                                          
+The result includes:                                                                                                                                      Scan ID and final status, scan type, application ID and prov
+- Issue counts by severity.                                                                                                                               IRX path, file ID and artifact retention.
+- Errors and warnings.                                                                                                                                    Start and end times and duration. These are observed by the pScan.
+                                                                                                                                                          le count, language breakdown, lines of code and coverage areecause no connector tool exposes them. Credential values andX-Api-Key or Bearer text are masked in results and logs. Issue counts are tallied from the issue list, not read from AppScan's own execution counters.    
+Tests                                                                                                                                                     
+- New: 42 tests cover each scenario you listed and the config limits. They also cover the remote issue API, redaction, and provider-mismatch and          mid-scan-switch cases through the real AppScanService.
+- Existing: the 64 existing tests still pass. That gives 8 files and 106 tests.                                                                           Typecheck and build: npm run typecheck and npm run build are
+                                                                                                                                                          veats
+                                                                                                                                                          Server wiring: the claude-mcp-server.ts handlers aren't units and connects on import. I checked them only by typecheck andbuild. A final check through your MCP client is advisable when you next run a scan.                                                                     Restart needed: the build is updated, but the running MCP se it uses the new code.
+- Client timeout: a single call that waits up to 30 minutes may exceed your MCP client's own tool timeout. If so, get-scan-execution-status still has the scan ID, and waitForCompletion: false is the fallback.
+- Request timeout: APP_SCAN_REQUEST_TIMEOUT_MS (default 30 s) now covers only the create-scan call, which includes IRX generation and upload. If it fires, the outcome is reported as unconfirmed with no retry.
+- Backend summary no longer used: with wait: false, the backend's own summary (API issue counters, duration) isn't returned.
