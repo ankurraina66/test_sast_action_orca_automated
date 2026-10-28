@@ -1,1 +1,3 @@
-
+git check-ignore -v node_modules/undici/package.json
+git ls-files node_modules/undici/package.json
+git ls-files node_modules/http-cache-semantics/package.json
