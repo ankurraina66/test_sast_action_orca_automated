@@ -1,1 +1,1 @@
-
+git -c core.safecrlf=false diff --name-only -- node_modules 2>/dev/null | grep 'package.json$'
