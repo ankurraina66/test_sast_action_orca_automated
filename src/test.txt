@@ -1,1 +1,6 @@
+node -p "require('./node_modules/undici/package.json').version"
 
+node -p "require('./package-lock.json').packages['node_modules/undici'].version"
+
+git status --short
+git ls-files node_modules/undici/package.json
