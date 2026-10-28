@@ -1,1 +1,1 @@
-
+node -p "'Node: ' + process.version + ', bundled undici: ' + process.versions.undici"
