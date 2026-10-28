@@ -1,1 +1,9 @@
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ git diff --ignore-space-at-eol --stat -- node_modules/undici/package.json node_modules/http-cache-semantics/package.json
+warning: in the working copy of 'node_modules/http-cache-semantics/package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'node_modules/undici/package.json', LF will be replaced by CRLF the next time Git touches it
+ node_modules/http-cache-semantics/package.json | 10 +++++++---
+ node_modules/undici/package.json               |  2 +-
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
 
