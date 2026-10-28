@@ -1,1 +1,72 @@
-git grep -n -E "from ['\"]undici|require\(['\"]undici|fetch\(|EventSource" -- "*.js" "*.ts"
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ git grep -n -E "from ['\"]undici|require\(['\"]undici|fetch\(|EventSource" -- "*.js" "*.ts"
+node_modules/@actions/github/lib/internal/utils.d.ts:3:import { ProxyAgent, fetch } from 'undici';
+node_modules/@actions/github/lib/internal/utils.js:11:import { fetch } from 'undici';
+node_modules/@actions/github/lib/internal/utils.js:32:        return fetch(url, Object.assign(Object.assign({}, opts), { dispatcher: httpDispatcher }));
+node_modules/@actions/github/node_modules/@actions/http-client/lib/index.d.ts:3:import { ProxyAgent } from 'undici';
+node_modules/@actions/github/node_modules/@actions/http-client/lib/index.js:53:const undici_1 = require("undici");
+node_modules/@actions/http-client/lib/index.d.ts:3:import { ProxyAgent } from 'undici';
+node_modules/@actions/http-client/lib/index.js:15:import { ProxyAgent } from 'undici';
+node_modules/@octokit/request/dist-bundle/index.js:52:    fetchResponse = await fetch(requestOptions.url, {
+node_modules/@octokit/request/dist-src/fetch-wrapper.js:25:    fetchResponse = await fetch(requestOptions.url, {
+node_modules/form-data-encoder/@type/FormDataEncoder.d.ts:65:     * const response = await fetch("https://httpbin.org/post", options)
+node_modules/form-data-encoder/@type/FormDataEncoder.d.ts:124:     * const response = await fetch("https://httpbin.org/post", options)
+node_modules/form-data-encoder/@type/FormDataEncoder.d.ts:156:     * const response = await fetch("https://httpbin.org/post", options)
+node_modules/undici/index-fetch.js:27:module.exports.EventSource = require('./lib/web/eventsource/eventsource').EventSource
+node_modules/undici/index.js:167:const { EventSource } = require('./lib/web/eventsource/eventsource')
+node_modules/undici/index.js:169:module.exports.EventSource = EventSource
+node_modules/undici/lib/web/eventsource/eventsource-stream.js:70: * @typedef {object} EventSourceStreamEvent
+node_modules/undici/lib/web/eventsource/eventsource-stream.js:86:class EventSourceStream extends Transform {
+node_modules/undici/lib/web/eventsource/eventsource-stream.js:131:    // Enable object mode as EventSourceStream emits objects of shape
+node_modules/undici/lib/web/eventsource/eventsource-stream.js:132:    // EventSourceStreamEvent
+node_modules/undici/lib/web/eventsource/eventsource-stream.js:318:   * @param {EventSourceStreamEvent} event
+node_modules/undici/lib/web/eventsource/eventsource-stream.js:492:  EventSourceStream
+node_modules/undici/lib/web/eventsource/eventsource.js:7:const { EventSourceStream } = require('./eventsource-stream')
+node_modules/undici/lib/web/eventsource/eventsource.js:69: * The EventSource interface is used to receive server-sent events. It
+node_modules/undici/lib/web/eventsource/eventsource.js:76:class EventSource extends EventTarget {
+node_modules/undici/lib/web/eventsource/eventsource.js:99:   * Creates a new EventSource object.
+node_modules/undici/lib/web/eventsource/eventsource.js:101:   * @param {EventSourceInit} [eventSourceInitDict]
+node_modules/undici/lib/web/eventsource/eventsource.js:105:    // 1. Let ev be a new EventSource object.
+node_modules/undici/lib/web/eventsource/eventsource.js:110:    const prefix = 'EventSource constructor'
+node_modules/undici/lib/web/eventsource/eventsource.js:115:      process.emitWarning('EventSource is experimental, expect them to change at any time.', {
+node_modules/undici/lib/web/eventsource/eventsource.js:121:    eventSourceInitDict = webidl.converters.EventSourceInitDict(eventSourceInitDict, prefix, 'eventSourceInitDict')
+node_modules/undici/lib/web/eventsource/eventsource.js:192:   * Returns the state of this EventSource object's connection. It can have the
+node_modules/undici/lib/web/eventsource/eventsource.js:211:   * Returns a boolean indicating whether the EventSource object was
+node_modules/undici/lib/web/eventsource/eventsource.js:228:    // 14. Let processEventSourceEndOfBody given response res be the following step: if res is not a network error, then reestablish the connection.
+node_modules/undici/lib/web/eventsource/eventsource.js:229:    const processEventSourceEndOfBody = (response) => {
+node_modules/undici/lib/web/eventsource/eventsource.js:238:    // 15. Fetch request, with processResponseEndOfBody set to processEventSourceEndOfBody...
+node_modules/undici/lib/web/eventsource/eventsource.js:239:    fetchParams.processResponseEndOfBody = processEventSourceEndOfBody
+node_modules/undici/lib/web/eventsource/eventsource.js:249:        // and fires an event named error at the EventSource object. Once the
+node_modules/undici/lib/web/eventsource/eventsource.js:285:      // and fires an event named open at the EventSource object.
+node_modules/undici/lib/web/eventsource/eventsource.js:293:      const eventSourceStream = new EventSourceStream({
+node_modules/undici/lib/web/eventsource/eventsource.js:336:    //   3. Fire an event named error at the EventSource object.
+node_modules/undici/lib/web/eventsource/eventsource.js:344:    //   1. If the EventSource object's readyState attribute is not set to
+node_modules/undici/lib/web/eventsource/eventsource.js:348:    //   2. Let request be the EventSource object's request.
+node_modules/undici/lib/web/eventsource/eventsource.js:349:    //   3. If the EventSource object's last event ID string is not the empty
+node_modules/undici/lib/web/eventsource/eventsource.js:351:    //      1. Let lastEventIDValue be the EventSource object's last event ID
+node_modules/undici/lib/web/eventsource/eventsource.js:368:    webidl.brandCheck(this, EventSource)
+node_modules/undici/lib/web/eventsource/eventsource.js:452:Object.defineProperties(EventSource, constantsPropertyDescriptors)
+node_modules/undici/lib/web/eventsource/eventsource.js:453:Object.defineProperties(EventSource.prototype, constantsPropertyDescriptors)
+node_modules/undici/lib/web/eventsource/eventsource.js:455:Object.defineProperties(EventSource.prototype, {
+node_modules/undici/lib/web/eventsource/eventsource.js:465:webidl.converters.EventSourceInitDict = webidl.dictionaryConverter([
+node_modules/undici/lib/web/eventsource/eventsource.js:478:  EventSource,
+node_modules/undici/lib/web/fetch/index.js:151:    // 1. Abort the fetch() call with p, request, null, and
+node_modules/undici/lib/web/fetch/index.js:194:      // 4. Abort the fetch() call with p, request, responseObject,
+node_modules/undici/lib/web/fetch/index.js:220:      // 2. Abort the fetch() call with p, request, responseObject, and
+node_modules/undici/types/eventsource.d.ts:10:interface EventSourceEventMap {
+node_modules/undici/types/eventsource.d.ts:16:interface EventSource extends EventTarget {
+node_modules/undici/types/eventsource.d.ts:21:  onerror: (this: EventSource, ev: ErrorEvent) => any
+node_modules/undici/types/eventsource.d.ts:22:  onmessage: (this: EventSource, ev: MessageEvent) => any
+node_modules/undici/types/eventsource.d.ts:23:  onopen: (this: EventSource, ev: Event) => any
+node_modules/undici/types/eventsource.d.ts:28:  addEventListener<K extends keyof EventSourceEventMap>(
+node_modules/undici/types/eventsource.d.ts:30:    listener: (this: EventSource, ev: EventSourceEventMap[K]) => any,
+node_modules/undici/types/eventsource.d.ts:38:  removeEventListener<K extends keyof EventSourceEventMap>(
+node_modules/undici/types/eventsource.d.ts:40:    listener: (this: EventSource, ev: EventSourceEventMap[K]) => any,
+node_modules/undici/types/eventsource.d.ts:50:export declare const EventSource: {
+node_modules/undici/types/eventsource.d.ts:51:  prototype: EventSource
+node_modules/undici/types/eventsource.d.ts:52:  new (url: string | URL, init?: EventSourceInit): EventSource
+node_modules/undici/types/eventsource.d.ts:58:interface EventSourceInit {
+node_modules/undici/types/fetch.d.ts:45:   * const response = await fetch('...')
+node_modules/undici/types/formdata.d.ts:13: * Provides a way to easily construct a set of key/value pairs representing form fields and their values, which can then be easily sent using fetch().
+scripts/supply-chain-policy.js:211:    const response = await fetch(url);
+scripts/supply-chain-policy.js:229:    const response = await fetch(url, { headers });
