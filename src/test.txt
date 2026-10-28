@@ -1,3 +1,6 @@
+Good to stage the changes below?
+
+
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
 $ git status --short
  M node_modules/.package-lock.json
