@@ -1,1 +1,24 @@
-git -c core.safecrlf=false diff --name-only -- package-lock.json node_modules/undici node_modules/http-cache-semantics
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ git -c core.safecrlf=false diff --name-only -- package-lock.json node_modules/undici node_modules/http-cache-semantics
+node_modules/http-cache-semantics/README.md
+node_modules/http-cache-semantics/index.js
+node_modules/http-cache-semantics/package.json
+node_modules/undici/docs/docs/api/Client.md
+node_modules/undici/docs/docs/api/DiagnosticsChannel.md
+node_modules/undici/lib/core/request.js
+node_modules/undici/lib/dispatcher/agent.js
+node_modules/undici/lib/dispatcher/client-h1.js
+node_modules/undici/lib/dispatcher/client-h2.js
+node_modules/undici/lib/dispatcher/client.js
+node_modules/undici/lib/dispatcher/dispatcher-base.js
+node_modules/undici/lib/handler/retry-handler.js
+node_modules/undici/lib/web/cookies/util.js
+node_modules/undici/lib/web/eventsource/eventsource-stream.js
+node_modules/undici/lib/web/eventsource/eventsource.js
+node_modules/undici/lib/web/fetch/index.js
+node_modules/undici/lib/web/websocket/connection.js
+node_modules/undici/lib/web/websocket/permessage-deflate.js
+node_modules/undici/lib/web/websocket/receiver.js
+node_modules/undici/package.json
+node_modules/undici/types/client.d.ts
+package-lock.json
