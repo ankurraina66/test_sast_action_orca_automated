@@ -1,13 +1,21 @@
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
-$ npm audit
+$ npm audit fix --dry-run
 npm warn Unknown project config "min-release-age". This will stop working in the next major version of npm.
+change undici 6.28.1 => 6.29.1
+change http-cache-semantics 4.1.1 => 4.3.0
+
+changed 2 packages, and audited 74 packages in 2s
+
+16 packages are looking for funding
+  run `npm fund` for details
+
 # npm audit report
 
 http-cache-semantics  <=4.2.0
 Severity: high
 http-cache-semantics max-stale handling can disclose cross-user cached responses - https://github.com/advisories/GHSA-ch52-4w7c-c8xp
 fix available via `npm audit fix`
-node_modules/http-cache-semantics
+
 
 undici  4.0.0 - 6.29.0
 Severity: high
@@ -17,12 +25,9 @@ undici vulnerable to TLS certificate validation bypass via dropped tls options i
 undici vulnerable to Denial of Service via TLS 1.2 certificate-changing renegotiation - https://github.com/advisories/GHSA-qrxm-fqhp-jwvm
 undici WebSocket client vulnerable to Denial of Service via unbounded automatic PONG buffering - https://github.com/advisories/GHSA-9fm3-97px-rjf6
 fix available via `npm audit fix`
-node_modules/undici
+
 
 2 high severity vulnerabilities
 
 To address all issues, run:
   npm audit fix
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
-$
