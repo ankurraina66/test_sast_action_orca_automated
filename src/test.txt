@@ -1,3 +1,5 @@
+Output till step 3 from previous suggestion "Check why so many installed packages changed"
+
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
 $ git status --short -- package.json package-lock.json
  M package-lock.json
