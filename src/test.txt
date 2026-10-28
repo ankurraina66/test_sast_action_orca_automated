@@ -1,5 +1,109 @@
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
-$ git restore --worktree -- node_modules
+$ git diff --cached -- package-lock.json
+diff --git a/package-lock.json b/package-lock.json
+index 110631f..a6f0063 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -614,9 +614,10 @@
+       }
+     },
+     "node_modules/http-cache-semantics": {
+-      "version": "4.1.1",
+-      "resolved": "https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.1.1.tgz",
+-      "integrity": "sha512-er295DKPVsV82j5kw1Gjt+ADA/XYHsajl82cGNQG2eyoPkvgUhX+nDIyelzhIWbbsXP39EHcI6l5tYs2FYqYXQ=="
++      "version": "4.3.0",
++      "resolved": "https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.3.0.tgz",
++      "integrity": "sha512-M5t5LlJpS1UHMjvwRQVdFHvPISGeLAxNcrWuJkeGh0KxsqCHZ1O3NXZU/8x7cD0BDcGW8kapxMKTvwlqrNkHkA==",
++      "license": "BSD-2-Clause"
+     },
+     "node_modules/http2-wrapper": {
+       "version": "2.2.0",
+@@ -788,9 +789,9 @@
+       }
+     },
+     "node_modules/undici": {
+-      "version": "6.28.1",
+-      "resolved": "https://registry.npmjs.org/undici/-/undici-6.28.1.tgz",
+-      "integrity": "sha512-zWpdTVD54H48CIybL0rWQ3ukpb9d23wM7eH5RtfdmeP70cWHNjtfo7P4vZX+5CoDcO53J4Pu5uXp7lNfjc6DRA==",
++      "version": "6.29.1",
++      "resolved": "https://registry.npmjs.org/undici/-/undici-6.29.1.tgz",
++      "integrity": "sha512-EvRlUt/QqAEvXdQeRMYUfwOQsfzpDztykrG2owGEE/rBOBoYv9uF39ZzsNDh4lTFHhTr2XOZjKkYgueD12ZmGA==",
+       "license": "MIT",
+       "engines": {
+         "node": ">=18.17"
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ git diff --cached -- node_modules/http-cache-semantics/package.json
+diff --git a/node_modules/http-cache-semantics/package.json b/node_modules/http-cache-semantics/package.json
+index defbb04..06a565f 100644
+--- a/node_modules/http-cache-semantics/package.json
++++ b/node_modules/http-cache-semantics/package.json
+@@ -1,9 +1,13 @@
+ {
+     "name": "http-cache-semantics",
+-    "version": "4.1.1",
++    "version": "4.3.0",
+     "description": "Parses Cache-Control and other headers. Helps building correct HTTP caches and proxies",
+-    "repository": "https://github.com/kornelski/http-cache-semantics.git",
++    "repository": {
++        "type": "git",
++        "url": "git+https://github.com/kornelski/http-cache-semantics.git"
++    },
+     "main": "index.js",
++    "types": "index.js",
+     "scripts": {
+         "test": "mocha"
+     },
+@@ -13,6 +17,6 @@
+     "author": "Kornel Lesiński <kornel@geekhood.net> (https://kornel.ski/)",
+     "license": "BSD-2-Clause",
+     "devDependencies": {
+-        "mocha": "^10.0"
++        "mocha": "^12.0"
+     }
+ }
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ git diff --cached -- node_modules/undici/package.json
+diff --git a/node_modules/undici/package.json b/node_modules/undici/package.json
+index 3c2001f..4bccc54 100644
+--- a/node_modules/undici/package.json
++++ b/node_modules/undici/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "undici",
+-  "version": "6.27.0",
++  "version": "6.29.1",
+   "description": "An HTTP/1.1 client, written from scratch for Node.js",
+   "homepage": "https://undici.nodejs.org",
+   "bugs": {
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ node -p "require('./node_modules/undici/package.json').version"
+6.29.1
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ node -p "require('./node_modules/http-cache-semantics/package.json').version"
+4.3.0
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ npm ls undici http-cache-semantics --all
+npm warn Unknown project config "min-release-age". This will stop working in the next major version of npm.
+appscan-static-analyzer-action@1.0.8 C:\Users\ankur.raina\Downloads\sast_github_action_workspace\update-undici\appscan-sast-action
+├─┬ @actions/core@3.0.0
+│ └─┬ @actions/http-client@4.0.0
+│   └── undici@6.29.1 deduped
+├─┬ @actions/github@9.0.0
+│ ├─┬ @actions/http-client@3.0.2
+│ │ └── undici@6.29.1 deduped
+│ └── undici@6.29.1
+└─┬ got@12.6.1
+  └─┬ cacheable-request@10.2.14
+    └── http-cache-semantics@4.3.0
+
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ git diff --cached --check
 
 ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
 $ git status --short
@@ -26,29 +130,3 @@ M  node_modules/undici/package.json
 M  node_modules/undici/types/client.d.ts
 M  package-lock.json
 ?? .idea/
-
-ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
-$ git diff --cached --stat
- node_modules/http-cache-semantics/README.md        | 167 +++++---
- node_modules/http-cache-semantics/index.js         | 381 ++++++++++++++---
- node_modules/http-cache-semantics/package.json     |  10 +-
- node_modules/undici/docs/docs/api/Client.md        |   2 +
- .../undici/docs/docs/api/DiagnosticsChannel.md     |   4 +-
- node_modules/undici/lib/core/request.js            |  83 +++-
- node_modules/undici/lib/dispatcher/agent.js        |   8 +-
- node_modules/undici/lib/dispatcher/client-h1.js    |  56 ++-
- node_modules/undici/lib/dispatcher/client-h2.js    |  92 +++-
- node_modules/undici/lib/dispatcher/client.js       |   5 +-
- .../undici/lib/dispatcher/dispatcher-base.js       |   9 +
- node_modules/undici/lib/handler/retry-handler.js   |  71 ++-
- node_modules/undici/lib/web/cookies/util.js        |  88 +++-
- .../lib/web/eventsource/eventsource-stream.js      | 476 ++++++++++++++-------
- .../undici/lib/web/eventsource/eventsource.js      |   5 +-
- node_modules/undici/lib/web/fetch/index.js         |  16 +-
- .../undici/lib/web/websocket/connection.js         |   2 +-
- .../undici/lib/web/websocket/permessage-deflate.js |   5 +
- node_modules/undici/lib/web/websocket/receiver.js  |  14 +
- node_modules/undici/package.json                   |   2 +-
- node_modules/undici/types/client.d.ts              |  14 +
- package-lock.json                                  |  13 +-
- 22 files changed, 1191 insertions(+), 332 deletions(-)
