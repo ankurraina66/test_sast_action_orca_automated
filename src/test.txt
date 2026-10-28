@@ -1,6 +1,28 @@
-node -p "require('./node_modules/undici/package.json').version"
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$ npm audit
+npm warn Unknown project config "min-release-age". This will stop working in the next major version of npm.
+# npm audit report
 
-node -p "require('./package-lock.json').packages['node_modules/undici'].version"
+http-cache-semantics  <=4.2.0
+Severity: high
+http-cache-semantics max-stale handling can disclose cross-user cached responses - https://github.com/advisories/GHSA-ch52-4w7c-c8xp
+fix available via `npm audit fix`
+node_modules/http-cache-semantics
 
-git status --short
-git ls-files node_modules/undici/package.json
+undici  4.0.0 - 6.29.0
+Severity: high
+undici vulnerable to Denial of Service via unbounded memory in the EventSource parser - https://github.com/advisories/GHSA-4qv8-2p9j-2685
+undici vulnerable to Denial of Service via unhandled error on excessive content-encodings - https://github.com/advisories/GHSA-xjj6-f33q-929c
+undici vulnerable to TLS certificate validation bypass via dropped tls options in Agent - https://github.com/advisories/GHSA-2m5v-pch6-74hx
+undici vulnerable to Denial of Service via TLS 1.2 certificate-changing renegotiation - https://github.com/advisories/GHSA-qrxm-fqhp-jwvm
+undici WebSocket client vulnerable to Denial of Service via unbounded automatic PONG buffering - https://github.com/advisories/GHSA-9fm3-97px-rjf6
+fix available via `npm audit fix`
+node_modules/undici
+
+2 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix
+
+ankur.raina@LP1-AP-52372727 MINGW64 ~/Downloads/sast_github_action_workspace/update-undici/appscan-sast-action (test/cve-2026-111497)
+$
