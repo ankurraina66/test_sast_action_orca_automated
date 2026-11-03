@@ -1,1 +1,5 @@
+Test-Path "$env:APPDATA\Claude\claude_desktop_config.json"
 
+Test-Path "$env:LOCALAPPDATA\Claude\claude_desktop_config.json"
+
+Test-Path "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
