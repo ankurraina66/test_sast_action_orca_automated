@@ -1,12 +1,25 @@
-$candidates = @(
-    "$env:APPDATA\Claude\claude_desktop_config.json",
-    "$env:LOCALAPPDATA\Claude\claude_desktop_config.json",
-    "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
-)
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $candidates = @(
+>>     "$env:APPDATA\Claude\claude_desktop_config.json",
+>>     "$env:LOCALAPPDATA\Claude\claude_desktop_config.json",
+>>     "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
+>> )
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $candidates | ForEach-Object {
+>>     [PSCustomObject]@{
+>>         Path = $_
+>>         Exists = Test-Path $_
+>>     }
+>> } | Format-Table -AutoSize
 
-$candidates | ForEach-Object {
-    [PSCustomObject]@{
-        Path = $_
-        Exists = Test-Path $_
-    }
-} | Format-Table -AutoSize
+Path                                                                                                                  E
+                                                                                                                      x
+                                                                                                                      i
+                                                                                                                      s
+                                                                                                                      t
+                                                                                                                      s
+----                                                                                                                  -
+C:\Users\ankur.raina\AppData\Roaming\Claude\claude_desktop_config.json                                                e
+C:\Users\ankur.raina\AppData\Local\Claude\claude_desktop_config.json                                                  e
+C:\Users\ankur.raina\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json e
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
