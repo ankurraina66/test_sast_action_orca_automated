@@ -1,1 +1,12 @@
+$candidates = @(
+    "$env:APPDATA\Claude\claude_desktop_config.json",
+    "$env:LOCALAPPDATA\Claude\claude_desktop_config.json",
+    "$env:LOCALAPPDATA\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json"
+)
 
+$candidates | ForEach-Object {
+    [PSCustomObject]@{
+        Path = $_
+        Exists = Test-Path $_
+    }
+} | Format-Table -AutoSize
