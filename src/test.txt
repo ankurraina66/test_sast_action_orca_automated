@@ -1,1 +1,18 @@
+Hi,
 
+I compared the original MCP server package delivered during the initial POC with today's build.
+
+I noticed a difference in the package structure:
+
+- Original build: Included "build", "node_modules", "package-lock.json", and "package.json".
+- Today's build: Includes only "build", "package.json", README, API reference, and LICENSE. The "node_modules" directory and "package-lock.json" are missing.
+
+The compiled "index.js" directly imports external dependencies such as "@modelcontextprotocol/sdk", "adm-zip", "fast-xml-parser", and "zod".
+
+When I configure today's build in Claude Code, the local STDIO MCP server fails to connect with "CONNECTION_CLOSED".
+
+Could you please confirm whether the latest ZIP is intended to be a self-contained distribution? If not, could you provide a package containing the required production dependencies, similar to the original POC build, or share the recommended installation procedure?
+
+I haven't modified or rebuilt the delivered package.
+
+Thanks.
