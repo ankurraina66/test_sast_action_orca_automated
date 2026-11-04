@@ -1,4 +1,4 @@
-PS C:\Users\ankur.raina> claude mcp add --transport stdio appscan-local -- "C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe" "C:\Users\ankur.raina\Downloads\local_mcp_server\latest_build\mcp-appscan-server-1.0.0\package\build\index.js"
-Added stdio MCP server appscan-local with command: C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe C:\Users\ankur.raina\Downloads\local_mcp_server\latest_build\mcp-appscan-server-1.0.0\package\build\index.js to local config
-File modified: C:\Users\ankur.raina\.claude.json [project: C:\Users\ankur.raina]
+C:\Users\ankur.raina> claude mcp list
+appscan-mcp: https://cloud.appscan.com/mcp (HTTP) - √ Connected
+appscan-local: C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe C:\Users\ankur.raina\Downloads\local_mcp_server\latest_build\mcp-appscan-server-1.0.0\package\build\index.js -× Failed to connect — CONNECTION_CLOSED: Connection closed
 PS C:\Users\ankur.raina>
