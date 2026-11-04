@@ -1,4 +1,13 @@
-PS C:\Users\ankur.raina> $env:APPSCAN_KEY_ID = Read-Host "Enter AppScan API Key ID"
+$env:APPSCAN_KEY_ID = Read-Host "Enter AppScan API Key ID"
+$secure = Read-Host "Enter AppScan API Key Secret" -AsSecureString
+$ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+try {
+    $env:APPSCAN_KEY_SECRET = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)
+}
+finally {
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+}
+$env:APPSCAN_API_BASE = "https://cloud.appscan.com"PS C:\Users\ankur.raina> $env:APPSCAN_KEY_ID = Read-Host "Enter AppScan API Key ID"
 >>
 >> $secure = Read-Host "Enter AppScan API Key Secret" -AsSecureString
 >> $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
