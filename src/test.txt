@@ -1,1 +1,30 @@
-C:\Users\ankur.raina\Downloads\local_mcp_server\latest_build\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package
+PS C:\Users\ankur.raina\Downloads\local_mcp_server\latest_build\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package> npm list --depth=0
+mcp-appscan-server@1.0.0 C:\Users\ankur.raina\Downloads\local_mcp_server\latest_build\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package
++-- UNMET DEPENDENCY @eslint/js@^9.18.0
++-- UNMET DEPENDENCY @modelcontextprotocol/sdk@^1.25.2
++-- UNMET DEPENDENCY @types/adm-zip@^0.5.7
++-- UNMET DEPENDENCY @types/node@^25.0.6
++-- UNMET DEPENDENCY adm-zip@^0.5.16
++-- UNMET DEPENDENCY cross-env@^10.1.0
++-- UNMET DEPENDENCY eslint@^9.18.0
++-- UNMET DEPENDENCY fast-xml-parser@^5.11.2
++-- UNMET DEPENDENCY prettier@^3.4.2
++-- UNMET DEPENDENCY typescript-eslint@^8.20.0
++-- UNMET DEPENDENCY typescript@^5.7.2
+`-- UNMET DEPENDENCY zod@^4.3.5
+
+npm error code ELSPROBLEMS
+npm error missing: @eslint/js@^9.18.0, required by mcp-appscan-server@1.0.0
+npm error missing: @modelcontextprotocol/sdk@^1.25.2, required by mcp-appscan-server@1.0.0
+npm error missing: @types/adm-zip@^0.5.7, required by mcp-appscan-server@1.0.0
+npm error missing: @types/node@^25.0.6, required by mcp-appscan-server@1.0.0
+npm error missing: adm-zip@^0.5.16, required by mcp-appscan-server@1.0.0
+npm error missing: cross-env@^10.1.0, required by mcp-appscan-server@1.0.0
+npm error missing: eslint@^9.18.0, required by mcp-appscan-server@1.0.0
+npm error missing: fast-xml-parser@^5.11.2, required by mcp-appscan-server@1.0.0
+npm error missing: prettier@^3.4.2, required by mcp-appscan-server@1.0.0
+npm error missing: typescript-eslint@^8.20.0, required by mcp-appscan-server@1.0.0
+npm error missing: typescript@^5.7.2, required by mcp-appscan-server@1.0.0
+npm error missing: zod@^4.3.5, required by mcp-appscan-server@1.0.0
+npm error A complete log of this run can be found in: C:\Users\ankur.raina\AppData\Local\npm-cache\_logs\2026-11-04T08_52_07_834Z-debug-0.log
+PS C:\Users\ankur.raina\Downloads\local_mcp_server\latest_build\mcp-appscan-server-1.0.0\mcp-appscan-server-1.0.0\package>
