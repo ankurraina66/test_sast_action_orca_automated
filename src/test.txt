@@ -1,1 +1,12 @@
+Use only the appscan-local MCP server.
 
+Execute get-issue-details for this issue:
+
+issueId: b1fadfa9-4fd7-f111-bf5b-000d3ae5cac2
+
+Return the complete response, including issue description,
+severity, status, source location, remediation guidance,
+CWE/CVE references and any other available details.
+
+Do not invoke any other MCP tool.
+Do not perform any write, update, delete or scan operation.
