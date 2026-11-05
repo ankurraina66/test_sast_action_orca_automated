@@ -1,1 +1,11 @@
+Use only the appscan-local MCP server.
 
+Call get-apps and check whether this application exists:
+
+Name: MCP_POC_Approval_Test
+Application ID: 50588b82-e61e-4bd9-b61b-cc455b045362
+
+Return whether the application exists and its details.
+
+Do not create another application.
+Do not invoke any write tool.
