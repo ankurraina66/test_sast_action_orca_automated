@@ -1,18 +1,231 @@
-Use only the appscan-local MCP server.
+claude code response
 
-Inspect the create-scan tool definition.
+I read this from the create-scan definition already loaded in this session, and I didn't run the tool.
 
-Return:
-1. Complete tool description.
-2. All input parameters, types and constraints.
-3. Required and optional parameters.
-4. Defaults and accepted enum values.
-5. Preview and approval workflow.
-6. How confirmToken works.
-7. Explain the APPSCAN_CREATE_SCAN_SKIP_ELICITATION
-   environment variable and its effect.
-8. Whether a scan can start without explicit user approval.
+1. Complete tool description (verbatim)
 
-Do not execute create-scan.
-Do not invoke any other MCP tool.
-Do not create, start or modify any scan.
+▎ SAST scanMode defaults to auto; source-code-only and build-output are explicit alternatives. Mixed/unknown targets require a narrower scope or explicit choice. SAST never runs project builds: prepare Java/.NET artifacts or a supported Windows C/C++ solution first. An AI with terminal tools may run a separately approved project build, verify it, then call create-scan. Never downgrade to source-only after build failure without explicit user choice. buildBeforeScan is SCA-only. Create or start an HCL AppScan scan for a local project (SAST/SCA) or a URL target (DAST). Supports the personalScan option for all three scan types (defaults to false). Use this whenever the user asks to create, start, or run a scan. Interpret natural-language preferences instead of asking the user for tool fields: phrases such as 'keep', 'preserve', or 'retain the artifacts/logs/IRX/config' mean conserveFiles=true; phrases such as 'debug', 'verbose', 'full logs', or 'troubleshoot' mean detailedLogs=true and conserveFiles=true; a user-provided folder for saved artifacts becomes workDir. If appId is missing, stop and resolve the app first. Reuse an ID explicitly established in the current conversation; otherwise, use a user-provided app selector and continue only if get-apps returns exactly one match in a complete result. If no selector is provided, a name has no match, or results are ambiguous/incomplete, show actual existing application names and IDs from get-apps together with Create a new application and Enter another application name or ID; wait for the user's choice. Fetch an unfiltered list if no candidates are available from the failed lookup. Never ask only whether to create a new app, infer an app selector from the project folder, or select an unfiltered singleton automatically. Never invent or retain an app selection across chats. Explicit approval is required unless the server operator has set APPSCAN_CREATE_SCAN_SKIP_ELICITATION=true to pre-authorize create-scan for automation. That setting skips elicitation and confirmToken only for this tool; application selection and input validation still apply.
+
+2–4. Parameters, types, constraints, defaults and enums
+
+Required: the schema marks none. The description makes appId mandatory in practice. SAST and SCA also need targetDir, and DAST needs scanUrl. DAST with loginMethod: Required needs loginUser and loginPassword. DAST with loginMethod: Record needs loginSequenceFileId. DAST with networkType: private needs presenceId.
+
+Identity and target
+
+┌───────────┬─────────────┬─────────────────────────────────────────────────────┬──────────────────────────────────────────┐
+│ Parameter │    Type     │                     Constraints                     │                 Default                  │
+├───────────┼─────────────┼─────────────────────────────────────────────────────┼──────────────────────────────────────────┤
+│ appId     │ string      │ UUID format and pattern. The owning application.    │ none                                     │
+├───────────┼─────────────┼─────────────────────────────────────────────────────┼──────────────────────────────────────────┤
+│ scanType  │ string enum │ SAST, SCA, DAST                                     │ SAST                                     │
+├───────────┼─────────────┼─────────────────────────────────────────────────────┼──────────────────────────────────────────┤
+│ scanName  │ string      │ 1 to 1024 characters                                │ generated from folder name and timestamp │
+├───────────┼─────────────┼─────────────────────────────────────────────────────┼──────────────────────────────────────────┤
+│ comment   │ string      │ Max 2048 characters                                 │ none                                     │
+├───────────┼─────────────┼─────────────────────────────────────────────────────┼──────────────────────────────────────────┤
+│ targetDir │ string      │ Min length 1. SAST and SCA project path.            │ none                                     │
+├───────────┼─────────────┼─────────────────────────────────────────────────────┼──────────────────────────────────────────┤
+│ scanUrl   │ string      │ URI format. DAST starting URL, http:// or https://. │ none                                     │
+└───────────┴─────────────┴─────────────────────────────────────────────────────┴──────────────────────────────────────────┘
+
+SAST and SCA options
+
+┌─────────────────┬─────────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬─────────┐
+│    Parameter    │    Type     │                                               Accepted                                       │ Default │
+├─────────────────┼─────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ scanMode        │ string enum │ auto, source-code-only, build-output. SAST only.                                             │ auto    │
+├─────────────────┼─────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ scanLevel       │ string enum │ fast, normal, thorough. IRX preparation level.                                               │ normal  │
+├─────────────────┼─────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ buildBeforeScan │ boolean     │ SCA only. Runs npm run build with user approval. Reject                                      │ false   │
+├─────────────────┼─────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ scanSecrets     │ boolean     │ Secret scanning in the generated config                                                      │ true    │
+├─────────────────┼─────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ scanThirdParty  │ boolean     │ Include third-party code                                                                     │ false   │
+├─────────────────┼─────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ configFile      │ string      │ Path to an existing appscan-config.xml. For SAST, a misr. Supplied files aren't overwritten. │ none    │
+├─────────────────┼─────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ wait            │ boolean     │ Wait for SAST or SCA to reach a terminal state. DAST al                                      │ true    │
+├─────────────────┼─────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ maxWaitMinutes  │ integer     │ 1 to 720                                                                                     │ 120     │
+└─────────────────┴─────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴─────────┘
+
+DAST options
+
+┌──────────────────────────┬─────────────┬─────────────────────────────────────────────┬─────────┐
+│        Parameter         │    Type     │               Accepted values               │
+├──────────────────────────┼─────────────┼─────────────────────────────────────────────┼─────────┤
+│ optimization             │ string enum │ Fast, Normal, Thorough                      │
+├──────────────────────────┼─────────────┼─────────────────────────────────────────────┼─────────┤
+│ networkType              │ string enum │ public, private                             │
+├──────────────────────────┼─────────────┼─────────────────────────────────────────────┼─────────┤
+│ presenceId               │ string      │ AppScan Presence ID. Needed for private.    │
+├──────────────────────────┼─────────────┼─────────────────────────────────────────────┼─────────┤
+│ loginMethod              │ string enum │ None, Required, Record                      │
+├──────────────────────────┼─────────────┼─────────────────────────────────────────────┼─────────┤
+│ loginUser, loginPassword │ string      │ Needed for Required                         │
+├──────────────────────────┼─────────────┼─────────────────────────────────────────────┼─────────┤
+│ loginSequenceFileId      │ string      │ Needed for Record                           │
+├──────────────────────────┼─────────────┼─────────────────────────────────────────────┼─────────┤
+│ fullyAutomatic           │ boolean     │ Fully automatic DAST mode                   │
+├──────────────────────────┼─────────────┼─────────────────────────────────────────────┼─────────┤
+│ suspend                  │ boolean     │ Create the DAST scan suspended, not started │
+├──────────────────────────┼─────────────┼─────────────────────────────────────────────┼─────────┤
+│ locale                   │ string      │ DAST locale                                 │
+└──────────────────────────┴─────────────┴─────────────────────────────────────────────┴─────────┘
+
+General
+
+┌───────────────────────────┬───────────────────────┬───────────────────────────────────────────────────────────┬─────────────┐
+│         Parameter         │         Type          │                        Description fault   │
+├───────────────────────────┼───────────────────────┼───────────────────────────────────────────────────────────┼─────────────┤
+│ personalScan              │ boolean               │ Marks the scan personal. Applies toe       │
+├───────────────────────────┼───────────────────────┼───────────────────────────────────────────────────────────┼─────────────┤
+│ workDir                   │ string (min length 1) │ Folder for artifacts, IRX, config, em temp │
+├───────────────────────────┼───────────────────────┼───────────────────────────────────────────────────────────┼─────────────┤
+│ conserveFiles             │ boolean               │ Keep artifacts, logs, IRX and confie       │
+├───────────────────────────┼───────────────────────┼───────────────────────────────────────────────────────────┼─────────────┤
+│ detailedLogs              │ boolean               │ Verbose build output and command loe       │
+├───────────────────────────┼───────────────────────┼───────────────────────────────────────────────────────────┼─────────────┤
+│ includeProgressTranscript │ boolean               │ Append a progress transcript to thee       │
+├───────────────────────────┼───────────────────────┼───────────────────────────────────────────────────────────┼─────────────┤
+│ confirmToken              │ string                │ One-time preview token                     │
+└───────────────────────────┴───────────────────────┴───────────────────────────────────────────────────────────┴─────────────┘
+
+5. Preview and approval workflow
+
+1. Resolve the application: Reuse an ID established in this conversation, or use a user-given selector that get-apps matches exactly once in a complete result. Otherwise show the real app names and IDs with
+   "Create a new application" and "Enter another application name or ID", and wait. Neverct folder name, and never auto-select an unfiltered singleton.
+2. SAST builds: The tool never builds. Java, .NET or Windows C/C++ artifacts must be prepared beforehand, possibly by a separately approved build. After a build failure, don't fall back to source-code-only
+   without an explicit user choice.
+3. Approval: Explicit approval is required, unless the operator pre-authorizes (see item 7).
+4. Preview and token: The confirmToken flow handles approval when the client can't prompt
+5. Natural language: Phrases like "keep the logs" or "verbose" map to conserveFiles and detailedLogs, so the user isn't asked for those fields.
+
+6. How confirmToken works
+
+It is described as a one-time token returned by this tool's preview flow when client elicitation is unavailable. The likely sequence is:
+- First call: returns a preview and a token, without starting a scan.
+- User agreement: the user sees the preview and agrees.
+- Second call: the same call repeated with the token starts the scan.
+
+The schema doesn't say how long a token lasts, or whether it is bound to the exact parameme it is, but that is an assumption.
+
+7. APPSCAN_CREATE_SCAN_SKIP_ELICITATION
+
+- What it is: A server-side environment variable set by the server operator, not a tool p
+- Effect when true: It pre-authorizes create-scan for automation. It skips both the client elicitation prompt and the confirmToken step, but only for this tool.
+- What it doesn't skip: Application selection and input validation still apply, per the d
+- Unknown: I can't see the server's environment, so I don't know whether it is set here. It has no effect on create-app or the update tools, from what the descriptions say.
+
+8. Can a scan start without explicit user approval?
+
+- By default, no. The description says explicit approval is required.
+- With the variable set, yes. If the operator sets APPSCAN_CREATE_SCAN_SKIP_ELICITATION=t with no prompt and no token. The only checks left are a valid application and validinputs.
+- Practical point: I should treat approval as required regardless, and only call this tooked for a scan. Because I can't tell whether the variable is set, the tool's own promptcan't be relied on as the safeguard.
+- What a scan does: SAST and SCA package local files and upload them to AppScan Cloud. DAtarget URL. Both are consequential, so check the targetDir or scanUrl first.
+
+I didn't execute create-scan or any other appscan-local tool, and I created and changed n
+
+************************************************************************************************************
+
+claude desktop response
+
+I read this from the `create-scan` definition already loaded in this conversation. I did not execute the tool, and I made no other tool calls.
+
+## 1. Complete tool description
+
+> SAST scanMode defaults to auto; source-code-only and build-output are explicit alternatives. Mixed/unknown targets require a narrower scope or explicit choice. SAST never runs project builds: prepare Java/.NET artifacts or a supported Windows C/C++ solution first. An AI with terminal tools may run a separately approved project build, verify it, then call create-scan. Never downgrade to source-only after build failure without explicit user choice. buildBeforeScan is SCA-only. Create or start an HCL AppScan scan for a local project (SAST/SCA) or a URL target (DAST). Supports the personalScan option for all three scan types (defaults to false). Use this whenever the user asks to create, start, or run a scan. Interpret natural-language preferences instead of asking the user for tool fields: phrases such as 'keep', 'preserve', or 'retain the artifacts/logs/IRX/config' mean conserveFiles=true; phrases such as 'debug', 'verbose', 'full logs', or 'troubleshoot' mean detailedLogs=true and conserveFiles=true; a user-provided folder for saved artifacts becomes workDir. If appId is missing, stop and resolve the app first. Reuse an ID explicitly established in the current conversation; otherwise, use a user-provided app selector and continue only if get-apps returns exactly one match in a complete result. If no selector is provided, a name has no match, or results are ambiguous/incomplete, show actual existing application names and IDs from get-apps together with Create a new application and Enter another application name or ID; wait for the user's choice. Fetch an unfiltered list if no candidates are available from the failed lookup. Never ask only whether to create a new app, infer an app selector from the project folder, or select an unfiltered singleton automatically. Never invent or retain an app selection across chats. Explicit approval is required unless the server operator has set APPSCAN_CREATE_SCAN_SKIP_ELICITATION=true to pre-authorize create-scan for automation. That setting skips elicitation and confirmToken only for this tool; application selection and input validation still apply.
+
+## 2–4. Parameters, types, constraints, enums and defaults
+
+**No parameter is marked required in the schema.** The description makes some effectively required, covered below the table.
+
+**Core parameters**
+
+| Parameter | Type | Constraints / enum | Default | Schema description |
+|---|---|---|---|---|
+| `appId` | string, UUID | UUID pattern (also accepts the all-zero and all-`f` UUIDs) | none | Application that will own the scan. Use an ID from get-apps or create-app. If omitted, the tool stops and returns existing applications plus a "Create a new application" option. |
+| `scanType` | string | `SAST`, `SCA`, `DAST` | `SAST` | Type of scan: static, composition analysis, or dynamic URL-based testing. |
+| `scanName` | string | length 1–1024 | none | Optional name. If omitted, the tool generates one from the project folder name and the current timestamp. |
+| `comment` | string | max length 2048 | none | Optional comment stored with the scan request (branch, commit, ticket, note). |
+| `targetDir` | string | min length 1 | none | SAST/SCA: path to the local project, repository checkout, source tree or prepared build output. For "scan this project", use the current workspace folder. |
+| `scanUrl` | string, URI | `http://` or `https://` | none | DAST: starting URL of the scan target. |
+| `personalScan` | boolean | none | `false` | Marks a SAST, SCA or DAST scan as personal. |
+| `confirmToken` | string | none | none | One-time token from this tool's preview flow, for when client elicitation is unavailable. |
+
+**SAST and SCA parameters**
+
+| Parameter | Type | Constraints / enum | Default | Schema description |
+|---|---|---|---|---|
+| `scanMode` | string (SAST only) | `auto`, `source-code-only`, `build-output` | `auto` | `auto` detects Java/.NET/C++ build-output targets or other source languages. Mixed or unknown targets need a narrower scope or an explicit mode. `build-output` needs prebuilt Java/.NET artifacts, or a supported Windows Visual Studio solution for C/C++. The tool runs no SAST build. Never switch to source-only merely because a build fails. |
+| `scanLevel` | string | `fast`, `normal`, `thorough` | `normal` | IRX scan preparation level. |
+| `configFile` | string | path | none | Path to an existing appscan-config.xml. For SAST, a missing explicit file is an error. Otherwise the tool uses `targetDir/appscan-config.xml` if present, or generates a configuration. Supplied files are not overwritten. |
+| `buildBeforeScan` | boolean (SCA only) | rejected for SAST and DAST | `false` | Runs `npm run build` before packaging, with user approval. |
+| `scanSecrets` | boolean | none | `true` | Enables secret scanning in the generated configuration. |
+| `scanThirdParty` | boolean | none | `false` | Includes third-party code in the generated configuration. |
+| `conserveFiles` | boolean | none | `false` | Keeps scan artifacts, logs, the IRX package and appscan-config.xml. Set from natural-language requests. |
+| `detailedLogs` | boolean | none | `false` | Includes verbose build output and AppScan command logs. Set from natural-language requests. |
+| `workDir` | string | min length 1 | system temp directory | Folder for artifacts, IRX files, configuration, reports and intermediate files. |
+| `wait` | boolean | none | `true` | Waits for SAST/SCA to reach a terminal state. DAST always returns immediately. |
+| `maxWaitMinutes` | integer | min 1, max 720 | `120` | Maximum wait when `wait` is true. |
+| `includeProgressTranscript` | boolean | none | `false` | Appends a compact progress transcript to the final response. |
+
+**DAST parameters**
+
+| Parameter | Type | Constraints / enum | Default | Schema description |
+|---|---|---|---|---|
+| `fullyAutomatic` | boolean | none | `true` | Runs DAST in fully automatic mode. |
+| `suspend` | boolean | none | `false` | Creates the DAST scan suspended, without immediate execution. By default DAST starts immediately. |
+| `optimization` | string | `Fast`, `Normal`, `Thorough` | `Fast` | DAST test optimization profile. |
+| `locale` | string | none | `en-US` | Locale for DAST scan execution. |
+| `networkType` | string | `public`, `private` | `public` | Use `private` when the target is reachable via AppScan Presence. |
+| `presenceId` | string | none | none | Required when DAST uses `private` network. AppScan Presence ID. |
+| `loginMethod` | string | `None`, `Required`, `Record` | `None` | `Required` means credentials, `Record` means a login sequence file. |
+| `loginUser` | string | none | none | Required when DAST and `loginMethod` is `Required`. |
+| `loginPassword` | string | none | none | Required when DAST and `loginMethod` is `Required`. |
+| `loginSequenceFileId` | string | none | none | Required when DAST and `loginMethod` is `Record`. |
+
+**Effectively required, per the description and parameter text**
+- **All scans:** `appId`.
+- **SAST/SCA:** `targetDir`.
+- **DAST:** `scanUrl`.
+- **DAST with credentials:** `loginUser` and `loginPassword` when `loginMethod` is `Required`, or `loginSequenceFileId` when it is `Record`.
+- **DAST on a private network:** `presenceId`.
+
+The `loginPassword` parameter takes a credential, so a password supplied in chat should be treated as a secret and rotated.
+
+## 5. Preview and approval workflow
+
+The definition describes this in pieces and doesn't lay out a full sequence:
+1. **Resolve the application first.** If `appId` is missing, the tool stops. The app must be established in the current conversation, or come from a user-provided selector that matches exactly one application in a complete `get-apps` result. Otherwise the choices are listed (existing apps, "Create a new application", "Enter another application name or ID") and the user decides.
+2. **Get explicit approval.** The description says explicit approval is required. The mechanism is client elicitation, or the `confirmToken` flow when elicitation isn't available.
+3. **Create or start the scan.** SAST/SCA scans package local files from `targetDir`, and DAST starts immediately unless `suspend` is true.
+
+The definition doesn't say what the preview shows.
+
+## 6. How `confirmToken` works
+
+- **What it is:** A one-time token returned by the tool's preview flow.
+- **When it's used:** When client elicitation is unavailable. After you approve in chat, the call is repeated with the token.
+- **What isn't specified:** The token's lifetime, and whether it is tied to the exact parameters previewed.
+- **Exception:** When pre-authorization is on (see below), the token is skipped for this tool.
+
+## 7. `APPSCAN_CREATE_SCAN_SKIP_ELICITATION`
+
+The description says:
+- **Who sets it:** The server operator sets it as an environment variable on the MCP server. Neither I nor you can set it from chat.
+- **What `true` does:** It pre-authorizes `create-scan` for automation. The approval prompt and the `confirmToken` step are skipped.
+- **Scope:** It affects only `create-scan`. Other write tools such as `create-app` and `update-issues` are not mentioned.
+- **What still applies:** Application selection and input validation.
+- **Visibility:** The earlier `get-server-info` output listed only the API URL, credentials, timeout, retry and log level. It doesn't show this variable, so I can't tell whether it is set.
+
+## 8. Can a scan start without explicit user approval?
+
+**Yes, in one case, according to the definition.** If the operator has set `APPSCAN_CREATE_SCAN_SKIP_ELICITATION=true`, a call with valid inputs would start a scan with no approval prompt. I can't verify the setting from here.
+
+If the variable isn't set, explicit approval is required.
+
+I won't call `create-scan` without your explicit approval in chat, whether or not the variable is set. For DAST, that means a live scan that starts immediately against the URL.
+
+I loaded no new definitions this turn. I created, started or modified nothing.
