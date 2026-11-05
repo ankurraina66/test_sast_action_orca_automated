@@ -1,1 +1,8 @@
+Use only the appscan-local MCP server.
 
+Execute the get-issues tool and return the complete response.
+Include issue IDs, issue names, severity, status, application
+and scan associations, wherever available.
+
+Do not invoke any other MCP tool.
+Do not perform any write, update, delete, or scan operation.
