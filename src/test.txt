@@ -1,16 +1,52 @@
-Use only the appscan-local MCP server.
+claude desktop response
 
-I want to prepare a SAST scan for approval-workflow testing.
+I haven't called `create-scan`. I need the target directory first, and I won't assume one.
 
-Application ID: 50588b82-e61e-4bd9-b61b-cc455b045362
-Scan type: SAST
-Scan name: MCP_POC_SAST_Approval_Test
+## What I need from you
 
-Do not assume a target directory. Ask me for it.
+**`targetDir`:** the path to the local project, repository checkout, source tree or prepared build output to scan. It is required for SAST and has no default. The server uses this path when it packages the project, so please give the exact path, and tell me if it is not the current workspace folder.
 
-Show the proposed scan parameters and explain the approval workflow.
+For SAST I also need to know whether the target is source code or prepared build output (`scanMode`):
+- **Java/.NET:** SAST doesn't run project builds, so the build artifacts must already exist. If they are missing, a build has to be run and approved separately.
+- **C/C++:** this needs a supported Windows Visual Studio solution.
+- **Mixed or unknown targets:** these need a narrower path or an explicit mode.
 
-Do not approve or confirm the scan.
-Do not submit a confirmation token.
-Do not start or upload a scan.
-Do not invoke any other MCP tool.
+## Proposed parameters (nothing submitted)
+
+| Parameter | Value | Source |
+|---|---|---|
+| `appId` | 50588b82-e61e-4bd9-b61b-cc455b045362 (`MCP_POC_Approval_Test`) | You, and the application I created earlier |
+| `scanType` | `SAST` | You |
+| `scanName` | `MCP_POC_SAST_Approval_Test` | You |
+| `targetDir` | **Waiting for you** | none |
+| `scanMode` | `auto` | Default |
+| `scanLevel` | `normal` | Default |
+| `scanSecrets` | `true` | Default |
+| `scanThirdParty` | `false` | Default |
+| `personalScan` | `false` | Default |
+| `conserveFiles` | `false` | Default (artifacts are cleaned up) |
+| `detailedLogs` | `false` | Default |
+| `wait` | `true` | Default (waits up to 120 minutes for completion) |
+| `maxWaitMinutes` | `120` | Default |
+| `workDir` | system temp directory | Default |
+| `confirmToken` | Omitted | none |
+
+I can change any of these. For example, you may want `conserveFiles` on to keep the logs and IRX package, or `personalScan` on.
+
+## Approval workflow
+
+This follows what happened with `create-app`:
+1. **First call:** The call carries the parameters, with no `confirmToken`.
+2. **Preview:** The server stops and returns a preview of the pending action and a one-time `confirmToken`, which expired after 5 minutes for `create-app`. The tool may instead show an approval prompt in your client, if the client supports one.
+3. **Your confirmation:** I show you the preview and ask for an explicit yes in chat.
+4. **Second call:** On your yes, I repeat the call with the same parameters plus the token, and the scan starts.
+5. **Wait:** With `wait` true, the call stays open until the scan finishes or times out.
+
+## Things to know before confirming
+
+- **Operator override:** If `APPSCAN_CREATE_SCAN_SKIP_ELICITATION=true` is set on the server, this tool skips the preview and token, and a call would start the scan straight away. I can't see that setting from here. **Because of this, I'd like your go-ahead before I even make the first call**, since for this tool the first call might not stop at a preview.
+- **What gets uploaded:** A SAST scan packages the contents of `targetDir` and uploads it to AppScan on Cloud. Check that the folder contains nothing you don't want to leave your machine, such as secrets or customer data.
+- **No undo:** None of the 14 tools deletes or cancels a scan, so a scan started by mistake would have to be removed another way, such as in the AppScan console.
+- **Scan name:** I'll use `MCP_POC_SAST_Approval_Test` as given.
+
+Tell me the `targetDir`, and say whether you want any of the defaults changed. I won't make the first call until you tell me to.
