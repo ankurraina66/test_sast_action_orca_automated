@@ -1,1 +1,8 @@
+Use only the appscan-local MCP server.
 
+Call get-scans and locate the scan with this exact ID:
+d06055c6-14a1-4b04-81a6-705cdd930f3d
+
+Return its scan name, application, scan type, status, and issue counts if available.
+
+Do not create, update, or execute any scan.
