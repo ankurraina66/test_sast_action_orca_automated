@@ -1,1 +1,16 @@
+Use only the appscan-local MCP server.
 
+Inspect the create-app tool definition.
+
+Return:
+1. Complete tool description.
+2. All input parameters and their types.
+3. Required and optional parameters.
+4. Whether a preview or confirmation step is required.
+5. How user approval is obtained.
+6. What confirmToken represents and when it is required.
+7. Whether the tool can create an application without explicit user approval.
+
+Do not execute create-app.
+Do not invoke any other MCP tool.
+Do not create or modify any AppScan data.
