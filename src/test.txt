@@ -1,18 +1,26 @@
-Use only the appscan-local MCP server.
+claude code response
 
-Execute get-reports with the following parameters:
+get-reports with operation: list and top: 100 returned:
 
-operation: list
-prompt: List existing AppScan reports.
-top: 100
+No reports found
 
-Return the complete response, including report IDs,
-report names, report types, status, creation dates,
-scope and any other available fields.
+- No report jobs: The tenant has no existing report jobs visible to this account, so there are no IDs, names, types, statuses, creation dates or scopes to show.
+- Possible reasons: There may simply be no reports. Or the account (ankur.raina@hcl.com, not an admin per get-tenant-info) may only see its own reports. The response doesn't say which, and I haven't verified it.
 
-Important:
-- Execute only the list operation.
-- Do not create any report.
-- Do not download any report.
-- Do not invoke any other MCP tool.
-- Do not perform any write, update, delete or scan operation.
+I ran only the list operation. I created and downloaded nothing, and I made no write, update, delete or scan calls.
+
+************************************************************************************************************
+
+claude desktop response
+
+The `appscan-local` `get-reports` tool returned this response:
+
+```
+No reports found
+```
+
+I ran it with `operation: list`, `prompt: "List existing AppScan reports."` and `top: 100`. The tool returned no report records, so there are no report IDs, names, types, statuses, creation dates or scopes to show.
+
+This means no reports are visible to your account. Your account is a non-admin user, and earlier results also showed fewer applications than the tenant count, so reports created by other users may simply not be visible to you.
+
+I executed only the list operation. I created and downloaded no reports and did no write, update, delete or scan operations.
