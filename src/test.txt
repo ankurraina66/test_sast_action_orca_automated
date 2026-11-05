@@ -1,1 +1,14 @@
+Use only the appscan-local MCP server.
 
+Call get-scan-issues for this exact scan ID:
+
+d06055c6-14a1-4b04-81a6-705cdd930f3d
+
+Return:
+1. Scan ID and scan name.
+2. Total number of issues returned.
+3. Issue ID, title, severity, status and file/location for each issue.
+4. Severity-wise counts, if available.
+5. Any pagination or truncation information.
+
+This is a read-only request. Do not create or update anything.
