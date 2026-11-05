@@ -1,1 +1,16 @@
+Use only the appscan-local MCP server.
 
+Inspect the get-reports tool definition.
+
+Return the complete input schema, including:
+- Required and optional parameters
+- Parameter types
+- Accepted enum values
+- Default values
+- Approval requirements for each operation
+
+Clearly distinguish list, create and download operations.
+
+Do not execute get-reports.
+Do not invoke any other MCP tool.
+Do not perform any write, update, delete or scan operation.
