@@ -1,1 +1,16 @@
+Use only the appscan-local MCP server.
 
+I want to prepare a SAST scan for approval-workflow testing.
+
+Application ID: 50588b82-e61e-4bd9-b61b-cc455b045362
+Scan type: SAST
+Scan name: MCP_POC_SAST_Approval_Test
+
+Do not assume a target directory. Ask me for it.
+
+Show the proposed scan parameters and explain the approval workflow.
+
+Do not approve or confirm the scan.
+Do not submit a confirmation token.
+Do not start or upload a scan.
+Do not invoke any other MCP tool.
