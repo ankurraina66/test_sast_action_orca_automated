@@ -1,1 +1,14 @@
+Use only the appscan-local MCP server.
 
+I explicitly approve creating the following test application in AppScan.
+
+Call create-app with:
+- name: MCP_POC_Approval_Test
+- description: Temporary application for MCP approval workflow testing
+- assetGroupId: 32e36587-ff35-4170-b9e5-184ca3ef1f48
+
+Follow the server's approval workflow.
+If it returns a preview and confirmToken, show me the preview and ask for confirmation before proceeding.
+If the client presents an approval prompt, show it to me.
+Do not invoke any other MCP tool.
+After successful creation, return the application name and ID.
