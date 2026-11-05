@@ -1,1 +1,16 @@
+Use only the appscan-local MCP server.
 
+Prepare the following SAST scan request:
+
+Application ID: 50588b82-e61e-4bd9-b61b-cc455b045362
+Scan type: SAST
+Scan name: MCP_POC_SAST_Approval_Test
+Target directory: C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master
+
+Use the default scan parameters.
+
+Do not invoke create-scan yet.
+Do not build the project.
+Do not upload any files.
+Do not start a scan.
+Show the final proposed configuration and identify any remaining prerequisites.
