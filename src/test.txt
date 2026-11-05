@@ -1,9 +1,27 @@
-Use only the appscan-local MCP server.
+claude code response
 
-Call get-issues with top=10, but omit the application ID entirely.
+With appId omitted, get-issues rejected the call before it reached AppScan. This is the exact error:
 
-Return the exact result or error.
+MCP error -32602: Input validation error: Invalid arguments for tool get-issues: Invalid input: expected string, received undefined at appId
 
-Do not retry with another ID.
-Do not invoke any other MCP tool.
-Do not perform any write operation.
+- Where it failed: The MCP server's own input validation caught it, because appId is required in the schema. No request went to the AppScan API, so there's no HTTP status or trace ID.
+- Compared with the last call: The invalid ID not-a-valid-uuid passed the server's check, since it is a string, and failed at the AppScan API with HTTP 400. So the server checks that appId is present but not that it is a valid UUID.
+- Same as the first attempt: This is the same error I got on my first get-issues call earlier in this session.
+
+I made one call and didn't retry. I invoked no other tool and performed no write operations.
+
+************************************************************************************************************
+
+claude desktop response
+
+The `appscan-local` `get-issues` call failed. Here is the exact result:
+
+```
+MCP error -32602: Input validation error: Invalid arguments for tool get-issues: Invalid input: expected string, received undefined at appId
+```
+
+- **Where it failed:** The MCP server's own input validation rejected the call, with JSON-RPC error code -32602 (invalid params). No request reached the AppScan API. That differs from the invalid-UUID tests, where the server accepted the string and the API returned an HTTP 400.
+- **Why:** `appId` is the one required parameter in the `get-issues` schema, and the call didn't supply it. The server won't pick a default or fall back to an unfiltered query.
+- **Data impact:** Nothing was returned or changed.
+
+I did not retry with another ID. I made no other tool calls and did no write operations.
