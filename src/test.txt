@@ -1,13 +1,1 @@
-Creation succeeded.
 
-| # | Item | Result |
-|---|---|---|
-| 1 | Creation succeeded | **Yes**. The tool returned "Application created successfully!" |
-| 2 | Application name | MCP_POC_Approval_Test |
-| 3 | Application ID | 50588b82-e61e-4bd9-b61b-cc455b045362 |
-| 4 | Confirmation token accepted | **Yes**. The token `3295677f-6fe5-4fb6-a163-03029b3711bf` was accepted, and the repeated call went through. I made it well within the 5-minute expiry. |
-| 5 | Errors | None |
-
-- **Parameters:** I repeated the call with exactly the parameters from the preview (name, description and asset group ID 32e36587-ff35-4170-b9e5-184ca3ef1f48) plus the token. The tool's response doesn't echo the description or asset group, so I haven't confirmed they were stored.
-- **Cleanup:** This is a persistent record in your AppScan tenant, and none of the 14 tools deletes an application. If you don't want to keep it, it has to be removed another way, such as in the AppScan console.
-- **Scope:** I made no other tool calls. I did nothing beyond this one `create-app` call.
