@@ -1,3 +1,1 @@
-PS C:\Users\ankur.raina> Copy-Item "$env:APPDATA\Claude\claude_desktop_config.json" "$env:APPDATA\Claude\claude_desktop_config.backup.json"
-Copy-Item: Cannot find path 'C:\Users\ankur.raina\AppData\Roaming\Claude\claude_desktop_config.json' because it does not exist.
-PS C:\Users\ankur.raina>
+claude desktop config json file is in this location: C:\Users\ankur.raina\AppData\Local\Claude-Data\claude_pzs8sxrjxfjjc
