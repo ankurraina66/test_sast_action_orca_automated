@@ -1,16 +1,234 @@
-Use only the appscan-local MCP server.
+claude code response
 
-Inspect the get-reports tool definition.
+I read this from the get-reports definition already loaded in this session, and I didn't run the tool. The schema has no per-operation sections, so where I say which parameters belong to which operation, I'm inferring it from the parameter descriptions.
 
-Return the complete input schema, including:
-- Required and optional parameters
-- Parameter types
-- Accepted enum values
-- Default values
-- Approval requirements for each operation
+Description (verbatim)
 
-Clearly distinguish list, create and download operations.
+▎ List AppScan reports, create Security/Issues/Regulation/License/SBOM reports, and download generated report files. For create, supply the explicit scope and target ID (scanExecutionId for ScanExecution and SBOM); for download, supply reportId. Never extract the first UUID from prose or guess a scope. Ask the user when the target is missing or ambiguous. Approval is required before report creation.
 
-Do not execute get-reports.
-Do not invoke any other MCP tool.
-Do not perform any write, update, delete or scan operation.
+Required parameters
+
+Only prompt (string) is required. The schema defines no default for any parameter.
+
+Operations: list, create, download
+
+┌─────────────────────┬──────────────────────────────────────┬───────────────────────────────────────────────────────────────────────────────────┬──────────────────────────────────────────────────────────┐
+│                     │                 list                 │                                      create                                       │                         download                         │
+├─────────────────────┼──────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│ What it does        │ Lists existing report jobs           │ Generates a new report in AppScan                                                 │ Fetches a generated report file to local disk            │
+├─────────────────────┼──────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│ Selected by         │ operation: "list" (or inferred from  │ operation: "create" (or inferred)                                                 │ operation: "download" (or inferred)                      │
+│                     │ prompt)                              │                                                                                   │                                                          │
+├─────────────────────┼──────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│ Key parameters      │ top (max report jobs)                │ scope plus id, or scanExecutionId for ScanExecution and SBOM. Also reportType and │ reportId (uuid). outputDir is optional.                  │
+│                     │                                      │  reportFileType                                                                   │                                                          │
+├─────────────────────┼──────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│ Changes AppScan     │ No                                   │ Yes, it creates a report job                                                      │ No                                                       │
+│ data?               │                                      │                                                                                   │                                                          │
+├─────────────────────┼──────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│ Writes local files? │ No                                   │ No                                                                                │ Yes, it saves the file locally                           │
+├─────────────────────┼──────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────┼──────────────────────────────────────────────────────────┤
+│ Approval            │ None stated                          │ Approval required before creation. This is the only operation the description     │ None stated. The description doesn't mention approval    │
+│ requirement         │                                      │ explicitly gates.                                                                 │ for download.                                            │
+└─────────────────────┴──────────────────────────────────────┴──────────────────────────────────────────────────────┴──────────────────────────────────────────────────────────┘
+
+The schema also has a confirmToken parameter described as a "one-time token returned by tient elicitation is unavailable". It implies a preview-then-confirm flow, most likely forcreate, but the schema doesn't say which operations use it.
+
+Full parameter list
+
+Core
+
+┌──────────────┬───────────────────┬──────────────────────────────────────────────────────────────────────────────────┬─────────────────────────┐
+│  Parameter   │       Type        │                                 Accepted values     │       Applies to        │
+├──────────────┼───────────────────┼──────────────────────────────────────────────────────────────────────────────────┼─────────────────────────┤
+│ prompt       │ string (required) │ Natural-language operation or report type. Target ID│ all                     │
+├──────────────┼───────────────────┼──────────────────────────────────────────────────────────────────────────────────┼─────────────────────────┤
+│ operation    │ string enum       │ list, create, download                              │ all (optional override) │
+├──────────────┼───────────────────┼──────────────────────────────────────────────────────────────────────────────────┼─────────────────────────┤
+│ confirmToken │ string            │ One-time preview token                              │ create                  │
+├──────────────┼───────────────────┼──────────────────────────────────────────────────────────────────────────────────┼─────────────────────────┤
+│ top          │ number            │ Max report jobs                                     │ list                    │
+└──────────────┴───────────────────┴──────────────────────────────────────────────────────────────────────────────────┴─────────────────────────┘
+
+Targeting
+
+┌─────────────────┬───────────────┬─────────────────────────────────────────────────────────────────────────────────────────┬────────────┐
+│    Parameter    │     Type      │                                          Notes             │ Applies to │
+├─────────────────┼───────────────┼─────────────────────────────────────────────────────────────────────────────────────────┼────────────┤
+│ scope           │ string enum   │ Application, Scan, ScanExecution. For Security, Issueorts. │ create     │
+├─────────────────┼───────────────┼─────────────────────────────────────────────────────────────────────────────────────────┼────────────┤
+│ id              │ string (uuid) │ Scope ID. Use scanExecutionId for ScanExecution scope      │ create     │
+├─────────────────┼───────────────┼─────────────────────────────────────────────────────────────────────────────────────────┼────────────┤
+│ scanExecutionId │ string (uuid) │ For SBOM or ScanExecution-scoped reports                   │ create     │
+├─────────────────┼───────────────┼─────────────────────────────────────────────────────────────────────────────────────────┼────────────┤
+│ reportId        │ string (uuid) │ Report to download                                         │ download   │
+└─────────────────┴───────────────┴─────────────────────────────────────────────────────────────────────────────────────────┴────────────┘
+
+Report type and format
+
+┌──────────────────────┬─────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────────────┐
+│      Parameter       │    Type     │                                             Accept                          │  Applies to   │
+├──────────────────────┼─────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────────────┤
+│ reportType           │ string enum │ Security, Issues, Regulation, License, Sbom                                 │ create        │
+├──────────────────────┼─────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────────────┤
+│ reportFileType       │ string enum │ Pdf, Html, Xml, Csv, Sarif ("where supported")                              │ create        │
+├──────────────────────┼─────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────────────┤
+│ regulationReportType │ string      │ Required for regulation reports. It must be an exa.g. OwaspTop10_2021, PCI. │ create        │
+├──────────────────────┼─────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────────────┤
+│ sbomFormat           │ string enum │ SPDX_Json, CycloneDx_Json                                                   │ create (SBOM) │
+├──────────────────────┼─────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────────────┤
+│ locale               │ string      │ e.g. en-US                                                                  │ create        │
+├──────────────────────┼─────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────────────┤
+│ title, notes         │ string      │ Report title and notes                                                      │ create        │
+└──────────────────────┴─────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────────────┘
+
+Issue filtering
+
+┌─────────────────┬────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│    Parameter    │          Type          │                                           Ac                            │
+├─────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ applyPolicies   │ string enum            │ None, All, Select. The description says "defoesn't set it as a default. │
+├─────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ selectPolicyIds │ array of string (uuid) │ Policy IDs for Select                                                   │
+├─────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ odataFilter     │ string                 │ OData filter limiting the issues in the repo                            │
+└─────────────────┴────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+SBOM metadata
+
+┌───────────────────────────────────────────────────────┬───────────────────────┐
+│                       Parameter                       │         Type          │
+├───────────────────────────────────────────────────────┼───────────────────────┤
+│ documentName, fileName, organizationName, creatorName │ string                │
+├───────────────────────────────────────────────────────┼───────────────────────┤
+│ creatorEmail                                          │ string (email format) │
+└───────────────────────────────────────────────────────┴───────────────────────┘
+
+Security report sections (all boolean): applicationCustomFields, applicationDetails, articles, coverPage, coverage, details, discussion, history, issueCustomFields, minimizeDetails, overview, summary,
+tableOfContent.
+
+Download destination: outputDir (string) overrides the default save location. It must stant reports base when one is configured.
+
+Caveats
+
+- Approval: For list and download, "no approval stated" doesn't mean none is enforced. Thks that the schema doesn't show.
+- Operation inference: If operation is omitted, the tool may infer it from prompt, so I'd set it explicitly to avoid creating a report by accident.
+- UUID format: Every uuid field uses a pattern that accepts standard UUIDs.
+
+I didn't execute get-reports or any other appscan-local tool, and I made no write, update
+
+************************************************************************************************************
+
+claude desktop response
+
+I read this from the `get-reports` definition already loaded in this conversation, and I did not execute the tool.
+
+## Description
+
+> List AppScan reports, create Security/Issues/Regulation/License/SBOM reports, and download generated report files. For create, supply the explicit scope and target ID (scanExecutionId for ScanExecution and SBOM); for download, supply reportId. Never extract the first UUID from prose or guess a scope. Ask the user when the target is missing or ambiguous. Approval is required before report creation.
+
+## Required and optional parameters
+
+Only **`prompt`** is required in the schema. All other parameters are optional. The schema doesn't set `additionalProperties`.
+
+| Parameter | Required | Type | Format / pattern |
+|---|---|---|---|
+| `prompt` | **Yes** | string | none |
+| `operation` | No | string | none |
+| `reportType` | No | string | none |
+| `reportFileType` | No | string | none |
+| `scope` | No | string | none |
+| `id` | No | string | UUID, pattern-checked |
+| `scanExecutionId` | No | string | UUID, pattern-checked |
+| `reportId` | No | string | UUID, pattern-checked |
+| `regulationReportType` | No | string | none |
+| `sbomFormat` | No | string | none |
+| `applyPolicies` | No | string | none |
+| `selectPolicyIds` | No | array of strings | each item a UUID, pattern-checked |
+| `odataFilter` | No | string | none |
+| `title` | No | string | none |
+| `notes` | No | string | none |
+| `locale` | No | string | none |
+| `documentName` | No | string | none |
+| `fileName` | No | string | none |
+| `creatorName` | No | string | none |
+| `creatorEmail` | No | string | email format, pattern-checked |
+| `organizationName` | No | string | none |
+| `outputDir` | No | string | none |
+| `top` | No | number | none |
+| `confirmToken` | No | string | none |
+| `applicationCustomFields`, `applicationDetails`, `articles`, `coverPage`, `coverage`, `details`, `discussion`, `history`, `issueCustomFields`, `minimizeDetails`, `overview`, `summary`, `tableOfContent` | No | boolean (13 toggles) | none |
+
+The UUID pattern accepts standard UUIDs (versions 1–8) plus the all-zero and all-`f` UUIDs.
+
+## Enum values
+
+| Parameter | Accepted values |
+|---|---|
+| `operation` | `list`, `create`, `download` |
+| `reportType` | `Security`, `Issues`, `Regulation`, `License`, `Sbom` |
+| `reportFileType` | `Pdf`, `Html`, `Xml`, `Csv`, `Sarif` |
+| `scope` | `Application`, `Scan`, `ScanExecution` |
+| `sbomFormat` | `SPDX_Json`, `CycloneDx_Json` |
+| `applyPolicies` | `None`, `All`, `Select` |
+
+`regulationReportType` has no enum in the schema. The description gives only examples (`OwaspTop10_2021`, `PCI`) and says the value must be an exact AppScan regulation type.
+
+## Default values
+
+The schema sets no defaults. The only defaults mentioned are in descriptions:
+
+| Parameter | Default |
+|---|---|
+| `applyPolicies` | `None` ("default: None" in the description) |
+| `outputDir` | A default location exists, but its path isn't specified. The description says the parameter "overrides the default location" and must stay inside the CLI or environment reports base directory. |
+
+## Parameter descriptions
+
+| Parameter | Schema description |
+|---|---|
+| `prompt` | Natural-language report operation/type request. Supply target IDs separately with scope/id, scanExecutionId, or reportId. |
+| `operation` | Optional override for operation. |
+| `reportType` | Optional report type override for create operation. |
+| `reportFileType` | Report file type. Applies to create operation where supported. |
+| `scope` | Scope for Security/Issues/Regulation/License reports. |
+| `id` | Scope ID; use scanExecutionId for ScanExecution scope. |
+| `scanExecutionId` | Scan execution ID for SBOM or ScanExecution-scoped reports. |
+| `reportId` | Report ID for download operation. |
+| `regulationReportType` | Required for regulation reports; exact AppScan regulation type, such as OwaspTop10_2021 or PCI. |
+| `sbomFormat` | SBOM format. |
+| `applyPolicies` | Which policies to apply for filtering (default: None). |
+| `selectPolicyIds` | Policy IDs when applyPolicies is Select. |
+| `odataFilter` | OData filter expression to limit issues included in the report. |
+| `title` | Report title. |
+| `notes` | Report notes. |
+| `locale` | Locale (for example en-US). |
+| `documentName`, `fileName` | SBOM document name and SBOM file name. |
+| `creatorName`, `creatorEmail`, `organizationName` | SBOM metadata. |
+| `outputDir` | Directory for downloaded reports. Overrides the default location; must remain inside the CLI or environment reports base when configured. |
+| `top` | Optional max number of report jobs for list operation. |
+| `confirmToken` | One-time token returned by this tool preview flow when client elicitation is unavailable. |
+| `applicationDetails` | Include application details section. |
+| The other 12 booleans | "Security report section." |
+
+## Operations compared
+
+| | **List** | **Create** | **Download** |
+|---|---|---|---|
+| What it does | Lists AppScan reports (report jobs) | Generates a new Security, Issues, Regulation, License or SBOM report in AppScan | Saves an already generated report file locally |
+| Changes data | No | **Yes**, creates a report job in AppScan | Writes a file to the local machine only |
+| Approval required | **Not stated** | **Yes**: "Approval is required before report creation." | **Not stated** |
+| Required inputs | `prompt` only | `prompt`, plus an explicit target (see below) | `prompt`, plus `reportId` |
+| Parameters that apply | `top` (described as for list) | `reportType`, `reportFileType`, `scope` with `id`, `scanExecutionId`, `regulationReportType`, `sbomFormat`, `applyPolicies`, `selectPolicyIds`, `odataFilter`, `title`, `notes`, `locale`, the SBOM metadata fields and the section toggles | `reportId`, `outputDir` |
+| Confirmation token | Not mentioned | `confirmToken` is the fallback when the client can't prompt for approval | Not mentioned |
+
+**Targets for create**
+- **Security, Issues, Regulation and License reports:** `scope` plus `id`.
+- **ScanExecution scope and SBOM reports:** `scanExecutionId`.
+- **Regulation reports:** also `regulationReportType`.
+
+## Caveats
+
+- **Operation selection:** The schema doesn't say how the operation is chosen when `operation` is omitted. The description suggests it is inferred from `prompt` and the IDs supplied, but that isn't confirmed.
+- **Which parameters apply:** The schema doesn't enforce which parameters go with which operation or report type. That comes only from the descriptions above.
+- **Approval for list and download:** The description names approval only for creation. I can't say whether the server also asks for approval on download, which writes a local file.
