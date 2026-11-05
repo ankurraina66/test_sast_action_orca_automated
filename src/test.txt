@@ -1,1 +1,12 @@
+Use only the appscan-local MCP server.
 
+Review the complete list of available tools.
+
+Return only:
+1. Every tool name.
+2. Whether it is read-only, write, delete, or uncertain.
+3. A brief explanation of why you classified it that way.
+
+Do not execute any tool.
+Do not invoke any AppScan API operation.
+Do not create, start, update or delete anything.
