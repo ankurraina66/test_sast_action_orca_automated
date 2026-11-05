@@ -1,6 +1,44 @@
-Use only the appscan-local MCP server.
+claude code response
 
-Execute the get-tenant-info tool and return the complete response.
+Here is the complete response from get-tenant-info on the appscan-local MCP server:
 
-Do not invoke any other MCP tool.
-Do not perform any write, update, delete, or scan operation.
+Organization: HCL Plugins Team
+Tenant ID: 040f803d-7524-4190-be39-e839d8bb2dae
+Contact Email: vinita-s@hcl.com
+Number Of Apps: 29
+Max Users: 30
+Default Subscription ID: 2350928442
+Current User: ankur.raina@hcl.com
+User Email: ankur.raina@hcl.com
+User Admin: false
+---
+Subscriptions:
+  - Subscription 2350928442: Trial | Seats: 305/10000 | State: Active | Expires: 2027-01-30T00:00:00Z
+
+I called only this tool. I made no write, update, delete or scan calls.
+
+The current user email (ankur.raina@hcl.com) differs from the account email in this session (ankur.raina@hcl-software.com). That may just be two domains for the same person, but you may want to check which identity the AppScan credentials belong to.
+
+
+************************************************************************************************************
+
+claude desktop response
+
+Here is the complete response from the appscan-local get-tenant-info tool:
+
+Organization: HCL Plugins Team
+Tenant ID: 040f803d-7524-4190-be39-e839d8bb2dae
+Contact Email: vinita-s@hcl.com
+Number Of Apps: 29
+Max Users: 30
+Default Subscription ID: 2350928442
+Current User: ankur.raina@hcl.com
+User Email: ankur.raina@hcl.com
+User Admin: false
+---
+Subscriptions:
+  - Subscription 2350928442: Trial | Seats: 305/10000 | State: Active | Expires: 2027-01-30T00:00:00Z
+
+I called only that one tool and did no write, update, delete, or scan operations.
+
+The output includes the tenant ID and email addresses. If you share it outside the company, you may want to redact them.
