@@ -1,1 +1,15 @@
+Use only the appscan-local MCP server.
 
+I explicitly authorize the first create-scan invocation for this SAST test.
+
+Application ID: 50588b82-e61e-4bd9-b61b-cc455b045362
+Scan type: SAST
+Scan name: MCP_POC_SAST_Approval_Test
+Target directory: C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master
+Scan mode: source-code-only
+
+Use the other default scan parameters.
+
+Follow the server's approval workflow.
+If it returns a preview and confirmToken, show me the preview and wait for my confirmation.
+Do not change the scan mode or target directory.
