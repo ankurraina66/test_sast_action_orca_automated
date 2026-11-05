@@ -1,1 +1,18 @@
+Use only the appscan-local MCP server.
 
+Execute get-reports with the following parameters:
+
+operation: list
+prompt: List existing AppScan reports.
+top: 100
+
+Return the complete response, including report IDs,
+report names, report types, status, creation dates,
+scope and any other available fields.
+
+Important:
+- Execute only the list operation.
+- Do not create any report.
+- Do not download any report.
+- Do not invoke any other MCP tool.
+- Do not perform any write, update, delete or scan operation.
