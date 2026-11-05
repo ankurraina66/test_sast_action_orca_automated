@@ -1,1 +1,17 @@
+Use only the appscan-local MCP server.
 
+Inspect the update-issues tool definition.
+
+Return:
+1. Complete tool description.
+2. All input parameters, types and constraints.
+3. Required and optional parameters.
+4. Accepted enum values and defaults.
+5. What issue data the tool can modify.
+6. Its preview and approval workflow.
+7. Whether confirmToken is supported and how it works.
+8. Whether issue data can be modified without explicit user approval.
+
+Do not execute update-issues.
+Do not invoke any other MCP tool.
+Do not modify any issue.
