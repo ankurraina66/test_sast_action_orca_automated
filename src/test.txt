@@ -1,9 +1,31 @@
-Use only the appscan-local MCP server.
+claude code response
 
-Execute get-asset-groups.
+get-asset-groups returned 1 asset group:
 
-Return the complete response, including asset group names,
-IDs, descriptions and any other available fields.
+Found 1 asset group(s):
 
-Do not invoke any other MCP tool.
-Do not perform any write, update, delete or scan operation.
+Name: DEFAULT_ASSET_GROUP
+ID: 32e36587-ff35-4170-b9e5-184ca3ef1f48
+Description: No description
+
+- Fields: The tool returned only name, ID and description. The description is "No description".
+- Use with create-app: If an application is created later, this is the only asset group it could be placed in. I haven't created anything.
+
+I called only get-asset-groups. I made no write, update, delete or scan calls.
+
+************************************************************************************************************
+
+claude desktop response
+
+Here is the complete response from the appscan-local get-asset-groups tool. It found 1 asset group.
+
+Field	Value
+Name	DEFAULT_ASSET_GROUP
+ID	32e36587-ff35-4170-b9e5-184ca3ef1f48
+Description	No description
+
+The tool returned no other fields.
+
+This is the only asset group visible to your account. If you create an application with create-app, this ID is the one you would pass as assetGroupId. The tool has no filtering or paging, so this is the full list it returns.
+
+I called only get-asset-groups and did no write, update, delete or scan operations.
