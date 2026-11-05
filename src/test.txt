@@ -1,1 +1,12 @@
+Use only the appscan-local MCP server.
 
+Call get-issues with this deliberately invalid application ID:
+not-a-valid-uuid
+
+Use top=10.
+
+Return the exact result or error.
+
+Do not retry with another ID.
+Do not invoke any other MCP tool.
+Do not perform any write operation.
