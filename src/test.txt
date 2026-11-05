@@ -1,1 +1,3 @@
-
+Use only the appscan-local MCP server.
+Execute get-server-info and return the complete response.
+Do not invoke any other tool.
