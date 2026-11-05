@@ -1,1 +1,33 @@
+Use only the appscan-local MCP server.
 
+List every tool exposed by this server.
+
+For each tool, provide:
+1. Exact tool name.
+2. Tool description.
+3. Whether it is read-only or write-capable, based
+   on its description and schema.
+
+Include all tools, including write and delete tools.
+
+Do not execute any tool.
+Do not invoke any other MCP server.
+Do not perform any operation that changes AppScan data.
+
+
+
+Use only the appscan-local MCP server.
+
+Inspect the input schemas of all tools exposed by this server.
+
+For every tool, provide:
+1. Exact tool name.
+2. All input parameters.
+3. Required and optional parameters.
+4. Parameter types.
+5. Enums or accepted values.
+6. Default values, wherever specified.
+
+Do not execute any tool.
+Do not invoke any other MCP server.
+Do not perform any operation that changes AppScan data.
