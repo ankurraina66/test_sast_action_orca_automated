@@ -1,1 +1,14 @@
+Use only the appscan-local MCP server.
 
+Inspect the get-asset-groups tool definition.
+
+Return:
+1. Tool description.
+2. All input parameters.
+3. Required and optional parameters.
+4. Parameter types, accepted values and defaults.
+5. Whether the tool is read-only.
+
+Do not execute get-asset-groups yet.
+Do not invoke any other MCP tool.
+Do not perform any write, update, delete or scan operation.
