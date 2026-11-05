@@ -1,1 +1,6 @@
+Use only the appscan-local MCP server.
 
+Execute the get-tenant-info tool and return the complete response.
+
+Do not invoke any other MCP tool.
+Do not perform any write, update, delete, or scan operation.
