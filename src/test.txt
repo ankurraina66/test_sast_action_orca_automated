@@ -1,1 +1,15 @@
+Use only the appscan-local MCP server.
 
+Execute get-fix-groups with these parameters:
+
+scope: Scan
+scopeId: 01100975-b3b5-4cb3-86da-2a0de7f4dde9
+top: 100
+count: true
+applyPolicies: None
+
+Return the complete response, including fix group IDs,
+names, issue associations, status and other available fields.
+
+Do not invoke any other MCP tool.
+Do not perform any write, update, delete or scan operation.
