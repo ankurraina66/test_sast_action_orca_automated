@@ -1,14 +1,104 @@
-Use only the appscan-local MCP server.
+claude code response
 
-Inspect the get-fix-groups tool definition.
+get-fix-groups is read-only as far as its definition shows. Everything below comes from the tool's schema, and I haven't run the tool.
 
-Return:
-1. Tool description.
-2. All input parameters.
-3. Which parameters are required and which are optional.
-4. Parameter types, accepted values, and defaults.
-5. Whether this tool is read-only.
+1. Tool description
 
-Do not execute get-fix-groups yet.
-Do not invoke any other MCP tool.
-Do not perform any write, update, delete, or scan operation.
+▎ List fix groups for an explicitly identified scope and scopeId (Application, Scan, or ScanExecution). Ask the user to identify or confirm the target when scope or ID is missing or ambiguous; never select an arbitrary target.
+
+2–4. Parameters
+
+Required
+
+┌───────────┬───────────────┬──────────────────────────────────┬─────────┬─────────────────┐
+│ Parameter │     Type      │         Accepted values          │ Default │   Description   │
+├───────────┼───────────────┼──────────────────────────────────┼─────────┼─────────────────┤
+│ scope     │ string (enum) │ Application, Scan, ScanExecution │ none    │ Fix group scope │
+├───────────┼───────────────┼──────────────────────────────────┼─────────┼─────────────────┤
+│ scopeId   │ string        │ A UUID                           │ none    │ Scope ID        │
+└───────────┴───────────────┴──────────────────────────────────┴─────────┴─────────────────┘
+
+Optional
+
+┌─────────────────┬──────────────────┬──────────────────────────┬─────────┬─────────────────────────────────────────┐
+│    Parameter    │       Type       │     Accepted values      │ Default │               Description               │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ applyPolicies   │ string (enum)    │ None, All, Select        │ None    │ Which policies to apply for filtering   │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ selectPolicyIds │ array of strings │ Policy IDs               │ none    │ Used when applyPolicies is Select       │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ filter          │ string           │ OData filter expression  │ none    │ Filters the results                     │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ apply           │ string           │ OData apply expression   │ none    │ Aggregation and transformation          │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ select          │ string           │ OData select expression  │ none    │ Chooses which fields to return          │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ expand          │ string           │ OData expand expression  │ none    │ Expands related entities                │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ orderby         │ string           │ OData orderby expression │ none    │ Sort order                              │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ count           │ boolean          │ true or false            │ none    │ Include the total count in the response │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ skip            │ number           │ Integer                  │ none    │ Number of records to skip               │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ top             │ number           │ Up to 5000               │ 100     │ Maximum records to return               │
+├─────────────────┼──────────────────┼──────────────────────────┼─────────┼─────────────────────────────────────────┤
+│ locale          │ string           │ Locale code              │ en-US   │ Locale override                         │
+└─────────────────┴──────────────────┴──────────────────────────┴─────────┴─────────────────────────────────────────┘
+
+5. Read-only?
+
+- Read-only in practice: The description says it lists fix groups, and none of its parameters change data. It also has no confirmation or preview mechanism, unlike the create tools.
+- No explicit flag: The schema has no read-only annotation. This conclusion rests on the s.
+- The write counterpart is separate: update-fix-groups is the tool that would change them.
+
+Before running it
+
+You'd need to pick a scope and scopeId. These are IDs you have already seen:
+- Application: for example Demo_Claude_POC, a892fce6-630b-44b4-8f47-d6f6f7d63be5.
+- Scan: for example 01100975-b3b5-4cb3-86da-2a0de7f4dde9.
+- ScanExecution: I don't have any of these IDs yet.
+
+I haven't run get-fix-groups or any other tool. I loaded this definition with the tool-sees the schema. I made no write, update, delete or scan calls.
+
+************************************************************************************************************
+
+claude desktop response
+
+I inspected the get-fix-groups definition without executing it. I loaded the tool schemas, which also brought in four other tool definitions, and I called none of them.
+
+1. Tool description
+
+List fix groups for an explicitly identified scope and scopeId (Application, Scan, or ScanExecution). Ask the user to identify or confirm the target when scope or ID is missing or ambiguous; never select an arbitrary target.
+
+2–4. Input parameters
+Parameter	Required?	Type	Accepted values	Default
+scope	Required	string	Application, Scan, ScanExecution	none
+scopeId	Required	string	UUID of the application, scan or scan execution matching scope	none
+apply	Optional	string	OData $apply expression	none
+applyPolicies	Optional	string	None, All, Select	None
+selectPolicyIds	Optional	array of strings	Policy IDs, used when applyPolicies is Select	none
+count	Optional	boolean	true / false (include total count in the response)	none stated
+expand	Optional	string	OData $expand expression	none
+filter	Optional	string	OData $filter expression	none
+locale	Optional	string	Locale override	en-US
+orderby	Optional	string	OData $orderby expression	none
+select	Optional	string	OData $select expression	none
+skip	Optional	number	Number of records to skip	none stated
+top	Optional	number	Maximum records to return, up to 5000	100
+
+The schema doesn’t define a format or allowed values for the OData expressions, so any syntax rules come from the AppScan API itself.
+
+5. Is it read-only?
+
+Yes, as far as the definition shows. Three things point that way:
+
+The description only says “List fix groups” and mentions no changes.
+None of the parameters write anything. There is no status, comment or confirmToken, and those belong to the separate update-fix-groups tool.
+Unlike the write tools, it doesn’t say “Approval is required before changes.”
+
+The definition has no explicit read-only annotation, so this is my reading of the description and parameters, not a declared property.
+
+Before running it
+
+The tool needs an explicit target. For example, you could use scope: Application with Demo_Claude_POC’s ID, or scope: Scan with a scan ID from the earlier results. Tell me which target you want, plus any optional parameters, and I’ll run it.
