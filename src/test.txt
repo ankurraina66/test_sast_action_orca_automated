@@ -1,33 +1,600 @@
-Use only the appscan-local MCP server.
+Output of TC-03
+claude code response
 
-List every tool exposed by this server.
+The appscan-local server exposes 14 tools: 9 are read-only, 1 is read-only until you ask for a report, and 4 can change data. I classified each one from its description and schema, and I executed none of them.
 
-For each tool, provide:
-1. Exact tool name.
-2. Tool description.
-3. Whether it is read-only or write-capable, based
-   on its description and schema.
+┌─────┬───────────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬────────────────────────────────────────────────────────┐
+│  #  │       Tool        │                                                 Description (condensed)                                                 │               Read-only or write-capable               │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 1   │ get-server-info   │ Non-sensitive MCP server runtime details: API base URL, timeouts, retry config, and whether credentials are configured. │ Read-only                                              │
+│     │                   │  Used for environment validation.                                                                                       │                                                        │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 2   │ get-tenant-info   │ Organization-level tenant details, subscription metadata, and current user context from AppScan on Cloud.               │ Read-only                                              │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 3   │ get-apps          │ Lists AppScan applications and returns the IDs that downstream tools need. Takes an optional OData filter and top.      │ Read-only                                              │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 4   │ get-asset-groups  │ Lists asset groups (organizational units) used to classify applications. Takes no parameters. Used before create-app.   │ Read-only                                              │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 5   │ get-scans         │ Lists scans with metadata, application IDs, matching totals and completeness. Takes optional filter and top.            │ Read-only                                              │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 6   │ get-issues        │ Issues for one application. appId is required, and filter, top and applyPolicies are optional.                          │ Read-only                                              │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 7   │ get-scan-issues   │ Issues for one scan. scanId is required, and filter and top are optional.                                               │ Read-only                                              │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 8   │ get-issue-details │ Full details for a single issue by issueId, for investigation and remediation planning.                                 │ Read-only                                              │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 9   │ get-fix-groups    │ Fix groups for an explicit scope (Application, Scan or ScanExecution) and scopeId, with OData and paging options.       │ Read-only                                              │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│     │                   │ Lists reports, creates Security, Issues, Regulation, License and SBOM reports, and downloads report files. operation is │ Mixed. Listing is read-only. Create makes a report in  │
+│ 10  │ get-reports       │  list, create or download.                                                                                              │ AppScan and needs approval. Download saves a file      │
+│     │                   │                                                                                            │ locally.                                               │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 11  │ create-app        │ Creates a new application. Needs explicit user approval, and firmToken.                    │ Write                                                  │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 12  │ create-scan       │ Creates or starts a scan: SAST or SCA on a local project, or  files and uploads them to    │ Write                                                  │
+│     │                   │ AppScan. Needs explicit approval unless the server operator has set APPSCAN_CREATE_SCAN_SKIP_ELICITATION=true.          │                                                        │
+├─────┼───────────────────┼────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 13  │ update-fix-groups │ Changes a fix group's status (Open, InProgress, Reopened, Noise, Passed, Fixed or New) for an explicit scope.           │ Write                                                  │
+│     │                   │ stickyStatus also applies the status to future issues. Needs                               │                                                        │
+├─────┼───────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+│ 14  │ update-issues     │ Changes issue status, comment or external ID, for one issue o odataFilter. Needs approval. │ Write                                                  │
+└─────┴───────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴────────────────────────────────────────────────────────┘
 
-Include all tools, including write and delete tools.
+- No delete tool: The server has no delete tools. Nothing here removes applications, scans or issues. The nearest destructive operations are update-issues and update-fix-groups, which can mark findings as
+  Noise, Passed or Fixed.
+- Broad changes: update-issues can change many issues at once through a scope and filter, so it has the widest effect of the four write tools.
+- Safeguards: The create and update tools say approval is needed first, and several have Token. These are described in the tools, but I haven't tested them.
+- Unattended scans: If APPSCAN_CREATE_SCAN_SKIP_ELICITATION=true is set on the server, create-scan runs without an approval prompt. I can't see how the server is configured, so I don't know whether it is set.
+- Descriptions: I condensed them. The schemas for create-scan and get-reports are very la
 
-Do not execute any tool.
-Do not invoke any other MCP server.
-Do not perform any operation that changes AppScan data.
+I used the tool-search lookup only to load these definitions. I invoked no appscan-local e no changes to AppScan data.
+
+************************************************************************************************************
+
+claude desktop response
+
+The `appscan-local` server exposes **14 tools**. The descriptions below come from the tool definitions, and I executed none of the tools. I called only the tool-definition lookup to load the schemas I didn't already have. I made no calls to any other MCP server and changed no AppScan data.
+
+**No delete tools exist.** The server has no tool that deletes applications, scans, issues, fix groups or reports.
+
+## Summary
+
+| Category | Tools |
+|---|---|
+| **Read-only (9)** | get-server-info, get-tenant-info, get-apps, get-scans, get-issues, get-scan-issues, get-issue-details, get-fix-groups, get-asset-groups |
+| **Write-capable (4)** | create-app, create-scan, update-issues, update-fix-groups |
+| **Mixed (1)** | get-reports (list and download are reads, create generates a report) |
+
+## Read-only tools
+
+| # | Tool | Description | Access |
+|---|---|---|---|
+| 1 | `get-server-info` | Retrieve non-sensitive AppScan MCP server runtime details such as API base URL, timeout settings, retry configuration, and whether credentials are configured. Use this for environment validation and troubleshooting before running scan or issue-management workflows. | Read-only |
+| 2 | `get-tenant-info` | Fetch organization-level tenant details, subscription metadata, and current user context from AppScan on Cloud. Use this when you need to confirm account scope, subscription capacity, admin context, or basic onboarding diagnostics. | Read-only |
+| 3 | `get-apps` | List AppScan applications and return identifiers required by downstream tools. Use filter only for a selector grounded in the user's request, not an inferred project folder name; results include matching totals and whether the result is complete. Select implicitly only when an explicit selector yields exactly one match in a complete result. An unfiltered singleton, unknown total, or top limit is not sufficient. A selector with no matches also returns an unfiltered list of other available applications. When selection is unresolved, show the actual application names and IDs alongside Create a new application and Enter another application name or ID, then wait for the user's choice. Never replace the choices with a create-only yes/no question. | Read-only |
+| 4 | `get-scans` | List scans in AppScan and return scan metadata, application IDs, matching totals, and result completeness. Use filter only for a selector grounded in the user's request. Select implicitly only when an explicit selector yields exactly one match in a complete result; an unfiltered singleton, unknown total, or top limit is not sufficient. Ask the user when the target is missing or ambiguous. | Read-only |
+| 5 | `get-issues` | Retrieve security issues for an explicitly identified application ID (typically discovered via get-apps). If the app is not established in the current conversation, ask the user to identify it; do not choose an arbitrary or unfiltered singleton. Issue filters narrow findings, not the application target. | Read-only |
+| 6 | `get-scan-issues` | Retrieve security issues for an explicitly identified scan ID (typically discovered via get-scans). If the scan is not established in the current conversation, ask the user to identify it; a scan selector can be used only when it yields exactly one match in a complete result. Issue filters narrow findings, not the scan target. | Read-only |
+| 7 | `get-issue-details` | Fetch full details for a single security issue by issueId, including extended metadata needed for investigation and remediation planning. Use this after listing issues when you need deeper context before changing status or generating targeted reports. | Read-only |
+| 8 | `get-fix-groups` | List fix groups for an explicitly identified scope and scopeId (Application, Scan, or ScanExecution). Ask the user to identify or confirm the target when scope or ID is missing or ambiguous; never select an arbitrary target. | Read-only |
+| 9 | `get-asset-groups` | Retrieve available asset groups (organizational units) used to classify and govern applications in AppScan. Use this before create-app when application ownership or placement must align to a specific asset group. | Read-only |
+
+## Write-capable tools
+
+| # | Tool | Description | Access |
+|---|---|---|---|
+| 10 | `create-app` | Create a new application in AppScan. Use only after the user explicitly approves application creation. Do not call this tool to guess or unblock a missing appId during create-scan. | **Write** (creates an application) |
+| 11 | `create-scan` | Create or start an HCL AppScan scan for a local project (SAST/SCA) or a URL target (DAST). Supports the personalScan option for all three scan types (defaults to false). Use this whenever the user asks to create, start, or run a scan. If appId is missing, stop and resolve the app first, and never select an unfiltered singleton automatically. Explicit approval is required unless the server operator has set APPSCAN_CREATE_SCAN_SKIP_ELICITATION=true to pre-authorize create-scan for automation. SAST never runs project builds: Java/.NET artifacts or a supported Windows C/C++ solution must be prepared first. buildBeforeScan is SCA-only. The full definition also covers interpreting natural-language preferences such as keeping or preserving artifacts, verbose logs and a work folder. | **Write** (creates and starts scans, and uploads local project content for SAST/SCA) |
+| 12 | `update-issues` | Update AppScan issues in an explicitly identified scope and scopeId. Supports single-issue updates or filtered scope updates. Do not infer the target from issue filters; ask when missing or ambiguous, and do not provide conflicting scope, appId, or scanId values. Approval is required before changes. AppScan cannot store a comment without a status value, and when the user asks only to add a comment you must send the issue's current status so the status is preserved. A successful response means the write was applied: the returned count reports status transitions only, so a count of 0 is not a failure and must never trigger a retry. Never re-send the same update through another tool or scope; call this tool again only when the user explicitly wants a duplicate (allowDuplicate=true) or when an error confirms the request was rejected before being applied. | **Write** (changes issue status, comments and external IDs) |
+| 13 | `update-fix-groups` | Update a fix group within an explicitly identified scope and scopeId (Application, Scan, or ScanExecution). Ask when the target is missing or ambiguous; never infer or choose a scope arbitrarily. Approval is required before changes. | **Write** (changes fix group status, including sticky status that affects future issues) |
+
+## Mixed tool
+
+| # | Tool | Description | Access |
+|---|---|---|---|
+| 14 | `get-reports` | List AppScan reports, create Security/Issues/Regulation/License/SBOM reports, and download generated report files. For create, supply the explicit scope and target ID (scanExecutionId for ScanExecution and SBOM); for download, supply reportId. Never extract the first UUID from prose or guess a scope. Ask the user when the target is missing or ambiguous. Approval is required before report creation. | **Mixed:** the `list` operation is read-only. `create` generates a new report in AppScan and needs approval. `download` saves a file locally. Its name suggests it only reads. |
+
+## Notes
+
+- **Classification basis:** I classified the tools from their descriptions and schemas. Only the write tools mention approval or confirmation (`confirmToken` or "Approval is required"). The definitions carry no explicit read-only annotations.
+- **Only mixed tool:** `get-reports` is the only tool whose name doesn't reflect its write capability.
+- **Approval gate:** All the write-capable tools say they require approval, but the descriptions don't say how it's enforced.
+- **Caution with `create-scan`:** Its description says the approval step is skipped if the server operator has set `APPSCAN_CREATE_SCAN_SKIP_ELICITATION=true`. I can't tell from here whether that is set.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+Output of TC-04
+
+claude code response
+
+I read the input schemas of all 14 tools from the definitions already loaded in this session, and I executed nothing. Where a schema lists no default, I say "none". The schemas themselves don't cover some runtime rules, such as create-scan needing an appId, and I note those separately.
+
+Read-only tools
+
+1. get-server-info
+
+No parameters.
+
+2. get-tenant-info
+
+No parameters.
+
+3. get-asset-groups
+
+No parameters.
+
+4. get-apps
+
+No required parameters.
+
+┌───────────┬────────┬────────────────────────────────────────┐
+│ Parameter │  Type  │                 Notes                  │
+├───────────┼────────┼────────────────────────────────────────┤
+│ filter    │ string │ OData filter expression. Optional.     │
+├───────────┼────────┼────────────────────────────────────────┤
+│ top       │ number │ Number of records to return. Optional. │
+└───────────┴────────┴────────────────────────────────────────┘
+
+5. get-scans
+
+No required parameters.
+
+┌───────────┬────────┬────────────────────────────────────────┐
+│ Parameter │  Type  │                 Notes                  │
+├───────────┼────────┼────────────────────────────────────────┤
+│ filter    │ string │ OData filter expression. Optional.     │
+├───────────┼────────┼────────────────────────────────────────┤
+│ top       │ number │ Number of records to return. Optional. │
+└───────────┴────────┴────────────────────────────────────────┘
+
+6. get-issues
+
+Required: appId.
+
+┌───────────────┬─────────────┬────────────────────────────────────────┐
+│   Parameter   │    Type     │       Accepted values / default        │
+├───────────────┼─────────────┼────────────────────────────────────────┤
+│ appId         │ string      │ Required. Application ID.              │
+├───────────────┼─────────────┼────────────────────────────────────────┤
+│ filter        │ string      │ OData filter, e.g. Severity eq 'High'. │
+├───────────────┼─────────────┼────────────────────────────────────────┤
+│ top           │ number      │ Default 100, max 5000.                 │
+├───────────────┼─────────────┼────────────────────────────────────────┤
+│ applyPolicies │ string enum │ None, All, Select. Default None.       │
+└───────────────┴─────────────┴────────────────────────────────────────┘
+
+7. get-scan-issues
+
+Required: scanId.
+
+┌───────────┬────────┬───────────────────────────┐
+│ Parameter │  Type  │ Accepted values / default │
+├───────────┼────────┼───────────────────────────┤
+│ scanId    │ string │ Required. Scan ID.        │
+├───────────┼────────┼───────────────────────────┤
+│ filter    │ string │ OData filter.             │
+├───────────┼────────┼───────────────────────────┤
+│ top       │ number │ Default 100, max 5000.    │
+└───────────┴────────┴───────────────────────────┘
+
+8. get-issue-details
+
+Required: issueId.
+
+┌───────────┬────────┬─────────────────────┐
+│ Parameter │  Type  │        Notes        │
+├───────────┼────────┼─────────────────────┤
+│ issueId   │ string │ Required. Issue ID. │
+└───────────┴────────┴─────────────────────┘
+
+9. get-fix-groups
+
+Required: scope, scopeId.
+
+┌────────────────────────────────────────┬─────────────────┬─────────────────────────────
+│               Parameter                │      Type       │          Accepted values / default          │
+├────────────────────────────────────────┼─────────────────┼─────────────────────────────
+│ scope                                  │ string enum     │ Required. Application, Scan, ScanExecution. │
+├────────────────────────────────────────┼─────────────────┼─────────────────────────────
+│ scopeId                                │ string          │ Required. UUID.                             │
+├────────────────────────────────────────┼─────────────────┼─────────────────────────────
+│ applyPolicies                          │ string enum     │ None, All, Select. Default None.            │
+├────────────────────────────────────────┼─────────────────┼─────────────────────────────
+│ selectPolicyIds                        │ array of string │ Used when applyPolicies is Select.          │
+├────────────────────────────────────────┼─────────────────┼─────────────────────────────
+│ filter, apply, select, expand, orderby │ string          │ OData expressions.                          │
+├────────────────────────────────────────┼─────────────────┼─────────────────────────────
+│ count                                  │ boolean         │ Include the total count.                    │
+├────────────────────────────────────────┼─────────────────┼─────────────────────────────
+│ skip                                   │ number          │ Records to skip.                            │
+├────────────────────────────────────────┼─────────────────┼─────────────────────────────
+│ top                                    │ number          │ Max 5000, default 100.                      │
+├────────────────────────────────────────┼─────────────────┼─────────────────────────────
+│ locale                                 │ string          │ Defaults to en-US.                          │
+└────────────────────────────────────────┴─────────────────┴─────────────────────────────
+
+Mixed tool
+
+10. get-reports
+
+Required: prompt. No parameter has a schema default.
+
+┌───────────────────────────────────────────────────────────────────────────────────────────────────────────┬──────────────────┬───────────────────────────────────────────────┐
+│                                                               Parameter                                                                │       Type       │            Accepted values / notes            │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ prompt                                                                                                                                 │ string           │ Required. Natural-language operation or       │
+│                                                                                                           │                  │ report type.                                  │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ operation                                                                                                 │ string enum      │ list, create, download.                       │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ reportType                                                                                                │ string enum      │ Security, Issues, Regulation, License, Sbom.  │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ reportFileType                                                                                            │ string enum      │ Pdf, Html, Xml, Csv, Sarif.                   │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ scope                                                                                                     │ string enum      │ Application, Scan, ScanExecution.             │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ id                                                                                                        │ string (uuid)    │ Scope ID. Use scanExecutionId for             │
+│                                                                                                                                        │                  │ ScanExecution scope.                          │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ scanExecutionId                                                                                                                        │ string (uuid)    │ For SBOM or ScanExecution-scoped reports.     │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ reportId                                                                                                                               │ string (uuid)    │ For download.                                 │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ applyPolicies                                                                                                                          │ string enum      │ None, All, Select.                            │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ selectPolicyIds                                                                                                                        │ array of string  │ Policy IDs for Select.                        │
+│                                                                                                           │ (uuid)           │                                               │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ odataFilter                                                                                               │ string           │ Limits the issues included in the report.     │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ regulationReportType                                                                                      │ string           │ Required for regulation reports, e.g.         │
+│                                                                                                                                        │                  │ OwaspTop10_2021, PCI.                         │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ sbomFormat                                                                                                                             │ string enum      │ SPDX_Json, CycloneDx_Json.                    │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ documentName, fileName, organizationName, creatorName                                                                                  │ string           │ SBOM metadata.                                │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ creatorEmail                                                                                                                           │ string (email)   │ SBOM metadata.                                │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ title, notes, locale, outputDir                                                                                                        │ string           │ outputDir is the download directory.          │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ top                                                                                                                                    │ number           │ Max report jobs for list.                     │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ confirmToken                                                                                                                           │ string           │ One-time token from the preview flow.         │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────┼──────────────────┼───────────────────────────────────────────────┤
+│ Section toggles: applicationCustomFields, applicationDetails, articles, coverPage, coverage, details, discussion, history,             │ boolean          │ Security report sections.                     │
+│ issueCustomFields, minimizeDetails, overview, summary, tableOfContent                                     │                  │                                               │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴──────────────────┴───────────────────────────────────────────────┘
+
+Write tools
+
+11. create-app
+
+Required: name.
+
+┌──────────────┬────────┬─────────────────────────────┐
+│  Parameter   │  Type  │            Notes            │
+├──────────────┼────────┼─────────────────────────────┤
+│ name         │ string │ Required. Application name. │
+├──────────────┼────────┼─────────────────────────────┤
+│ description  │ string │ Application description.    │
+├──────────────┼────────┼─────────────────────────────┤
+│ assetGroupId │ string │ Asset group ID.             │
+├──────────────┼────────┼─────────────────────────────┤
+│ confirmToken │ string │ One-time preview token.     │
+└──────────────┴────────┴─────────────────────────────┘
+
+12. create-scan
+
+The schema marks no parameter as required. The description says appId is required in practice, plus targetDir for SAST and SCA and scanUrl for DAST.
+
+┌───────────────────────────┬───────────────┬──────────────────────────────────────────────────┬─────────────┐
+│         Parameter         │     Type      │          Accepted values / constraints
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ appId                     │ string (uuid) │ UUID pattern
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ scanType                  │ string enum   │ SAST, SCA, DAST
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ scanName                  │ string        │ 1 to 1024 characters
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ comment                   │ string        │ Max 2048 characters
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ targetDir                 │ string        │ Min length 1. SAST and SCA.
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ scanUrl                   │ string (uri)  │ DAST starting URL
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ scanMode                  │ string enum   │ auto, source-code-only, build-output. SAST
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ scanLevel                 │ string enum   │ fast, normal, thorough
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ optimization              │ string enum   │ Fast, Normal, Thorough. DAST.
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ networkType               │ string enum   │ public, private. DAST.
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ presenceId                │ string        │ Required for DAST with private
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ loginMethod               │ string enum   │ None, Required, Record. DAST.
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ loginUser, loginPassword  │ string        │ Required for DAST with Required
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ loginSequenceFileId       │ string        │ Required for DAST with Record
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ fullyAutomatic            │ boolean       │ DAST
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ suspend                   │ boolean       │ DAST
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ locale                    │ string        │ DAST
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ personalScan              │ boolean       │
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ scanSecrets               │ boolean       │
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ scanThirdParty            │ boolean       │
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ buildBeforeScan           │ boolean       │ SCA only
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ configFile                │ string        │ Path to appscan-config.xml
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ workDir                   │ string        │ Min length 1
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ conserveFiles             │ boolean       │
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ detailedLogs              │ boolean       │
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ wait                      │ boolean       │ SAST and SCA. DAST always returns immediate
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ maxWaitMinutes            │ integer       │ 1 to 720
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ includeProgressTranscript │ boolean       │
+├───────────────────────────┼───────────────┼──────────────────────────────────────────────────┼─────────────┤
+│ confirmToken              │ string        │ One-time preview token
+└───────────────────────────┴───────────────┴──────────────────────────────────────────────────┴─────────────┘
+
+13. update-fix-groups
+
+Required: scope, scopeId, fixGroupId, status, stickyStatus.
+
+┌─────────────────┬─────────────────┬─────────────────────────────────────────────────────────────────────────────────┐
+│    Parameter    │      Type       │                            Accepted values / defaul│
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ scope           │ string enum     │ Required. Application, Scan, ScanExecution.        │
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ scopeId         │ string          │ Required. UUID.                                    │
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ fixGroupId      │ string          │ Required. UUID.                                    │
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ status          │ string enum     │ Required. Open, InProgress, Reopened, Noise, Passed│
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ stickyStatus    │ boolean         │ Required. When true, applies to all issues in the g│
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ applyPolicies   │ string enum     │ None, All, Select. Default None.                   │
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ selectPolicyIds │ array of string │ For Select.                                        │
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ comment         │ string          │ Optional.                                          │
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────────────┤
+│ confirmToken    │ string          │ One-time preview token.                            │
+└─────────────────┴─────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
+
+14. update-issues
+
+The schema has no required parameters. The description says to supply an explicit scope or issueId.
+
+┌─────────────────┬─────────────────┬─────────────────────────────────────────────────────────────────────────┐
+│    Parameter    │      Type       │                        Accepted values / default
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ scope           │ string enum     │ Application, Scan, ScanExecution. Optional if appId
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ scopeId         │ string          │ UUID.
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ appId           │ string          │ UUID. Shorthand for scope=Application.
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ scanId          │ string          │ UUID. Shorthand for scope=Scan.
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ issueId         │ string          │ UUID. Single-issue targeting.
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ odataFilter     │ string          │ Targets matching issues within the scope.
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ status          │ string enum     │ Open, InProgress, Reopened, Noise, Passed, Fixed, N
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ comment         │ string          │ Optional.
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ externalId      │ string          │ Optional.
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ allowDuplicate  │ boolean         │ Set true only to repeat an identical update on purp
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ applyPolicies   │ string enum     │ None, All, Select. Default None.
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ selectPolicyIds │ array of string │ For Select.
+├─────────────────┼─────────────────┼─────────────────────────────────────────────────────────────────────────┤
+│ confirmToken    │ string          │ One-time preview token.
+└─────────────────┴─────────────────┴─────────────────────────────────────────────────────────────────────────┘
+
+Observations
+
+- Server-side validation: The create-scan schema marks nothing as required, but the description says the tool stops and returns an app list if appId is missing. The same applies to update-issues. So the schema
+  alone understates what the tool needs.
+- Schema defaults: Only create-scan, get-fix-groups (locale, top), get-issues, get-scan-issues and applyPolicies on the fix-group and issue tools state defaults.
+- Policy-filtered results: Every read tool I ran used applyPolicies: None or left it unsetered by policy.
+
+I invoked no appscan-local tools and no other MCP server, and I made no changes to AppSca
 
 
+************************************************************************************************************
 
-Use only the appscan-local MCP server.
+claude desktop response
 
-Inspect the input schemas of all tools exposed by this server.
+I read these schemas from the tool definitions already loaded in this conversation, and I executed no tools. The server exposes 14 tools. Where the schema gives no default, the tables say "none". Where the default appears only in a description, I note that.
 
-For every tool, provide:
-1. Exact tool name.
-2. All input parameters.
-3. Required and optional parameters.
-4. Parameter types.
-5. Enums or accepted values.
-6. Default values, wherever specified.
+## Tools with no parameters
 
-Do not execute any tool.
-Do not invoke any other MCP server.
-Do not perform any operation that changes AppScan data.
+| Tool | Parameters |
+|---|---|
+| `get-server-info` | None |
+| `get-tenant-info` | None |
+| `get-asset-groups` | None |
+
+## `get-apps` and `get-scans`
+
+Both tools have the same schema. Nothing is required.
+
+| Parameter | Required | Type | Enum | Default |
+|---|---|---|---|---|
+| `filter` | No | string (OData filter) | none | none |
+| `top` | No | number | none | none |
+
+## `get-issues`
+
+| Parameter | Required | Type | Enum | Default |
+|---|---|---|---|---|
+| `appId` | **Yes** | string | none | none |
+| `applyPolicies` | No | string | `None`, `All`, `Select` | `None` (from the description) |
+| `filter` | No | string (OData, e.g. `Severity eq 'High'`) | none | none |
+| `top` | No | number | none | 100 (max 5000, per the description) |
+
+## `get-scan-issues`
+
+| Parameter | Required | Type | Enum | Default |
+|---|---|---|---|---|
+| `scanId` | **Yes** | string | none | none |
+| `filter` | No | string (OData) | none | none |
+| `top` | No | number | none | 100 (max 5000, per the description) |
+
+## `get-issue-details`
+
+| Parameter | Required | Type | Enum | Default |
+|---|---|---|---|---|
+| `issueId` | **Yes** | string | none | none |
+
+## `get-fix-groups`
+
+| Parameter | Required | Type | Enum | Default |
+|---|---|---|---|---|
+| `scope` | **Yes** | string | `Application`, `Scan`, `ScanExecution` | none |
+| `scopeId` | **Yes** | string (UUID) | none | none |
+| `apply` | No | string (OData `$apply`) | none | none |
+| `applyPolicies` | No | string | `None`, `All`, `Select` | `None` (from the description) |
+| `selectPolicyIds` | No | array of strings | none | none |
+| `count` | No | boolean | none | none |
+| `expand` | No | string (OData) | none | none |
+| `filter` | No | string (OData) | none | none |
+| `locale` | No | string | none | `en-US` (from the description) |
+| `orderby` | No | string (OData) | none | none |
+| `select` | No | string (OData) | none | none |
+| `skip` | No | number | none | none |
+| `top` | No | number | none | 100 (up to 5000, per the description) |
+
+## `update-fix-groups` (write)
+
+| Parameter | Required | Type | Enum | Default |
+|---|---|---|---|---|
+| `fixGroupId` | **Yes** | string (UUID) | none | none |
+| `scope` | **Yes** | string | `Application`, `Scan`, `ScanExecution` | none |
+| `scopeId` | **Yes** | string (UUID) | none | none |
+| `status` | **Yes** | string | `Open`, `InProgress`, `Reopened`, `Noise`, `Passed`, `Fixed`, `New` | none |
+| `stickyStatus` | **Yes** | boolean | none | none |
+| `applyPolicies` | No | string | `None`, `All`, `Select` | `None` (from the description) |
+| `selectPolicyIds` | No | array of strings | none | none |
+| `comment` | No | string | none | none |
+| `confirmToken` | No | string (one-time token from the preview flow) | none | none |
+
+## `update-issues` (write)
+
+No parameter is required in the schema. The description says the target must be identified explicitly with `issueId`, `appId`, `scanId`, or `scope` plus `scopeId`.
+
+| Parameter | Required | Type | Enum | Default |
+|---|---|---|---|---|
+| `issueId` | No | string (UUID) | none | none |
+| `appId` | No | string (UUID, shorthand for Application scope) | none | none |
+| `scanId` | No | string (UUID, shorthand for Scan scope) | none | none |
+| `scope` | No | string | `Application`, `Scan`, `ScanExecution` | none |
+| `scopeId` | No | string (UUID) | none | none |
+| `odataFilter` | No | string | none | none |
+| `status` | No | string | `Open`, `InProgress`, `Reopened`, `Noise`, `Passed`, `Fixed`, `New` | none |
+| `comment` | No | string | none | none |
+| `externalId` | No | string | none | none |
+| `applyPolicies` | No | string | `None`, `All`, `Select` | `None` (from the description) |
+| `selectPolicyIds` | No | array of strings | none | none |
+| `allowDuplicate` | No | boolean | none | none |
+| `confirmToken` | No | string | none | none |
+
+## `create-app` (write)
+
+| Parameter | Required | Type | Enum | Default |
+|---|---|---|---|---|
+| `name` | **Yes** | string | none | none |
+| `assetGroupId` | No | string | none | none |
+| `description` | No | string | none | none |
+| `confirmToken` | No | string | none | none |
+
+## `create-scan` (write)
+
+No parameter is required in the schema. The description says `appId` must be resolved before a scan is created. `targetDir` is described as required for SAST/SCA, `scanUrl` for DAST, and some other parameters are required for specific DAST modes.
+
+| Parameter | Type | Enum / constraints | Default |
+|---|---|---|---|
+| `appId` | string (UUID format) | UUID pattern | none |
+| `scanType` | string | `SAST`, `SCA`, `DAST` | `SAST` |
+| `scanName` | string | length 1–1024 | none (generated if omitted) |
+| `comment` | string | max length 2048 | none |
+| `targetDir` | string | min length 1; needed for SAST/SCA | none |
+| `scanUrl` | string (URI) | needed for DAST | none |
+| `scanMode` | string (SAST only) | `auto`, `source-code-only`, `build-output` | `auto` |
+| `scanLevel` | string | `fast`, `normal`, `thorough` | `normal` |
+| `configFile` | string | path to appscan-config.xml | none |
+| `buildBeforeScan` | boolean (SCA only) | none | `false` |
+| `scanSecrets` | boolean | none | `true` |
+| `scanThirdParty` | boolean | none | `false` |
+| `personalScan` | boolean | none | `false` |
+| `conserveFiles` | boolean | none | `false` |
+| `detailedLogs` | boolean | none | `false` |
+| `includeProgressTranscript` | boolean | none | `false` |
+| `wait` | boolean | none | `true` (DAST always returns immediately) |
+| `maxWaitMinutes` | integer | min 1, max 720 | `120` |
+| `workDir` | string | min length 1 | none (system temp directory) |
+| `fullyAutomatic` | boolean (DAST) | none | `true` |
+| `suspend` | boolean (DAST) | none | `false` |
+| `optimization` | string (DAST) | `Fast`, `Normal`, `Thorough` | `Fast` |
+| `locale` | string (DAST) | none | `en-US` |
+| `networkType` | string (DAST) | `public`, `private` | `public` |
+| `presenceId` | string | needed for DAST with `private` network | none |
+| `loginMethod` | string (DAST) | `None`, `Required`, `Record` | `None` |
+| `loginUser` | string | needed when `loginMethod` is `Required` | none |
+| `loginPassword` | string | needed when `loginMethod` is `Required` | none |
+| `loginSequenceFileId` | string | needed when `loginMethod` is `Record` | none |
+| `confirmToken` | string | one-time token | none |
+
+## `get-reports` (mixed)
+
+Only `prompt` is required. The schema specifies no defaults.
+
+| Parameter | Type | Enum / constraints |
+|---|---|---|
+| `prompt` (**required**) | string | natural-language request for the report operation or type |
+| `operation` | string | `list`, `create`, `download` |
+| `reportType` | string | `Security`, `Issues`, `Regulation`, `License`, `Sbom` |
+| `reportFileType` | string | `Pdf`, `Html`, `Xml`, `Csv`, `Sarif` |
+| `scope` | string | `Application`, `Scan`, `ScanExecution` |
+| `id` | string (UUID) | scope ID |
+| `scanExecutionId` | string (UUID) | for SBOM or ScanExecution scope |
+| `reportId` | string (UUID) | for download |
+| `regulationReportType` | string | needed for regulation reports (e.g. `OwaspTop10_2021`, `PCI`) |
+| `sbomFormat` | string | `SPDX_Json`, `CycloneDx_Json` |
+| `applyPolicies` | string | `None`, `All`, `Select` |
+| `selectPolicyIds` | array of UUID strings | used when `applyPolicies` is `Select` |
+| `odataFilter` | string | limits the issues included |
+| `title`, `notes`, `locale` | string | none |
+| `documentName`, `fileName`, `creatorName`, `organizationName` | string | SBOM metadata |
+| `creatorEmail` | string | email format |
+| `outputDir` | string | download location, must stay inside the reports base directory |
+| `top` | number | max report jobs for list |
+| `confirmToken` | string | one-time token |
+| `applicationCustomFields`, `applicationDetails`, `articles`, `coverPage`, `coverage`, `details`, `discussion`, `history`, `issueCustomFields`, `minimizeDetails`, `overview`, `summary`, `tableOfContent` | boolean | report section toggles |
+
+## Observations
+
+- **Required parameters in the schema:** Two schemas, `update-issues` and `create-scan`, require nothing, yet their descriptions say a target or `appId` must be identified first. Treat those descriptions as the real requirement.
+- **`confirmToken`:** It appears on every write-capable tool and on `get-reports`. It is the one-time token from the preview and approval flow, and it appears on no read-only tool.
+- **UUID checks:** Only `create-scan` and `get-reports` enforce a UUID pattern in the schema. Elsewhere, ID parameters are plain strings.
+
+
+Going forward just run one test case at a time.
