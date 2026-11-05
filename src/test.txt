@@ -1,1 +1,20 @@
+Use only the appscan-local MCP server.
 
+I explicitly confirm the SAST scan preview.
+
+Repeat the create-scan request using exactly the same parameters as the previous preview and this confirmation token:
+
+confirmToken: 56bb3cda-1009-46c8-b9d0-ab0d897b5d8a
+
+Do not change any parameters.
+Do not invoke any other MCP tool.
+
+Wait for scan completion as configured.
+
+Return:
+1. Whether the scan was created successfully.
+2. Scan ID and scan name.
+3. Scan status.
+4. Whether the IRX upload succeeded.
+5. Number of issues found, if available.
+6. Any errors or timeout details.
