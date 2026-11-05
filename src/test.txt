@@ -1,1 +1,9 @@
+Use only the appscan-local MCP server.
 
+Execute get-asset-groups.
+
+Return the complete response, including asset group names,
+IDs, descriptions and any other available fields.
+
+Do not invoke any other MCP tool.
+Do not perform any write, update, delete or scan operation.
