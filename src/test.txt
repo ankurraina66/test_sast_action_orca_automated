@@ -1,1 +1,14 @@
+Use only the appscan-local MCP server.
 
+Inspect the get-fix-groups tool definition.
+
+Return:
+1. Tool description.
+2. All input parameters.
+3. Which parameters are required and which are optional.
+4. Parameter types, accepted values, and defaults.
+5. Whether this tool is read-only.
+
+Do not execute get-fix-groups yet.
+Do not invoke any other MCP tool.
+Do not perform any write, update, delete, or scan operation.
