@@ -1,1 +1,18 @@
+Use only the appscan-local MCP server.
 
+Inspect the create-scan tool definition.
+
+Return:
+1. Complete tool description.
+2. All input parameters, types and constraints.
+3. Required and optional parameters.
+4. Defaults and accepted enum values.
+5. Preview and approval workflow.
+6. How confirmToken works.
+7. Explain the APPSCAN_CREATE_SCAN_SKIP_ELICITATION
+   environment variable and its effect.
+8. Whether a scan can start without explicit user approval.
+
+Do not execute create-scan.
+Do not invoke any other MCP tool.
+Do not create, start or modify any scan.
