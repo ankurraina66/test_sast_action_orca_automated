@@ -1,1 +1,11 @@
+Use only the appscan-local MCP server.
 
+Execute get-scan-issues for the following scan:
+
+scanId: 01100975-b3b5-4cb3-86da-2a0de7f4dde9
+
+Return the complete response, including issue IDs, names,
+severity, status, and source locations wherever available.
+
+Do not invoke any other MCP tool.
+Do not perform any write, update, delete, or scan operation.
