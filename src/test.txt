@@ -1,12 +1,48 @@
-Use only the appscan-local MCP server.
+claude code response
 
-Call get-issues with this deliberately invalid application ID:
-not-a-valid-uuid
+get-issues rejected the invalid ID, as expected. This is the exact error:
 
-Use top=10.
+Error fetching issues: AppScan API request to /api/v4/Issues/Application/not-a-valid-uuid?%24top=10 failed with HTTP 400: {
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "errors": {
+    "scopeId": [
+      "The value 'not-a-valid-uuid' is not valid."
+    ]
+  },
+  "traceId": "00-098509df1b9f58be5d72365ffc97e91c-b061947aafe9dafa-01"
+}
 
-Return the exact result or error.
+- Where it failed: The tool didn't check the ID itself, since its schema only requires a string. It passed the value to the AppScan API, which returned HTTP 400 for scopeId.
+- No data returned: The request was rejected before any lookup, so nothing was returned and nothing changed.
+- Parameters: top=10 was sent as $top=10. The error shows nothing wrong with it.
+- Trace ID: 00-098509df1b9f58be5d72365ffc97e91c-b061947aafe9dafa-01, if you need it for AppScan support.
 
-Do not retry with another ID.
-Do not invoke any other MCP tool.
-Do not perform any write operation.
+I made one call and didn't retry. I invoked no other tool and performed no write operations.
+
+************************************************************************************************************
+
+claude desktop response
+
+The `appscan-local` `get-issues` call failed again with an HTTP 400 validation error. Here is the exact result:
+
+```
+Error fetching issues: AppScan API request to /api/v4/Issues/Application/not-a-valid-uuid?%24top=10 failed with HTTP 400: {
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "errors": {
+    "scopeId": [
+      "The value 'not-a-valid-uuid' is not valid."
+    ]
+  },
+  "traceId": "00-853027aa84e2fe70903447a4384267b9-fec58df014eda22c-01"
+}
+```
+
+This matches the previous attempt, so the failure is repeatable. The only difference is the trace ID, which is `00-853027aa84e2fe70903447a4384267b9-fec58df014eda22c-01` this time. The earlier one was `00-6fc22b95367792602fa11a17caf54bf6-a956983e568e8314-01`, so each request gets its own.
+
+The AppScan API rejected the value, not the MCP tool, which passes `appId` through as a plain string. The request was a read that failed validation, so nothing was returned or changed.
+
+I did not retry with another ID. I made no other tool calls and did no write operations.
