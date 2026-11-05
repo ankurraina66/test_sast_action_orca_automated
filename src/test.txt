@@ -1,17 +1,127 @@
-Use only the appscan-local MCP server.
+claude code response
 
-Inspect the update-fix-groups tool definition.
+I read this from the update-fix-groups definition already loaded in this session, and I didn't run the tool.
 
-Return:
-1. Complete tool description.
-2. All input parameters, types and constraints.
-3. Required and optional parameters.
-4. Accepted enum values and defaults.
-5. What data the tool can modify.
-6. Its preview and approval workflow.
-7. Whether confirmToken is supported and how it works.
-8. Whether the operation can modify AppScan data without explicit user approval.
+1. Complete tool description (verbatim)
 
-Do not execute update-fix-groups.
-Do not invoke any other MCP tool.
-Do not modify any issue or fix group.
+▎ Update a fix group within an explicitly identified scope and scopeId (Application, Scan, or ScanExecution). Ask when the target is missing or ambiguous; never infer or choose a scope arbitrarily. Approval is required before changes.
+
+2–4. Parameters, types, constraints, enums and defaults
+
+Required: scope, scopeId, fixGroupId, status, stickyStatus.
+
+┌─────────────────┬─────────────────┬──────────┬───────────────────────────────────────────────────────────────────────────────────────┬─────────┐
+│    Parameter    │      Type       │ Required │                             Accepted values / constraints                             │ Default │
+├─────────────────┼─────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ scope           │ string enum     │ Yes      │ Application, Scan, ScanExecution                                                      │ none    │
+├─────────────────┼─────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ scopeId         │ string          │ Yes      │ UUID of the scope                                                                     │ none    │
+├─────────────────┼─────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ fixGroupId      │ string          │ Yes      │ UUID of the fix group                                                                 │ none    │
+├─────────────────┼─────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ status          │ string enum     │ Yes      │ Open, InProgress, Reopened, Noise, Passed, Fixed, New                                 │ none    │
+├─────────────────┼─────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ stickyStatus    │ boolean         │ Yes      │ When true, the status applies to all issues in the fix group, including future issues │ none    │
+├─────────────────┼─────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ applyPolicies   │ string enum     │ No       │ None, All, Select                                                                     │ None    │
+├─────────────────┼─────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ selectPolicyIds │ array of string │ No       │ Policy IDs, used when applyPolicies is Select                                         │ none    │
+├─────────────────┼─────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ comment         │ string          │ No       │ Free text comment for the update                                                      │ none    │
+├─────────────────┼─────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────────────────┼─────────┤
+│ confirmToken    │ string          │ No       │ One-time token from the preview flow                                                  │ none    │
+└─────────────────┴─────────────────┴──────────┴──────────────────────────────────────────────────────────┴─────────┘
+
+The schema sets no length limits or formats on any field. The "UUID" labels come from theren't enforced by a pattern.
+
+5. What data it can modify
+
+- Fix group status: It sets the status of the fix group you name. A fix group bundles iss the four groups I listed for scan 01100975-b3b5-4cb3-86da-2a0de7f4dde9.
+- Effect on issues: Changing a fix group's status changes the status of the issues in it. With stickyStatus: true, issues found in later scans are also given that status.
+- Comment: An optional comment can be stored with the change.
+- Scope of impact: The target is one fix group, but a fix group at Application scope can span many scans and issues.
+- Reporting effect: Statuses such as Noise, Passed or Fixed take findings out of the openwhat reports and dashboards show.
+- Reversibility: The description doesn't say whether changes can be undone. Setting a status back looks possible, but I haven't verified it.
+
+6. Preview and approval workflow
+
+The definition gives only a short rule: approval is required before changes, and the target must be explicit.
+
+1. Identify the target: Use an explicit scope and scopeId. If either is missing or ambiguous, ask, and never choose a scope on your behalf.
+2. Pick the fix group and status: fixGroupId comes from a prior get-fix-groups call. The ust be stated.
+3. Get approval: The user must approve before the change is made.
+4. Preview: The confirmToken parameter implies a preview step, but the description doesn'
+
+7. Is confirmToken supported?
+
+- Yes, it is accepted: The schema describes it as a "one-time token returned by this toolcitation is unavailable".
+- Likely behavior, inferred from the same wording in the other write tools: The first call returns a preview and a token without changing anything. After the user agrees, the call is repeated with the token to
+  apply the change.
+- Not stated: How long a token lasts, and whether it is tied to the exact parameters of the preview. I haven't observed this flow.
+
+8. Can it modify data without explicit user approval?
+
+- By design, no. The description says approval is required before changes.
+- Not proven by the schema. I can't see how the server enforces this, so I can't confirm e skipped. The documented exception to approval is create-scan and itsAPPSCAN_CREATE_SCAN_SKIP_ELICITATION setting. The update-fix-groups definition mentions nothing similar.
+- My approach: I shouldn't call this tool unless you have explicitly asked for a specifice fix group, the new status and the stickyStatus value.
+
+I didn't execute update-fix-groups or any other appscan-local tool, and I modified no fix
+
+************************************************************************************************************
+
+claude desktop response
+
+I read this from the `update-fix-groups` definition already loaded in this conversation. I did not execute the tool, and I made no other tool calls.
+
+## 1. Complete tool description
+
+> Update a fix group within an explicitly identified scope and scopeId (Application, Scan, or ScanExecution). Ask when the target is missing or ambiguous; never infer or choose a scope arbitrarily. Approval is required before changes.
+
+## 2–4. Parameters, types, constraints, enums and defaults
+
+| Parameter | Required | Type | Enum / constraints | Default | Schema description |
+|---|---|---|---|---|---|
+| `fixGroupId` | **Yes** | string | UUID by description; no pattern in the schema | none | Fix group ID (UUID). |
+| `scope` | **Yes** | string | `Application`, `Scan`, `ScanExecution` | none | Fix group scope. |
+| `scopeId` | **Yes** | string | UUID by description; no pattern in the schema | none | Scope ID (UUID). |
+| `status` | **Yes** | string | `Open`, `InProgress`, `Reopened`, `Noise`, `Passed`, `Fixed`, `New` | none | New fix group status. |
+| `stickyStatus` | **Yes** | boolean | `true` / `false` | none | When true, status applies to all issues in the fix group including future issues. |
+| `applyPolicies` | No | string | `None`, `All`, `Select` | `None` (from the description) | Policy application mode. Defaults to None. |
+| `selectPolicyIds` | No | array of strings | no format constraint | none | Policy IDs to apply when applyPolicies is Select. |
+| `comment` | No | string | no length limit stated | none | Optional comment for the update. |
+| `confirmToken` | No | string | none | none | One-time token returned by this tool preview flow when client elicitation is unavailable. |
+
+There are five required parameters and four optional ones. `stickyStatus` is required with no default, so every call must choose it explicitly.
+
+## 5. What data the tool can modify
+
+- **Fix group status:** The status of the fix group named by `fixGroupId`, set to one of the seven enum values.
+- **Issues:** Status changes apply to the issues in the fix group, and with `stickyStatus` set to `true` they also apply to issues found in future scans.
+- **Comment:** An optional comment on the update.
+- **Policy handling:** `applyPolicies` and `selectPolicyIds` control how policies are applied.
+
+The most consequential setting is `stickyStatus: true`, which changes the status of future issues as well as existing ones. Setting a fix group to `Noise` or `Fixed` with sticky status on could hide new findings.
+
+In the earlier `get-fix-groups` result for scan 01100975-…, all four fix groups were Open with sticky status false, so none had been changed that way.
+
+## 6. Preview and approval workflow
+
+- **Target:** The description says to ask the user when the target is missing or ambiguous, and never to infer or choose a scope arbitrarily.
+- **Approval:** The description says "Approval is required before changes."
+- **Preview:** The `confirmToken` description refers to a preview flow, so a preview step appears to exist. The definition doesn't say what the preview shows.
+- **Mechanism:** The definition doesn't describe it in full. Approval comes through client elicitation, or through the `confirmToken` flow when elicitation isn't available.
+
+## 7. `confirmToken`
+
+Yes, it is supported.
+- **What it is:** A one-time token returned by this tool's preview flow.
+- **When it's used:** When client elicitation is unavailable. After you approve in chat, the call is repeated with the token.
+- **What the definition doesn't say:** The token's lifetime, and whether it is tied to the exact parameters previewed.
+
+## 8. Can it modify data without explicit approval?
+
+**The definition doesn't give it a bypass.** It says approval is required and mentions no operator setting that skips approval. The `create-scan` definition has one, `APPSCAN_CREATE_SCAN_SKIP_ELICITATION`, but this definition doesn't. I can't rule out server-side behavior that isn't in the schema.
+
+Before any call to this tool, I would ask you to confirm the fix group ID, the scope and scope ID, the new status and the `stickyStatus` value.
+
+I loaded no new definitions this turn. I modified no issue or fix group.
