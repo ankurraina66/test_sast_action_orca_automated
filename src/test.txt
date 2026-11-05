@@ -1,1 +1,7 @@
-npm install -g "C:\Users\ankur.raina\Downloads\local_mcp_server\latest_build\mcp-appscan-server-1.0.0.tgz"
+PS C:\Users\ankur.raina> Get-Command mcp-appscan-server
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+ExternalScript  mcp-appscan-server.ps1                                        C:\Users\ankur.raina\AppData\Local\fnm_multishells\10620_1793786828657\mcp-appscan-server.ps1
+
+PS C:\Users\ankur.raina>
