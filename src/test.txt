@@ -1,1 +1,9 @@
+Use only the appscan-local MCP server.
 
+Call get-issues with top=10, but omit the application ID entirely.
+
+Return the exact result or error.
+
+Do not retry with another ID.
+Do not invoke any other MCP tool.
+Do not perform any write operation.
