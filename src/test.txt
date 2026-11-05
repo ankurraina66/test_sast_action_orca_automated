@@ -1,15 +1,35 @@
-Use only the appscan-local MCP server.
+The server stopped the call at its approval step and returned a preview. No scan has started and nothing has been uploaded yet.
 
-I explicitly authorize the first create-scan invocation for this SAST test.
+## Preview of the pending action
 
-Application ID: 50588b82-e61e-4bd9-b61b-cc455b045362
-Scan type: SAST
-Scan name: MCP_POC_SAST_Approval_Test
-Target directory: C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master
-Scan mode: source-code-only
+| Field | Value |
+|---|---|
+| Tool | `create-scan` (SAST scan creation) |
+| Target environment | AppScan on Cloud API |
+| Application | MCP_POC_Approval_Test (50588b82-e61e-4bd9-b61b-cc455b045362) |
+| New scan record | MCP_POC_SAST_Approval_Test |
+| Personal scan | No |
+| SAST scan mode | `source-code-only` |
+| Target directory | `C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master` |
+| Config file | `appscan-config.xml` inside the target directory (see below) |
+| Working directory | `<system-temp>/appscan-mcp` |
+| Build execution | None. No build command will run. |
+| Remote changes | Uploads an IRX artifact to AppScan and starts the remote scan. With `wait=true` it may update the remote scan state while waiting. |
+| `confirmToken` | `56bb3cda-1009-46c8-b9d0-ab0d897b5d8a` |
+| Token expiry | 5 minutes from when it was issued |
 
-Use the other default scan parameters.
+## Points to check before you confirm
 
-Follow the server's approval workflow.
-If it returns a preview and confirmToken, show me the preview and wait for my confirmation.
-Do not change the scan mode or target directory.
+- **Local files:** The server will read the target directory and package it, then write to the working directory.
+- **Config file:** The config file path is inside your project folder. The preview doesn't say whether a file already exists there or will be generated. If one is generated, it is deleted afterwards because `conserveFiles` is false. Please check that no existing `appscan-config.xml` in that folder matters to you. Per the definition, a supplied config file is never overwritten.
+- **Cleanup:** Generated local artifacts and the generated config file are deleted when the scan finishes, since `conserveFiles` is false.
+- **Upload:** Because `scanSecrets` defaults to true, any secrets in the code or config will be found and reported. The packaged source goes to AppScan on Cloud.
+- **Waiting:** With the default `wait=true`, the call stays open until the scan reaches a final state or times out at 120 minutes.
+- **No undo:** None of the tools deletes or cancels a scan.
+- **Approval route:** The server used the `confirmToken` route, so no operator override is skipping approval.
+
+## What happens next
+
+On your explicit yes, I'll repeat the call with exactly the same arguments plus the token, with scan mode `source-code-only` and the same target directory. If you don't confirm, or the token expires, nothing is uploaded or started. I'd then need to call again for a new preview and token.
+
+**Do you want me to proceed and start the scan?** Because the token lasts only 5 minutes, a late yes may need a fresh preview.
