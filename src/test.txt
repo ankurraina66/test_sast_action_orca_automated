@@ -1,1 +1,8 @@
+Use only the appscan-local MCP server.
 
+Execute the get-scans tool and return the complete response.
+Include scan names, scan IDs, associated application names or IDs,
+scan status, and scan type wherever available.
+
+Do not invoke any other MCP tool.
+Do not create, update, delete, or execute any scan.
