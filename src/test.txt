@@ -1,1 +1,5 @@
+"Current session: $env:APPSCAN_CREATE_SCAN_SKIP_ELICITATION"
 
+"User: $([Environment]::GetEnvironmentVariable('APPSCAN_CREATE_SCAN_SKIP_ELICITATION','User'))"
+
+"Machine: $([Environment]::GetEnvironmentVariable('APPSCAN_CREATE_SCAN_SKIP_ELICITATION','Machine'))"
