@@ -1,1 +1,15 @@
+Use only the appscan-local MCP server.
 
+I want to test the create-app workflow, but do not create an application.
+
+Prepare a create-app request with:
+- name: MCP_POC_Approval_Test
+- description: Temporary application for MCP approval workflow testing
+- assetGroupId: 32e36587-ff35-4170-b9e5-184ca3ef1f48
+
+Show the preview and explain the approval mechanism.
+
+Do not approve or confirm the request.
+Do not submit a confirmation token.
+Do not create the application.
+Do not invoke any other MCP tool.
