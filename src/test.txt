@@ -1,1 +1,15 @@
+Use only the appscan-local MCP server.
 
+I explicitly confirm creation of MCP_POC_Approval_Test.
+
+Repeat the create-app request using exactly the same parameters from the previous preview and its returned confirmToken.
+
+Do not change any parameters.
+Do not invoke any other MCP tool.
+
+After execution, report:
+1. Whether creation succeeded.
+2. Application name.
+3. Newly created application ID.
+4. Whether the confirmation token was accepted.
+5. Any error returned.
