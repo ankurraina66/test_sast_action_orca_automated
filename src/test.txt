@@ -1,1 +1,16 @@
-fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm list -g mcp-appscan-server
+C:\Users\ankur.raina\AppData\Local\fnm_multishells\2516_1794203602309 -> .\
+`-- mcp-appscan-server@1.0.0
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Command node | Select-Object -ExpandProperty Source
+C:\Users\ankur.raina\AppData\Local\fnm_multishells\2516_1794203602309\node.exe
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm view mcp-appscan-server version
+npm error code E404
+npm error 404 Not Found - GET https://registry.npmjs.org/mcp-appscan-server - Not found
+npm error 404
+npm error 404  'mcp-appscan-server@*' is not in this registry.
+npm error 404
+npm error 404 Note that you can also install from a
+npm error 404 tarball, folder, http url, or git url.
+npm error A complete log of this run can be found in: C:\Users\ankur.raina\AppData\Local\npm-cache\_logs\2026-11-09T05_55_42_444Z-debug-0.log
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
