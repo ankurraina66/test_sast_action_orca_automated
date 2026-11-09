@@ -1,8 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> fnm list
-* v22.23.4 default
-* system
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> fnm use 22.23.4
-error: We can't find the necessary environment variables to replace the Node version.
-You should setup your shell profile to evaluate `fnm env`, see https://github.com/Schniz/fnm#shell-setup on how to do this
-Check out our documentation for more information: https://fnm.vercel.app
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+
