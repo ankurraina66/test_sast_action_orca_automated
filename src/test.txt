@@ -1,6 +1,1 @@
-Both steps succeeded:
 
-- Connection: The appscan-connector provider is now set to local.
-- Backend tool discovery: It found 14 backend tools.
-
-I used the appscan-connector server, which is the one the /appscan skill specifies. A second server, hcl-appscan-ai-coding-assistants, is also configured. I did not switch it.
