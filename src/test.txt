@@ -1,4 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp remove hcl-appscan-ai-coding-assistants --scope user
-Removed MCP server hcl-appscan-ai-coding-assistants from user config
-File modified: C:\Users\ankur.raina\.claude.json
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+
