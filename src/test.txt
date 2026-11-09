@@ -1,1 +1,25 @@
+Use only the "hcl-appscan-ai-coding-assistants" MCP server.
 
+Use the Local STDIO provider. Confirm the active provider using "get-provider-status".
+
+Call "prepare-scan" to prepare a SAST scan using the existing test application:
+
+- Application: "MCP_POC_Approval_Test"
+- Application ID: "50588b82-e61e-4bd9-b61b-cc455b045362"
+
+Use the same source-code directory and SAST configuration used in the previous successful test scan, if that information is available.
+
+Report:
+
+1. Whether scan preparation succeeded.
+2. The proposed scan name and application.
+3. The scan configuration, including scan type and relevant options.
+4. Any validation errors or warnings.
+5. Whether an approval or confirmation token was generated and its expiry, if applicable.
+
+Important restrictions:
+
+- Do not call "execute-prepared-scan".
+- Do not call "create-scan" directly.
+- Do not create, update, or delete any AppScan resources.
+- Stop after preparing the scan and presenting its details for review.
