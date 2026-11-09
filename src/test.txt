@@ -1,3 +1,12 @@
-$env:APPSCAN_API_BASE = "https://cloud.appscan.com"
-$env:APPSCAN_KEY_ID = "YOUR_API_KEY_ID"
-$env:APPSCAN_KEY_SECRET = "YOUR_API_KEY_SECRET"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> [bool]$env:APPSCAN_KEY_ID
+True
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> [bool]$env:APPSCAN_KEY_SECRET
+True
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run start:claude-mcp
+
+> ai-coding-assistants-claude-poc@1.0.0 start:claude-mcp
+> node dist/claude-mcp-server.js
+
+{"timestamp":"2026-11-09T06:26:24.146Z","level":"info","event":"server.started","apiBaseUrl":"https://cloud.appscan.com","credentialsConfigured":true}
+{"event":"reports.directory_resolved","source":"OS default","directory":"C:\\Users\\ankur.raina\\Downloads\\myapp-reports"}
+HCL AppScan Connector for Claude is running.
