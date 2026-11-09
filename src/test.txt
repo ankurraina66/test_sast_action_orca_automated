@@ -1,1 +1,6 @@
+$stableRoot = "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server"
 
+Get-Content "$stableRoot\package.json" | ConvertFrom-Json |
+    Select-Object name, version, engines, bin
+
+Test-Path "$stableRoot\build\index.js"
