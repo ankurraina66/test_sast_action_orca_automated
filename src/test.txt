@@ -1,23 +1,33 @@
 Use only the "hcl-appscan-ai-coding-assistants" MCP server.
 
-1. Confirm the active provider using "get-provider-status". If it is not local, switch to Local STDIO.
+  1. Confirm the active provider using "get-provider-status". If it is not local, switch to Local STDIO.
+  2. Call "create-app" to create a new AppScan application with the following name:
 
-2. Call "create-app" to create a new AppScan application with the following name:
-   
-   "MCP_POC_Scan_Lifecycle_Test"
+     "MCP_POC_Scan_Lifecycle_Test"
+  3. Report:
 
-3. Report:
-   
-   - Whether application creation succeeded.
-   - Application name.
-   - Newly generated application ID.
-   - Any errors or warnings.
+     - Whether application creation succeeded.
+     - Application name.
+     - Newly generated application ID.
+     - Any errors or warnings.
+  4. Call "get-apps" to verify that the newly created application exists.
 
-4. Call "get-apps" to verify that the newly created application exists.
+  Important:
 
-Important:
+  - Create only this one application.
+  - Do not create a scan yet.
+  - Do not modify or delete any existing applications.
+  - Stop after verifying the new application.
 
-- Create only this one application.
-- Do not create a scan yet.
-- Do not modify or delete any existing applications.
-- Stop after verifying the new application.
+  Called hcl-appscan-ai-coding-assistants
+
+I did not create the application, because create-app isn't ava
+                                                                                                                                                         rovider: get-provider-status confirmed the active provider h was needed.
+- Missing tool: The hcl-appscan-ai-coding-assistants server exposes only these tools to me: get-apps, get-scans, get-scan-issues, get-issue-details,     et-provider-status, switch-provider, prepare-scan, execute-ecution-status. I searched for create-app by exact name and bykeyword, and nothing matched. The get-apps output mentioned create-app, but that is only text in the response.                                         erification: I skipped get-apps, because nothing was create
+                                                                                                                                                         reated, modified and deleted nothing, and I created no scan the gap, such as using the appscan-connector server, since you told me to use only hcl-appscan-ai-coding-assistants.                                                                                                    
+Options                                                                                                                                                  
+1. Create the application yourself. For example, use the AppScan web console. Then give me the application ID, and I'll verify it with get-apps and move on to preparing the scan.
+2. Check the server configuration. The local backend reports 14 tools but I can see only some of them. create-app may be disabled, hidden or filtered out. I can't tell which from here.
+
+
+create-scan is not available for the remote server.
