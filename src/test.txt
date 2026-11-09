@@ -1,1 +1,3 @@
+Use get-provider-status to show the active AppScan provider and its connection status.
 
+Then list the available AppScan backend tools. Do not execute any scan or modify any AppScan resources.
