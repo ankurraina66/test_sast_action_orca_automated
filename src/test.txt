@@ -1,1 +1,10 @@
+Use only the hcl-appscan-ai-coding-assistants MCP server.
 
+Confirm the active provider using get-provider-status.
+
+Then perform these read-only operations:
+1. Call get-apps and report the number of applications returned.
+2. Call get-scans and report the number of scans returned.
+3. Do not create, update, or delete anything.
+
+Report any errors encountered.
