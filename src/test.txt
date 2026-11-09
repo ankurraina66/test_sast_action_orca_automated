@@ -1,1 +1,9 @@
+Use only the hcl-appscan-ai-coding-assistants MCP server.
 
+Use the Local provider.
+
+1. Identify an existing completed SAST scan from get-scans.
+2. Call get-scan-issues for that scan.
+3. If issues are returned, select one issue and call get-issue-details.
+4. Report the scan name, scan ID, number of issues returned, and the key details retrieved for the selected issue.
+5. Do not create, update, or delete any AppScan resources.
