@@ -1,1 +1,11 @@
+Use only the hcl-appscan-ai-coding-assistants MCP server.
 
+Call switch-provider with provider set to remote.
+
+Report:
+1. Whether the Remote HTTP connection succeeded.
+2. Whether backend tool discovery succeeded.
+3. The number of discovered backend tools.
+4. Any connection or authentication error, if encountered.
+
+Do not create or modify any AppScan resources.
