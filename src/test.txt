@@ -1,1 +1,11 @@
+Use only the hcl-appscan-ai-coding-assistants MCP server.
 
+Call switch-provider with provider set to local.
+
+Report:
+1. Whether the Local STDIO connection succeeded.
+2. Whether backend tool discovery succeeded.
+3. The number of discovered backend tools.
+4. Whether any connection or authentication error occurred.
+
+Do not create or modify any AppScan resources.
