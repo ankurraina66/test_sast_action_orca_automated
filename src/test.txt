@@ -1,1 +1,11 @@
-
+claude mcp add --scope user `
+  -e APP_SCAN_PROVIDER=local `
+  -e APP_SCAN_LOCAL_COMMAND="C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe" `
+  -e 'APP_SCAN_LOCAL_ARGS=["C:\\Users\\ankur.raina\\AppData\\Roaming\\fnm\\node-versions\\v22.23.4\\installation\\node_modules\\mcp-appscan-server\\build\\index.js"]' `
+  -e APP_SCAN_REQUEST_TIMEOUT_MS=30000 `
+  -e APPSCAN_API_BASE=https://cloud.appscan.com `
+  -e APPSCAN_KEY_ID=YOUR_ROTATED_KEY_ID `
+  -e APPSCAN_KEY_SECRET=YOUR_ROTATED_KEY_SECRET `
+  -- hcl-appscan-ai-coding-assistants `
+  "C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe" `
+  "C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js"
