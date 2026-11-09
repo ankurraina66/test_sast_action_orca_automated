@@ -1,25 +1,46 @@
 Use only the "hcl-appscan-ai-coding-assistants" MCP server.
 
-Use the Local STDIO provider. Confirm the active provider using "get-provider-status".
+  Use the Local STDIO provider. Confirm the active provider using "get-provider-status".
 
-Call "prepare-scan" to prepare a SAST scan using the existing test application:
+  Call "prepare-scan" to prepare a SAST scan using the existing test application:
 
-- Application: "MCP_POC_Approval_Test"
-- Application ID: "50588b82-e61e-4bd9-b61b-cc455b045362"
+  - Application: "MCP_POC_Approval_Test"
+  - Application ID: "50588b82-e61e-4bd9-b61b-cc455b045362"
 
-Use the same source-code directory and SAST configuration used in the previous successful test scan, if that information is available.
+  Use the same source-code directory and SAST configuration used in the previous successful test scan, if that information is available.
 
-Report:
+  Report:
 
-1. Whether scan preparation succeeded.
-2. The proposed scan name and application.
-3. The scan configuration, including scan type and relevant options.
-4. Any validation errors or warnings.
-5. Whether an approval or confirmation token was generated and its expiry, if applicable.
+  1. Whether scan preparation succeeded.
+  2. The proposed scan name and application.
+  3. The scan configuration, including scan type and relevant options.
+  4. Any validation errors or warnings.
+  5. Whether an approval or confirmation token was generated and its expiry, if applicable.
 
-Important restrictions:
+  Important restrictions:
 
-- Do not call "execute-prepared-scan".
-- Do not call "create-scan" directly.
-- Do not create, update, or delete any AppScan resources.
-- Stop after preparing the scan and presenting its details for review.
+  - Do not call "execute-prepared-scan".
+  - Do not call "create-scan" directly.
+  - Do not create, update, or delete any AppScan resources.
+  - Stop after preparing the scan and presenting its details for review.
+
+  Called hcl-appscan-ai-coding-assistants 4 times
+
+I stopped before calling prepare-scan, so no scan was prepared. I made no changes, and I didn't call execute-prepared-scan or create-scan.
+
+The active provider is local. I switched it from remote first, which found 14 backend tools, and get-provider-status confirmed it.
+
+Why I stopped
+
+- The application doesn't exist. get-apps with the name filter MCP_POC_Approval_Test found 0 matches. get-scans for ID 50588b82-e61e-4bd9-b61b-cc455b045362 also returned "No scans found". The full list I pulled earlier had 21 applications, and neither the name nor that ID is among them. The application may not have been created yet, or the name or ID may be a typo.
+- There is no previous test scan to copy. No scan has ever been recorded for that application ID. So I have no source directory or SAST configuration to reuse.
+- prepare-scan requires a source directory. I won't guess one. The tool packages and uploads source from that directory, so a wrong path could upload the
+  wrong files.
+
+What I need from you
+
+1. The application. Either a corrected name or ID for an existion that MCP_POC_Approval_Test should exist. I won't create anapplication unless you explicitly ask me to.
+2. The source directory to scan. For example, this workspace rcoding-assistants-claude-poc.
+3. Optional: a scan name. If you give none, I'll let prepare-scan propose one.
+
+Once I have these, I'll run prepare-scan and show you the exact parameters, any warnings, and the confirmation token with its expiry if one is generated. I'll then stop for your review.
