@@ -1,10 +1,29 @@
-$result = claude mcp get hcl-appscan-ai-coding-assistants 2>&1
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $result = claude mcp get hcl-appscan-ai-coding-assistants 2>&1
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $result | ForEach-Object {
+>>     if ($_ -match '^\s*(APPSCAN_KEY_ID|APPSCAN_KEY_SECRET|APP_SCAN_API_KEY)=') {
+>>         "$($matches[1])=<configured>"
+>>     }
+>>     else {
+>>         $_
+>>     }
+>> }
+hcl-appscan-ai-coding-assistants:
+  Scope: User config (available in all your projects)
+  Status: ΓêÜ Connected
+  Type: stdio
+  Command: C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe
+  Args: C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js
+  Environment:
+    APP_SCAN_LOCAL_COMMAND=C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe
+    APP_SCAN_REMOTE_ENDPOINT=https://cloud.appscan.com/mcp
+    APP_SCAN_PROVIDER=local
+    APPSCAN_API_BASE=https://cloud.appscan.com
+    APP_SCAN_REQUEST_TIMEOUT_MS=30000
+APPSCAN_KEY_ID=<configured>
+APP_SCAN_API_KEY=<configured>
+    APP_SCAN_LOCAL_ARGS=["C:\\Users\\ankur.raina\\AppData\\Roaming\\fnm\\node-versions\\v22.23.4\\installation\\node_modules\\mcp-appscan-server\\build\\index.js"]
+APPSCAN_KEY_SECRET=<configured>
 
-$result | ForEach-Object {
-    if ($_ -match '^\s*(APPSCAN_KEY_ID|APPSCAN_KEY_SECRET|APP_SCAN_API_KEY)=') {
-        "$($matches[1])=<configured>"
-    }
-    else {
-        $_
-    }
-}
+To remove this server, run: claude mcp remove hcl-appscan-ai-coding-assistants -s user
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
