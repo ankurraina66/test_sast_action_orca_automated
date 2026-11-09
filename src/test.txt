@@ -1,1 +1,16 @@
+Use only the hcl-appscan-ai-coding-assistants MCP server.
 
+Use the Remote HTTP provider.
+
+Call get-issue-details for this existing issue:
+
+Issue ID: 3b009931-fdbc-f111-a6a9-000d3a7b2c78
+
+Report:
+1. Whether issue details were retrieved successfully.
+2. Issue type, severity and status.
+3. Location and line number.
+4. Description, evidence, trace and remediation information, if available.
+5. Whether the returned details match the Local provider results.
+
+Do not create, update, or delete any AppScan resources.
