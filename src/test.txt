@@ -1,172 +1,168 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\config\config.ts
-export type AppScanProvider = "remote" | "local";
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\mcp\remote-http-connector.ts
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-export interface ConnectorConfig {
-  provider: AppScanProvider;
-  requestTimeoutMs: number;
-  remote?: {
+import type { AppScanMcpConnector, McpTool, McpToolCallResult,  } from "./connector.js";
+
+export interface RemoteHttpConnectorOptions {
     endpoint: string;
-    apiKey?: string;
-  };
-  local?: {
-    command: string;
-    args: string[];
-    serverPath?: string;
-    apiBase: string;
-    keyId?: string;
-    keySecret?: string;
-  };
+    apiKey ?  : string;
+    requestTimeoutMs ?  : number;
 }
 
-export type Environment = Record<string, string | undefined>;
+export class RemoteHttpConnector implements AppScanMcpConnector {
+    private readonly client: Client;
+    private readonly transport: StreamableHTTPClientTransport;
+    private connected = false;
 
-export interface ScanLifecycleConfig {
-  pollIntervalMs: number;
-  timeoutMs: number;
-}
+    constructor(options: RemoteHttpConnectorOptions) {
+        this.client = new Client({
+            name: "hcl-appscan-connector-for-claude",
+            version: "0.1.0",
+        });
 
-export const DEFAULT_SCAN_POLL_INTERVAL_MS = 15000;
-export const DEFAULT_SCAN_TIMEOUT_MS = 30 * 60 * 1000;
+        const headers: Record < string,
+        string >  = {};
 
-function readBoundedInteger(
-  env: Environment,
-  name: string,
-  fallback: number,
-  min: number,
-  max: number,
-): number {
-  const raw = env[name]?.trim();
+        if (options.apiKey) {
+            headers["X-API-KEY"] = options.apiKey;
+        }
 
-  if (!raw) {
-    return fallback;
-  }
+        const requestTimeoutMs = options.requestTimeoutMs;
 
-  const value = Number(raw);
+        const timedFetch: typeof fetch = async(input, init) => {
+            if (!requestTimeoutMs || requestTimeoutMs <= 0) {
+                return fetch(input, {
+                    ...init,
+                    headers: {
+                        ...headers,
+                        ...(init?.headers instanceof Headers
+                             ? Object.fromEntries(init.headers.entries())
+                             : init?.headers),
+                    },
+                });
+            }
 
-  if (!Number.isSafeInteger(value) || value < min || value > max) {
-    throw new Error(`${name} must be an integer between ${min} and ${max}.`);
-  }
+            const timeoutSignal = AbortSignal.timeout(requestTimeoutMs);
+            const requestSignal = init?.signal;
 
-  return value;
-}
+            const signal = requestSignal
+                 ? AbortSignal.any([requestSignal, timeoutSignal])
+                 : timeoutSignal;
 
-export function loadScanLifecycleConfig(
-  env: Environment = process.env,
-): ScanLifecycleConfig {
-  return {
-    pollIntervalMs: readBoundedInteger(
-      env,
-      "APP_SCAN_POLL_INTERVAL_MS",
-      DEFAULT_SCAN_POLL_INTERVAL_MS,
-      1000,
-      300000,
-    ),
-    timeoutMs: readBoundedInteger(
-      env,
-      "APP_SCAN_SCAN_TIMEOUT_MS",
-      DEFAULT_SCAN_TIMEOUT_MS,
-      10000,
-      86400000,
-    ),
-  };
-}
+            return fetch(input, {
+                ...init,
+                headers: {
+                    ...headers,
+                    ...(init?.headers instanceof Headers
+                         ? Object.fromEntries(init.headers.entries())
+                         : init?.headers),
+                },
+                signal,
+            });
+        };
 
-export function loadConfig(
-  env: Environment = process.env,
-): ConnectorConfig {
-  const provider = (env.APP_SCAN_PROVIDER ?? "remote")
-    .trim()
-    .toLowerCase();
+        this.transport = new StreamableHTTPClientTransport(
+                new URL(options.endpoint), {
+                fetch: timedFetch
+            }, );
 
-  if (provider !== "remote" && provider !== "local") {
-    throw new Error(
-      'APP_SCAN_PROVIDER must be either "remote" or "local".',
-    );
-  }
-
-  const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
-
-  if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 300000) {
-    throw new Error(
-      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
-    );
-  }
-
-  if (provider === "remote") {
-    const endpoint = env.APP_SCAN_REMOTE_ENDPOINT?.trim();
-
-    if (!endpoint) {
-      throw new Error(
-        "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
-      );
     }
 
-    let parsed: URL;
+    async connect(): Promise < void > {
+        if (this.connected) {
+            return;
+        }
 
-    try {
-      parsed = new URL(endpoint);
-    } catch {
-      throw new Error("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+        await this.client.connect(this.transport);
+        this.connected = true;
+
     }
 
-    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
-      throw new Error("Remote endpoint must use HTTP or HTTPS.");
+    async listTools(): Promise < McpTool[] > {
+        this.ensureConnected();
+
+        const result = await this.client.listTools();
+
+        return result.tools.map((tool: Tool) => ({
+                name: tool.name,
+                description: tool.description,
+                inputSchema: tool.inputSchema as Record < string,
+                unknown > ,
+            }));
+
     }
 
-    return {
-      provider,
-      requestTimeoutMs: timeout,
-      remote: {
-        endpoint: parsed.toString(),
-        apiKey: env.APP_SCAN_API_KEY?.trim() || undefined,
-      },
-    };
-  }
+    async callTool(
+        name: string,
+        args: Record < string, unknown > , ): Promise < McpToolCallResult > {
+        this.ensureConnected();
 
-  const command = env.APP_SCAN_LOCAL_COMMAND?.trim() || "node";
-  const rawArgs = env.APP_SCAN_LOCAL_ARGS?.trim();
-  const legacyServerPath = env.APP_SCAN_LOCAL_SERVER_PATH?.trim();
-  let args: string[];
+        const result: unknown = await this.client.callTool({
+            name,
+            arguments: args,
+        });
 
-  if (rawArgs) {
-    let parsedArgs: unknown;
+        if (
+            typeof result !== "object" ||
+            result === null ||
+            !("content" in result) ||
+            !Array.isArray(result.content)) {
+            throw new Error(
+`MCP tool "${name}" returned an unsupported result format.`, );
+        }
 
-    try {
-      parsedArgs = JSON.parse(rawArgs);
-    } catch {
-      throw new Error(
-        "APP_SCAN_LOCAL_ARGS must be a valid JSON array of strings.",
-      );
+        const content: McpToolCallResult["content"] = result.content.map(
+                (item: unknown) => {
+                if (typeof item !== "object" || item === null || !("type" in item)) {
+                    throw new Error(
+`MCP tool "${name}" returned an invalid content item.`, );
+                }
+
+                if (typeof item.type !== "string") {
+                    throw new Error(
+`MCP tool "${name}" returned a content item with an invalid type.`, );
+                }
+
+                if ("text" in item && typeof item.text === "string") {
+                    return {
+                        type: item.type,
+                        text: item.text
+                    };
+                }
+
+                return {
+                    type: item.type
+                };
+            }, );
+
+        return {
+            content,
+            isError:
+            "isError" in result && typeof result.isError === "boolean"
+             ? result.isError
+             : undefined,
+        };
+
     }
 
-    if (
-      !Array.isArray(parsedArgs) ||
-      !parsedArgs.every((item): item is string => typeof item === "string")
-    ) {
-      throw new Error(
-        "APP_SCAN_LOCAL_ARGS must be a valid JSON array of strings.",
-      );
+    async disconnect(): Promise < void > {
+        if (!this.connected) {
+            return;
+        }
+
+        try {
+            await this.client.close();
+        } finally {
+            this.connected = false;
+        }
+
     }
 
-    args = parsedArgs;
-  } else if (legacyServerPath) {
-    // Backward compatibility with the original single-entry-point setting.
-    args = [legacyServerPath];
-  } else {
-    args = [];
-  }
-
-  return {
-    provider,
-    requestTimeoutMs: timeout,
-    local: {
-      command,
-      args,
-      ...(legacyServerPath ? { serverPath: legacyServerPath } : {}),
-      apiBase:
-        env.APPSCAN_API_BASE?.trim() || "https://cloud.appscan.com",
-      keyId: env.APPSCAN_KEY_ID?.trim() || undefined,
-      keySecret: env.APPSCAN_KEY_SECRET?.trim() || undefined,
-    },
-  };
+    private ensureConnected(): void {
+        if (!this.connected) {
+            throw new Error("Remote AppScan MCP connector is not connected.");
+        }
+    }
 }
