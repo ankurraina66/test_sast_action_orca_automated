@@ -1,1 +1,23 @@
+Use only the "hcl-appscan-ai-coding-assistants" MCP server.
 
+1. Confirm the active provider using "get-provider-status". If it is not local, switch to Local STDIO.
+
+2. Call "create-app" to create a new AppScan application with the following name:
+   
+   "MCP_POC_Scan_Lifecycle_Test"
+
+3. Report:
+   
+   - Whether application creation succeeded.
+   - Application name.
+   - Newly generated application ID.
+   - Any errors or warnings.
+
+4. Call "get-apps" to verify that the newly created application exists.
+
+Important:
+
+- Create only this one application.
+- Do not create a scan yet.
+- Do not modify or delete any existing applications.
+- Stop after verifying the new application.
