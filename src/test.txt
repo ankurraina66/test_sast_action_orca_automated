@@ -1,16 +1,50 @@
 Use only the hcl-appscan-ai-coding-assistants MCP server.
 
-Use the Remote HTTP provider.
+  Use the Remote HTTP provider.
 
-Call get-issue-details for this existing issue:
+  Call get-issue-details for this existing issue:
 
-Issue ID: 3b009931-fdbc-f111-a6a9-000d3a7b2c78
+  Issue ID: 3b009931-fdbc-f111-a6a9-000d3a7b2c78
 
-Report:
-1. Whether issue details were retrieved successfully.
-2. Issue type, severity and status.
-3. Location and line number.
-4. Description, evidence, trace and remediation information, if available.
-5. Whether the returned details match the Local provider results.
+  Report:
+  1. Whether issue details were retrieved successfully.
+  2. Issue type, severity and status.
+  3. Location and line number.
+  4. Description, evidence, trace and remediation information, if available.
+  5. Whether the returned details match the Local provider results.
 
-Do not create, update, or delete any AppScan resources.
+  Do not create, update, or delete any AppScan resources.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+The provider was local after your last switch, so I first switched it to remote. That switch succeeded and found 12 backend tools. Then I called get-issue-details. I used only the hcl-appscan-ai-coding-assistants server, and everything I ran was read-only.
+
+The remote response is identical to the one from the previous run.
+
+1. Retrieval: It succeeded. The response is an XML report for issue 3b009931-fdbc-f111-a6a9-000d3a7b2c78.
+2. Type, severity, status: The type is Inappropriate Encoding for Output Context (Validation.EncodingRequired) and the severity is Medium. The status is not in this XML report. The earlier get-scan-issues call on.
+3. Location: The sink is java.io.OutputStream.write(byte[];int;int):void in com.hcl.appscan.sdk.http.HttpResponse at line 128. The calling method is HttpResponse.getHttpResponseBody(OutputStream).
+4. Description, evidence, trace, remediation:
+   - Description: None. The report has no description text.
+   - Evidence and trace: A call trace is present, and the table below gives its three steps.
+   - Remediation: The report has a fix group (FIX: 251114669) ,OutputStream.write(), type use, pointing atHttpResponse.java:128. It lists java.io.InputStream.read(byte[];int;int):int as an alternate. It has no prose explaining how to fix the issue. The
+     group covers 5 Medium issues, which matches the five issuan.
+
+┌──────┬───────────────────┬──────────────────┬───────────────
+│ Step │       Type        │     Location     │                   Code                   │
+├──────┼───────────────────┼──────────────────┼───────────────
+│ 1    │ Source            │ HttpResponse:120 │ this.m_connection.getInputStream()       │
+├──────┼───────────────────┼──────────────────┼───────────────
+│ 2    │ Taint propagation │ HttpResponse:127 │ result = is.read(buf, 0, getLength(buf)) │
+├──────┼───────────────────┼──────────────────┼───────────────
+│ 3    │ Sink              │ HttpResponse:128 │ out.write(buf, 0, result)                │
+└──────┴───────────────────┴──────────────────┴───────────────
+
+5. Match with the Local provider: They agree on the facts but
+   - Matching fields: The type, severity and location (HttpResponse, line 128) are the same.
+   - Local result: I haven't re-run it in this turn. In the easummary, with description "No description available" andremediation "No remediation information available". It had no trace.
+   - Remote result: It adds the call trace and the fix group. nd no remediation text.
+
+The active provider is now remote. Tell me if you want it swit
+
+I created, updated and deleted nothing.
