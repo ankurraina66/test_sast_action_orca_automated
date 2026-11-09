@@ -1,5 +1,172 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp list
-hcl-appscan-ai-coding-assistants: C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe
-C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js - √ Connected
-appscan-connector: node C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js - √ Connected
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content .\src\config\config.ts
+export type AppScanProvider = "remote" | "local";
+
+export interface ConnectorConfig {
+  provider: AppScanProvider;
+  requestTimeoutMs: number;
+  remote?: {
+    endpoint: string;
+    apiKey?: string;
+  };
+  local?: {
+    command: string;
+    args: string[];
+    serverPath?: string;
+    apiBase: string;
+    keyId?: string;
+    keySecret?: string;
+  };
+}
+
+export type Environment = Record<string, string | undefined>;
+
+export interface ScanLifecycleConfig {
+  pollIntervalMs: number;
+  timeoutMs: number;
+}
+
+export const DEFAULT_SCAN_POLL_INTERVAL_MS = 15000;
+export const DEFAULT_SCAN_TIMEOUT_MS = 30 * 60 * 1000;
+
+function readBoundedInteger(
+  env: Environment,
+  name: string,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
+  const raw = env[name]?.trim();
+
+  if (!raw) {
+    return fallback;
+  }
+
+  const value = Number(raw);
+
+  if (!Number.isSafeInteger(value) || value < min || value > max) {
+    throw new Error(`${name} must be an integer between ${min} and ${max}.`);
+  }
+
+  return value;
+}
+
+export function loadScanLifecycleConfig(
+  env: Environment = process.env,
+): ScanLifecycleConfig {
+  return {
+    pollIntervalMs: readBoundedInteger(
+      env,
+      "APP_SCAN_POLL_INTERVAL_MS",
+      DEFAULT_SCAN_POLL_INTERVAL_MS,
+      1000,
+      300000,
+    ),
+    timeoutMs: readBoundedInteger(
+      env,
+      "APP_SCAN_SCAN_TIMEOUT_MS",
+      DEFAULT_SCAN_TIMEOUT_MS,
+      10000,
+      86400000,
+    ),
+  };
+}
+
+export function loadConfig(
+  env: Environment = process.env,
+): ConnectorConfig {
+  const provider = (env.APP_SCAN_PROVIDER ?? "remote")
+    .trim()
+    .toLowerCase();
+
+  if (provider !== "remote" && provider !== "local") {
+    throw new Error(
+      'APP_SCAN_PROVIDER must be either "remote" or "local".',
+    );
+  }
+
+  const timeout = Number(env.APP_SCAN_REQUEST_TIMEOUT_MS ?? "30000");
+
+  if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 300000) {
+    throw new Error(
+      "APP_SCAN_REQUEST_TIMEOUT_MS must be an integer between 1 and 300000.",
+    );
+  }
+
+  if (provider === "remote") {
+    const endpoint = env.APP_SCAN_REMOTE_ENDPOINT?.trim();
+
+    if (!endpoint) {
+      throw new Error(
+        "APP_SCAN_REMOTE_ENDPOINT is required for remote mode.",
+      );
+    }
+
+    let parsed: URL;
+
+    try {
+      parsed = new URL(endpoint);
+    } catch {
+      throw new Error("APP_SCAN_REMOTE_ENDPOINT must be a valid URL.");
+    }
+
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      throw new Error("Remote endpoint must use HTTP or HTTPS.");
+    }
+
+    return {
+      provider,
+      requestTimeoutMs: timeout,
+      remote: {
+        endpoint: parsed.toString(),
+        apiKey: env.APP_SCAN_API_KEY?.trim() || undefined,
+      },
+    };
+  }
+
+  const command = env.APP_SCAN_LOCAL_COMMAND?.trim() || "node";
+  const rawArgs = env.APP_SCAN_LOCAL_ARGS?.trim();
+  const legacyServerPath = env.APP_SCAN_LOCAL_SERVER_PATH?.trim();
+  let args: string[];
+
+  if (rawArgs) {
+    let parsedArgs: unknown;
+
+    try {
+      parsedArgs = JSON.parse(rawArgs);
+    } catch {
+      throw new Error(
+        "APP_SCAN_LOCAL_ARGS must be a valid JSON array of strings.",
+      );
+    }
+
+    if (
+      !Array.isArray(parsedArgs) ||
+      !parsedArgs.every((item): item is string => typeof item === "string")
+    ) {
+      throw new Error(
+        "APP_SCAN_LOCAL_ARGS must be a valid JSON array of strings.",
+      );
+    }
+
+    args = parsedArgs;
+  } else if (legacyServerPath) {
+    // Backward compatibility with the original single-entry-point setting.
+    args = [legacyServerPath];
+  } else {
+    args = [];
+  }
+
+  return {
+    provider,
+    requestTimeoutMs: timeout,
+    local: {
+      command,
+      args,
+      ...(legacyServerPath ? { serverPath: legacyServerPath } : {}),
+      apiBase:
+        env.APPSCAN_API_BASE?.trim() || "https://cloud.appscan.com",
+      keyId: env.APPSCAN_KEY_ID?.trim() || undefined,
+      keySecret: env.APPSCAN_KEY_SECRET?.trim() || undefined,
+    },
+  };
+}
