@@ -1,15 +1,8 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $env:APP_SCAN_PROVIDER
-local
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $env:APP_SCAN_LOCAL_COMMAND
-C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $env:APP_SCAN_LOCAL_ARGS
-["C:\\Users\\ankur.raina\\AppData\\Roaming\\fnm\\node-versions\\v22.23.4\\installation\\node_modules\\mcp-appscan-server\\build\\index.js"]
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run start:claude-mcp
 
-****************************************************************************************************************************************************************
+> ai-coding-assistants-claude-poc@1.0.0 start:claude-mcp
+> node dist/claude-mcp-server.js
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Test-Path "C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe"
-True
+{"timestamp":"2026-11-09T06:21:39.975Z","level":"error","event":"server.start_failed","error":"AppScan credentials are not configured. Set APPSCAN_KEY_ID and APPSCAN_KEY_SECRET."}
+Failed to start HCL AppScan Connector for Claude: MCP error -32000: Connection closed
 PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Test-Path "C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js"
-True
