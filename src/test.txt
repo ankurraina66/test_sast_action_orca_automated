@@ -1,2 +1,1 @@
-remote server end point: https://cloud.appscan.com/mcp
-yes i have the key id and secret
+
