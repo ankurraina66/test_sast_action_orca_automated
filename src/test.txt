@@ -1,1 +1,9 @@
+$root = npm root -g
 
+Write-Host "Global npm root: $root"
+
+Write-Host "Server entry point:"
+Test-Path "$root\mcp-appscan-server\build\index.js"
+
+Write-Host "Installed package details:"
+Get-Content "$root\mcp-appscan-server\package.json"
