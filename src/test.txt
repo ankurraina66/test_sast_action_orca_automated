@@ -1,1 +1,2 @@
-
+Call switch-provider with provider set to local.
+Report whether the connection and backend tool discovery succeeded, including the number of discovered backend tools.
