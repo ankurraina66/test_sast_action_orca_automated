@@ -1,1 +1,10 @@
+Call switch-provider with provider="local".
 
+Do not switch to another provider because local is already the intended provider.
+
+Report:
+1. Whether the provider connection succeeded.
+2. How many backend tools were discovered.
+3. The names of all discovered backend tools.
+
+Do not execute any scan or modify AppScan resources.
