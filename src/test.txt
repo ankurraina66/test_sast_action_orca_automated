@@ -1,19 +1,9 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp get hcl-appscan-ai-coding-assistants
-hcl-appscan-ai-coding-assistants:
-  Scope: User config (available in all your projects)
-  Status: √ Connected
-  Type: stdio
-  Command: C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe
-  Args: C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js
-  Environment:
-    APP_SCAN_PROVIDER=local
-    APP_SCAN_LOCAL_COMMAND=C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe
-    APP_SCAN_LOCAL_ARGS=["C:\\Users\\ankur.raina\\AppData\\Roaming\\fnm\\node-versions\\v22.23.4\\installation\\node_modules\\mcp-appscan-server\\build\\ind
-ex.js"]
-    APP_SCAN_REQUEST_TIMEOUT_MS=30000
-    APPSCAN_API_BASE=https://cloud.appscan.com
-    APPSCAN_KEY_ID=
-    APPSCAN_KEY_SECRET=
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp remove --help
+Usage: claude mcp remove [options] <name>
 
-To remove this server, run: claude mcp remove hcl-appscan-ai-coding-assistants -s user
+Remove an MCP server
+
+Options:
+  -h, --help           Display help for command
+  -s, --scope <scope>  Configuration scope (local, user, or project) - if not specified, removes from whichever scope it exists in
 PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
