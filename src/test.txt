@@ -1,1 +1,5 @@
+Use get-apps to retrieve the first 3 applications from AppScan.
 
+Display their application names and IDs.
+
+This is a read-only operation. Do not create, update, or delete anything.
