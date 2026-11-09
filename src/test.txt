@@ -1,1 +1,10 @@
+$result = claude mcp get hcl-appscan-ai-coding-assistants 2>&1
 
+$result | ForEach-Object {
+    if ($_ -match '^\s*(APPSCAN_KEY_ID|APPSCAN_KEY_SECRET|APP_SCAN_API_KEY)=') {
+        "$($matches[1])=<configured>"
+    }
+    else {
+        $_
+    }
+}
