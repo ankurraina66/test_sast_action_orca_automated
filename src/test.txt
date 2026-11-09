@@ -1,11 +1,24 @@
 Use only the hcl-appscan-ai-coding-assistants MCP server.
 
-Call switch-provider with provider set to remote.
+  Call switch-provider with provider set to remote.
 
-Report:
-1. Whether the Remote HTTP connection succeeded.
-2. Whether backend tool discovery succeeded.
-3. The number of discovered backend tools.
-4. Any connection or authentication error, if encountered.
+  Report:
+  1. Whether the Remote HTTP connection succeeded.
+  2. Whether backend tool discovery succeeded.
+  3. The number of discovered backend tools.
+  4. Any connection or authentication error, if encountered.
 
-Do not create or modify any AppScan resources.
+  Do not create or modify any AppScan resources.
+
+  Called hcl-appscan-ai-coding-assistants
+
+I used only the hcl-appscan-ai-coding-assistants server.
+
+1. Remote HTTP connection: It succeeded. The active provider is now remote.
+2. Backend tool discovery: It succeeded.
+3. Discovered backend tools: 12. The local provider had 14.
+4. Errors: There were no connection or authentication errors.
+
+I only switched the provider. I created and modified no AppScan resources.
+
+The 12 vs. 14 difference is the tool counts as reported. I haven't checked which tools differ, so I don't know what the remote provider lacks.
