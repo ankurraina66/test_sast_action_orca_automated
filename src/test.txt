@@ -1,6 +1,16 @@
 Use the hcl-appscan-ai-coding-assistants MCP server, not appscan-connector.
 
-Call get-provider-status and report the active provider.
-Then call switch-provider with provider set to local.
+  Call get-provider-status and report the active provider.
+  Then call switch-provider with provider set to local.
 
-Report whether connection and backend tool discovery succeeded, including the number of discovered backend tools.
+  Report whether connection and backend tool discovery succeeded, including the number of discovered backend tools.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+I used the hcl-appscan-ai-coding-assistants server for both calls.
+
+- Active provider before switching: local.
+- Switch to local: The connection and backend tool discovery both succeeded.
+- Discovered backend tools: 14.
+
+The provider was already local, so the switch changed nothing.
