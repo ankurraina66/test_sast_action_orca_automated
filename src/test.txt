@@ -1,4 +1,4 @@
-claud code output:
+claud desktop output:
 
 The active AppScan provider is **local** (STDIO backend). The status call returned only the provider name. It gave no separate connection or health detail, so I can't confirm the connection state beyond the fact that the call succeeded.
 
