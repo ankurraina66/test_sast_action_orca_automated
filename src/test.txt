@@ -5,3 +5,8 @@ C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\nod
 PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $env:APP_SCAN_LOCAL_ARGS
 ["C:\\Users\\ankur.raina\\AppData\\Roaming\\fnm\\node-versions\\v22.23.4\\installation\\node_modules\\mcp-appscan-server\\build\\index.js"]
 PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+
+
+Test-Path "C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe"
+
+Test-Path "C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js"
