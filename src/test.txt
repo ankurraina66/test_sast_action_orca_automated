@@ -1,1 +1,19 @@
+Use only the "hcl-appscan-ai-coding-assistants" MCP server.
 
+Use Local STDIO.
+
+Do not invoke any write operation.
+
+Report the exact tools currently exposed by the POC facade, and distinguish them from the backend tools discovered during provider switching.
+
+Specifically verify whether the following backend tools are available:
+
+- create-app
+- create-scan
+- get-apps
+- get-scans
+- get-issues
+- get-scan-issues
+- get-issue-details
+
+Do not create, update or delete any AppScan resources.
