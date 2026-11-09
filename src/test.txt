@@ -1,60 +1,8 @@
-In my original poc project:
-
-PowerShell 7.5.4
-
-   A new PowerShell stable release is available: v7.6.9
-   Upgrade now, or check out the release page at:
-     https://aka.ms/PowerShell-Release?tag=v7.6.9
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm ci
-
-added 137 packages, and audited 138 packages in 5s
-
-46 packages are looking for funding
-  run `npm fund` for details
-
-3 vulnerabilities (2 moderate, 1 high)
-
-To address all issues, run:
-  npm audit fix
-
-Run `npm audit` for details.
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm audit
-# npm audit report
-
-body-parser  2.0.0 - 2.3.0
-Severity: high
-body-parser vulnerable to Denial of Service via trailing bytes after a compressed request body - https://github.com/advisories/GHSA-27r3-jxmh-p828
-fix available via `npm audit fix`
-node_modules/body-parser
-
-fast-uri  3.0.0 - 3.1.8
-Severity: moderate
-fast-uri vulnerable to URI scheme spoofing via percent-encoded scheme decoding - https://github.com/advisories/GHSA-w74x-v6f9-j3xg
-fast-uri vulnerable to improper path equivalence in relative reference normalization - https://github.com/advisories/GHSA-xhq7-xmqj-769h
-fast-uri vulnerable to host confusion via unchecked WHATWG host canonicalization - https://github.com/advisories/GHSA-wjr9-j795-jxcr
-fast-uri vulnerable to scheme injection via an unescaped first-segment colon in suffix references - https://github.com/advisories/GHSA-333x-w4r6-6crp
-fix available via `npm audit fix`
-node_modules/fast-uri
-
-qs  6.7.0 - 6.16.0
-Severity: moderate
-qs : qs.stringify with arrayFormat 'comma' throws an uncaught TypeError on array elements carrying a non-callable own toString (DoS) - https://github.com/advisories/GHSA-6pq8-jhm2-2vcw
-fix available via `npm audit fix`
-node_modules/qs
-
-3 vulnerabilities (2 moderate, 1 high)
-
-To address all issues, run:
-  npm audit fix
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm ls body-parser fast-uri qs
-ai-coding-assistants-claude-poc@1.0.0 C:\Users\ankur.raina\ai-coding-assistants-claude-poc
-`-- @modelcontextprotocol/sdk@1.32.1
-  +-- ajv@8.20.0
-  | `-- fast-uri@3.1.8
-  `-- express@5.3.0
-    +-- body-parser@2.3.0
-    | `-- qs@6.16.0 deduped
-    `-- qs@6.16.0
-
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> fnm list
+* v22.23.4 default
+* system
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> fnm use 22.23.4
+error: We can't find the necessary environment variables to replace the Node version.
+You should setup your shell profile to evaluate `fnm env`, see https://github.com/Schniz/fnm#shell-setup on how to do this
+Check out our documentation for more information: https://fnm.vercel.app
 PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
