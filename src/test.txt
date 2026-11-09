@@ -1,5 +1,3 @@
-Use get-apps to retrieve the first 3 applications from AppScan.
-
-Display their application names and IDs.
-
-This is a read-only operation. Do not create, update, or delete anything.
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> claude mcp list
+appscan-connector: node C:\Users\ankur.raina\ai-coding-assistants-claude-poc\dist\claude-mcp-server.js - √ Connected
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
