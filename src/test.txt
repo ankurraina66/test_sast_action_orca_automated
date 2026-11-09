@@ -1,1 +1,1 @@
-npm install -g "C:\Users\ankur.raina\Downloads\local_mcp_server\latest_build\mcp-appscan-server-1.0.0.tgz"
+
