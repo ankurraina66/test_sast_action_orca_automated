@@ -1,1 +1,5 @@
+$env:APP_SCAN_PROVIDER = "local"
 
+$env:APP_SCAN_LOCAL_COMMAND = "C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node.exe"
+
+$env:APP_SCAN_LOCAL_ARGS = '["C:\\Users\\ankur.raina\\AppData\\Roaming\\fnm\\node-versions\\v22.23.4\\installation\\node_modules\\mcp-appscan-server\\build\\index.js"]'
