@@ -1,6 +1,13 @@
-$stableRoot = "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $stableRoot = "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "$stableRoot\package.json" | ConvertFrom-Json |
+>>     Select-Object name, version, engines, bin
 
-Get-Content "$stableRoot\package.json" | ConvertFrom-Json |
-    Select-Object name, version, engines, bin
+name               version engines              bin
+----               ------- -------              ---
+mcp-appscan-server 1.0.0   @{node=>=20.0.0 <23} @{mcp-appscan-server=./build/index.js}
 
-Test-Path "$stableRoot\build\index.js"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Test-Path "$stableRoot\build\index.js"
+True
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
