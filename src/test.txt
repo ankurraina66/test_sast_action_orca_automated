@@ -1,1 +1,3 @@
+Create a new application in HCL AppScan named MCP_Demo_App with the description "Application created using the AppScan AI Coding Assistants MCP integration" and URL "https://example.com".
 
+Check whether the application already exists before creating it. Once created, show me its application name, ID, and creation status.
