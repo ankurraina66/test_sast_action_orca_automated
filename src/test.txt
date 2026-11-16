@@ -1,21 +1,48 @@
 We are testing application creation through the shared AppScan MCP facade using the Local STDIO backend.
 
-Invoke "create-app" with these exact parameters:
+  Invoke "create-app" with these exact parameters:
 
-- name: "MCP_Facade_Local_Test"
-- description: "Testing create-app through the shared MCP facade"
-- assetGroupId: "32e36587-ff35-4170-b9e5-184ca3ef1f48"
+  - name: "MCP_Facade_Local_Test"
+  - description: "Testing create-app through the shared MCP facade"
+  - assetGroupId: "32e36587-ff35-4170-b9e5-184ca3ef1f48"
 
-Do not provide a confirmation token in this first call.
+  Do not provide a confirmation token in this first call.
 
-This is a preview-only request. Do not create the application yet.
+  This is a preview-only request. Do not create the application yet.
 
-Return the complete preview, including:
+  Return the complete preview, including:
 
-- Application name
-- Description
-- Asset group ID
-- Confirmation token
-- Any warnings or errors
+  - Application name
+  - Description
+  - Asset group ID
+  - Confirmation token
+  - Any warnings or errors
 
-Do not retry or invoke alternative API calls.
+  Do not retry or invoke alternative API calls.
+
+  Called hcl-appscan-ai-coding-assistants
+
+The create-app call returned a preview and nothing was created. The tool returned it as an error with the heading "Approval required for sensitive tool: create-app".
+
+┌────────────────────┬───────────────────────────────────────────────────────────────────────┐
+│       Field        │                                 Value                                 │
+├────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Tool               │ create-app                                                            │
+├────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Target environment │ AppScan on Cloud API                                                  │
+├────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Target resource    │ Create a new application named MCP_Facade_Local_Test                  │
+├────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Application name   │ MCP_Facade_Local_Test                                                 │
+├────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Description        │ Testing create-app through the shared MCP facade                      │
+├────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Asset group ID     │ 32e36587-ff35-4170-b9e5-184ca3ef1f48     │
+├────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Changes            │ Creates a persistent AppScan applicatio  │
+├────────────────────┼───────────────────────────────────────────────────────────────────────┤                                                            Deletion impact    │ None                                     │
+├────────────────────┼───────────────────────────────────────────────────────────────────────┤                                                            Confirmation token │ ed3ee4f8-e9a9-4e1b-a23e-21915eab72a4 (o) │
+└────────────────────┴───────────────────────────────────────────────────────────────────────┘                                                            
+- Warnings: The tool's only warning is the "Do not execute yet" note, which asks for explicit user agreement before a second call with the same arguments plus the token.
+- Errors: There were no real errors, apart from the approval-required notice above.                                                                    No retry: I didn't retry or make any other calls, as you ask
+- If you approve: Tell me to proceed and I'll call create-app again with the same three parameters and the token. The token expires in 5 minutes, so a delay would mean running the preview again for a fresh one.
