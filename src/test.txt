@@ -1,1 +1,10 @@
+Call "get-provider-status" and report the complete response.
 
+Also inspect the MCP server startup logs, if accessible, for the following diagnostic entries:
+
+- "[AppScan MCP] Startup configuration:"
+- "[AppScan MCP] Provider switch requested:"
+
+Report the configured provider and whether the Local backend command is configured. Do not reveal, print, or expose any API keys, secrets, tokens, or credentials.
+
+Do not switch providers or execute any other tools.
