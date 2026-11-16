@@ -1,1 +1,15 @@
+List my AppScan applications
 
+  Called hcl-appscan-ai-coding-assistants
+
+The listing failed again on the remote provider with the same error:
+
+The property 'Url[Nullable=False]' of type 'Edm.String' has a null value, which is not allowed.
+
+The same error on a retry means it is not transient. As before, my reading is that a remote record has a null value in a required Url field, but I haven't verified that.
+
+Options:
+- Switch to local, where the listing returned all 22 applications. I'll do this on your word.
+- Escalate to the remote AppScan administrator, with the error text above, if you need the remote listing fixed.
+
+Which would you like?
