@@ -1,10 +1,37 @@
 Using the active Local provider, discover and load the schema for "get-asset-groups".
 
-Call it as a read-only operation and show:
+  Call it as a read-only operation and show:
 
-1. Available asset group names.
-2. Corresponding asset group IDs.
-3. Any default asset group information, if returned.
-4. Any errors returned by the backend.
+  1. Available asset group names.
+  2. Corresponding asset group IDs.
+  3. Any default asset group information, if returned.
+  4. Any errors returned by the backend.
 
-Do not create or modify any asset group or application. Do not retry create-app. Do not expose API credentials or tokens.
+  Do not create or modify any asset group or application. Do not retry create-app. Do not expose API credentials or tokens.
+
+I couldn't run get-asset-groups because the tool isn't available in this session. I made no calls, and nothing was created or changed.
+
+- Tool discovery: A search for get-asset-groups found no matching tool. The hcl-appscan-ai-coding-assistants server exposes only these tools here: create-app, execute-prepared-scan, get-apps, get-issue-details, get-provider-status, get-scan-execution-status, get-scan-issues, get-scans, prepare-scan and switch-provider.
+- Backend source: The installed backend lists a tool described as retrieving asset groups (tools/toolList.js:74). The server I'm connected to doesn't expose it. It may be a different version or a different build from the installed mcp-appscan-server package.
+- Connector: The appscan-connector server is still disconnected (CONNECTION_CLOSED).
+
+┌─────────────────────────────────┬─────────────────────────────────────────────────┐
+│         Requested item          │                     Result                      │
+├─────────────────────────────────┼─────────────────────────────────────────────────┤
+│ Asset group names               │ Not retrieved                                   │
+├─────────────────────────────────┼─────────────────────────────────────────────────┤
+│ Asset group IDs                 │ Not retrieved
+├─────────────────────────────────┼─────────────────────────────────────────────────┤
+│ Default asset group information │ Not retrieved
+├─────────────────────────────────┼─────────────────────────────────────────────────┤
+│ Backend errors                  │ None returned. The tool is
+└─────────────────────────────────┴─────────────────────────────────────────────────┘
+
+I didn't try to work around this by calling the AppScan REST API directly. That would mean using your API credentials outside the approved tool path.
+
+Options
+1. Reconnect or restart the MCP server so the current mcp-appshen I'll check again for get-asset-groups.
+2. Look up the asset group in the AppScan web UI and give me its ID. I can then request a new create-app preview with an explicit assetGroupId.
+3. Ask your AppScan administrator to confirm that your account03 may be unrelated to the asset group.
+
+Which would you like?
