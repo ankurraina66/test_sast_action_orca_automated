@@ -1,8 +1,27 @@
 Use "hcl-appscan-ai-coding-assistants".
 
-1. Confirm the active provider is remote.
-2. Call "get-scans".
-3. Return the total number of scans and a few sample scan names.
-4. Do not call "get-apps".
-5. Do not create, modify, or delete AppScan resources.
-6. Do not expose credentials.
+  1. Confirm the active provider is remote.
+  2. Call "get-scans".
+  3. Return the total number of scans and a few sample scan names.
+  4. Do not call "get-apps".
+  5. Do not create, modify, or delete AppScan resources.
+  6. Do not expose credentials.
+
+  Called hcl-appscan-ai-coding-assistants 2 times, ran 1 shell command
+
+I'll parse the saved file with a script to count scans and pull names.
+
+  Ran 2 shell commands
+
+The active provider is remote.
+
+get-scans returned 110 scans. The response was too large to display inline, so I parsed the saved output file in full. The response had only @odata.context and value fields. It had no total-count field, so I can't tell whether 110 is every scan or a page limit.
+
+Sample scan names:
+- Static_ClassLibraryCore_2026-11-09_10-23-12
+- All_In_One_12112026_1053
+- DAST 2026-10-1 https://demo.testfire.net?mode=demo
+- NEW_NE_iFrame test using ASoC _2026-11-11_15-58-18
+- Static_StdApp_2026-11-16_15-3-48
+
+I didn't call get-apps. I didn't create, modify or delete any AppScan resources, and no credentials were shown.
