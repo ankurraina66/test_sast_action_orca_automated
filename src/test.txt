@@ -1,11 +1,37 @@
 Please create and execute a SAST scan for my Spring Boot project using HCL AppScan.
 
-Use the existing application "MCP_Facade_Demo_App" and scan this project:
+  Use the existing application "MCP_Facade_Demo_App" and scan this project:
 
-"C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+  "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
 
-Name the scan "Spring_Boot_SAST_Demo".
+  Name the scan "Spring_Boot_SAST_Demo".
 
-Prepare the scan, show me the details, and ask for my approval. After I approve, execute the scan, monitor its progress, and share the final scan status and vulnerability summary.
+  Prepare the scan, show me the details, and ask for my approval. After I approve, execute the scan, monitor its progress, and share the final scan status and vulnerability summary.
 
-Use the existing AppScan provider and the prepare-scan / execute-prepared-scan workflow. Do not ask for a second approval.
+  Use the existing AppScan provider and the prepare-scan / execute-prepared-scan workflow. Do not ask for a second approval.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+The scan is prepared but not started. Here are the exact parameters:
+
+┌────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│       Field        │                                                            Value                                                             │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Application        │ MCP_Facade_Demo_App (6cbbf2cb-efca-425e-8ca7-2d177d51413c)                                                                   │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan name          │ Spring_Boot_SAST_Demo                                                                                                        │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Scan type          │ SAST                                                                                                                         │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Target directory   │ C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Provider           │ local                                                                                                                        │
+├────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Confirmation token │ 14e9e48c-8d95-481f-9564-2146e4d6848c                                                                                         │
+└────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+What running it will do:
+- Source artifacts from the target directory may be packaged and uploaded to AppScan.
+- The underlying tool may generate configuration files in the project folder or run a build.
+
+Do you approve running this scan with these exact parameters? Reply "approve" (or "yes") and I'll execute it, monitor it, and report the final status and vulnerability summary. I won't ask for a second approval.
