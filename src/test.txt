@@ -1,1 +1,2 @@
-
+$backend = "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js"
+Select-String -Path $backend -Pattern 'create-app|create_app|createApp' -Context 5,15
