@@ -1,10 +1,34 @@
 Call "get-provider-status" and report the complete response.
 
-Also inspect the MCP server startup logs, if accessible, for the following diagnostic entries:
+  Also inspect the MCP server startup logs, if accessible, for the following diagnostic entries:
 
-- "[AppScan MCP] Startup configuration:"
-- "[AppScan MCP] Provider switch requested:"
+  - "[AppScan MCP] Startup configuration:"
+  - "[AppScan MCP] Provider switch requested:"
 
-Report the configured provider and whether the Local backend command is configured. Do not reveal, print, or expose any API keys, secrets, tokens, or credentials.
+  Report the configured provider and whether the Local backend command is configured. Do not reveal, print, or expose any API keys, secrets, tokens, or credentials.
 
-Do not switch providers or execute any other tools.
+  Do not switch providers or execute any other tools.
+
+  Called hcl-appscan-ai-coding-assistants
+
+get-provider-status complete response:
+
+Active AppScan provider: local
+
+The call returned nothing else.
+
+Startup logs: I did not inspect them. You told me not to run any other tools, so I didn't search the filesystem or read any log files. That means I can't report on either entry:
+- [AppScan MCP] Startup configuration:
+- [AppScan MCP] Provider switch requested:
+
+I haven't seen any log output, so I won't guess what it says.
+
+Configured provider and Local backend command:
+- Provider: the active provider is local, from the call above.
+- Local backend command: I can't say whether it's configured. get-provider-status doesn't report it.
+- Indirect evidence: earlier, switch-provider to local reported "Provider connection and tool discovery succeeded" with 14 backend tools. That suggests the Local backend can start. It is not a read of the configuration.
+- Other server: the separate appscan-connector server failed at startup with CONNECTION_CLOSED. I don't know if that's related.
+
+I haven't shown any keys, tokens or credentials, and I haven't switched providers.
+
+If you want the log check, tell me where the logs are, or let me look for them. I'd look only for those two entries and redact any secrets in what I report.
