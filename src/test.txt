@@ -1,1 +1,12 @@
+Use "hcl-appscan-ai-coding-assistants".
 
+1. Call "get-provider-status".
+2. Report the current provider.
+3. Switch to "remote".
+4. Report whether the connection succeeded.
+5. Report the number of discovered backend tools.
+6. Confirm the active provider.
+
+Do not call "get-apps".
+Do not create, modify, or delete AppScan resources.
+Do not expose credentials.
