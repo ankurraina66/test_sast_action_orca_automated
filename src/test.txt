@@ -1,1 +1,9 @@
+Use "hcl-appscan-ai-coding-assistants".
 
+1. Call "get-provider-status" and report the active provider.
+2. Switch to "remote".
+3. Report whether the switch succeeds.
+4. If it fails, return the complete error.
+5. Do not retry or modify any configuration.
+6. Do not create, modify, or delete AppScan resources.
+7. Do not expose credentials.
