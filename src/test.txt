@@ -1,11 +1,38 @@
-Get-ChildItem $path -Recurse -File -Filter *.js |
-    Select-String -Pattern "get-asset-groups" |
-    Select-Object Path, LineNumber, Line
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem $path -Recurse -File -Filter *.js |
+>>     Select-String -Pattern "get-asset-groups" |
+>>     Select-Object Path, LineNumber, Line
 
-Get-ChildItem $path -Recurse -File |
-    Select-Object FullName, Length, LastWriteTime
+Path                                                                                                                                 LineNumber Line
+----                                                                                                                                 ---------- ----
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\tools\registry.js       1345     server…
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\tools\registry.js       1346         de…
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\tools\toolList.js         73         na…
 
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem $path -Recurse -File |
+>>     Select-Object FullName, Length, LastWriteTime
 
-Get-Content "$path\..\package.json" |
-    ConvertFrom-Json |
-    Select-Object name, version
+FullName                                                                                                                                            Length
+--------                                                                                                                                            ------
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js                          10124
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\runtime.js                         8659
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\helpers\create-appscan-config.js  17933
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\helpers\reports-dir.js             4388
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\helpers\sastScan.js               14550
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\services\scanService.js           26044
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\services\scanWorkflow.js          21671
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\tools\approval.js                  8321
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\tools\createScan.js               21058
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\tools\mutationDedupe.js            2322
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\tools\registry.js                 68400
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\tools\targetResolution.js          4351
+C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\tools\toolList.js                  8644
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Content "$path\..\package.json" |
+>>     ConvertFrom-Json |
+>>     Select-Object name, version
+
+name               version
+----               -------
+mcp-appscan-server 1.0.0
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
