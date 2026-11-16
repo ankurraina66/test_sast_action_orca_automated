@@ -1,11 +1,37 @@
 Use "hcl-appscan-ai-coding-assistants".
 
-1. Call "get-provider-status" and confirm that the active provider is "local".
-2. If the active provider is not "local", switch to "local" using "switch-provider".
-3. Call "get-apps" with "top=1".
-4. Return:
-   - The confirmed active provider.
-   - Whether "get-apps" succeeded or failed.
-   - The complete result or exact error message.
+  1. Call "get-provider-status" and confirm that the active provider is "local".
+  2. If the active provider is not "local", switch to "local" using "switch-provider".
+  3. Call "get-apps" with "top=1".
+  4. Return:
+     - The confirmed active provider.
+     - Whether "get-apps" succeeded or failed.
+     - The complete result or exact error message.
 
-Do not create, modify, or delete any AppScan resources. This is a read-only diagnostic test.
+  Do not create, modify, or delete any AppScan resources. This is a read-only diagnostic test.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+Active provider is remote, so I'll switch to local.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+Diagnostic result
+
+- Confirmed active provider: local. It was remote at the start, so I switched it with switch-provider (14 backend tools discovered), and the switch reported success.
+- get-apps with top=1: succeeded.
+
+The complete result:
+
+Found 1 application(s).
+Matching total: 22. Complete result: no.
+Filter: (none)
+
+Name: Demo_HCLF
+ID: 5a0bcbb2-c309-489b-badc-0112e619bce7
+Type: Unknown
+Created: Unknown
+Risk: Unknown
+
+The result is a subset because of top=1, and the matching totao said to offer "Create a new application" and "Enter anotherapplication name or ID". I did not act on that, since this was a read-only test.                                                                          
+The same call on the remote provider failed with the Url[Nullable=False] null-value error. Here, on the local provider, it succeeded. I created, modified and deleted nothing.
