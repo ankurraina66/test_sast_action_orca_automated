@@ -1,10 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $path = "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build"
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path "$path\index.js" -Pattern "get-asset-groups" -Context 5,10
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-Item "$path\index.js" | Select-Object FullName, LastWriteTime, Length
 
-FullName                                                                                                                    LastWriteTime       Length
---------                                                                                                                    -------------       ------
-C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js 04-11-2026 17:06:23  10124
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
