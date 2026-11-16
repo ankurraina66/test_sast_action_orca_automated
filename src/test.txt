@@ -1,3 +1,51 @@
-$backend = "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $backend = "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path $backend -Pattern 'server\.tool|registerTool|create-app|create_scan|createScan' -Context 2,8
 
-Select-String -Path $backend -Pattern 'server\.tool|registerTool|create-app|create_scan|createScan' -Context 2,8
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:71: * This prompt helps
+assistants map natural scan requests to the create-scan tool.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:72: */
+> C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:73:server.prompt("create-apps
+can-scan", "Use this workflow when the user asks to create, run, start, or launch an HCL AppScan security scan", {}, async () => {
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:74:    return {
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:75:        messages: [
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:76:            {
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:77:                role:
+"user",
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:78:                content: {
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:79:                    type:
+"text",
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:80:                    text:
+`When the user asks to create a scan, run a scan, start a SAST scan, start an SCA scan, start a DAST scan, scan this project, security test this codebase,
+analyze this workspace for vulnerabilities, or run AppScan against the current project or a target URL, use the create-scan tool. Do this even when the
+user does not explicitly say "use the MCP server".
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:81:
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:87:5. Never infer missing
+application details. Never invent an application name, asset group, ID, or approval.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:88:6. Never create an
+application or a scan until the user has explicitly approved that specific write action in clear words.
+> C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:89:7. If the user wants a
+new app for the scan, call create-app. If a preview token is returned, show the preview, get explicit user agreement, then call create-app again with that
+confirmToken.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:90:8. If the supplied appId
+is missing or invalid, do not create a new app automatically. Present the existing applications and the create-new option as in step 4, rather than merely
+saying existing applications were found.
+> C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:91:9. Treat create-app and
+create-scan as two separate writes. Approval for one does not imply approval for the other unless the user clearly grants both in the same turn.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:92:10. Default scanType to
+SAST unless the user asks for SCA/dependency/software composition analysis, or asks for DAST/dynamic/web URL scanning.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:93:11. Set personalScan=true
+when the user requests a personal scan; this option applies to SAST, SCA, and DAST. Otherwise leave it false.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:94:12. Default detailedLogs
+to false. Only set detailedLogs to true when the user explicitly asks for verbose or troubleshooting logs; detailed logs can consume significantly more
+chat/model tokens.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:95:13. Default conserveFiles
+to false so local generated scan artifacts are deleted after the scan is created or after the scan setup fails.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:96:14. Set conserveFiles to
+true when the user asks to keep, conserve, retain, save, or inspect generated files, artifacts, zip, IRX, logs, debug output, or anything similar.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:97:15. If the user wants the
+lowest-token scan flow, set wait=false and detailedLogs=false.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:98:16. Call create-scan only
+after appId is known and scan approval is explicit.
+  C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js:99:17. Never bypass the
+approval flow. If preview-confirm is used, require the returned confirmToken from the immediately prior preview.
