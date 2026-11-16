@@ -1,1 +1,17 @@
+First, check the active AppScan provider using "get-provider-status".
 
+If the active provider is not "local", switch to "local" using "switch-provider".
+
+Once the Local provider is confirmed, invoke the "get-asset-groups" tool.
+
+This is a read-only operation. Do not create, update, or delete anything.
+
+Return the complete results, including:
+
+- Asset group name
+- Asset group ID
+- Description
+
+If the tool fails, report the exact error returned by the tool. Do not attempt alternative API calls or modify any configuration.
+
+Also confirm whether the "get-asset-groups" tool is successfully exposed through the shared Claude MCP facade.
