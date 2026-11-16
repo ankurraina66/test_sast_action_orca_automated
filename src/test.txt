@@ -1,1 +1,3 @@
-
+Select-String -Path .\src\services\appscan-service.ts `
+  -Pattern "callFirstAvailableTool|callFirstAvailableToolIfSupported|discoverApplications" `
+  -Context 5,15
