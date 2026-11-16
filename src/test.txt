@@ -1,1 +1,14 @@
+Use "hcl-appscan-ai-coding-assistants".
 
+Perform a Remote MCP connectivity diagnostic:
+
+1. Call "get-provider-status" and report the current provider.
+2. Switch to "remote" using "switch-provider".
+3. Call "get-provider-status" again and confirm that the active provider is "remote".
+4. Report the number of backend tools discovered during the switch and list their names, if available.
+5. Call "get-scans" using the Remote provider to verify that a real backend operation succeeds.
+6. Report the complete result or error.
+
+Do not call "get-apps" yet.
+Do not create, modify, or delete any AppScan resources.
+Do not display or expose API keys or secrets.
