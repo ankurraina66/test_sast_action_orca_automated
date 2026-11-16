@@ -1,1 +1,11 @@
+Please create and execute a SAST scan for my Spring Boot project using HCL AppScan.
 
+Use the existing application "MCP_Facade_Demo_App" and scan this project:
+
+"C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+
+Name the scan "Spring_Boot_SAST_Demo".
+
+Prepare the scan, show me the details, and ask for my approval. After I approve, execute the scan, monitor its progress, and share the final scan status and vulnerability summary.
+
+Use the existing AppScan provider and the prepare-scan / execute-prepared-scan workflow. Do not ask for a second approval.
