@@ -1,1 +1,8 @@
+Load the full schema for the "create-app" tool from the "hcl-appscan-ai-coding-assistants" MCP server. Then, using the active provider, call "create-app" with:
 
+- name: "MCP_Facade_Local_Test"
+- description: "Testing create-app through the shared MCP facade"
+
+Do not provide a confirmToken in this first call. Show me the complete response, including any preview and confirmation instructions.
+
+Important: Do not approve the operation, do not make a second call, and do not create the application.
