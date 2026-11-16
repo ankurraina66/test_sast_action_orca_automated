@@ -1,1 +1,28 @@
+Out put of List my AppScan applications of claude code:
 
+`get-apps` failed both times (once with no parameters, once with `top: 50`), so I can't list your applications that way. The active provider is remote. Both calls returned this error:
+
+> The property 'Url[Nullable=False]' of type 'Edm.String' has a null value, which is not allowed.
+
+The backend's data model says every application must have a `Url`. At least one application record has a null `Url`, so the whole query fails. That looks like a server-side data or schema issue, not something wrong with your request. I didn't try other parameters because the error is raised while the results are being built, so the page size likely doesn't matter.
+
+You can still get the application names from the 112 scan records I retrieved earlier, which include an `AppName` field. The distinct names I saw are:
+
+- Test_Ankita
+- Test_Joy
+- Test_Priya
+- Test_Tanmoy_SN
+- Test_Tanmoy_SN3
+- Test_Tanmoy
+- Test_Vinod
+- Test_Kranthi
+- Test_Hema
+- Test_Tayalan
+- TestVinita
+- charvi
+- AltoroMutual
+- TestApp2
+- TestApp3
+- Bitbucket plugin
+
+That list is only the applications that have at least one scan, so it may miss applications with no scans. It also doesn't include app IDs, descriptions or other app-level details. I can switch to the local provider and try `get-apps` there, in case it handles the null differently. I can also tell you what to pass to your AppScan admin so they can find the record with the null URL.
