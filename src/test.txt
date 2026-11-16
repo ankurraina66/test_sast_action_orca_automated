@@ -1,1 +1,14 @@
+Use "hcl-appscan-ai-coding-assistants".
 
+The active provider should be remote. First confirm this using "get-provider-status".
+
+I want to investigate the Remote "get-apps" failure.
+
+1. Call "get-apps" with "top=1".
+2. Capture the complete underlying error, including any nested error details, error code, HTTP status, or server response body available.
+3. Determine whether the error originates from the MCP server, the upstream AppScan API, or client-side response processing, if the available diagnostic information supports that conclusion.
+4. Do not suppress, transform, or hide the original error.
+5. Do not expose API keys, secrets, or authentication headers.
+
+Do not switch providers.
+Do not create, modify, or delete AppScan resources.
