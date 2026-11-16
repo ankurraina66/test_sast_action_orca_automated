@@ -1,11 +1,7 @@
-Use "hcl-appscan-ai-coding-assistants".
+1. **Current provider before the switch:** `local`
+2. **Switch to `remote`:** I called `switch-provider` with `remote`.
+3. **Result:** The switch failed with this error: "APP_SCAN_REMOTE_ENDPOINT is required for remote mode." The remote endpoint isn't configured in the MCP server's environment.
+4. **Backend tools discovered:** None, because the remote connection was never established, so there is no count to report.
+5. **Provider after the attempt:** `local`. It is unchanged, so the failed switch had no side effect.
 
-1. Call "get-provider-status" and report the current provider.
-2. Switch to "remote" using "switch-provider".
-3. Confirm whether the switch succeeds.
-4. Report the number of backend tools discovered.
-5. Call "get-provider-status" again to confirm the active provider.
-
-Do not call "get-apps".
-Do not create, modify, or delete AppScan resources.
-Do not expose credentials.
+I didn't call `get-apps` or touch any AppScan resources, and no credentials were exposed. To use remote mode, someone needs to set `APP_SCAN_REMOTE_ENDPOINT` for the MCP server (and any auth settings it requires), then restart the server. After that I can retry the switch.
