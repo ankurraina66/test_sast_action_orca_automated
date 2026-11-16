@@ -1,1 +1,22 @@
+The active provider should currently be "remote".
 
+We need to verify that Local-only tools are correctly restricted by the shared AppScan MCP facade.
+
+First, invoke "get-provider-status" and confirm that the active provider is "remote".
+
+Then test these three tools individually:
+
+1. "get-asset-groups"
+2. "create-app" — invoke without a confirmation token, using the harmless test name "Remote_Restriction_Test".
+3. "prepare-scan" — use a valid UUID-shaped dummy application ID and a harmless test target directory. Do not execute any scan.
+
+Expected behavior:
+
+- All three tools should reject the request because the active provider is Remote.
+- No backend operation should be performed.
+- No application should be created.
+- No scan should be prepared or started.
+
+Report the exact response from each tool and whether the Local-only restriction worked.
+
+Do not switch providers, retry using another backend, or modify any configuration. Never invoke "execute-prepared-scan".
