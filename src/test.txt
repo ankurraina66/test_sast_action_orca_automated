@@ -1,11 +1,42 @@
 Using the active Local provider, call "get-provider-status" and then inspect the tools returned by the Local backend's "listTools()" discovery through the shared facade's diagnostic capabilities, if available.
 
-I specifically want to know whether "get-asset-groups" is returned by the Local backend.
+  I specifically want to know whether "get-asset-groups" is returned by the Local backend.
 
-Report:
+  Report:
 
-1. Total number of tools returned by Local backend discovery.
-2. Whether "get-asset-groups" appears.
-3. The exact tool names returned, without exposing credentials or configuration secrets.
+  1. Total number of tools returned by Local backend discovery.
+  2. Whether "get-asset-groups" appears.
+  3. The exact tool names returned, without exposing credentials or configuration secrets.
 
-Do not call get-asset-groups yet. Do not modify files, switch providers, or execute write operations.
+  Do not call get-asset-groups yet. Do not modify files, switch providers, or execute write operations.
+
+  Searched for 1 pattern, called hcl-appscan-ai-coding-assistants, ran 2 shell commands
+
+I can't give you the count or tool names that Local backend discovery actually returned. Nothing exposed in this session runs listTools() against the Local backend, so I didn't switch providers or call get-asset-groups.
+
+Provider status: get-provider-status returned Active AppScan provider: local.
+
+Why there's no live answer
+- The shared facade (src/claude-mcp-server.ts) registers a fixed list of tools (get-provider-status, switch-provider, create-app, get-apps, get-scans, get-scan-issues, get-issue-details, prepare-scan, execute-prepared-scan, get-scan-execution-status), and none lists backend tools.
+- The facade's service layer does call connector.listTools() internally, but only to return a toolCount from switch-provider. That call would count as switching providers, which you ruled out, and it returns a count, not names.
+
+What I can report, from static source:
+Files here are in the installed mcp-appscan-server/build/. This is what the backend package declares. It is not live discovery output, and I haven't confirmed the running process uses this package.
+
+┌─────────────────────┬────────────────────────────────────────┐
+│        Item         │                               Result                                │
+├─────────────────────┼────────────────────────────────────────┤
+│ Declared tool count │ 14 (tools/toolList.js and tools/registry.js agree)                  │
+├─────────────────────┼────────────────────────────────────────┤
+│ get-asset-groups    │ Declared. It appears in toolList.js:74 and has a registerTool call. │
+└─────────────────────┴────────────────────────────────────────┘
+
+Declared tool names:
+get-server-info, get-tenant-info, get-apps, create-app, get-scans, create-scan, get-issues, get-scan-issues, get-fix-groups, get-issue-details,
+update-issues, update-fix-groups, get-reports, get-asset-group
+
+What this means
+- The backend package declares get-asset-groups, so the tool is probably present on the Local backend.
+- The shared facade doesn't expose it. It re-registers only it the facade has no asset-group handler, which explains why Icouldn't call it.
+- The backend also declares create-scan, but the facade exposeepared-scan instead. The facade is a filtered subset, not apass-through.                                                                                                                                         
+To get real discovery output, someone could run the backend's listTools() directly, for example through an MCP inspector against mcp-appscan-server. To use asset groups through Claude, the facade would need a get-aen't changed any files.
