@@ -1,1 +1,10 @@
+Using the active Local provider, discover and load the schema for "get-asset-groups".
 
+Call it as a read-only operation and show:
+
+1. Available asset group names.
+2. Corresponding asset group IDs.
+3. Any default asset group information, if returned.
+4. Any errors returned by the backend.
+
+Do not create or modify any asset group or application. Do not retry create-app. Do not expose API credentials or tokens.
