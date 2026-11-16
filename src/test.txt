@@ -1,1 +1,9 @@
+Use "hcl-appscan-ai-coding-assistants".
 
+1. Call "get-provider-status".
+2. Report the active provider.
+3. Call "get-apps" with "top=1".
+4. Return the application name and ID.
+5. Do not switch providers.
+6. Do not create, modify, or delete any AppScan resources.
+7. Do not expose credentials.
