@@ -1,1 +1,19 @@
+I explicitly approve creating the AppScan application using the previously generated preview.
 
+Invoke "create-app" again with these exact parameters:
+
+- name: "MCP_Facade_Local_Test"
+- description: "Testing create-app through the shared MCP facade"
+- assetGroupId: "32e36587-ff35-4170-b9e5-184ca3ef1f48"
+- confirmToken: "ed3ee4f8-e9a9-4e1b-a23e-21915eab72a4"
+
+Do not modify any parameter.
+
+Report:
+
+1. Whether application creation succeeded.
+2. The created application ID.
+3. The complete backend response.
+4. Any error returned by AppScan.
+
+Do not automatically retry if creation fails. Do not attempt alternative API calls.
