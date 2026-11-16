@@ -1,14 +1,1 @@
-Use hcl-appscan-ai-coding-assistants with the remote provider. Call get-apps with top=1 and return the result or the complete error.
-74 skills available
 
-  Called hcl-appscan-ai-coding-assistants
-
-I called get-apps with top=1 on the remote provider, and it failed. This is the complete error:
-
-The property 'Url[Nullable=False]' of type 'Edm.String' has a null value, which is not allowed.
-
-I did not re-check the active provider before this call. It was remote when I last checked, and I haven't switched it since.
-
-The error is the same as without top, so limiting the result to one record does not avoid it. If the cause is a record with a null Url, the first returned record may be that record. That is still only a hypothesis, since the call returned no data to confirm it.
-
-I can switch back to local, where the listing worked. Otherwise, the error text above is what to give the administrator of the remote AppScan service.
