@@ -1,1 +1,4 @@
-
+Get-ChildItem "$env:APPDATA","$env:LOCALAPPDATA" `
+  -Filter "claude_desktop_config.json" `
+  -Recurse -ErrorAction SilentlyContinue |
+  Select-Object -ExpandProperty FullName
