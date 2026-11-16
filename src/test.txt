@@ -1,11 +1,37 @@
 Create a new application in HCL AppScan with the following details:
 
-- Application name: "MCP_Facade_Demo_App"
-- Description: "Demo application created through the AppScan AI Coding Assistants MCP integration"
-- Asset group ID: "32e36587-ff35-4170-b9e5-184ca3ef1f48"
+  - Application name: "MCP_Facade_Demo_App"
+  - Description: "Demo application created through the AppScan AI Coding Assistants MCP integration"
+  - Asset group ID: "32e36587-ff35-4170-b9e5-184ca3ef1f48"
 
-Use the active Local AppScan provider.
+  Use the active Local AppScan provider.
 
-Show me the creation preview and, after obtaining my approval, complete the application creation.
+  Show me the creation preview and, after obtaining my approval, complete the application creation.
 
-Once successful, display the application name, application ID, and asset group details.
+  Once successful, display the application name, application ID, and asset group details.
+
+  Called hcl-appscan-ai-coding-assistants
+
+Here is the creation preview. Nothing has been created yet.
+
+┌────────────────────┬───────────────────────────────────────────────────────────────────────────────────┐
+│       Field        │                                       Value                                       │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+│ Target environment │ AppScan on Cloud API (Local provider)                                             │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+│ Application name   │ MCP_Facade_Demo_App                                                               │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+│ Description        │ Demo application created through the AppScan AI Coding Assistants MCP integration │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+│ Asset group ID     │ 32e36587-ff35-4170-b9e5-184ca3ef1f48 (DEFAULT_ASSET_GROUP)                        │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+│ Changes            │ Creates a persistent AppScan application record                                   │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+│ Deletion impact    │ None                                                                              │
+├────────────────────┼───────────────────────────────────────────────────────────────────────────────────┤
+│ Confirmation token │ 9e17f2ae-47ca-4040-81e4-5441323698a5 (one-time, expires in 5 minutes)             │
+└────────────────────┴───────────────────────────────────────────────────────────────────────────────────┘
+
+Possible failure: Your last attempt, MCP_Facade_Local_Test, failed with HTTP 403 (no permission to create applications). The same account would be used here, so this attempt will probably fail the same way unless the permissions were fixed.
+
+Do you approve creating this application? If you reply yes, I'll call create-app with the same arguments and the token. If the token expires first, I'll generate a new preview.
