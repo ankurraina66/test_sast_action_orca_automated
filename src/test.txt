@@ -1,17 +1,39 @@
 First, check the active AppScan provider using "get-provider-status".
 
-If the active provider is not "local", switch to "local" using "switch-provider".
+  If the active provider is not "local", switch to "local" using "switch-provider".
 
-Once the Local provider is confirmed, invoke the "get-asset-groups" tool.
+  Once the Local provider is confirmed, invoke the "get-asset-groups" tool.
 
-This is a read-only operation. Do not create, update, or delete anything.
+  This is a read-only operation. Do not create, update, or delete anything.
 
-Return the complete results, including:
+  Return the complete results, including:
 
-- Asset group name
-- Asset group ID
-- Description
+  - Asset group name
+  - Asset group ID
+  - Description
 
-If the tool fails, report the exact error returned by the tool. Do not attempt alternative API calls or modify any configuration.
+  If the tool fails, report the exact error returned by the tool. Do not attempt alternative API calls or modify any configuration.
 
-Also confirm whether the "get-asset-groups" tool is successfully exposed through the shared Claude MCP facade.
+  Also confirm whether the "get-asset-groups" tool is successfully exposed through the shared Claude MCP facade.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+Provider is already local, so no switch is needed.
+
+  Called hcl-appscan-ai-coding-assistants
+
+Provider check: get-provider-status reported the active provider as local. I didn't call switch-provider because it wasn't needed.
+
+get-asset-groups result (read-only, 1 asset group):
+
+┌─────────────────────┬──────────────────────────────────────┬────────────────┐
+│        Name         │                  ID                  │  Description   │
+├─────────────────────┼──────────────────────────────────────┼────────────────┤
+│ DEFAULT_ASSET_GROUP │ 32e36587-ff35-4170-b9e5-184ca3ef1f48 │ No description │
+└─────────────────────┴──────────────────────────────────────┴────────────────┘
+
+Facade exposure: Yes. get-asset-groups is exposed through the shared Claude MCP facade (hcl-appscan-ai-coding-assistants), and the call succeeded. The tool description says it works with the Local STDIO backend onhe provider were remote.
+
+Separate issue: The session reported a different MCP server, appscan-connector, as failed to connect (CONNECTION_CLOSED). That didn't affect this task, because the facade server handled the calls. If you rely on apneeds a retry or a fix.
+
+I changed no configuration and made no create, update or delet
