@@ -1,12 +1,11 @@
-Use "hcl-appscan-ai-coding-assistants".
+Current provider is **local**. Switching to remote now.
 
-1. Call "get-provider-status".
-2. Report the current provider.
-3. Switch to "remote".
-4. Report whether the connection succeeded.
-5. Report the number of discovered backend tools.
-6. Confirm the active provider.
+Here are the results:
 
-Do not call "get-apps".
-Do not create, modify, or delete AppScan resources.
-Do not expose credentials.
+1. **Initial provider status:** `get-provider-status` returned **local** as the current provider.
+2. **Switch to remote:** The switch completed.
+3. **Connection:** It succeeded, and tool discovery also succeeded.
+4. **Discovered backend tools:** **12**.
+5. **Active provider (confirmed with a second `get-provider-status` call):** **remote**.
+
+I did not call `get-apps`, did not create, modify or delete any AppScan resources, and no credentials were exposed.
