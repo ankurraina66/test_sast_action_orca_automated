@@ -1,9 +1,18 @@
 Use "hcl-appscan-ai-coding-assistants".
 
-1. Call "get-provider-status" and report the active provider.
-2. Switch to "remote".
-3. Report whether the switch succeeds.
-4. If it fails, return the complete error.
-5. Do not retry or modify any configuration.
-6. Do not create, modify, or delete AppScan resources.
-7. Do not expose credentials.
+  1. Call "get-provider-status" and report the active provider.
+  2. Switch to "remote".
+  3. Report whether the switch succeeds.
+  4. If it fails, return the complete error.
+  5. Do not retry or modify any configuration.
+  6. Do not create, modify, or delete AppScan resources.
+  7. Do not expose credentials.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+1. Starting provider: get-provider-status reported local as the active provider.
+2. Switch to remote: switch-provider with remote succeeded.
+3. Result: The active provider is now remote. The connection and tool discovery both succeeded, and 12 backend tools are available.
+4. Error: None, so there was nothing to retry.
+
+I didn't change any configuration. I didn't create, modify or delete any AppScan resources. No credentials were shown.
