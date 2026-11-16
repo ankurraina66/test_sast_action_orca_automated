@@ -1,1 +1,1 @@
-
+Select-String -Path .\dist\services\appscan-service-factory.js -Pattern "process.env" -Context 3,5
