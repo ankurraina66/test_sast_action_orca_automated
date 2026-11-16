@@ -1,4 +1,5 @@
-Get-ChildItem "$env:APPDATA","$env:LOCALAPPDATA" `
-  -Filter "claude_desktop_config.json" `
-  -Recurse -ErrorAction SilentlyContinue |
-  Select-Object -ExpandProperty FullName
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Get-ChildItem "$env:APPDATA","$env:LOCALAPPDATA" `
+>>   -Filter "claude_desktop_config.json" `
+>>   -Recurse -ErrorAction SilentlyContinue |
+>>   Select-Object -ExpandProperty FullName
+C:\Users\ankur.raina\AppData\Local\Claude-Data\claude_pzs8sxrjxfjjc\claude_desktop_config.json
