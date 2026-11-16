@@ -1,1 +1,14 @@
+I explicitly approve creating the application "MCP_Facade_Demo_App".
 
+Invoke "create-app" using the exact parameters from the previous preview:
+
+- name: "MCP_Facade_Demo_App"
+- description: "Demo application created through the AppScan AI Coding Assistants MCP integration"
+- assetGroupId: "32e36587-ff35-4170-b9e5-184ca3ef1f48"
+- confirmToken: "9e17f2ae-47ca-4040-81e4-5441323698a5"
+
+Do not change any parameters.
+
+Return the creation result, including the application ID and asset group details.
+
+If the token has expired, request a fresh preview. If creation fails, report the exact error and do not retry automatically.
