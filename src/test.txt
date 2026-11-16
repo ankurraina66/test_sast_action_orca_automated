@@ -1,1 +1,46 @@
 
+    server.registerTool(
+        "create-app",
+        {
+            description:
+                "Create an AppScan application using the Local STDIO backend only. First call without confirmToken to obtain the creation preview. Show the preview and obtain explicit user approval. Only then call again with the same application details and the returned confirmToken. Never create an application without explicit approval. This operation is not supported by the Remote HTTP backend.",
+            inputSchema: {
+                name: z.string().min(1),
+                description: z.string().optional(),
+                assetGroupId: z.string().optional(),
+                confirmToken: z.string().optional(),
+            },
+        },
+        async ({ name, description, assetGroupId, confirmToken }) => {
+            // Application creation is supported only by Local MCP.
+            if (service.getProvider() !== "local") {
+                return messageResult(
+                    "Application creation is supported only by the Local AppScan MCP backend. Switch to the local provider and try again.",
+                    true,
+                );
+            }
+
+            try {
+                const result = await service.callFirstAvailableTool(
+                    ["create-app", "create_app"],
+                    {
+                        name,
+                        ...(description !== undefined ? { description } : {}),
+                        ...(assetGroupId !== undefined ? { assetGroupId } : {}),
+                        ...(confirmToken !== undefined ? { confirmToken } : {}),
+                    },
+                    "local",
+                );
+
+                return textResult(result);
+            } catch (error) {
+                return messageResult(
+                    error instanceof Error
+                        ? error.message
+                        : "AppScan application creation failed.",
+                    true,
+                );
+            }
+        },
+    );
+
