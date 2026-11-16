@@ -1,1 +1,54 @@
 
+/**
+ * Discover tools from either provider without changing the active provider.
+ * An inactive provider is connected temporarily and always disconnected.
+ */
+async listProviderTools(provider: AppScanProvider): Promise<McpTool[]> {
+    return this.withLock(async () => {
+        if (provider === this.activeProvider) {
+            return this.connector.listTools();
+        }
+
+        const temporaryConnector = this.connectorFactory(provider);
+
+        try {
+            await temporaryConnector.connect();
+            return await temporaryConnector.listTools();
+        } finally {
+            await temporaryConnector.disconnect();
+        }
+    });
+}
+
+/**
+ * Discover both backend tool catalogs without switching the active provider.
+ */
+async compareProviderTools(): Promise<{
+    local: McpTool[];
+    remote: McpTool[];
+}> {
+    return this.withLock(async () => {
+        const getTools = async (
+            provider: AppScanProvider,
+        ): Promise<McpTool[]> => {
+            if (provider === this.activeProvider) {
+                return this.connector.listTools();
+            }
+
+            const temporaryConnector = this.connectorFactory(provider);
+
+            try {
+                await temporaryConnector.connect();
+                return await temporaryConnector.listTools();
+            } finally {
+                await temporaryConnector.disconnect();
+            }
+        };
+
+        const local = await getTools("local");
+        const remote = await getTools("remote");
+
+        return { local, remote };
+    });
+}
+
