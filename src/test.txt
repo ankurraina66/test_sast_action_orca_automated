@@ -1,3 +1,11 @@
-Create a new application in HCL AppScan named MCP_Demo_App with the description "Application created using the AppScan AI Coding Assistants MCP integration" and URL "https://example.com".
+I still can't create `MCP_Demo_App`, so nothing was created and there is no ID or creation status to report.
 
-Check whether the application already exists before creating it. Once created, show me its application name, ID, and creation status.
+- **Existence check:** `get-apps` filtered on the exact name `MCP_Demo_App` again returned no match, so the name is free.
+- **Tool missing:** I searched again and `create-app` still isn't among the tools I can call. The AppScan tools available are `get-apps`, `get-scans`, `get-scan-issues`, `get-issue-details`, `prepare-scan`, `execute-prepared-scan`, `get-scan-execution-status`, `get-provider-status` and `switch-provider`.
+- **Unrelated tool ignored:** A `create_project` tool from Claude Security showed up in the search. It creates billed Claude Security projects for GitHub repositories, not ASoC applications, so I didn't use it.
+- **Current state:** The provider is still **local**, and I've changed nothing in AppScan.
+
+Your options:
+1. **Try the remote provider.** I can switch to it and search for `create-app` again, since the two providers may expose different tools. Each provider reported a different backend tool count (local 14, remote 12).
+2. **Create it in the ASoC web console.** I can then confirm the name and ID with `get-apps`.
+3. **Ask the MCP server's admin** to enable `create-app` for this connector.
