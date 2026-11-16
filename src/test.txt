@@ -1,14 +1,47 @@
 Use "hcl-appscan-ai-coding-assistants".
 
-Perform a Remote MCP connectivity diagnostic:
+  Perform a Remote MCP connectivity diagnostic:
 
-1. Call "get-provider-status" and report the current provider.
-2. Switch to "remote" using "switch-provider".
-3. Call "get-provider-status" again and confirm that the active provider is "remote".
-4. Report the number of backend tools discovered during the switch and list their names, if available.
-5. Call "get-scans" using the Remote provider to verify that a real backend operation succeeds.
-6. Report the complete result or error.
+  1. Call "get-provider-status" and report the current provider.
+  2. Switch to "remote" using "switch-provider".
+  3. Call "get-provider-status" again and confirm that the active provider is "remote".
+  4. Report the number of backend tools discovered during the switch and list their names, if available.
+  5. Call "get-scans" using the Remote provider to verify that a real backend operation succeeds.
+  6. Report the complete result or error.
 
-Do not call "get-apps" yet.
-Do not create, modify, or delete any AppScan resources.
-Do not display or expose API keys or secrets.
+  Do not call "get-apps" yet.
+  Do not create, modify, or delete any AppScan resources.
+  Do not display or expose API keys or secrets.
+
+  Called hcl-appscan-ai-coding-assistants 4 times, ran 1 shell command
+
+Remote MCP connectivity diagnostic
+
+┌────────────────────────────┬───────────────────────────────────────────────────────────────────────────┐
+│            Step            │                                  Result                                   │
+├────────────────────────────┼───────────────────────────────────────────────────────────────────────────┤
+│ Provider before the switch │ local                                                                     │
+├────────────────────────────┼───────────────────────────────────────────────────────────────────────────┤
+│ Switch to remote           │ Succeeded. Connection and tool discovery succeeded.                       │
+├────────────────────────────┼───────────────────────────────────────────────────────────────────────────┤
+│ Provider after the switch  │ remote (confirmed with a second get-provider-status)                      │
+├────────────────────────────┼───────────────────────────────────────────────────────────────────────────┤
+│ Backend tools discovered   │ 12. The switch response gave only the count, so I can't list their names. │
+├────────────────────────────┼───────────────────────────────────────────────────────────────────────────┤
+│ get-scans on remote        │ Succeeded. It returned real data.                                         │
+└────────────────────────────┴───────────────────────────────────────────────────────────────────────────┘
+
+get-scans result
+
+The call returned an OData payload (@odata.context: https://ascp/McpOData/$metadata#Scans) of about 100,198 characters. That was too large to show inline, so the harness saved it to a file.
+
+- What I read: only the first ~1,500 characters and a count of "Id" keys. That count is about 122, which suggests roughly 122 scan records. This is an estimate, and I did not read or validate the full file.
+- What the sample showed: the first two records both belong to Test_Ankita (ae0bcb39-4c80-4dda-a236-a13ac7e65c84). They are
+  Static_ClassLibraryCore_2026-11-09_10-23-12 (StaticAnalyzer) (ScaAnalyzer).
+- No get-scans error: unlike get-apps, it did not fail.
+- Null Url in scan records: both sampled records have "Url":nuearlier get-apps error about a null Url, but I haven't verified that. It could also be coincidence, since the scan and application records are separate entities.
+
+The full output is saved at C:\Users\ankur.raina\.claude\projects\C--Users-ankur-raina-ai-coding-assistants-claude-poc\4aa11276-4461-4fe5-9218-a91b7b5ea4a
+5\tool-results\mcp-hcl-appscan-ai-coding-assistants-get-scans-s no API keys or secrets in the portion I read.
+
+I did not call get-apps and did not create, modify or delete ais currently remote.
