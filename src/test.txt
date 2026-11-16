@@ -7,3 +7,14 @@ Use "hcl-appscan-ai-coding-assistants".
 5. Do not switch providers.
 6. Do not create, modify, or delete any AppScan resources.
 7. Do not expose credentials.
+
+
+claude desktop response:
+
+**Active provider:** `local` (I didn't switch it.)
+
+**First application returned (`top=1`):**
+- Name: Demo_HCLF
+- ID: `5a0bcbb2-c309-489b-badc-0112e619bce7`
+
+Your account has 22 applications in total, so Demo_HCLF is only the first one returned, not a selection. I haven't chosen an application or created, modified, or deleted anything. If you want to use one for a scan, you can pick Demo_HCLF, give me another name or ID to look up, or ask me to create a new application (that would need your explicit approval first).
