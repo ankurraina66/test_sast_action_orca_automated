@@ -1,1 +1,8 @@
+Using the currently active Local provider, load the schemas and call these two tools:
 
+1. "get-apps"
+2. "get-scans"
+
+Show the returned results and confirm whether both calls were successfully forwarded through the shared MCP facade to the Local backend.
+
+Do not create, modify, delete, or execute anything. Do not use the pending create-app confirmation token.
