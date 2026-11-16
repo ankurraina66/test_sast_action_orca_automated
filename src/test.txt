@@ -1,1 +1,11 @@
+Use "hcl-appscan-ai-coding-assistants".
 
+1. Call "get-provider-status" and confirm that the active provider is "local".
+2. If the active provider is not "local", switch to "local" using "switch-provider".
+3. Call "get-apps" with "top=1".
+4. Return:
+   - The confirmed active provider.
+   - Whether "get-apps" succeeded or failed.
+   - The complete result or exact error message.
+
+Do not create, modify, or delete any AppScan resources. This is a read-only diagnostic test.
