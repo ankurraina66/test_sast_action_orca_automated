@@ -1,1 +1,36 @@
 
+it("compares both provider tool lists without changing the active provider", async () => {
+    const active = createMockConnector([
+        "get-apps",
+        "get-scans",
+    ]);
+
+    const inactive = createMockConnector([
+        "get-apps",
+        "get-issues",
+    ]);
+
+    const factory = vi.fn(() => inactive);
+    const service = createService(active, "local", factory);
+
+    const result = await service.compareProviderTools();
+
+    expect(result.local.map((tool) => tool.name)).toEqual([
+        "get-apps",
+        "get-scans",
+    ]);
+
+    expect(result.remote.map((tool) => tool.name)).toEqual([
+        "get-apps",
+        "get-issues",
+    ]);
+
+    expect(inactive.connect).toHaveBeenCalledOnce();
+    expect(inactive.listTools).toHaveBeenCalledOnce();
+    expect(inactive.disconnect).toHaveBeenCalledOnce();
+
+    // Active provider must remain unchanged.
+    expect(service.getProvider()).toBe("local");
+    expect(active.disconnect).not.toHaveBeenCalled();
+});
+
