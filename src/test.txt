@@ -1,1 +1,97 @@
 
+server.registerTool(
+    "list-provider-tools",
+    {
+        description:
+            "List all tools available in the Local STDIO or Remote HTTP AppScan MCP backend. This is read-only and does not change the active provider.",
+        inputSchema: {
+            provider: z.enum(["local", "remote"]),
+        },
+    },
+    async ({ provider }) => {
+        try {
+            const tools = await service.listProviderTools(provider);
+
+            const details = tools.map((tool) => [
+                `- ${tool.name}`,
+                `  Description: ${tool.description?.trim() || "No description provided."}`,
+                `  Input schema: ${JSON.stringify(tool.inputSchema)}`,
+            ].join("\n"));
+
+            return messageResult([
+                `Provider: ${provider}`,
+                `Discovered tools: ${tools.length}`,
+                "Active provider was not changed.",
+                "",
+                ...details,
+            ].join("\n"));
+        } catch (error) {
+            return messageResult(
+                error instanceof Error
+                    ? error.message
+                    : `Could not list ${provider} tools.`,
+                true,
+            );
+        }
+    },
+);
+
+server.registerTool(
+    "compare-provider-tools",
+    {
+        description:
+            "Compare tools available in Local STDIO and Remote HTTP AppScan MCP backends without changing the active provider.",
+        inputSchema: {},
+    },
+    async () => {
+        try {
+            const { local, remote } =
+                await service.compareProviderTools();
+
+            const localNames = new Set(
+                local.map((tool) => tool.name.toLowerCase()),
+            );
+
+            const remoteNames = new Set(
+                remote.map((tool) => tool.name.toLowerCase()),
+            );
+
+            const common = local.filter((tool) =>
+                remoteNames.has(tool.name.toLowerCase()),
+            );
+
+            const localOnly = local.filter((tool) =>
+                !remoteNames.has(tool.name.toLowerCase()),
+            );
+
+            const remoteOnly = remote.filter((tool) =>
+                !localNames.has(tool.name.toLowerCase()),
+            );
+
+            const names = (tools: typeof local) =>
+                tools.length
+                    ? tools.map((tool) => `- ${tool.name}`).join("\n")
+                    : "- None";
+
+            return messageResult([
+                `Local tools: ${local.length}`,
+                `Remote tools: ${remote.length}`,
+                `Common tools (${common.length}):`,
+                names(common),
+                `Local-only tools (${localOnly.length}):`,
+                names(localOnly),
+                `Remote-only tools (${remoteOnly.length}):`,
+                names(remoteOnly),
+                `Active provider remains: ${service.getProvider()}`,
+            ].join("\n\n"));
+        } catch (error) {
+            return messageResult(
+                error instanceof Error
+                    ? error.message
+                    : "Could not compare provider tools.",
+                true,
+            );
+        }
+    },
+);
+
