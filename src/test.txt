@@ -1,45 +1,96 @@
-$script = @'
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import fs from "node:fs";
-
-const configPath = "C:/Users/ankur.raina/AppData/Local/Claude-Data/claude_pzs8sxrjxfjjc/claude_desktop_config.json";
-const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-const server = config.mcpServers["hcl-appscan-ai-coding-assistants"];
-
-const transport = new StdioClientTransport({
-  command: server.env.APP_SCAN_LOCAL_COMMAND,
-  args: JSON.parse(server.env.APP_SCAN_LOCAL_ARGS),
-  env: { ...process.env, ...server.env }
-});
-
-const client = new Client({
-  name: "appscan-tool-inspector",
-  version: "1.0.0"
-});
-
-try {
-  await client.connect(transport);
-  const result = await client.listTools();
-
-  console.log("APPLICATION-RELATED BACKEND TOOLS");
-
-  for (const tool of result.tools) {
-    if (/app|application/i.test(tool.name)) {
-      console.log(JSON.stringify({
-        name: tool.name,
-        description: tool.description,
-        inputSchema: tool.inputSchema
-      }, null, 2));
-    }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> $script = @'
+>> import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+>> import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+>> import fs from "node:fs";
+>>
+>> const configPath = "C:/Users/ankur.raina/AppData/Local/Claude-Data/claude_pzs8sxrjxfjjc/claude_desktop_config.json";
+>> const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+>> const server = config.mcpServers["hcl-appscan-ai-coding-assistants"];
+>>
+>> const transport = new StdioClientTransport({
+>>   command: server.env.APP_SCAN_LOCAL_COMMAND,
+>>   args: JSON.parse(server.env.APP_SCAN_LOCAL_ARGS),
+>>   env: { ...process.env, ...server.env }
+>> });
+>>
+>> const client = new Client({
+>>   name: "appscan-tool-inspector",
+>>   version: "1.0.0"
+>> });
+>>
+>> try {
+>>   await client.connect(transport);
+>>   const result = await client.listTools();
+>>
+>>   console.log("APPLICATION-RELATED BACKEND TOOLS");
+>>
+>>   for (const tool of result.tools) {
+>>     if (/app|application/i.test(tool.name)) {
+>>       console.log(JSON.stringify({
+>>         name: tool.name,
+>>         description: tool.description,
+>>         inputSchema: tool.inputSchema
+>>       }, null, 2));
+>>     }
+>>   }
+>> } finally {
+>>   await client.close();
+>> }
+>> '@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Set-Content ".\inspect-appscan-tools.mjs" $script
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> & "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node.exe" ".\inspect-appscan-tools.mjs"
+{"timestamp":"2026-11-16T10:48:09.521Z","level":"info","event":"server.started","apiBaseUrl":"https://cloud.appscan.com","credentialsConfigured":true}
+{"event":"reports.directory_resolved","source":"OS default","directory":"C:\\Users\\ankur.raina\\Downloads\\myapp-reports"}
+APPLICATION-RELATED BACKEND TOOLS
+{
+  "name": "get-apps",
+  "description": "List AppScan applications and return identifiers required by downstream tools. Use filter only for a selector grounded in the user's request, not an inferred project folder name; results include matching totals and whether the result is complete. Select implicitly only when an explicit selector yields exactly one match in a complete result. An unfiltered singleton, unknown total, or top limit is not sufficient. A selector with no matches also returns an unfiltered list of other available applications. When selection is unresolved, show the actual application names and IDs alongside Create a new application and Enter another application name or ID, then wait for the user's choice. Never replace the choices with a create-only yes/no question.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "filter": {
+        "description": "OData filter expression (optional)",
+        "type": "string"
+      },
+      "top": {
+        "description": "Number of records to return (optional)",
+        "type": "number"
+      }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#"
   }
-} finally {
-  await client.close();
 }
-'@
-
-Set-Content ".\inspect-appscan-tools.mjs" $script
-
-& "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node.exe" ".\inspect-appscan-tools.mjs"
-
-Remove-Item ".\inspect-appscan-tools.mjs"
+{
+  "name": "create-app",
+  "description": "Create a new application in AppScan. Use only after the user explicitly approves application creation. Do not call this tool to guess or unblock a missing appId during create-scan.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Application name"
+      },
+      "description": {
+        "description": "Application description",
+        "type": "string"
+      },
+      "assetGroupId": {
+        "description": "Asset group ID",
+        "type": "string"
+      },
+      "confirmToken": {
+        "description": "One-time token returned by this tool preview flow when client elicitation is unavailable.",
+        "type": "string"
+      }
+    },
+    "required": [
+      "name"
+    ],
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  }
+}
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Remove-Item ".\inspect-appscan-tools.mjs"
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
