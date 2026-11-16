@@ -1,11 +1,1 @@
-Current provider is **local**. Switching to remote now.
 
-Here are the results:
-
-1. **Initial provider status:** `get-provider-status` returned **local** as the current provider.
-2. **Switch to remote:** The switch completed.
-3. **Connection:** It succeeded, and tool discovery also succeeded.
-4. **Discovered backend tools:** **12**.
-5. **Active provider (confirmed with a second `get-provider-status` call):** **remote**.
-
-I did not call `get-apps`, did not create, modify or delete any AppScan resources, and no credentials were exposed.
