@@ -1,1 +1,11 @@
+Using the active Local provider, call "get-provider-status" and then inspect the tools returned by the Local backend's "listTools()" discovery through the shared facade's diagnostic capabilities, if available.
 
+I specifically want to know whether "get-asset-groups" is returned by the Local backend.
+
+Report:
+
+1. Total number of tools returned by Local backend discovery.
+2. Whether "get-asset-groups" appears.
+3. The exact tool names returned, without exposing credentials or configuration secrets.
+
+Do not call get-asset-groups yet. Do not modify files, switch providers, or execute write operations.
