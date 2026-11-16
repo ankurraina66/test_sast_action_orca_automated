@@ -1,9 +1,1 @@
-We are testing the Remote HTTP provider of the shared AppScan MCP facade.
 
-1. Invoke "switch-provider" and switch the active provider to "remote".
-2. Invoke "get-provider-status" and confirm that the active provider is "remote".
-3. Invoke "get-scans" with "top = 5" to retrieve the first five scans.
-4. Return the scan details available from the response, including scan ID, scan name, application ID, and scan status where available.
-5. Confirm whether the Remote HTTP backend successfully handled the request.
-
-This is a read-only test. Do not create, update, delete, or execute any scans or applications. If any step fails, report the exact error. Do not attempt alternative API calls or modify configuration.
