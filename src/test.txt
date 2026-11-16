@@ -1,40 +1,136 @@
-
 Run a complete SAST scan through the HCL AppScan AI Coding Assistants MCP facade using the Local STDIO backend.
 
-I explicitly approve scan creation and execution with the following parameters:
+  I explicitly approve scan creation and execution with the following parameters:
 
-Application details
+  Application details
 
-- Application name: "MCP_Facade_Demo_App"
-- Application ID: "6cbbf2cb-efca-425e-8ca7-2d177d51413c"
+  - Application name: "MCP_Facade_Demo_App"
+  - Application ID: "6cbbf2cb-efca-425e-8ca7-2d177d51413c"
 
-Scan details
+  Scan details
 
-- Scan type: "SAST"
-- Scan name: "MCP_Facade_Demo_SAST"
-- Target directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
-- Comment: "SAST validation through AppScan AI Coding Assistants MCP integration"
+  - Scan type: "SAST"
+  - Scan name: "MCP_Facade_Demo_SAST"
+  - Target directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+  - Comment: "SAST validation through AppScan AI Coding Assistants MCP integration"
 
-Execute the following workflow:
+  Execute the following workflow:
 
-1. Invoke "get-provider-status" and ensure the active provider is "local". Switch to Local if necessary.
-2. Invoke "prepare-scan" with the exact application ID, target directory, scan type, scan name, and comment above.
-3. Verify that the prepared scan parameters match my approved configuration.
-4. Use the confirmation token returned by "prepare-scan" to invoke "execute-prepared-scan" with "waitForCompletion: true".
-5. Wait for scan execution and polling to complete.
-6. If necessary, use "get-scan-execution-status" with the same confirmation token to retrieve the final outcome.
+  1. Invoke "get-provider-status" and ensure the active provider is "local". Switch to Local if necessary.
+  2. Invoke "prepare-scan" with the exact application ID, target directory, scan type, scan name, and comment above.
+  3. Verify that the prepared scan parameters match my approved configuration.
+  4. Use the confirmation token returned by "prepare-scan" to invoke "execute-prepared-scan" with "waitForCompletion: true".
+  5. Wait for scan execution and polling to complete.
+  6. If necessary, use "get-scan-execution-status" with the same confirmation token to retrieve the final outcome.
 
-I explicitly authorize packaging and uploading the project's source artifacts to AppScan for this scan.
+  I explicitly authorize packaging and uploading the project's source artifacts to AppScan for this scan.
 
-Final report:
+  Final report:
 
-- Application name and ID
-- Scan name and scan ID
-- Scan creation status
-- Scan execution status
-- Final scan outcome
-- Number of security findings, if returned
-- Severity breakdown (Critical, High, Medium, Low, Informational), if available
-- Any errors or warnings
+  - Application name and ID
+  - Scan name and scan ID
+  - Scan creation status
+  - Scan execution status
+  - Final scan outcome
+  - Number of security findings, if returned
+  - Severity breakdown (Critical, High, Medium, Low, Informational), if available
+  - Any errors or warnings
 
-Do not modify the source project. Do not create another application. Do not automatically retry scan creation or execution if the outcome is failed or uncertain. Report the exact error and stop.
+  Do not modify the source project. Do not create another application. Do not automatically retry scan creation or execution if the outcome is failed or
+  uncertain. Report the exact error and stop.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+Provider is local. Preparing the scan.
+
+  Called hcl-appscan-ai-coding-assistants
+
+The scan is prepared and has not started. Before I execute it,our instructions.
+
+Parameter check against your approved configuration
+
+┌───────────────┬──────────────────────────────────────────────────────────────────────┬────────────────────┬───────────┐
+│   Parameter   │                                             Approved                                              │      Prepared      │   Match   │
+├───────────────┼──────────────────────────────────────────────────────────────────────┼────────────────────┼───────────┤
+│ Application   │ 6cbbf2cb-efca-425e-8ca7-2d177d51413c                                                              │ same               │ Yes       │
+│ ID            │                                                                      │                    │           │
+├───────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────┼───────────┤
+│ Target        │ ...\spring-boot-restful-web-service-example-b-service-example-master │ same               │ Yes       │
+│ directory     │                                                                                                   │                    │           │
+├───────────────┼──────────────────────────────────────────────────────────────────────┼────────────────────┼───────────┤
+│ Scan type     │ SAST                                                                                              │ SAST               │ Yes       │
+├───────────────┼──────────────────────────────────────────────────────────────────────┼────────────────────┼───────────┤
+│ Scan name     │ MCP_Facade_Demo_SAST                                                                              │ same               │ Yes       │
+├───────────────┼──────────────────────────────────────────────────────────────────────┼────────────────────┼───────────┤
+│ Provider      │ local                                                                                             │ local              │ Yes       │
+├───────────────┼──────────────────────────────────────────────────────────────────────┼────────────────────┼───────────┤
+│ Comment       │ SAST validation through AppScan AI Coding Assistants MCP integration                              │ not echoed in the  │ Can't     │
+│               │                                                                      │ response           │ verify    │
+└───────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────┴────────────────────┴───────────┘
+
+The prepare response doesn't echo the comment. I sent it exactly as you gave it.
+
+The conflict: The tool warns that the underlying scanner may generate configuration files or run a build in the target directory. You authorized packaging
+and uploading the source, but you also said "Do not modify thener writes files into that directory, it would break thatinstruction. I can't tell in advance whether it will.
+
+What I'll do if you confirm:
+- Call execute-prepared-scan with token 9ce4d3f1-592c-4fb6-8acpletion: true. If needed, I'll then callget-scan-execution-status with the same token.
+- Not retry anything if the result is failed or uncertain.
+
+Which do you want?
+1. Proceed. You accept that the scanner may add generated files or run a build in that folder. It's a downloaded sample project, so this is probably fine.
+2. Stop. I'd need you to point me at a copy of the project, anit.
+
+✻ Baked for 17s · done 6:24 PM
+
+> Proceed with option 1
+
+  Called hcl-appscan-ai-coding-assistants
+
+The scan did not run. execute-prepared-scan returned Outcome: econd approval step for its internal create-scan call, and noscan record was created.
+
+┌───────────────────────────────┬────────────────────────────────────────────────────────────────┐
+│             Field             │                                   │
+├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ Application                   │ MCP_Facade_Demo_App (6cbbf2c)     │
+├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ Scan name / scan ID           │ MCP_Facade_Demo_SAST / unava      │
+├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ Scan creation status          │ Not created. The backend sto      │
+├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ Scan execution status         │ Failed. 0 status polls, 3 seTC).  │
+├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ Final outcome                 │ No scan ran. Nothing was uplated. │
+├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ Findings / severity breakdown │ Unavailable                       │
+├───────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ Error                         │ Approval required for sensit      │
+└───────────────────────────────┴────────────────────────────────────────────────────────────────┘
+
+What the backend's create-scan preview says it would do:
+- Remote: Create a new, non-personal SAST scan record named MC application. It would upload an IRX artifact to AppScan andstart remote execution.
+- Local files: It would write appscan-config.xml into your tarng directory under <system-temp>/appscan-mcp. BecauseconserveFiles=false, it says it would delete the generated config and local artifacts afterward.
+- Build: No build command would run. The scan mode is build-out mode may mean there are no compiled classes to analyze unless the project was built beforehand. That's my inference, and I haven't checked whether the project has build output.
+- Token: cae17b41-7e09-4840-ac05-dec6287101f3, one-time, expir
+
+I stopped here for two reasons. You said not to retry automatitain outcome. This preview also adds details your earlierapproval didn't cover: a temporary appscan-config.xml in the project folder and the build-output mode.
+
+To continue: Reply with approval and I'll call execute-prepared-scan again. Prepared tokens may be single-use, so that call may fail again or need a fresh
+prepare-scan first. The scan would then go ahead if the backenen above, and I'd report the findings and severity breakdown.If you'd rather stop, I won't make any further calls.
+
+✻ Churned for 16s · done 6:25 PM
+
+> approval
+
+  Called hcl-appscan-ai-coding-assistants
+
+The scan did not run. execute-prepared-scan returned this error:
+
+No pending scan matches this token. Prepare the request again and obtain user confirmation.
+
+The original preparation token (9ce4d3f1-...) was used up by the first attempt. Your approval can't carry over to the backend's create-scan token
+(cae17b41-...), because execute-prepared-scan only accepts theas created or uploaded, and I made no other calls.
+
+Next step: I need to run prepare-scan again with the same paraen execute it. Since you've just approved the create-scanpreview, I'd treat that approval as covering the new attempt. The scanner may still ask for another approval of its own, and I'd stop and report if it does.
+
+Do you want me to run prepare-scan again and then execute it?
