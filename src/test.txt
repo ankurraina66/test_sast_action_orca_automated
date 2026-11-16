@@ -1,14 +1,45 @@
 Use "hcl-appscan-ai-coding-assistants".
 
-The active provider should be remote. First confirm this using "get-provider-status".
+  The active provider should be remote. First confirm this using "get-provider-status".
 
-I want to investigate the Remote "get-apps" failure.
+  I want to investigate the Remote "get-apps" failure.
 
-1. Call "get-apps" with "top=1".
-2. Capture the complete underlying error, including any nested error details, error code, HTTP status, or server response body available.
-3. Determine whether the error originates from the MCP server, the upstream AppScan API, or client-side response processing, if the available diagnostic information supports that conclusion.
-4. Do not suppress, transform, or hide the original error.
-5. Do not expose API keys, secrets, or authentication headers.
+  1. Call "get-apps" with "top=1".
+  2. Capture the complete underlying error, including any nested error details, error code, HTTP status, or server response body available.
+  3. Determine whether the error originates from the MCP server, the upstream AppScan API, or client-side response processing, if the available diagnostic information supports that conclusion.
+  4. Do not suppress, transform, or hide the original error.
+  5. Do not expose API keys, secrets, or authentication headers.
 
-Do not switch providers.
-Do not create, modify, or delete AppScan resources.
+  Do not switch providers.
+  Do not create, modify, or delete AppScan resources.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+Remote get-apps investigation
+
+Active provider: remote, confirmed before the call. I did not switch providers.
+
+Complete error (get-apps with top=1):
+
+The property 'Url[Nullable=False]' of type 'Edm.String' has a wed.
+                                                                                                                                                          was captured
+                                                                                                                                                         tool returned only this message. It had no nested error des or response body, and I haven't altered or hidden anything. I have no more diagnostic detail, because the MCP tool doesn't expose it. I did not look at any authentication headers or secrets.                         
+Where the error likely originates                                                                                                                        
+The evidence supports a likely conclusion, not a definite one.                                                                                           
+- Wording: Edm.String, Nullable=False and "property ... has a null value" are the vocabulary of an OData client or serializer validating a response      ainst the service's $metadata. They are not typical HTTP ointerpretation of the message.
+- Likely cause: the response was parsed by an OData-aware layer, which found a null Url where the metadata declares it non-nullable. This points to      ient-side response processing (inside the MCP server or itstream data. It does not look like an upstream API rejection,because that would normally come with an HTTP status or error body.                                                                                    pporting evidence:
+  - Remote get-scans returned records with "Url":null, and the scan metadata is served from the same OData endpoint (https://ascp/McpOData/$metadata). A strict non-nullable Url in the application schema would cothat. I only saw scan records, not application records.
+  - top=1 still fails, so the first application record, or the schema check itself, triggers it.
+  - The local provider returns the same application data withoata is fine and the remote path is stricter, though the twobackends may differ in other ways.
+
+What I can't determine
+
+I can't tell whether the fault is in the MCP server's schema definition, in the upstream data, or in the OData client library. Confirming that needs the
+MCP server's logs or a raw HTTP response, which this tool does
+
+Suggested next steps for the remote MCP server's owner
+
+- Check whether the Url property of the Applications entity ishe remote $metadata. If so, it should probably be nullable,since scans show it null.
+- Capture the raw OData response to get-apps on the server sid null.
+
+I created, modified and deleted nothing.
