@@ -1,1 +1,1376 @@
+registry.js
+import { mkdir, writeFile } from "node:fs/promises";
+import { z } from "zod";
+import { reportTargetPath, resolveReportsDir, sanitizeReportFileName } from "../helpers/reports-dir.js";
+import { getRuntimeConfig, makeAppScanFileRequest, makeAppScanRequest } from "../runtime.js";
+import { requireApproval } from "./approval.js";
+import { registerCreateScanTool } from "./createScan.js";
+import { describeAge, findRecentMutation, mutationFingerprint, recordMutation } from "./mutationDedupe.js";
+import { canSelectUniqueCandidate, formatAppResolutionMessage, resolveIssueUpdateTarget, resolveReportTarget, } from "./targetResolution.js";
+import { getToolDescription } from "./toolList.js";
+const reportScopeSchema = z.enum(["Application", "Scan", "ScanExecution"]);
+const applyPoliciesSchema = z.enum(["None", "All", "Select"]);
+const commonReportFilterSchema = {
+    odataFilter: z.string().optional().describe("OData filter expression to limit issues included in the report."),
+    applyPolicies: applyPoliciesSchema.optional().describe("Which policies to apply for filtering (default: None)."),
+    selectPolicyIds: z.array(z.string().uuid()).optional().describe("Policy IDs when applyPolicies is Select."),
+};
+function formatApprovalScope(scope) {
+    return scope.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
+}
+const contentTypeExtensions = {
+    "text/html": ".html",
+    "application/pdf": ".pdf",
+    "application/xml": ".xml",
+    "text/xml": ".xml",
+    "text/csv": ".csv",
+    "application/json": ".json",
+    "application/zip": ".zip",
+};
+function defaultReportFileName(reportId, fileName, contentType) {
+    const sanitized = fileName ? sanitizeReportFileName(fileName) : "";
+    if (sanitized) {
+        return sanitized;
+    }
+    const extension = contentTypeExtensions[contentType.split(";")[0].trim().toLowerCase()] ?? ".bin";
+    return `appscan-report-${reportId}${extension}`;
+}
+function buildReportScopePayload(input) {
+    const payload = {};
+    if (input.odataFilter)
+        payload.OdataFilter = input.odataFilter;
+    if (input.applyPolicies)
+        payload.ApplyPolicies = input.applyPolicies;
+    if (input.selectPolicyIds && input.selectPolicyIds.length > 0)
+        payload.SelectPolicyIds = input.selectPolicyIds;
+    return payload;
+}
+function formatReportJobResponse(response) {
+    const id = typeof response.Id === "string" ? response.Id : "Unknown";
+    const name = typeof response.Name === "string" ? response.Name : "Unknown";
+    const status = typeof response.Status === "string" ? response.Status : "Pending";
+    const progress = typeof response.Progress === "number" ? response.Progress : "Unknown";
+    const validUntil = typeof response.ValidUntil === "string" ? response.ValidUntil : "Unknown";
+    const reportFileType = typeof response.ReportFileType === "string" ? response.ReportFileType : "Unknown";
+    const downloadLink = typeof response.DownloadLink === "string" ? response.DownloadLink : "Not available yet";
+    return [
+        `ID: ${id}`,
+        `Name: ${name}`,
+        `Status: ${status}`,
+        `Progress: ${progress}`,
+        `Valid Until: ${validUntil}`,
+        `Report File Type: ${reportFileType}`,
+        `Download Link: ${downloadLink}`,
+    ].join("\n");
+}
+export function registerAllTools(server) {
+    server.registerTool("get-server-info", {
+        description: getToolDescription("get-server-info"),
+        inputSchema: {},
+        annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    }, async () => {
+        const config = getRuntimeConfig();
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: [
+                        "AppScan MCP Server",
+                        "Version: 1.0.0",
+                        `API base URL: ${config.apiBaseUrl}`,
+                        `Credentials configured: ${Boolean(config.APPSCAN_KEY_ID && config.APPSCAN_KEY_SECRET)}`,
+                        `HTTP timeout: ${config.APPSCAN_HTTP_TIMEOUT_MS}ms`,
+                        `Read retry attempts: ${config.APPSCAN_MAX_RETRIES}`,
+                        `Log level: ${config.LOG_LEVEL}`,
+                    ].join("\n"),
+                },
+            ],
+        };
+    });
+    server.registerTool("get-tenant-info", {
+        description: getToolDescription("get-tenant-info"),
+        inputSchema: {},
+    }, async () => {
+        try {
+            const tenantInfo = await makeAppScanRequest("/api/v4/Account/TenantInfo");
+            const userInfo = tenantInfo.UserInfo || {};
+            const formattedInfo = [
+                `Organization: ${tenantInfo.TenantName || "Unknown"}`,
+                `Tenant ID: ${tenantInfo.TenantId || "Unknown"}`,
+                `Contact Email: ${tenantInfo.ContactEmail || "Not provided"}`,
+                `Number Of Apps: ${tenantInfo.NumberOfApps ?? "Unknown"}`,
+                `Max Users: ${tenantInfo.MaxUsers ?? "Unknown"}`,
+                `Default Subscription ID: ${tenantInfo.DefaultSubscriptionId ?? "Unknown"}`,
+                `Current User: ${userInfo.Username || "Unknown"}`,
+                `User Email: ${userInfo.Email || "Not provided"}`,
+                `User Admin: ${userInfo.IsAdmin ?? "Unknown"}`,
+                `---`,
+                `Subscriptions:`,
+            ];
+            if (tenantInfo.Subscriptions && tenantInfo.Subscriptions.length > 0) {
+                tenantInfo.Subscriptions.forEach((sub) => {
+                    formattedInfo.push(`  - Subscription ${sub.SubscriptionId ?? "Unknown"}: ${sub.OfferingType || "Unknown"} | Seats: ${sub.NTakenSeats ?? "Unknown"}/${sub.NSeats ?? "Unknown"} | State: ${sub.State || "Unknown"} | Expires: ${sub.ExpirationDate || "Unknown"}`);
+                });
+            }
+            else {
+                formattedInfo.push("  No subscriptions found");
+            }
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: formattedInfo.join("\n"),
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error fetching tenant info: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("get-apps", {
+        description: getToolDescription("get-apps"),
+        inputSchema: {
+            filter: z.string().optional().describe("OData filter expression (optional)"),
+            top: z.number().optional().describe("Number of records to return (optional)"),
+        },
+    }, async ({ filter, top }) => {
+        try {
+            let endpoint = "/api/v4/Apps";
+            const params = new URLSearchParams();
+            if (filter)
+                params.append("$filter", filter);
+            if (top)
+                params.append("$top", top.toString());
+            params.append("$count", "true");
+            if (params.toString()) {
+                endpoint += `?${params.toString()}`;
+            }
+            const response = await makeAppScanRequest(endpoint);
+            const apps = Array.isArray(response) ? response : response.Items;
+            const totalCount = !Array.isArray(response) && typeof response.Count === "number" ? response.Count : undefined;
+            const completeness = totalCount === undefined ? "unknown" : totalCount === apps.length ? "yes" : "no";
+            const uniqueExplicitMatch = canSelectUniqueCandidate(apps.length, totalCount, Boolean(filter?.trim()));
+            const summary = [
+                apps.length === 0
+                    ? `No AppScan applications were found${filter ? ` for selector: ${filter}` : ""}.`
+                    : `Found ${apps.length} application(s).`,
+                `Matching total: ${totalCount ?? "unknown"}. Complete result: ${completeness}.`,
+                `Unique match for explicit filter: ${uniqueExplicitMatch ? "yes" : "no"}.`,
+                `Filter: ${filter || "(none)"}`,
+            ];
+            let availableApps = apps;
+            if (apps.length === 0 && filter?.trim()) {
+                const availableResponse = await makeAppScanRequest("/api/v4/Apps?$top=10&$count=true");
+                availableApps = Array.isArray(availableResponse) ? availableResponse : availableResponse.Items;
+                const availableCount = !Array.isArray(availableResponse) ? availableResponse.Count : undefined;
+                summary.push("", "The choices below are other existing applications, not matches for the requested selector.", `Showing ${availableApps.length} application(s). Available total: ${availableCount ?? "unknown"}. This may be a partial list; search by name or ID for other applications.`);
+            }
+            const formattedApps = availableApps.map((app) => [
+                `Name: ${app.Name || "Unknown"}`,
+                `ID: ${app.Id || "Unknown"}`,
+                `Type: ${app.AppType || "Unknown"}`,
+                `Created: ${app.Created || "Unknown"}`,
+                `Risk: ${app.Risk || "Unknown"}`,
+                "---",
+            ].join("\n"));
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: uniqueExplicitMatch
+                            ? [...summary, "", formattedApps.join("\n")].join("\n")
+                            : formatAppResolutionMessage(summary.join("\n"), formattedApps.join("\n")),
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error fetching apps: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("create-app", {
+        description: getToolDescription("create-app"),
+        annotations: { destructiveHint: true },
+        inputSchema: {
+            name: z.string().describe("Application name"),
+            description: z.string().optional().describe("Application description"),
+            assetGroupId: z.string().optional().describe("Asset group ID"),
+            confirmToken: z
+                .string()
+                .optional()
+                .describe("One-time token returned by this tool preview flow when client elicitation is unavailable."),
+        },
+    }, async ({ name, description, assetGroupId, confirmToken }) => {
+        try {
+            const approval = await requireApproval(server, "create-app", { name, description, assetGroupId, confirmToken }, [
+                `Tool: create-app`,
+                `Target environment: AppScan on Cloud API.`,
+                `Target resource: create a new application named ${name}.`,
+                `Changes: creates a persistent AppScan application record.`,
+                `Application description: ${description || "(none)"}`,
+                `Asset group ID: ${assetGroupId || "(none)"}`,
+                `Deletion impact: none.`,
+            ].join("\n"), {
+                elicitationMessage: `Do you want to create an AppScan application named "${name}"?`,
+                approveLabel: "create this application",
+                rejectLabel: "skip creating this application",
+            });
+            if (!approval.approved) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: approval.responseText || "Cancelled by user.",
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            const payload = {
+                Name: name,
+            };
+            if (description)
+                payload.Description = description;
+            if (assetGroupId)
+                payload.AssetGroupId = assetGroupId;
+            const response = await makeAppScanRequest("/api/v4/Apps", {
+                method: "POST",
+                body: JSON.stringify(payload),
+            });
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Application created successfully!\nID: ${response.Id}\nName: ${response.Name}`,
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error creating app: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("get-scans", {
+        description: getToolDescription("get-scans"),
+        inputSchema: {
+            filter: z.string().optional().describe("OData filter expression (optional)"),
+            top: z.number().optional().describe("Number of records to return (optional)"),
+        },
+    }, async ({ filter, top }) => {
+        try {
+            let endpoint = "/api/v4/Scans";
+            const params = new URLSearchParams();
+            if (filter)
+                params.append("$filter", filter);
+            if (top)
+                params.append("$top", top.toString());
+            params.append("$count", "true");
+            if (params.toString()) {
+                endpoint += `?${params.toString()}`;
+            }
+            const response = await makeAppScanRequest(endpoint);
+            const scans = response.Items || response || [];
+            const totalCount = typeof response.Count === "number" ? response.Count : undefined;
+            const completeness = totalCount === undefined ? "unknown" : totalCount === scans.length ? "yes" : "no";
+            const uniqueExplicitMatch = canSelectUniqueCandidate(scans.length, totalCount, Boolean(filter?.trim()));
+            if (scans.length === 0) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: "No scans found",
+                        },
+                    ],
+                };
+            }
+            const formattedScans = scans.map((scan) => [
+                `Name: ${scan.Name || "Unknown"}`,
+                `ID: ${scan.Id || "Unknown"}`,
+                `Application ID: ${scan.AppId || scan.ApplicationId || "Unknown"}`,
+                `Type: ${scan.ScanType || "Unknown"}`,
+                `Status: ${scan.LatestExecution?.Status || "Unknown"}`,
+                `Progress: ${typeof scan.LatestExecution?.Progress === "number" ? `${scan.LatestExecution.Progress}%` : "Not reported yet"}`,
+                `Created: ${scan.Created || "Unknown"}`,
+                `Risk: ${scan.LatestExecution?.Risk || "Unknown"}`,
+                "---",
+            ].join("\n"));
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: [
+                            `Found ${scans.length} scan(s). Matching total: ${totalCount ?? "unknown"}. Complete result: ${completeness}.`,
+                            `Unique match for explicit filter: ${uniqueExplicitMatch ? "yes" : "no"}.`,
+                            `Filter: ${filter || "(none)"}`,
+                            "",
+                            formattedScans.join("\n"),
+                        ].join("\n"),
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error fetching scans: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("get-issues", {
+        description: getToolDescription("get-issues"),
+        inputSchema: {
+            appId: z.string().describe("Application ID (get this from get-apps tool first)"),
+            filter: z
+                .string()
+                .optional()
+                .describe("OData filter expression, e.g., \"Severity eq 'High'\" or \"Status eq 'Open'\""),
+            top: z.number().optional().describe("Number of records to return (optional, default 100, max 5000)"),
+            applyPolicies: z
+                .enum(["None", "All", "Select"])
+                .optional()
+                .describe("Which policies to apply for filtering (default: None)"),
+        },
+    }, async ({ appId, filter, top, applyPolicies }) => {
+        try {
+            let endpoint = `/api/v4/Issues/Application/${appId}`;
+            const params = new URLSearchParams();
+            if (filter)
+                params.append("$filter", filter);
+            if (top)
+                params.append("$top", top.toString());
+            if (applyPolicies)
+                params.append("applyPolicies", applyPolicies);
+            if (params.toString()) {
+                endpoint += `?${params.toString()}`;
+            }
+            const response = await makeAppScanRequest(endpoint);
+            const issues = response.Items || response || [];
+            if (issues.length === 0) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: "No issues found for this application",
+                        },
+                    ],
+                };
+            }
+            const formattedIssues = issues.map((issue) => [
+                `Issue: ${issue.IssueType || "Unknown"}`,
+                `ID: ${issue.Id || "Unknown"}`,
+                `Severity: ${issue.Severity || "Unknown"}`,
+                `Status: ${issue.Status || "Unknown"}`,
+                `Application: ${issue.ApplicationName || "Unknown"}`,
+                `Location: ${issue.Location || "Not specified"}`,
+                "---",
+            ].join("\n"));
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Found ${issues.length} issue(s):\n\n${formattedIssues.join("\n")}`,
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error fetching issues: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("get-scan-issues", {
+        description: getToolDescription("get-scan-issues"),
+        inputSchema: {
+            scanId: z.string().describe("Scan ID (get this from get-scans tool first)"),
+            filter: z
+                .string()
+                .optional()
+                .describe("OData filter expression, e.g., \"Severity eq 'High'\" or \"Status eq 'Open'\""),
+            top: z.number().optional().describe("Number of records to return (optional, default 100, max 5000)"),
+        },
+    }, async ({ scanId, filter, top }) => {
+        try {
+            let endpoint = `/api/v4/Issues/Scan/${scanId}`;
+            const params = new URLSearchParams();
+            if (filter)
+                params.append("$filter", filter);
+            if (top)
+                params.append("$top", top.toString());
+            if (params.toString()) {
+                endpoint += `?${params.toString()}`;
+            }
+            const response = await makeAppScanRequest(endpoint);
+            const issues = response.Items || response || [];
+            if (issues.length === 0) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: "No issues found for this scan",
+                        },
+                    ],
+                };
+            }
+            const formattedIssues = issues.map((issue) => [
+                `Issue: ${issue.IssueType || "Unknown"}`,
+                `ID: ${issue.Id || "Unknown"}`,
+                `Severity: ${issue.Severity || "Unknown"}`,
+                `Status: ${issue.Status || "Unknown"}`,
+                `Scan: ${issue.ScanName || "Unknown"}`,
+                `Location: ${issue.Location || "Not specified"}`,
+                "---",
+            ].join("\n"));
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Found ${issues.length} issue(s):\n\n${formattedIssues.join("\n")}`,
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error fetching scan issues: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("get-fix-groups", {
+        description: getToolDescription("get-fix-groups"),
+        inputSchema: {
+            scope: z.enum(["Application", "Scan", "ScanExecution"]).describe("Fix group scope."),
+            scopeId: z.string().describe("Scope ID (UUID)."),
+            applyPolicies: z
+                .enum(["None", "All", "Select"])
+                .optional()
+                .describe("Which policies to apply for filtering (default: None)."),
+            selectPolicyIds: z
+                .array(z.string())
+                .optional()
+                .describe("Policy IDs to apply when applyPolicies is Select."),
+            locale: z.string().optional().describe("Locale override (defaults to en-US)."),
+            top: z.number().optional().describe("Maximum number of records to return (up to 5000, default 100)."),
+            skip: z.number().optional().describe("Number of records to skip."),
+            filter: z.string().optional().describe("OData filter expression."),
+            select: z.string().optional().describe("OData select expression."),
+            orderby: z.string().optional().describe("OData orderby expression."),
+            expand: z.string().optional().describe("OData expand expression."),
+            count: z.boolean().optional().describe("Include total count in response."),
+            apply: z.string().optional().describe("OData apply expression."),
+        },
+    }, async ({ scope, scopeId, applyPolicies, selectPolicyIds, locale, top, skip, filter, select, orderby, expand, count, apply }) => {
+        try {
+            if (applyPolicies === "Select" && (!selectPolicyIds || selectPolicyIds.length === 0)) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: "I need more details before I can get fix groups:\n- selectPolicyIds: required when applyPolicies is 'Select'",
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            let endpoint = `/api/v4/FixGroups/${scope}/${scopeId}`;
+            const params = new URLSearchParams();
+            if (applyPolicies)
+                params.append("applyPolicies", applyPolicies);
+            if (locale)
+                params.append("locale", locale);
+            if (typeof top === "number")
+                params.append("$top", top.toString());
+            if (typeof skip === "number")
+                params.append("$skip", skip.toString());
+            if (filter)
+                params.append("$filter", filter);
+            if (select)
+                params.append("$select", select);
+            if (orderby)
+                params.append("$orderby", orderby);
+            if (expand)
+                params.append("$expand", expand);
+            if (typeof count === "boolean")
+                params.append("$count", count.toString());
+            if (apply)
+                params.append("$apply", apply);
+            if (applyPolicies === "Select" && selectPolicyIds) {
+                for (const policyId of selectPolicyIds) {
+                    params.append("selectPolicyIds", policyId);
+                }
+            }
+            if (params.toString()) {
+                endpoint += `?${params.toString()}`;
+            }
+            const response = await makeAppScanRequest(endpoint);
+            const items = response.Items;
+            const fixGroups = Array.isArray(items) ? items : [];
+            const totalCount = typeof response.Count === "number" ? response.Count : fixGroups.length;
+            if (fixGroups.length === 0) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: "No fix groups found for this scope",
+                        },
+                    ],
+                };
+            }
+            const formattedFixGroups = fixGroups.map((fixGroup) => [
+                `Subject: ${typeof fixGroup.Subject === "string" ? fixGroup.Subject : "Unknown"}`,
+                `ID: ${typeof fixGroup.Id === "string" ? fixGroup.Id : "Unknown"}`,
+                `Type: ${typeof fixGroup.FixGroupType === "string" ? fixGroup.FixGroupType : "Unknown"}`,
+                `Severity: ${typeof fixGroup.Severity === "string" ? fixGroup.Severity : "Unknown"}`,
+                `Status: ${typeof fixGroup.Status === "string" ? fixGroup.Status : "Unknown"}`,
+                `Sticky Status: ${typeof fixGroup.StickyStatus === "boolean" ? fixGroup.StickyStatus : "Unknown"}`,
+                `Issues: ${typeof fixGroup.NIssues === "number" ? fixGroup.NIssues : "Unknown"}`,
+                `Language: ${typeof fixGroup.Language === "string" ? fixGroup.Language : "Unknown"}`,
+                "---",
+            ].join("\n"));
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Found ${fixGroups.length} fix group(s) (Count: ${totalCount}):\n\n${formattedFixGroups.join("\n")}`,
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error fetching fix groups: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("get-issue-details", {
+        description: getToolDescription("get-issue-details"),
+        inputSchema: {
+            issueId: z.string().describe("Issue ID"),
+        },
+    }, async ({ issueId }) => {
+        try {
+            const issue = await makeAppScanRequest(`/api/v4/Issues/${issueId}`);
+            const formattedDetails = [
+                `Issue Type: ${issue.IssueType || "Unknown"}`,
+                `ID: ${issue.Id || "Unknown"}`,
+                `Severity: ${issue.Severity || "Unknown"}`,
+                `Status: ${issue.Status || "Unknown"}`,
+                `Application: ${issue.ApplicationName || "Unknown"}`,
+                `Scan: ${issue.ScanName || "Unknown"}`,
+                `Location: ${issue.Location || "Not specified"}`,
+                `---`,
+                `Description:`,
+                issue.Description || "No description available",
+                `---`,
+                `Remediation:`,
+                issue.Remediation || "No remediation information available",
+            ];
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: formattedDetails.join("\n"),
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error fetching issue details: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("update-issues", {
+        description: getToolDescription("update-issues"),
+        annotations: { destructiveHint: true },
+        inputSchema: {
+            scope: z
+                .enum(["Application", "Scan", "ScanExecution"])
+                .optional()
+                .describe("Issue scope. Optional when appId or scanId is provided."),
+            scopeId: z.string().optional().describe("Scope ID (UUID)."),
+            appId: z.string().optional().describe("Application ID (UUID). Shorthand for scope=Application and scopeId=appId."),
+            scanId: z.string().optional().describe("Scan ID (UUID). Shorthand for scope=Scan and scopeId=scanId."),
+            issueId: z.string().optional().describe("Issue ID (UUID). Optional single-issue targeting."),
+            status: z
+                .enum(["Open", "InProgress", "Reopened", "Noise", "Passed", "Fixed", "New"])
+                .optional()
+                .describe("New issue status."),
+            comment: z.string().optional().describe("Optional comment to add to issue updates."),
+            externalId: z.string().optional().describe("Optional external ID to set on updated issues."),
+            odataFilter: z.string().optional().describe("Optional OData filter to target matching issues in scope."),
+            applyPolicies: z.enum(["None", "All", "Select"]).optional().describe("Policy application mode. Defaults to None."),
+            selectPolicyIds: z
+                .array(z.string())
+                .optional()
+                .describe("Policy IDs to apply when applyPolicies is Select."),
+            confirmToken: z
+                .string()
+                .optional()
+                .describe("One-time token returned by this tool preview flow when client elicitation is unavailable."),
+            allowDuplicate: z
+                .boolean()
+                .optional()
+                .describe("Set true only when the user explicitly asks to apply the same update (for example the same comment) a second time. Otherwise an identical repeat call is suppressed."),
+        },
+    }, async ({ scope, scopeId, appId, scanId, issueId, status, comment, externalId, odataFilter, applyPolicies, selectPolicyIds, confirmToken, allowDuplicate }) => {
+        try {
+            const targetResolution = resolveIssueUpdateTarget({ scope, scopeId, appId, scanId });
+            if (!targetResolution.ok) {
+                return {
+                    content: [{ type: "text", text: targetResolution.error }],
+                    isError: true,
+                };
+            }
+            const { scope: resolvedScope, scopeId: resolvedScopeId } = targetResolution.target;
+            const missingDetails = [];
+            const effectiveStatus = status || (issueId && !comment && !externalId ? "Open" : undefined);
+            if (comment && !status && !externalId) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: "AppScan does not allow adding only comments. Comments can be added only when the issue status is changed.",
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            if (!effectiveStatus && !comment && !externalId) {
+                missingDetails.push("update fields: provide at least one of status, comment, or externalId");
+            }
+            if (applyPolicies === "Select" && (!selectPolicyIds || selectPolicyIds.length === 0)) {
+                missingDetails.push("selectPolicyIds: required when applyPolicies is 'Select'");
+            }
+            if (missingDetails.length > 0) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: [
+                                "I need more details before I can update issues:",
+                                ...missingDetails.map((detail) => `- ${detail}`),
+                                "Example: { \"scanId\": \"<uuid>\", \"issueId\": \"<uuid>\", \"status\": \"Open\", \"comment\": \"Reopened for triage\" }",
+                            ].join("\n"),
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            const filters = [];
+            if (odataFilter) {
+                filters.push(`(${odataFilter})`);
+            }
+            if (issueId) {
+                filters.push(`(Id eq ${issueId})`);
+            }
+            const query = new URLSearchParams();
+            query.append("applyPolicies", applyPolicies || "None");
+            if (filters.length > 0) {
+                query.append("odataFilter", filters.join(" and "));
+            }
+            if (applyPolicies === "Select" && selectPolicyIds) {
+                for (const policyId of selectPolicyIds) {
+                    query.append("selectPolicyIds", policyId);
+                }
+            }
+            const payload = {};
+            if (effectiveStatus)
+                payload.Status = effectiveStatus;
+            if (comment)
+                payload.Comment = comment;
+            if (externalId)
+                payload.ExternalId = externalId;
+            const fingerprint = mutationFingerprint("update-issues", {
+                scope: resolvedScope,
+                scopeId: resolvedScopeId,
+                filters,
+                applyPolicies: applyPolicies || "None",
+                selectPolicyIds,
+                payload,
+            });
+            if (!allowDuplicate) {
+                const previous = findRecentMutation(fingerprint);
+                if (previous) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: [
+                                    `This exact update was already applied ${describeAge(previous.appliedAt)} and was not sent again.`,
+                                    "No retry is needed; the earlier call succeeded.",
+                                    "",
+                                    previous.summary,
+                                    "",
+                                    "If the user explicitly wants the same change (for example a duplicate comment) applied again, call this tool with allowDuplicate=true.",
+                                ].join("\n"),
+                            },
+                        ],
+                    };
+                }
+            }
+            const approval = await requireApproval(server, "update-issues", {
+                scope: resolvedScope,
+                scopeId: resolvedScopeId,
+                issueId,
+                status: effectiveStatus,
+                comment,
+                externalId,
+                odataFilter,
+                applyPolicies: applyPolicies || "None",
+                selectPolicyIds,
+                confirmToken,
+            }, [
+                `Tool: update-issues`,
+                `Target environment: AppScan on Cloud API.`,
+                `Target scope: ${resolvedScope}.`,
+                `Target scope ID: ${resolvedScopeId}.`,
+                `Target issue ID: ${issueId || "(filtered scope update)"}.`,
+                `Changes: ${Object.entries(payload)
+                    .map(([k, v]) => `${k}='${v}'`)
+                    .join(", ")}.`,
+                `Filter: ${filters.length > 0 ? filters.join(" and ") : "(none - applies to scope by policy selection)"}.`,
+                `Deletion impact: none, but issue state and metadata may be modified${issueId ? " for one issue" : " in bulk"}.`,
+            ].join("\n"), {
+                elicitationMessage: issueId
+                    ? `Do you want to update issue ${issueId} in the ${formatApprovalScope(resolvedScope)} scope?`
+                    : `Do you want to update issues in the ${formatApprovalScope(resolvedScope)} scope?`,
+                approveLabel: "update issues",
+                rejectLabel: "leave issues unchanged",
+            });
+            if (!approval.approved) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: approval.responseText || "Cancelled by user.",
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            const endpoint = `/api/v4/Issues/${resolvedScope}/${resolvedScopeId}?${query.toString()}`;
+            const response = await makeAppScanRequest(endpoint, {
+                method: "PUT",
+                body: JSON.stringify(payload),
+            });
+            const updatedCount = (response && (response.NUpdatedIssues ?? response.nUpdatedIssues)) ?? undefined;
+            const summaryLines = [
+                `Scope: ${resolvedScope}`,
+                `Scope ID: ${resolvedScopeId}`,
+                `Issue ID: ${issueId || "(none - filtered update)"}`,
+                `Status: ${effectiveStatus || "(unchanged)"}`,
+                `Comment: ${comment || "(none)"}`,
+                `External ID: ${externalId || "(unchanged)"}`,
+                `Filter: ${filters.length > 0 ? filters.join(" and ") : "(none)"}`,
+                `Policy mode: ${applyPolicies || "None"}`,
+            ];
+            if (typeof updatedCount === "number") {
+                summaryLines.push(`Issues with a changed status: ${updatedCount}`);
+                if (updatedCount === 0) {
+                    summaryLines.push(comment
+                        ? "Note: AppScan returns this count for status transitions only, not for comment writes. The request succeeded and the comment was recorded; the count is 0 because no issue status actually changed (the target status already matched). Do not retry this update."
+                        : "Note: AppScan returns this count for status transitions only. The request succeeded; the count is 0 because no targeted issue needed a status change. Do not retry this update.");
+                }
+            }
+            const summaryText = `Issues updated successfully. AppScan accepted the write.\n${summaryLines.join("\n")}`;
+            recordMutation(fingerprint, summaryText);
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: summaryText,
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error updating issues: ${error instanceof Error ? error.message : String(error)}\nRetry only if this error confirms AppScan rejected the request before applying it. If the outcome is unclear (for example a timeout), report the uncertainty and ask the user before sending the update again.`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("update-fix-groups", {
+        description: getToolDescription("update-fix-groups"),
+        annotations: { destructiveHint: true },
+        inputSchema: {
+            scope: z.enum(["Application", "Scan", "ScanExecution"]).describe("Fix group scope."),
+            scopeId: z.string().describe("Scope ID (UUID)."),
+            fixGroupId: z.string().describe("Fix group ID (UUID)."),
+            status: z
+                .enum(["Open", "InProgress", "Reopened", "Noise", "Passed", "Fixed", "New"])
+                .describe("New fix group status."),
+            stickyStatus: z
+                .boolean()
+                .describe("When true, status applies to all issues in the fix group including future issues."),
+            comment: z.string().optional().describe("Optional comment for the update."),
+            applyPolicies: z.enum(["None", "All", "Select"]).optional().describe("Policy application mode. Defaults to None."),
+            selectPolicyIds: z
+                .array(z.string())
+                .optional()
+                .describe("Policy IDs to apply when applyPolicies is Select."),
+            confirmToken: z
+                .string()
+                .optional()
+                .describe("One-time token returned by this tool preview flow when client elicitation is unavailable."),
+        },
+    }, async ({ scope, scopeId, fixGroupId, status, stickyStatus, comment, applyPolicies, selectPolicyIds, confirmToken }) => {
+        try {
+            if (applyPolicies === "Select" && (!selectPolicyIds || selectPolicyIds.length === 0)) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: "I need more details before I can update fix groups:\n- selectPolicyIds: required when applyPolicies is 'Select'",
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            const query = new URLSearchParams();
+            query.append("applyPolicies", applyPolicies || "None");
+            if (applyPolicies === "Select" && selectPolicyIds) {
+                for (const policyId of selectPolicyIds) {
+                    query.append("selectPolicyIds", policyId);
+                }
+            }
+            const payload = {
+                Status: status,
+                StickyStatus: stickyStatus,
+            };
+            if (comment)
+                payload.Comment = comment;
+            const stickyBehavior = stickyStatus
+                ? "Status applies to all issues in the fix group, including future issues, regardless of scope/policy filters."
+                : "Status applies only to issues filtered in by the selected scope and policy settings.";
+            const approval = await requireApproval(server, "update-fix-groups", {
+                scope,
+                scopeId,
+                fixGroupId,
+                status,
+                stickyStatus,
+                comment,
+                applyPolicies: applyPolicies || "None",
+                selectPolicyIds,
+                confirmToken,
+            }, [
+                "Tool: update-fix-groups",
+                "Target environment: AppScan on Cloud API.",
+                `Target scope: ${scope}.`,
+                `Target scope ID: ${scopeId}.`,
+                `Target fix group ID: ${fixGroupId}.`,
+                `Changes: Status='${status}', StickyStatus='${stickyStatus}'${comment ? `, Comment='${comment}'` : ""}.`,
+                `Policy mode: ${applyPolicies || "None"}.`,
+                `Sticky status behavior: ${stickyBehavior}`,
+                "Deletion impact: none, but issue state may be modified in bulk through fix group propagation.",
+            ].join("\n"), {
+                elicitationMessage: `Do you want to update fix group ${fixGroupId} in the ${formatApprovalScope(scope)} scope?`,
+                approveLabel: "update fix group",
+                rejectLabel: "leave fix group unchanged",
+            });
+            if (!approval.approved) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: approval.responseText || "Cancelled by user.",
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            const endpoint = `/api/v4/FixGroups/${scope}/${scopeId}/${fixGroupId}?${query.toString()}`;
+            const response = await makeAppScanRequest(endpoint, {
+                method: "PUT",
+                body: JSON.stringify(payload),
+            });
+            const summaryLines = [
+                `Scope: ${scope}`,
+                `Scope ID: ${scopeId}`,
+                `Fix Group ID: ${fixGroupId}`,
+                `Status: ${status}`,
+                `Sticky Status: ${stickyStatus}`,
+                `Comment: ${comment || "(none)"}`,
+                `Policy mode: ${applyPolicies || "None"}`,
+            ];
+            if (response && typeof response === "object") {
+                if (typeof response.NProvidedIssues === "number")
+                    summaryLines.push(`Provided Issues: ${response.NProvidedIssues}`);
+                if (typeof response.NUpdatedIssues === "number") {
+                    summaryLines.push(`Issues with a changed status: ${response.NUpdatedIssues}`);
+                    if (response.NUpdatedIssues === 0) {
+                        summaryLines.push("Note: this count reflects status transitions only, not comment writes. The request succeeded; do not retry it.");
+                    }
+                }
+                if (typeof response.NInheritedIssues === "number")
+                    summaryLines.push(`Inherited Issues: ${response.NInheritedIssues}`);
+                if (typeof response.NStatusConflictIssues === "number")
+                    summaryLines.push(`Status Conflict Issues: ${response.NStatusConflictIssues}`);
+            }
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Fix group updated successfully.\n${summaryLines.join("\n")}`,
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error updating fix group: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("get-reports", {
+        description: getToolDescription("get-reports"),
+        annotations: { destructiveHint: true },
+        inputSchema: {
+            prompt: z.string().describe("Natural-language report operation/type request. Supply target IDs separately with scope/id, scanExecutionId, or reportId."),
+            operation: z.enum(["list", "create", "download"]).optional().describe("Optional override for operation."),
+            reportType: z
+                .enum(["Security", "Issues", "Regulation", "License", "Sbom"])
+                .optional()
+                .describe("Optional report type override for create operation."),
+            scope: reportScopeSchema.optional().describe("Scope for Security/Issues/Regulation/License reports."),
+            id: z.string().uuid().optional().describe("Scope ID; use scanExecutionId for ScanExecution scope."),
+            reportId: z.string().uuid().optional().describe("Report ID for download operation."),
+            outputDir: z
+                .string()
+                .optional()
+                .describe("Directory for downloaded reports. Overrides the default location; must remain inside the CLI or environment reports base when configured."),
+            scanExecutionId: z.string().uuid().optional().describe("Scan execution ID for SBOM or ScanExecution-scoped reports."),
+            top: z.number().optional().describe("Optional max number of report jobs for list operation."),
+            ...commonReportFilterSchema,
+            reportFileType: z
+                .enum(["Pdf", "Html", "Xml", "Csv", "Sarif"])
+                .optional()
+                .describe("Report file type. Applies to create operation where supported."),
+            title: z.string().optional().describe("Report title."),
+            notes: z.string().optional().describe("Report notes."),
+            locale: z.string().optional().describe("Locale (for example en-US)."),
+            applicationDetails: z.boolean().optional().describe("Include application details section."),
+            coverPage: z.boolean().optional().describe("Security report section."),
+            summary: z.boolean().optional().describe("Security report section."),
+            details: z.boolean().optional().describe("Security report section."),
+            discussion: z.boolean().optional().describe("Security report section."),
+            overview: z.boolean().optional().describe("Security report section."),
+            tableOfContent: z.boolean().optional().describe("Security report section."),
+            history: z.boolean().optional().describe("Security report section."),
+            coverage: z.boolean().optional().describe("Security report section."),
+            minimizeDetails: z.boolean().optional().describe("Security report section."),
+            articles: z.boolean().optional().describe("Security report section."),
+            applicationCustomFields: z.boolean().optional().describe("Security report section."),
+            issueCustomFields: z.boolean().optional().describe("Security report section."),
+            regulationReportType: z.string().optional().describe("Required for regulation reports; exact AppScan regulation type, such as OwaspTop10_2021 or PCI."),
+            sbomFormat: z.enum(["SPDX_Json", "CycloneDx_Json"]).optional().describe("SBOM format."),
+            fileName: z.string().optional().describe("SBOM file name."),
+            documentName: z.string().optional().describe("SBOM document name."),
+            organizationName: z.string().optional().describe("Organization name for SBOM metadata."),
+            creatorName: z.string().optional().describe("Creator name for SBOM metadata."),
+            creatorEmail: z.string().email().optional().describe("Creator email for SBOM metadata."),
+            confirmToken: z
+                .string()
+                .optional()
+                .describe("One-time token returned by this tool preview flow when client elicitation is unavailable."),
+        },
+    }, async (input) => {
+        try {
+            const promptLower = input.prompt.toLowerCase();
+            const inferredOperation = input.operation
+                ? input.operation
+                : promptLower.includes("download")
+                    ? "download"
+                    : promptLower.includes("list") || promptLower.includes("show")
+                        ? "list"
+                        : "create";
+            const inferredReportType = input.reportType
+                ? input.reportType
+                : promptLower.includes("sbom")
+                    ? "Sbom"
+                    : promptLower.includes("license") || promptLower.includes("licence")
+                        ? "License"
+                        : promptLower.includes("regulation") || promptLower.includes("owasp") || promptLower.includes("pci")
+                            ? "Regulation"
+                            : promptLower.includes("issues")
+                                ? "Issues"
+                                : "Security";
+            const inferredScope = input.scope || (input.scanExecutionId ? "ScanExecution" : undefined);
+            if (inferredOperation === "list") {
+                let endpoint = "/api/v4/Reports";
+                if (input.top)
+                    endpoint += `?$top=${input.top}`;
+                const response = await makeAppScanRequest(endpoint);
+                const reportsRaw = Array.isArray(response.Items)
+                    ? response.Items
+                    : Array.isArray(response)
+                        ? response
+                        : [];
+                if (reportsRaw.length === 0) {
+                    return { content: [{ type: "text", text: "No reports found" }] };
+                }
+                const formattedReports = reportsRaw.map((item) => {
+                    const report = item;
+                    return [
+                        `Name: ${typeof report.Name === "string" ? report.Name : "Unknown"}`,
+                        `ID: ${typeof report.Id === "string" ? report.Id : "Unknown"}`,
+                        `Type: ${typeof report.ReportType === "string" ? report.ReportType : "Unknown"}`,
+                        `Status: ${typeof report.Status === "string" ? report.Status : "Unknown"}`,
+                        `Created: ${typeof report.Created === "string" ? report.Created : "Unknown"}`,
+                        "---",
+                    ].join("\n");
+                });
+                return {
+                    content: [{ type: "text", text: `Found ${reportsRaw.length} report(s):\n\n${formattedReports.join("\n")}` }],
+                };
+            }
+            if (inferredOperation === "download") {
+                const resolvedReportId = input.reportId;
+                if (!resolvedReportId) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: "Missing reportId for download. Provide the explicit reportId parameter.",
+                            },
+                        ],
+                        isError: true,
+                    };
+                }
+                const directory = await resolveReportsDir(input.outputDir);
+                const download = await makeAppScanFileRequest(`/api/v4/Reports/${resolvedReportId}/Download`);
+                if (download.data.byteLength === 0) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: "Report download returned an empty file. The report may still be processing.",
+                            },
+                        ],
+                        isError: true,
+                    };
+                }
+                let targetPath;
+                try {
+                    targetPath = await reportTargetPath(directory, defaultReportFileName(resolvedReportId, download.fileName, download.contentType));
+                    await mkdir(directory, { recursive: true });
+                    await writeFile(targetPath, download.data);
+                }
+                catch (error) {
+                    const message = `Unable to save report in "${directory}". Check the directory path and write permissions: ${error instanceof Error ? error.message : String(error)}`;
+                    console.error(message);
+                    throw new Error(message, { cause: error });
+                }
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: [
+                                "Report downloaded successfully.",
+                                `Report ID: ${resolvedReportId}`,
+                                `Saved To: ${targetPath}`,
+                                `Content Type: ${download.contentType}`,
+                                `Size: ${download.data.byteLength} bytes`,
+                            ].join("\n"),
+                        },
+                    ],
+                };
+            }
+            if (inferredReportType === "Sbom") {
+                if (input.scope && input.scope !== "ScanExecution") {
+                    return {
+                        content: [{ type: "text", text: "Conflicting SBOM target: scope must be ScanExecution." }],
+                        isError: true,
+                    };
+                }
+                if (input.id && input.scanExecutionId && input.id !== input.scanExecutionId) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: "Conflicting SBOM targets: id and scanExecutionId must identify the same scan execution.",
+                            },
+                        ],
+                        isError: true,
+                    };
+                }
+                const resolvedScanExecutionId = input.scanExecutionId;
+                if (!resolvedScanExecutionId) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: "Missing scanExecutionId for SBOM report. Provide the explicit scanExecutionId parameter.",
+                            },
+                        ],
+                        isError: true,
+                    };
+                }
+                const sbomFormat = input.sbomFormat || "SPDX_Json";
+                const approval = await requireApproval(server, "get-reports", { ...input, operation: "create", reportType: "Sbom", scanExecutionId: resolvedScanExecutionId }, [
+                    "Tool: get-reports",
+                    `Action: create SBOM report (${sbomFormat}).`,
+                    `Target scan execution: ${resolvedScanExecutionId}.`,
+                    "Deletion impact: none.",
+                ].join("\n"), {
+                    elicitationMessage: `Do you want to create an SBOM report (${sbomFormat}) for scan execution ${resolvedScanExecutionId}?`,
+                    approveLabel: "create this report",
+                    rejectLabel: "skip report creation",
+                });
+                if (!approval.approved) {
+                    return { content: [{ type: "text", text: approval.responseText || "Cancelled by user." }], isError: true };
+                }
+                const payload = {
+                    SbomFormat: sbomFormat,
+                    ...(input.fileName ? { FileName: input.fileName } : {}),
+                    ...(input.documentName ? { DocumentName: input.documentName } : {}),
+                    ...(input.organizationName ? { OrganizationName: input.organizationName } : {}),
+                    ...(input.creatorName ? { CreatorName: input.creatorName } : {}),
+                    ...(input.creatorEmail ? { CreatorEmail: input.creatorEmail } : {}),
+                };
+                const response = await makeAppScanRequest(`/api/v4/Reports/Sbom/${resolvedScanExecutionId}`, {
+                    method: "POST",
+                    body: JSON.stringify(payload),
+                });
+                return { content: [{ type: "text", text: `SBOM report job created successfully!\n${formatReportJobResponse(response)}` }] };
+            }
+            const targetResolution = resolveReportTarget({ scope: inferredScope, id: input.id, scanExecutionId: input.scanExecutionId });
+            if (!targetResolution.ok) {
+                return {
+                    content: [{ type: "text", text: targetResolution.error }],
+                    isError: true,
+                };
+            }
+            const { scope: resolvedScope, scopeId: resolvedScopeId } = targetResolution.target;
+            if (inferredReportType === "Regulation" && !input.regulationReportType) {
+                return {
+                    content: [{ type: "text", text: "Missing regulationReportType. Specify the exact AppScan regulation type (for example OwaspTop10_2021 or PCI) to create a regulation report." }],
+                    isError: true,
+                };
+            }
+            const reportDescription = inferredReportType === "Regulation" && input.regulationReportType
+                ? `${input.regulationReportType} regulation`
+                : inferredReportType;
+            const reportFormat = inferredReportType === "Issues"
+                ? undefined
+                : inferredReportType === "Security"
+                    ? input.reportFileType || "Pdf"
+                    : input.reportFileType === "Html"
+                        ? "Html"
+                        : "Pdf";
+            const reportLabel = `${reportDescription} report${reportFormat ? ` (${reportFormat})` : ""}`;
+            const approval = await requireApproval(server, "get-reports", { ...input, operation: "create", reportType: inferredReportType, scope: resolvedScope, id: resolvedScopeId }, [
+                "Tool: get-reports",
+                `Action: create ${reportLabel}.`,
+                `Scope: ${resolvedScope}.`,
+                `Scope ID: ${resolvedScopeId}.`,
+                "Deletion impact: none.",
+            ].join("\n"), {
+                elicitationMessage: `Do you want to create ${inferredReportType === "Issues" ? "an" : "a"} ${reportLabel} for the ${formatApprovalScope(resolvedScope)} scope (ID: ${resolvedScopeId})?`,
+                approveLabel: "create this report",
+                rejectLabel: "skip report creation",
+            });
+            if (!approval.approved) {
+                return { content: [{ type: "text", text: approval.responseText || "Cancelled by user." }], isError: true };
+            }
+            let endpoint = "";
+            let payload = {};
+            const scopePayload = buildReportScopePayload({
+                odataFilter: input.odataFilter,
+                applyPolicies: input.applyPolicies,
+                selectPolicyIds: input.selectPolicyIds,
+            });
+            if (inferredReportType === "Issues") {
+                endpoint = `/api/v4/Reports/Issues/${resolvedScope}/${resolvedScopeId}`;
+                payload = scopePayload;
+            }
+            else if (inferredReportType === "Regulation") {
+                endpoint = `/api/v4/Reports/Regulation/${resolvedScope}/${resolvedScopeId}`;
+                payload = {
+                    ...scopePayload,
+                    Configuration: {
+                        ReportFileType: input.reportFileType && ["Pdf", "Html"].includes(input.reportFileType) ? input.reportFileType : "Pdf",
+                        ...(input.title ? { Title: input.title } : {}),
+                        ...(input.notes ? { Notes: input.notes } : {}),
+                        ...(input.locale ? { Locale: input.locale } : {}),
+                        ...(typeof input.applicationDetails === "boolean" ? { ApplicationDetails: input.applicationDetails } : {}),
+                        ...(input.regulationReportType ? { RegulationReportType: input.regulationReportType } : {}),
+                    },
+                };
+            }
+            else if (inferredReportType === "License") {
+                endpoint = `/api/v4/Reports/License/${resolvedScope}/${resolvedScopeId}`;
+                payload = {
+                    ...(input.odataFilter ? { OdataFilter: input.odataFilter } : {}),
+                    Configuration: {
+                        ReportFileType: input.reportFileType && ["Pdf", "Html"].includes(input.reportFileType) ? input.reportFileType : "Pdf",
+                        ...(input.title ? { Title: input.title } : {}),
+                        ...(input.notes ? { Notes: input.notes } : {}),
+                        ...(input.locale ? { Locale: input.locale } : {}),
+                        ...(typeof input.applicationDetails === "boolean" ? { ApplicationDetails: input.applicationDetails } : {}),
+                    },
+                };
+            }
+            else {
+                endpoint = `/api/v4/Reports/Security/${resolvedScope}/${resolvedScopeId}`;
+                payload = {
+                    ...scopePayload,
+                    Configuration: {
+                        ReportFileType: input.reportFileType || "Pdf",
+                        ...(input.title ? { Title: input.title } : {}),
+                        ...(input.notes ? { Notes: input.notes } : {}),
+                        ...(input.locale ? { Locale: input.locale } : {}),
+                        ...(typeof input.applicationDetails === "boolean" ? { ApplicationDetails: input.applicationDetails } : {}),
+                        ...(typeof input.coverPage === "boolean" ? { CoverPage: input.coverPage } : {}),
+                        ...(typeof input.summary === "boolean" ? { Summary: input.summary } : {}),
+                        ...(typeof input.details === "boolean" ? { Details: input.details } : {}),
+                        ...(typeof input.discussion === "boolean" ? { Discussion: input.discussion } : {}),
+                        ...(typeof input.overview === "boolean" ? { Overview: input.overview } : {}),
+                        ...(typeof input.tableOfContent === "boolean" ? { TableOfContent: input.tableOfContent } : {}),
+                        ...(typeof input.history === "boolean" ? { History: input.history } : {}),
+                        ...(typeof input.coverage === "boolean" ? { Coverage: input.coverage } : {}),
+                        ...(typeof input.minimizeDetails === "boolean" ? { MinimizeDetails: input.minimizeDetails } : {}),
+                        ...(typeof input.articles === "boolean" ? { Articles: input.articles } : {}),
+                        ...(typeof input.applicationCustomFields === "boolean" ? { ApplicationCustomFields: input.applicationCustomFields } : {}),
+                        ...(typeof input.issueCustomFields === "boolean" ? { IssueCustomFields: input.issueCustomFields } : {}),
+                    },
+                };
+            }
+            const response = await makeAppScanRequest(endpoint, {
+                method: "POST",
+                body: JSON.stringify(payload),
+            });
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `${inferredReportType} report job created successfully!\n${formatReportJobResponse(response)}`,
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error handling report request: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    server.registerTool("get-asset-groups", {
+        description: getToolDescription("get-asset-groups"),
+        inputSchema: {},
+    }, async () => {
+        try {
+            const response = await makeAppScanRequest("/api/v4/AssetGroups");
+            const groups = response.Items || response || [];
+            if (groups.length === 0) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: "No asset groups found",
+                        },
+                    ],
+                };
+            }
+            const formattedGroups = groups.map((group) => [
+                `Name: ${group.Name || "Unknown"}`,
+                `ID: ${group.Id || "Unknown"}`,
+                `Description: ${group.Description || "No description"}`,
+                "---",
+            ].join("\n"));
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Found ${groups.length} asset group(s):\n\n${formattedGroups.join("\n")}`,
+                    },
+                ],
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error fetching asset groups: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+    registerCreateScanTool(server);
+}
 
