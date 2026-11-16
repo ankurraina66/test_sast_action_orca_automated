@@ -1,1 +1,40 @@
 
+Run a complete SAST scan through the HCL AppScan AI Coding Assistants MCP facade using the Local STDIO backend.
+
+I explicitly approve scan creation and execution with the following parameters:
+
+Application details
+
+- Application name: "MCP_Facade_Demo_App"
+- Application ID: "6cbbf2cb-efca-425e-8ca7-2d177d51413c"
+
+Scan details
+
+- Scan type: "SAST"
+- Scan name: "MCP_Facade_Demo_SAST"
+- Target directory: "C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
+- Comment: "SAST validation through AppScan AI Coding Assistants MCP integration"
+
+Execute the following workflow:
+
+1. Invoke "get-provider-status" and ensure the active provider is "local". Switch to Local if necessary.
+2. Invoke "prepare-scan" with the exact application ID, target directory, scan type, scan name, and comment above.
+3. Verify that the prepared scan parameters match my approved configuration.
+4. Use the confirmation token returned by "prepare-scan" to invoke "execute-prepared-scan" with "waitForCompletion: true".
+5. Wait for scan execution and polling to complete.
+6. If necessary, use "get-scan-execution-status" with the same confirmation token to retrieve the final outcome.
+
+I explicitly authorize packaging and uploading the project's source artifacts to AppScan for this scan.
+
+Final report:
+
+- Application name and ID
+- Scan name and scan ID
+- Scan creation status
+- Scan execution status
+- Final scan outcome
+- Number of security findings, if returned
+- Severity breakdown (Critical, High, Medium, Low, Informational), if available
+- Any errors or warnings
+
+Do not modify the source project. Do not create another application. Do not automatically retry scan creation or execution if the outcome is failed or uncertain. Report the exact error and stop.
