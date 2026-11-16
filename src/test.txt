@@ -1,12 +1,1 @@
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> Select-String -Path .\dist\services\appscan-service-factory.js -Pattern "process.env" -Context 3,5
 
-  dist\services\appscan-service-factory.js:5:    const config = loadConfig();
-  dist\services\appscan-service-factory.js:6:    const connector = createConnector(config);
-  dist\services\appscan-service-factory.js:7:    return new AppScanService(connector, config.provider, (provider) => createConnector(loadConfig({
-> dist\services\appscan-service-factory.js:8:        ...process.env,
-  dist\services\appscan-service-factory.js:9:        APP_SCAN_PROVIDER: provider,
-  dist\services\appscan-service-factory.js:10:    })));
-  dist\services\appscan-service-factory.js:11:}
-  dist\services\appscan-service-factory.js:12://# sourceMappingURL=appscan-service-factory.js.map
-
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc>
