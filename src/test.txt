@@ -1,1 +1,45 @@
+$script = @'
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import fs from "node:fs";
 
+const configPath = "C:/Users/ankur.raina/AppData/Local/Claude-Data/claude_pzs8sxrjxfjjc/claude_desktop_config.json";
+const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+const server = config.mcpServers["hcl-appscan-ai-coding-assistants"];
+
+const transport = new StdioClientTransport({
+  command: server.env.APP_SCAN_LOCAL_COMMAND,
+  args: JSON.parse(server.env.APP_SCAN_LOCAL_ARGS),
+  env: { ...process.env, ...server.env }
+});
+
+const client = new Client({
+  name: "appscan-tool-inspector",
+  version: "1.0.0"
+});
+
+try {
+  await client.connect(transport);
+  const result = await client.listTools();
+
+  console.log("APPLICATION-RELATED BACKEND TOOLS");
+
+  for (const tool of result.tools) {
+    if (/app|application/i.test(tool.name)) {
+      console.log(JSON.stringify({
+        name: tool.name,
+        description: tool.description,
+        inputSchema: tool.inputSchema
+      }, null, 2));
+    }
+  }
+} finally {
+  await client.close();
+}
+'@
+
+Set-Content ".\inspect-appscan-tools.mjs" $script
+
+& "$env:APPDATA\fnm\node-versions\v22.23.4\installation\node.exe" ".\inspect-appscan-tools.mjs"
+
+Remove-Item ".\inspect-appscan-tools.mjs"
