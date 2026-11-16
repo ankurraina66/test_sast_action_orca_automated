@@ -1,1 +1,1 @@
-
+List the available tools from the HCL AppScan AI Coding Assistants MCP server. Confirm whether "create-app", "prepare-scan", and "execute-prepared-scan" are available. Do not execute any operation.
