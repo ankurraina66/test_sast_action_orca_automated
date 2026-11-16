@@ -1,1 +1,19 @@
+Inspect the installed Local AppScan MCP backend source code for the "create-app" implementation.
 
+Backend entry point:
+"C:\Users\ankur.raina\AppData\Roaming\fnm\node-versions\v22.23.4\installation\node_modules\mcp-appscan-server\build\index.js"
+
+Trace the create-app tool implementation through to the HTTP request to "/api/v4/Apps".
+
+Report:
+
+1. The HTTP method.
+2. The exact request payload structure, using placeholder values for sensitive information.
+3. How authentication is attached to the request, without exposing credentials or headers containing secrets.
+4. Whether the confirmation call uses the same payload as the preview.
+5. Any validation or transformation applied to the application name, description and asset group ID.
+6. Whether the API request implementation could explain the 403 response.
+
+Do not modify any source files, change configuration, retry application creation, or execute any write operation.
+
+Show the relevant function names and source-code locations so we can inspect the implementation.
