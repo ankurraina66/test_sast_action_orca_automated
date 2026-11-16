@@ -1,8 +1,1 @@
-Create and execute a SAST scan for my Spring Boot project using the existing AppScan application "MCP_Facade_Demo_App".
 
-Project path:
-"C:\Users\ankur.raina\Downloads\spring-boot-restful-web-service-example-master\spring-boot-restful-web-service-example-master"
-
-Scan name: "Spring_Boot_SAST_Demo"
-
-Prepare the scan, show me the preview, and wait for my explicit approval. After approval, execute through the facade without requesting a second approval. Monitor execution and report the final status and vulnerability summary.
