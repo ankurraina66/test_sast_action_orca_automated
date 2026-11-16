@@ -1,34 +1,197 @@
-Call "get-provider-status" and report the complete response.
+claude desktop config json
 
-  Also inspect the MCP server startup logs, if accessible, for the following diagnostic entries:
-
-  - "[AppScan MCP] Startup configuration:"
-  - "[AppScan MCP] Provider switch requested:"
-
-  Report the configured provider and whether the Local backend command is configured. Do not reveal, print, or expose any API keys, secrets, tokens, or credentials.
-
-  Do not switch providers or execute any other tools.
-
-  Called hcl-appscan-ai-coding-assistants
-
-get-provider-status complete response:
-
-Active AppScan provider: local
-
-The call returned nothing else.
-
-Startup logs: I did not inspect them. You told me not to run any other tools, so I didn't search the filesystem or read any log files. That means I can't report on either entry:
-- [AppScan MCP] Startup configuration:
-- [AppScan MCP] Provider switch requested:
-
-I haven't seen any log output, so I won't guess what it says.
-
-Configured provider and Local backend command:
-- Provider: the active provider is local, from the call above.
-- Local backend command: I can't say whether it's configured. get-provider-status doesn't report it.
-- Indirect evidence: earlier, switch-provider to local reported "Provider connection and tool discovery succeeded" with 14 backend tools. That suggests the Local backend can start. It is not a read of the configuration.
-- Other server: the separate appscan-connector server failed at startup with CONNECTION_CLOSED. I don't know if that's related.
-
-I haven't shown any keys, tokens or credentials, and I haven't switched providers.
-
-If you want the log check, tell me where the logs are, or let me look for them. I'd look only for those two entries and redact any secrets in what I report.
+{
+  "mcpServers": 
+{
+  "hcl-appscan-ai-coding-assistants": {
+    "command": "C:\\Users\\ankur.raina\\AppData\\Roaming\\fnm\\node-versions\\v22.23.4\\installation\\node.exe",
+    "args": [
+      "C:\\Users\\ankur.raina\\ai-coding-assistants-claude-poc\\dist\\claude-mcp-server.js"
+    ],
+    "env": {
+      "APP_SCAN_PROVIDER": "local",
+      "APP_SCAN_LOCAL_COMMAND": "C:\\Users\\ankur.raina\\AppData\\Roaming\\fnm\\node-versions\\v22.23.4\\installation\\node.exe",
+      "APP_SCAN_LOCAL_ARGS": "[\"C:\\\\Users\\\\ankur.raina\\\\AppData\\\\Roaming\\\\fnm\\\\node-versions\\\\v22.23.4\\\\installation\\\\node_modules\\\\mcp-appscan-server\\\\build\\\\index.js\"]",
+      "APP_SCAN_REQUEST_TIMEOUT_MS": "30000",
+      "APPSCAN_API_BASE": "https://cloud.appscan.com",
+      "APPSCAN_KEY_ID": "ab3f2a5f-00f6-21a5-30ee-853650a51b8e",
+      "APPSCAN_KEY_SECRET": "Ieuy2iZ0tkwrslDmBEMPCWtXmIuJyZu2T07KRVjbx+Zp",
+      "APP_SCAN_REMOTE_ENDPOINT": "https://cloud.appscan.com/mcp",
+      "APP_SCAN_API_KEY": "ab3f2a5f-00f6-21a5-30ee-853650a51b8e:Ieuy2iZ0tkwrslDmBEMPCWtXmIuJyZu2T07KRVjbx+Zp"
+    }
+  }
+},
+  "coworkUserFilesPath": "C:\\Users\\ankur.raina\\Claude",
+  "preferences": {
+    "coworkBrowserToolsEnabled": true,
+    "coworkPreferredBrowser": "built_in",
+    "launchPreviewPersistedWorkspaces": [],
+    "launchPreviewSessionScopedSessions": [],
+    "coworkLegacyRootGrantsPruned": true,
+    "coworkScheduledTasksEnabled": true,
+    "coworkHipaaRestricted": false,
+    "orgWorkAcrossAppsDisabled": false,
+    "ccdScheduledTasksEnabled": true,
+    "httpCacheZstdLatched": true,
+    "userDataOutsidePackageAnswer": true,
+    "sidebarMode": "chat",
+    "bypassPermissionsGateByAccount": {
+      "93ad7ba9-bd55-4a11-806b-476b0475d924": false,
+      "fdf98f2c-f411-4f34-bd87-bc4d094796fe": true
+    },
+    "coworkWebSearchEnabled": true,
+    "coworkModelAutoFallbackByAccount": {
+      "93ad7ba9-bd55-4a11-806b-476b0475d924": true,
+      "fdf98f2c-f411-4f34-bd87-bc4d094796fe": true
+    },
+    "remoteToolsDeviceName": "lp1-ap-52372727",
+    "epitaxyPrefs": {
+      "desktop-frame.paneStore.v1": {
+        "state": {
+          "extraPanesByMode": {},
+          "colWeightsByMode": {},
+          "rowSplit": 0.5,
+          "draftNonce": 0,
+          "lastPrimaryCodeSession": {
+            "id": "local_0ae3fe40-6ee1-4ef1-973c-d584c3623adc",
+            "type": "local"
+          }
+        },
+        "version": 4
+      },
+      "starred-local-code-sessions": [],
+      "starred-cowork-spaces": [],
+      "starred-session-groups": [],
+      "starred-local-routines": [],
+      "dframe-group-scopes": {},
+      "dframe-local-slice": {
+        "pinnedOrder": [],
+        "homeProjectsPinnedOrder": []
+      },
+      "dframe-code-sections": {
+        "fdf98f2c-f411-4f34-bd87-bc4d094796fe/33f43141-fe2a-4825-b741-8a7d489a0f7c": {
+          "sections": [
+            {
+              "id": "pinned",
+              "kind": "pinned",
+              "v": 2,
+              "name": "",
+              "order": 0,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false,
+                "slack": true
+              },
+              "collapsed": false,
+              "shown": true
+            },
+            {
+              "id": "routines",
+              "kind": "routines",
+              "v": 2,
+              "name": "",
+              "order": 1,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false,
+                "slack": true
+              },
+              "collapsed": true,
+              "shown": false
+            },
+            {
+              "id": "sessions",
+              "kind": "sessions",
+              "v": 2,
+              "name": "",
+              "order": 2,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false,
+                "slack": true
+              },
+              "collapsed": false,
+              "shown": true
+            }
+          ],
+          "migratedFrom": 1,
+          "prefsSeeded": true
+        },
+        "93ad7ba9-bd55-4a11-806b-476b0475d924/f03ee9f0-ddcb-4333-b6fa-a6bf0c38a1ee": {
+          "sections": [
+            {
+              "id": "pinned",
+              "kind": "pinned",
+              "v": 2,
+              "name": "",
+              "order": 0,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false,
+                "slack": true
+              },
+              "collapsed": false,
+              "shown": true
+            },
+            {
+              "id": "routines",
+              "kind": "routines",
+              "v": 2,
+              "name": "",
+              "order": 1,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false,
+                "slack": true
+              },
+              "collapsed": true,
+              "shown": false
+            },
+            {
+              "id": "sessions",
+              "kind": "sessions",
+              "v": 2,
+              "name": "",
+              "order": 2,
+              "sortBy": "recency",
+              "ascending": false,
+              "show": {
+                "metadata": false,
+                "emptyGroups": false,
+                "sideChats": false,
+                "slack": true
+              },
+              "collapsed": false,
+              "shown": true
+            }
+          ],
+          "migratedFrom": 1,
+          "prefsSeeded": true
+        }
+      },
+      "ccd-sessions-filter": {
+        "state": {
+          "selectedProjects": []
+        },
+        "version": 0
+      },
+      "epitaxy-auto-default-notice-seen.fdf98f2c-f411-4f34-bd87-bc4d094796fe": true,
+      "ultrathinkAvailable.claude-sonnet-5-5.fdf98f2c-f411-4f34-bd87-bc4d094796fe": true
+    }
+  }
+}
