@@ -1,1 +1,21 @@
+We are testing application creation through the shared AppScan MCP facade using the Local STDIO backend.
 
+Invoke "create-app" with these exact parameters:
+
+- name: "MCP_Facade_Local_Test"
+- description: "Testing create-app through the shared MCP facade"
+- assetGroupId: "32e36587-ff35-4170-b9e5-184ca3ef1f48"
+
+Do not provide a confirmation token in this first call.
+
+This is a preview-only request. Do not create the application yet.
+
+Return the complete preview, including:
+
+- Application name
+- Description
+- Asset group ID
+- Confirmation token
+- Any warnings or errors
+
+Do not retry or invoke alternative API calls.
