@@ -1,1 +1,11 @@
+Create a new application in HCL AppScan with the following details:
 
+- Application name: "MCP_Facade_Demo_App"
+- Description: "Demo application created through the AppScan AI Coding Assistants MCP integration"
+- Asset group ID: "32e36587-ff35-4170-b9e5-184ca3ef1f48"
+
+Use the active Local AppScan provider.
+
+Show me the creation preview and, after obtaining my approval, complete the application creation.
+
+Once successful, display the application name, application ID, and asset group details.
