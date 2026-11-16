@@ -1,1 +1,7 @@
+$registry = "$path\tools\registry.js"
 
+Get-Content $registry | Select-Object -Skip 1325 -First 45
+
+$toolList = "$path\tools\toolList.js"
+
+Get-Content $toolList | Select-Object -Skip 60 -First 35
