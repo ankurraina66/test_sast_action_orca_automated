@@ -1,12 +1,41 @@
 We are now performing the actual Local application creation test.
 
-First call "get-provider-status" and verify that the active provider is "local".
+  First call "get-provider-status" and verify that the active provider is "local".
 
-Then call "create-app" with:
+  Then call "create-app" with:
 
-- name: "MCP_Facade_Local_Test"
-- description: "Testing create-app and create-scan through the shared MCP facade"
+  - name: "MCP_Facade_Local_Test"
+  - description: "Testing create-app and create-scan through the shared MCP facade"
 
-Do not provide a confirmToken in the first call.
+  Do not provide a confirmToken in the first call.
 
-Show me the complete approval preview, including the target resource and any confirmation instructions. Do not make the confirmation call yet. Wait for my explicit approval.
+  Show me the complete approval preview, including the target resource and any confirmation instructions. Do not make the confirmation call yet. Wait for my explicit approval.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+Provider check: get-provider-status returned Active AppScan provider: local, so that's verified.
+
+create-app first call (no confirmToken). This is the full approval preview, returned as "Approval required for sensitive tool: create-app":
+
+Preview of pending action:
+Tool: create-app
+Target environment: AppScan on Cloud API.
+Target resource: create a new application named MCP_Facade_Local_Test.
+Changes: creates a persistent AppScan application record.
+Application description: Testing create-app and create-scan through the shared MCP facade
+Asset group ID: (none)
+Deletion impact: none.
+
+One-time confirmToken (expires in 5 minutes): 23434845-4396-4a
+Do not execute yet.
+Assistant instruction: show this preview to the user and get ethe same tool again with the same arguments plus confirmToken.
+
+What approval would do:
+- Resource: it creates a persistent application record named MCP_Facade_Local_Test in AppScan on Cloud, in the same cloud service that holds the 22
+  applications listed earlier. It is not a local-only record.
+- Cleanup: the preview says "Deletion impact: none". I haven't seen a delete tool for applications among the 10 on this server, so you may have to remove
+  it by hand in AppScan on Cloud.
+- Asset group: none is set.
+- Token: the token expires 5 minutes after it was issued, so i time you reply. If it is, I'll repeat the first call for afresh token before confirming. The token above is from this call only. The one from the earlier preview is a different token, and I won't use it.
+
+State: nothing has been created and I haven't made the confirmation call. Reply with an explicit approval, such as "approved, create it", and I'll make the second call with the same arguments plus the token.
