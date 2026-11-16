@@ -1,1 +1,12 @@
+We are now performing the actual Local application creation test.
 
+First call "get-provider-status" and verify that the active provider is "local".
+
+Then call "create-app" with:
+
+- name: "MCP_Facade_Local_Test"
+- description: "Testing create-app and create-scan through the shared MCP facade"
+
+Do not provide a confirmToken in the first call.
+
+Show me the complete approval preview, including the target resource and any confirmation instructions. Do not make the confirmation call yet. Wait for my explicit approval.
