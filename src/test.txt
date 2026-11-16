@@ -1374,3 +1374,69 @@ export function registerAllTools(server) {
     registerCreateScanTool(server);
 }
 
+toolList.js
+
+export const TOOL_CATALOG = [
+    {
+        name: "get-server-info",
+        description: "Retrieve non-sensitive AppScan MCP server runtime details such as API base URL, timeout settings, retry configuration, and whether credentials are configured. Use this for environment validation and troubleshooting before running scan or issue-management workflows.",
+    },
+    {
+        name: "get-tenant-info",
+        description: "Fetch organization-level tenant details, subscription metadata, and current user context from AppScan on Cloud. Use this when you need to confirm account scope, subscription capacity, admin context, or basic onboarding diagnostics.",
+    },
+    {
+        name: "get-apps",
+        description: "List AppScan applications and return identifiers required by downstream tools. Use filter only for a selector grounded in the user's request, not an inferred project folder name; results include matching totals and whether the result is complete. Select implicitly only when an explicit selector yields exactly one match in a complete result. An unfiltered singleton, unknown total, or top limit is not sufficient. A selector with no matches also returns an unfiltered list of other available applications. When selection is unresolved, show the actual application names and IDs alongside Create a new application and Enter another application name or ID, then wait for the user's choice. Never replace the choices with a create-only yes/no question.",
+    },
+    {
+        name: "create-app",
+        description: "Create a new application in AppScan. Use only after the user explicitly approves application creation. Do not call this tool to guess or unblock a missing appId during create-scan.",
+    },
+    {
+        name: "get-scans",
+        description: "List scans in AppScan and return scan metadata, application IDs, matching totals, and result completeness. Use filter only for a selector grounded in the user's request. Select implicitly only when an explicit selector yields exactly one match in a complete result; an unfiltered singleton, unknown total, or top limit is not sufficient. Ask the user when the target is missing or ambiguous.",
+    },
+    {
+        name: "create-scan",
+        description: "SAST scanMode defaults to auto; source-code-only and build-output are explicit alternatives. Mixed/unknown targets require a narrower scope or explicit choice. SAST never runs project builds: prepare Java/.NET artifacts or a supported Windows C/C++ solution first. An AI with terminal tools may run a separately approved project build, verify it, then call create-scan. Never downgrade to source-only after build failure without explicit user choice. buildBeforeScan is SCA-only. " +
+            "Create or start an HCL AppScan scan for a local project (SAST/SCA) or a URL target (DAST). Supports the personalScan option for all three scan types (defaults to false). Use this whenever the user asks to create, start, or run a scan. Interpret natural-language preferences instead of asking the user for tool fields: phrases such as 'keep', 'preserve', or 'retain the artifacts/logs/IRX/config' mean conserveFiles=true; phrases such as 'debug', 'verbose', 'full logs', or 'troubleshoot' mean detailedLogs=true and conserveFiles=true; a user-provided folder for saved artifacts becomes workDir. If appId is missing, stop and resolve the app first. Reuse an ID explicitly established in the current conversation; otherwise, use a user-provided app selector and continue only if get-apps returns exactly one match in a complete result. If no selector is provided, a name has no match, or results are ambiguous/incomplete, show actual existing application names and IDs from get-apps together with Create a new application and Enter another application name or ID; wait for the user's choice. Fetch an unfiltered list if no candidates are available from the failed lookup. Never ask only whether to create a new app, infer an app selector from the project folder, or select an unfiltered singleton automatically. Never invent or retain an app selection across chats. Explicit approval is required unless the server operator has set APPSCAN_CREATE_SCAN_SKIP_ELICITATION=true to pre-authorize create-scan for automation. That setting skips elicitation and confirmToken only for this tool; application selection and input validation still apply.",
+    },
+    {
+        name: "get-issues",
+        description: "Retrieve security issues for an explicitly identified application ID (typically discovered via get-apps). If the app is not established in the current conversation, ask the user to identify it; do not choose an arbitrary or unfiltered singleton. Issue filters narrow findings, not the application target.",
+    },
+    {
+        name: "get-scan-issues",
+        description: "Retrieve security issues for an explicitly identified scan ID (typically discovered via get-scans). If the scan is not established in the current conversation, ask the user to identify it; a scan selector can be used only when it yields exactly one match in a complete result. Issue filters narrow findings, not the scan target.",
+    },
+    {
+        name: "get-fix-groups",
+        description: "List fix groups for an explicitly identified scope and scopeId (Application, Scan, or ScanExecution). Ask the user to identify or confirm the target when scope or ID is missing or ambiguous; never select an arbitrary target.",
+    },
+    {
+        name: "get-issue-details",
+        description: "Fetch full details for a single security issue by issueId, including extended metadata needed for investigation and remediation planning. Use this after listing issues when you need deeper context before changing status or generating targeted reports.",
+    },
+    {
+        name: "update-issues",
+        description: "Update AppScan issues in an explicitly identified scope and scopeId. Supports single-issue updates or filtered scope updates. Do not infer the target from issue filters; ask when missing or ambiguous, and do not provide conflicting scope, appId, or scanId values. Approval is required before changes. AppScan cannot store a comment without a status value, and when the user asks only to add a comment you must send the issue's current status so the status is preserved. A successful response means the write was applied: the returned count reports status transitions only, so a count of 0 is not a failure and must never trigger a retry. Never re-send the same update through another tool or scope; call this tool again only when the user explicitly wants a duplicate (allowDuplicate=true) or when an error confirms the request was rejected before being applied. Report the target scope, issue IDs, the comment result, and whether the status changed.",
+    },
+    {
+        name: "update-fix-groups",
+        description: "Update a fix group within an explicitly identified scope and scopeId (Application, Scan, or ScanExecution). Ask when the target is missing or ambiguous; never infer or choose a scope arbitrarily. Approval is required before changes.",
+    },
+    {
+        name: "get-reports",
+        description: "List AppScan reports, create Security/Issues/Regulation/License/SBOM reports, and download generated report files. For create, supply the explicit scope and target ID (scanExecutionId for ScanExecution and SBOM); for download, supply reportId. Never extract the first UUID from prose or guess a scope. Ask the user when the target is missing or ambiguous. Approval is required before report creation.",
+    },
+    {
+        name: "get-asset-groups",
+        description: "Retrieve available asset groups (organizational units) used to classify and govern applications in AppScan. Use this before create-app when application ownership or placement must align to a specific asset group.",
+    },
+];
+export function getToolDescription(toolName) {
+    return TOOL_CATALOG.find((tool) => tool.name === toolName)?.description || "";
+}
+
+
