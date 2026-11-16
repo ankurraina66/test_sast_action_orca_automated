@@ -1,1 +1,8 @@
+Use "hcl-appscan-ai-coding-assistants".
 
+1. Confirm the active provider is remote.
+2. Call "get-scans".
+3. Return the total number of scans and a few sample scan names.
+4. Do not call "get-apps".
+5. Do not create, modify, or delete AppScan resources.
+6. Do not expose credentials.
