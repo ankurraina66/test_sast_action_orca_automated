@@ -1,1 +1,606 @@
+createScan.js
+
+import { z } from "zod";
+import { requireApproval } from "./approval.js";
+import { ensureAuth, makeAppScanRequest } from "../services/scanService.js";
+import { executeCreateScanWorkflow } from "../services/scanWorkflow.js";
+import { getToolDescription } from "./toolList.js";
+import { formatAppResolutionMessage } from "./targetResolution.js";
+import { resolveSastScan } from "../helpers/sastScan.js";
+function validateCreateScanInput(input) {
+    if (input.scanType !== "SAST" && input.scanMode !== "auto") {
+        throw new Error("scanMode is only supported for SAST scans.");
+    }
+    if (input.scanType === "SAST" && input.buildBeforeScan) {
+        throw new Error("buildBeforeScan is not supported for SAST. Prepare required artifacts using a separately approved terminal/CI build, then retry. Do not fall back to source-only without explicit approval.");
+    }
+    if (input.scanType === "DAST") {
+        if (!input.scanUrl) {
+            throw new Error("scanUrl is required when scanType is DAST.");
+        }
+        if (input.networkType === "private" && !input.presenceId) {
+            throw new Error("presenceId is required when scanType is DAST and networkType is private.");
+        }
+        if (input.loginMethod === "Required" && (!input.loginUser || !input.loginPassword)) {
+            throw new Error("loginUser and loginPassword are required when scanType is DAST and loginMethod is Required.");
+        }
+        if (input.loginMethod === "Record" && !input.loginSequenceFileId) {
+            throw new Error("loginSequenceFileId is required when scanType is DAST and loginMethod is Record.");
+        }
+        if (input.buildBeforeScan) {
+            throw new Error("buildBeforeScan is not supported for DAST scans.");
+        }
+        return;
+    }
+    if (!input.targetDir) {
+        throw new Error("targetDir is required when scanType is SAST or SCA.");
+    }
+}
+function buildApprovalSummary(input, appName) {
+    const effectiveConfig = input.configFile || "<generated>/appscan-config.xml";
+    const effectiveWorkDir = input.workDir || "<system-temp>/appscan-mcp";
+    if (input.scanType === "DAST") {
+        return [
+            `Tool: create-scan`,
+            `Target environment: AppScan on Cloud API (${input.scanType} scan creation).`,
+            `Target resources: application ${appName || "Unknown"} (${input.appId}), new scan record${input.scanName ? ` named ${input.scanName}` : ""}.`,
+            `Personal scan: ${input.personalScan ? "yes" : "no"}.`,
+            `DAST target URL: ${input.scanUrl}.`,
+            `Network mode: ${input.networkType}${input.networkType === "private" ? ` (PresenceId: ${input.presenceId})` : ""}.`,
+            `Authentication mode: ${input.loginMethod}.`,
+            `Local filesystem read/write: none required for DAST packaging flow.`,
+            `Other changes: starts remote DAST execution; may update remote scan state while waiting when wait=true.`,
+        ].join("\n");
+    }
+    return [
+        `Tool: create-scan`,
+        `Target environment: AppScan on Cloud API (${input.scanType} scan creation).`,
+        `Target resources: application ${appName || "Unknown"} (${input.appId}), new scan record${input.scanName ? ` named ${input.scanName}` : ""}.`,
+        `Personal scan: ${input.personalScan ? "yes" : "no"}.`,
+        `Local filesystem read/write: target directory ${input.targetDir}; config file ${effectiveConfig}; working directory ${effectiveWorkDir}.`,
+        `Potential deletions: generated local artifacts and generated appscan-config.xml are deleted when conserveFiles=false.`,
+        `Build execution: ${input.buildBeforeScan ? "npm run build will execute in target directory" : "no build command will be executed"}.`,
+        `Other changes: uploads IRX artifact to AppScan and starts remote scan execution; may update remote scan state while waiting when wait=true.`,
+    ].join("\n");
+}
+function formatAvailableApps(apps) {
+    return apps
+        .slice(0, 10)
+        .map((app) => `- ${app.Name || "Unknown"} (ID: ${app.Id}, Type: ${app.AppType || "Unknown"})`)
+        .join("\n");
+}
+async function getAppsForSelection() {
+    const appsResponse = await makeAppScanRequest("/api/v4/Apps?$top=10");
+    return Array.isArray(appsResponse) ? appsResponse : appsResponse.Items;
+}
+async function findAppById(appId) {
+    // OData v4 requires raw GUIDs without the guid'' prefix or single quotes
+    const filter = encodeURIComponent(`Id eq ${appId}`);
+    const response = await makeAppScanRequest(`/api/v4/Apps?$filter=${filter}&$top=1`);
+    const apps = Array.isArray(response) ? response : response.Items;
+    return apps.length > 0 ? apps[0] : null;
+}
+/**
+ * Register the create-scan tool.
+ */
+export function registerCreateScanTool(server) {
+    const createScanDescription = getToolDescription("create-scan");
+    server.registerTool("create-scan", {
+        title: "Create AppScan Scan",
+        description: createScanDescription,
+        annotations: {
+            title: "Create AppScan Scan",
+            readOnlyHint: false,
+            destructiveHint: true,
+            idempotentHint: false,
+            openWorldHint: true,
+        },
+        _meta: {
+            tags: ["appscan", "sast", "sca", "dast", "scan", "create", "start", "run"],
+        },
+        inputSchema: {
+            appId: z
+                .string()
+                .uuid()
+                .optional()
+                .describe("Required AppScan application ID that will own the new scan. Use an existing application ID from get-apps or create-app first. If omitted, the tool stops and returns existing applications plus a Create a new application option; present these choices to the user instead of asking only whether to create an app."),
+            scanName: z
+                .string()
+                .trim()
+                .min(1)
+                .max(1024)
+                .optional()
+                .describe("Optional AppScan scan name. If omitted, the tool generates one from the project folder name and current timestamp."),
+            targetDir: z
+                .string()
+                .trim()
+                .min(1)
+                .optional()
+                .describe("Required path for SAST/SCA scans to the local project, repository checkout, source tree, or prepared build output to package for scanning. For prompts like 'scan this project', use the current workspace folder."),
+            configFile: z
+                .string()
+                .optional()
+                .describe("Optional path to an existing appscan-config.xml. For SAST, a missing explicit file is an error; otherwise the tool uses targetDir/appscan-config.xml when present or generates a configuration. Relative SAST target paths in the XML resolve against targetDir. Supplied files are not overwritten."),
+            scanType: z
+                .enum(["SAST", "SCA", "DAST"])
+                .default("SAST")
+                .describe("Type of AppScan scan to create. Use SAST for static testing, SCA for composition analysis, and DAST for dynamic URL-based web application testing."),
+            scanMode: z
+                .enum(["auto", "source-code-only", "build-output"])
+                .default("auto")
+                .describe("SAST only. Auto detects Java/.NET/C++ build-output targets or other supported source languages; mixed/unknown targets require a narrower scope or explicit mode. Source-code-only scans uncompiled sources; build-output requires prebuilt Java/.NET artifacts and a supported Windows Visual Studio solution for C/C++. No SAST project build is executed. Never switch to source-only merely because a build fails or artifacts are missing."),
+            scanUrl: z
+                .string()
+                .url()
+                .optional()
+                .describe("Required when scanType is DAST. Starting URL for dynamic scan target (http:// or https://)."),
+            networkType: z
+                .enum(["public", "private"])
+                .optional()
+                .default("public")
+                .describe("Network route used by DAST scans. Use private when the target is reachable via AppScan Presence."),
+            presenceId: z
+                .string()
+                .optional()
+                .describe("Required when scanType is DAST and networkType is private. AppScan Presence ID."),
+            loginMethod: z
+                .enum(["None", "Required", "Record"])
+                .optional()
+                .default("None")
+                .describe("DAST authentication mode: None, Required (credentials), or Record (login sequence file)."),
+            loginUser: z.string().optional().describe("Required when scanType is DAST and loginMethod is Required."),
+            loginPassword: z.string().optional().describe("Required when scanType is DAST and loginMethod is Required."),
+            loginSequenceFileId: z
+                .string()
+                .optional()
+                .describe("Required when scanType is DAST and loginMethod is Record."),
+            optimization: z
+                .enum(["Fast", "Normal", "Thorough"])
+                .optional()
+                .default("Fast")
+                .describe("DAST test optimization profile."),
+            suspend: z
+                .boolean()
+                .optional()
+                .default(false)
+                .describe("When true, create the DAST scan in suspended mode without immediate execution. Defaults to false so DAST starts immediately."),
+            personalScan: z
+                .boolean()
+                .optional()
+                .default(false)
+                .describe("When true, mark the SAST, SCA, or DAST scan as personal."),
+            fullyAutomatic: z.boolean().optional().default(true).describe("When true, run DAST in fully automatic mode."),
+            locale: z.string().optional().default("en-US").describe("Locale for DAST scan execution (default en-US)."),
+            comment: z
+                .string()
+                .max(2048)
+                .optional()
+                .describe("Optional comment stored with the AppScan scan request, such as a branch name, commit, ticket, or execution note."),
+            wait: z
+                .boolean()
+                .optional()
+                .default(true)
+                .describe("When true, wait for SAST/SCA execution to reach a terminal state before returning. For DAST, create-scan always returns immediately without polling because dynamic scans can run for a while."),
+            workDir: z
+                .string()
+                .trim()
+                .min(1)
+                .optional()
+                .describe("Optional folder where AppScan artifacts, IRX files, configuration, reports, and intermediate files should be saved. Infer this from natural language such as 'save the scan logs in C:\\AppScanLogs'. If omitted, use the system temp directory."),
+            buildBeforeScan: z
+                .boolean()
+                .optional()
+                .default(false)
+                .describe("SCA only: explicitly run npm run build before packaging, with user approval. Rejected for SAST and DAST. SAST artifacts must be prepared separately by the developer, an approved AI terminal workflow, or CI."),
+            scanLevel: z
+                .enum(["fast", "normal", "thorough"])
+                .optional()
+                .default("normal")
+                .describe("IRX scan preparation level. Defaults to normal."),
+            scanSecrets: z
+                .boolean()
+                .optional()
+                .default(true)
+                .describe("When true, enable secret scanning in the generated configuration. Defaults to true."),
+            scanThirdParty: z
+                .boolean()
+                .optional()
+                .default(false)
+                .describe("When true, include third-party code in the generated configuration."),
+            maxWaitMinutes: z
+                .number()
+                .int()
+                .min(1)
+                .max(720)
+                .optional()
+                .default(120)
+                .describe("Maximum time to wait for remote scan completion when wait is true."),
+            detailedLogs: z
+                .boolean()
+                .optional()
+                .default(false)
+                .describe("Enable this when the user asks for debug, verbose, detailed, complete, or troubleshooting logs. It includes verbose build output and AppScan command logs; do not make the user provide this boolean."),
+            conserveFiles: z
+                .boolean()
+                .optional()
+                .default(false)
+                .describe("Enable this when the user asks to keep, preserve, retain, or inspect scan artifacts, logs, the IRX package, or appscan-config.xml. Do not make the user provide this boolean. Defaults to cleanup when no retention preference is expressed."),
+            includeProgressTranscript: z
+                .boolean()
+                .optional()
+                .default(false)
+                .describe("When true, append a compact progress transcript to the final response. Keep false for minimal token usage."),
+            confirmToken: z
+                .string()
+                .optional()
+                .describe("One-time token returned by this tool preview flow when client elicitation is unavailable."),
+        },
+    }, async ({ appId, scanName, targetDir, configFile, scanType, scanMode, comment, wait, workDir, buildBeforeScan, scanLevel, scanSecrets, scanThirdParty, maxWaitMinutes, detailedLogs, conserveFiles, includeProgressTranscript, confirmToken, scanUrl, networkType, presenceId, loginMethod, loginUser, loginPassword, loginSequenceFileId, optimization, suspend, personalScan, fullyAutomatic, locale, }) => {
+        try {
+            const normalizedInput = {
+                appId,
+                scanName,
+                targetDir,
+                configFile,
+                scanType,
+                scanMode,
+                comment,
+                wait,
+                workDir,
+                buildBeforeScan,
+                scanLevel,
+                scanSecrets,
+                scanThirdParty,
+                maxWaitMinutes,
+                detailedLogs,
+                conserveFiles,
+                includeProgressTranscript,
+                confirmToken,
+                scanUrl,
+                networkType,
+                presenceId,
+                loginMethod,
+                loginUser,
+                loginPassword,
+                loginSequenceFileId,
+                optimization,
+                suspend,
+                personalScan,
+                fullyAutomatic,
+                locale,
+            };
+            validateCreateScanInput(normalizedInput);
+            // Ensure authentication before app resolution.
+            await ensureAuth();
+            if (!appId) {
+                const apps = await getAppsForSelection();
+                if (apps.length === 0) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: formatAppResolutionMessage("No AppScan applications were found."),
+                            },
+                        ],
+                        isError: true,
+                    };
+                }
+                const appOptions = formatAvailableApps(apps);
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: formatAppResolutionMessage("No AppScan application was selected for this scan.", appOptions),
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            const resolvedApp = await findAppById(appId);
+            if (!resolvedApp) {
+                const apps = await getAppsForSelection();
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: formatAppResolutionMessage(`The supplied AppScan application ID was not found: ${appId}.`, apps.length > 0 ? formatAvailableApps(apps) : undefined),
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            const sast = scanType === "SAST" ? resolveSastScan(targetDir, scanMode, configFile) : undefined;
+            const approvalSummary = [
+                buildApprovalSummary({ ...normalizedInput, configFile: sast?.configFile ?? configFile }, resolvedApp.Name || "Unknown"),
+                ...(sast ? [sast.summary] : []),
+            ].join("\n");
+            const approval = await requireApproval(server, "create-scan", {
+                appId,
+                scanName,
+                targetDir,
+                configFile,
+                scanType,
+                scanMode,
+                sastFingerprint: sast?.fingerprint,
+                comment,
+                wait,
+                workDir,
+                buildBeforeScan,
+                scanLevel,
+                scanSecrets,
+                scanThirdParty,
+                maxWaitMinutes,
+                detailedLogs,
+                conserveFiles,
+                includeProgressTranscript,
+                confirmToken,
+                scanUrl,
+                networkType,
+                presenceId,
+                loginMethod,
+                loginUser,
+                loginPassword,
+                loginSequenceFileId,
+                optimization,
+                suspend,
+                personalScan,
+                fullyAutomatic,
+                locale,
+            }, approvalSummary, {
+                elicitationMessage: scanType === "DAST"
+                    ? `Do you want to create and start a ${scanType} AppScan scan for "${resolvedApp.Name || appId}" against ${scanUrl}? This will start a remote dynamic scan.`
+                    : `Do you want to create and start a ${scanType} AppScan scan for "${resolvedApp.Name || appId}"? This will upload scan artifacts and start a remote scan.`,
+                approveLabel: "create and start this scan",
+                rejectLabel: "skip scan creation",
+            });
+            if (!approval.approved) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: approval.responseText || "Cancelled by user.",
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+            const workflowResult = await executeCreateScanWorkflow(server, {
+                appId,
+                scanName,
+                targetDir,
+                configFile,
+                scanType,
+                scanMode,
+                sastFingerprint: sast?.fingerprint,
+                comment,
+                wait,
+                workDir,
+                buildBeforeScan,
+                scanLevel,
+                scanSecrets,
+                scanThirdParty,
+                maxWaitMinutes,
+                detailedLogs,
+                conserveFiles,
+                includeProgressTranscript,
+                personalScan,
+                dast: scanType === "DAST"
+                    ? {
+                        scanUrl: scanUrl,
+                        optimization,
+                        suspend,
+                        personalScan,
+                        fullyAutomatic,
+                        locale,
+                        networkType,
+                        presenceId,
+                        loginMethod,
+                        loginUser,
+                        loginPassword,
+                        loginSequenceFileId,
+                    }
+                    : undefined,
+            });
+            return {
+                content: [{ type: "text", text: workflowResult.text }],
+                isError: workflowResult.isError,
+            };
+        }
+        catch (error) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error creating scan: ${error instanceof Error ? error.message : String(error)}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    });
+}
+________________________________________________________________________________________________________________________________________________________
+approval.js
+
+import { createHash, randomUUID } from "crypto";
+import * as fs from "fs";
+import * as path from "path";
+const TOKEN_TTL_MS = 5 * 60 * 1000;
+const approvalTokens = new Map();
+const auditLogFile = path.join(process.cwd(), "appscan-sensitive-tools-audit.log");
+function stableNormalize(value) {
+    if (Array.isArray(value)) {
+        return value.map(stableNormalize);
+    }
+    if (value && typeof value === "object") {
+        const obj = value;
+        const sortedKeys = Object.keys(obj).sort();
+        const result = {};
+        for (const key of sortedKeys) {
+            result[key] = stableNormalize(obj[key]);
+        }
+        return result;
+    }
+    return value;
+}
+function hashArgs(args) {
+    const normalized = stableNormalize(args);
+    return createHash("sha256").update(JSON.stringify(normalized)).digest("hex");
+}
+function redactSecrets(value, parentKey = "") {
+    const sensitiveKey = /(token|password|secret|api[_-]?key|key|auth|credential)/i.test(parentKey);
+    if (value === null || value === undefined) {
+        return value;
+    }
+    if (Array.isArray(value)) {
+        return value.map((item) => redactSecrets(item, parentKey));
+    }
+    if (typeof value === "object") {
+        const input = value;
+        const output = {};
+        for (const [k, v] of Object.entries(input)) {
+            output[k] = redactSecrets(v, k);
+        }
+        return output;
+    }
+    if (sensitiveKey) {
+        return "[REDACTED]";
+    }
+    if (typeof value === "string" && /(?:[A-Za-z0-9_-]{20,}|[0-9a-fA-F]{32,})/.test(value) && sensitiveKey) {
+        return "[REDACTED]";
+    }
+    return value;
+}
+function cleanupExpiredTokens(now = Date.now()) {
+    for (const [token, data] of approvalTokens.entries()) {
+        if (now - data.createdAt > TOKEN_TTL_MS) {
+            approvalTokens.delete(token);
+        }
+    }
+}
+async function appendAuditLog(toolName, args, approvalPath, outcome) {
+    try {
+        const line = JSON.stringify({
+            timestamp: new Date().toISOString(),
+            toolName,
+            arguments: redactSecrets(args),
+            approvalPath,
+            outcome,
+        });
+        await fs.promises.appendFile(auditLogFile, `${line}\n`, "utf-8");
+    }
+    catch (error) {
+        // Diagnostics must not go to stdout on stdio MCP servers.
+        console.error(`[approval] failed to append audit log: ${error instanceof Error ? error.message : String(error)}`);
+    }
+}
+function makePreviewText(toolName, summary, token) {
+    return [
+        `Approval required for sensitive tool: ${toolName}`,
+        "",
+        "Preview of pending action:",
+        summary,
+        "",
+        `One-time confirmToken (expires in 5 minutes): ${token}`,
+        "Do not execute yet.",
+        "Assistant instruction: show this preview to the user and get explicit agreement, then call the same tool again with the same arguments plus confirmToken.",
+    ].join("\n");
+}
+export async function requireApproval(server, toolName, args, summary, options = {}) {
+    cleanupExpiredTokens();
+    const { confirmToken, ...argsWithoutToken } = args;
+    try {
+        if (toolName === "create-scan" && process.env.APPSCAN_CREATE_SCAN_SKIP_ELICITATION === "true") {
+            await appendAuditLog(toolName, argsWithoutToken, "automation", "approved");
+            return { approved: true };
+        }
+        const supportsElicitation = Boolean(server.server?.getClientCapabilities?.()?.elicitation);
+        if (supportsElicitation) {
+            try {
+                const approveLabel = options.approveLabel || "proceed";
+                const rejectLabel = options.rejectLabel || "cancel";
+                const elicitationMessage = options.elicitationMessage ||
+                    `Do you want to proceed with the ${toolName} action?`;
+                const elicitation = await server.server.elicitInput({
+                    message: [
+                        elicitationMessage,
+                        "",
+                        `Approve: ${approveLabel}.`,
+                        `Reject: ${rejectLabel}.`,
+                    ].join("\n"),
+                    requestedSchema: {
+                        type: "object",
+                        properties: {
+                            Decision: {
+                                type: "string",
+                                enum: ["Approve", "Reject"],
+                                description: `Approve: ${approveLabel}. Reject: ${rejectLabel}.`,
+                            },
+                        },
+                        required: ["Decision"],
+                        additionalProperties: false,
+                    },
+                });
+                const decision = elicitation?.content?.Decision;
+                const accepted = elicitation?.action === "accept" &&
+                    typeof decision === "string" &&
+                    decision.toLowerCase() === "approve";
+                if (!accepted) {
+                    const outcome = elicitation?.action === "decline" || (typeof decision === "string" && decision.toLowerCase() === "reject")
+                        ? "declined"
+                        : "cancelled";
+                    await appendAuditLog(toolName, argsWithoutToken, "elicitation", outcome);
+                    return { approved: false, responseText: "Cancelled by user." };
+                }
+                await appendAuditLog(toolName, argsWithoutToken, "elicitation", "approved");
+                return { approved: true };
+            }
+            catch {
+                // Fall back to preview-confirm if elicitation support was claimed but failed.
+            }
+        }
+        const approvalPath = "preview-confirm";
+        const token = typeof confirmToken === "string" ? confirmToken : undefined;
+        const argsHash = hashArgs(argsWithoutToken);
+        if (!token) {
+            const newToken = randomUUID();
+            approvalTokens.set(newToken, { toolName, argsHash, createdAt: Date.now() });
+            await appendAuditLog(toolName, argsWithoutToken, approvalPath, "cancelled");
+            return { approved: false, responseText: makePreviewText(toolName, summary, newToken) };
+        }
+        const tokenData = approvalTokens.get(token);
+        approvalTokens.delete(token);
+        if (!tokenData) {
+            await appendAuditLog(toolName, argsWithoutToken, approvalPath, "invalid-token");
+            return {
+                approved: false,
+                responseText: "Invalid or already-used confirmToken. Request a fresh preview and token before trying again.",
+            };
+        }
+        const isExpired = Date.now() - tokenData.createdAt > TOKEN_TTL_MS;
+        if (isExpired) {
+            await appendAuditLog(toolName, argsWithoutToken, approvalPath, "expired-token");
+            return {
+                approved: false,
+                responseText: "confirmToken has expired. Request a fresh preview and token before trying again.",
+            };
+        }
+        if (tokenData.toolName !== toolName || tokenData.argsHash !== argsHash) {
+            await appendAuditLog(toolName, argsWithoutToken, approvalPath, "invalid-token");
+            return {
+                approved: false,
+                responseText: "confirmToken does not match this tool call or arguments. Request a fresh preview and token before trying again.",
+            };
+        }
+        await appendAuditLog(toolName, argsWithoutToken, approvalPath, "approved");
+        return { approved: true };
+    }
+    catch {
+        await appendAuditLog(toolName, argsWithoutToken, "preview-confirm", "error");
+        return {
+            approved: false,
+            responseText: "Cancelled by user.",
+        };
+    }
+}
 
