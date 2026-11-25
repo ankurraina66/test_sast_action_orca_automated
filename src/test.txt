@@ -1,51 +1,14 @@
-async callCapability(
-    capability: string,
-    args: Record<string, unknown> = {},
-): Promise<McpToolCallResult> {
-    const { buildToolCatalogue, resolveToolProvider } =
-        await import("./tool-catalogue.js");
 
-    const { local, remote } = await this.compareProviderTools();
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run typecheck
 
-    const catalogue = buildToolCatalogue(local, remote);
+> ai-coding-assistants-claude-poc@1.0.0 typecheck
+> tsc --noEmit
 
-    const selected = catalogue.find(
-        (item) => item.capability === capability,
-    );
+src/services/appscan-service.ts:12:32 - error TS2351: This expression is not constructable.
+  Type 'typeof import("C:/Users/ankur.raina/ai-coding-assistants-claude-poc/node_modules/ajv/dist/ajv")' has no construct signatures.
 
-    if (!selected) {
-        throw new Error(
-            `Unsupported AppScan capability: ${capability}`,
-        );
-    }
+12     private readonly ajv = new Ajv({
+                                  ~~~
 
-    if (selected.risk !== "read") {
-        throw new Error(
-            `Capability '${capability}' is not read-only. Explicit approval is required.`,
-        );
-    }
 
-    const resolved = resolveToolProvider(selected, "local");
-
-    const validate = this.ajv.compile(
-        resolved.tool.inputSchema,
-    );
-
-    if (!validate(args)) {
-        const errors = (validate.errors ?? [])
-            .map((error) =>
-                `${error.instancePath || "/"}: ${error.message ?? "Invalid value"}`
-            )
-            .join("; ");
-
-        throw new Error(
-            `Invalid arguments for ${resolved.tool.name}: ${errors}`,
-        );
-    }
-
-    return this.callProviderTool(
-        resolved.provider,
-        resolved.tool.name,
-        args,
-    );
-}
+Found 1 error in src/services/appscan-service.ts:12
