@@ -1,1 +1,10 @@
+execute-appscan-read
+capability: "licenses"
+arguments: {"scope":"Application"}
 
+execute-appscan-read
+capability: "licenses"
+arguments: {
+  "scope": "Application",
+  "scopeId": "b2ec76ec-a0a3-468f-a80b-f1b2a0c2c1fb"
+}
