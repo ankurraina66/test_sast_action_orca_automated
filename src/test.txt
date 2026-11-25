@@ -1,1 +1,66 @@
+export interface CapabilityRequest {
+    capability: string;
+    scope?: "Application" | "Scan" | "ScanExecution";
+    scopeId?: string;
+    appId?: string;
+    scanId?: string;
+    issueId?: string;
+    filter?: string;
+    top?: number;
+    skip?: number;
+    select?: string;
+    orderby?: string;
+    expand?: string;
+    count?: boolean;
+    apply?: string;
+    applyPolicies?: "None" | "All" | "Select";
+    selectPolicyIds?: string[];
+    locale?: string;
+}
 
+
+export function normalizeCapabilityArguments(
+    capability: string,
+    provider: AppScanProvider,
+    request: CapabilityRequest,
+): Record<string, unknown> {
+    const {
+        capability: _capability,
+        appId,
+        scanId,
+        issueId,
+        ...common
+    } = request;
+
+    switch (capability) {
+        case "scan-issues":
+            return provider === "remote"
+                ? {
+                    ...common,
+                    scope: "Scan",
+                    scopeId: scanId ?? request.scopeId,
+                }
+                : {
+                    ...common,
+                    scanId: scanId ?? request.scopeId,
+                };
+
+        case "issues":
+            return provider === "local"
+                ? {
+                    ...common,
+                    appId: appId ?? request.scopeId,
+                }
+                : {
+                    ...common,
+                    scope: request.scope ?? "Application",
+                    scopeId: appId ?? request.scopeId,
+                };
+
+        case "issue-details":
+            return { issueId };
+
+        default:
+            return common;
+    }
+}
