@@ -1,1 +1,13 @@
+if (values.length === 1) {
+    return z.literal(values[0]);
+}
 
+if (values.length > 1) {
+    return z.union(
+        values.map((value) => z.literal(value)) as [
+            z.ZodTypeAny,
+            z.ZodTypeAny,
+            ...z.ZodTypeAny[],
+        ],
+    );
+}
