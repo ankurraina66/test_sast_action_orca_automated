@@ -1,11 +1,126 @@
 execute-appscan-read
-capability: "licenses"
-arguments: {"scope":"Application","scopeId":"YOUR_APPLICATION_ID"}
+  capability: "licenses"
+  arguments: {"scope":"Application","scopeId":"b2ec76ec-a0a3-468f-a80b-f1b2a0c2c1fb"}
+
+  Called hcl-appscan-ai-coding-assistants
+
+The call worked, so the earlier failure was the placeholder ID. It returned 10 licenses for application b2ec76ec-…c1fb.
+
+┌─────┬───────────────┬───────────┬────────────────────┬───────────┬──────────┬──────────────┐
+│ ID  │    License    │   Risk    │ Copyright / Patent │  Linking  │ Copyleft │ Royalty-free │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 55  │ GPL 2.0       │ High      │ FIVE / THREE       │ Viral     │ Full     │ No           │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 42  │ Eclipse 1.0   │ Medium    │ FOUR / FOUR        │ Viral     │ Partial  │ Conditional  │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 81  │ LGPL 2.1      │ Medium    │ FOUR / ONE         │ Dynamic   │ Partial  │ Conditional  │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 97  │ Mozilla 1.1   │ Medium    │ FOUR / TWO         │ Non_Viral │ Partial  │ Yes          │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 98  │ Mozilla 2.0   │ Medium    │ FOUR / TWO         │ Non_Viral │ Partial  │ Yes          │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 9   │ Apache 2.0    │ Low       │ TWO / ONE          │ Dynamic   │ No       │ Conditional  │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 20  │ BSD 3         │ Low       │ TWO / THREE        │ Non_Viral │ No       │ No           │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 94  │ MIT           │ Low       │ TWO / ONE          │ Undefined │ No       │ Yes          │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 111 │ Public Domain │ Low       │ ONE / THREE        │ Non_Viral │ No       │ NonViral     │
+├─────┼───────────────┼───────────┼────────────────────┼───────────┼──────────┼──────────────┤
+│ 351 │ Unknown       │ Undefined │ n/a                │ n/a       │ n/a      │ n/a          │
+└─────┴───────────────┴───────────┴────────────────────┴───────────┴──────────┴──────────────┘
+
+What stands out
+- GPL 2.0 is the only High-risk license. It has full copyleft with viral linking. It needs review if any component is distributed or linked into proprietary code.
+- The Unknown license (ID 351) has no risk data. It should be identified and classified.
+- The weak-copyleft licenses (Eclipse 1.0, LGPL 2.1, Mozilla 1.1 and 2.0) are Medium risk. They are mostly fine, but their obligations depend on how the components are used.
+
+Caveats
+- This is a catalog of license types AppScan knows about for this scope. It doesn't say which packages use each license, or whether any of them are actually in your code. I haven't verified that.
+- Risk ratings are AppScan's. Whether a license is acceptable for your distribution model is a call for your legal owner, not me.
+
+To see which components carry GPL 2.0 or Unknown, I can look for a related read capability. list-appscan-capabilities would show what's available.
+
+Churned for 14s · done 11:11 AM
+
+> execute-appscan-read
+  capability: "policies"
+  arguments: {"top":10}
+
+  Called hcl-appscan-ai-coding-assistants
+
+The call returned 10 policies, the top limit you set. There may be more, and I haven't paged through them.
+
+┌────────────────────────────────────────┬──────────────────┬────────┬────────┬───────────────┐
+│                 Policy                 │     Category     │ Source │ Region │ Apps using it │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ Baseline                               │ Custom           │ Custom │ Global │ 3             │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ TP                                     │ Custom           │ Custom │ Global │ 0             │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ HIPAA                                  │ Regulation       │ System │ US     │ 0             │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ GDPR (EU 2016)                         │ Regulation       │ System │ EU     │ 0             │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ PCI Compliance                         │ Regulation       │ System │ Global │ 0             │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ NIS2                                   │ Regulation       │ System │ EU     │ 0             │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ FISMA                                  │ Regulation       │ System │ US     │ 0             │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ CWE Top 25 (2021)                      │ IndustryStandard │ System │ Global │ 0             │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ OWASP ASVS                             │ IndustryStandard │ System │ Global │ 0             │
+├────────────────────────────────────────┼──────────────────┼────────┼────────┼───────────────┤
+│ OWASP Cloud-Native App Security Top 10 │ IndustryStandard │ System │ Global │ 0             │
+└────────────────────────────────────────┴──────────────────┴────────┴────────┴───────────────┘
+
+What stands out
+- Only Baseline is attached to anything, with 3 apps. Every other policy has 0 associated apps. The built-in regulatory and standards policies exist but aren't enforced on any application.
+- Baseline is a start-date filter, not a severity gate. Its expression is StartDate($DATE), so it has no minimum-severity rule.
+- TP is a custom policy with StartDate 2018-01-19 and MinSeverity Medium. It was created in 2023 and is unused.
+- Most policies show CreatedAt of 2026-11-04. That is probably a system seed or refresh date, not when they were authored.
+
+I can't tell from this output whether your application b2ec76ec-… is one of the 3 apps on Baseline. I haven't checked that. Whether PCI, GDPR, HIPAA or similar should apply is a compliance decision for the policy owner.
+
+To see the rest, I can re-run with a larger top or a skip. I'd need to confirm the argument names with list-appscan-capabilities, since I haven't verified that policies supports skip.
 
 execute-appscan-read
-capability: "policies"
-arguments: {"top":10}
+  capability: "applications"
+  arguments: {"top":10}
 
-execute-appscan-read
-capability: "applications"
-arguments: {"top":10}
+  Called hcl-appscan-ai-coding-assistants
+
+The call returned 10 of 23 applications, so the list is incomplete. Type, Created and Risk all show "Unknown" for every row, so the tool didn't return those fields.
+
+┌─────┬──────────────────────┬──────────────────────────────────────┐
+│  #  │         Name         │                  ID                  │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 1   │ Demo_HCLF            │ 5a0bcbb2-c309-489b-badc-0112e619bce7 │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 2   │ Test_Tayalan         │ 39c76747-8617-4e00-8ae8-096e208f72ac │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 3   │ Test_Priya           │ ed1125b8-0e15-486b-9702-09a7e24d3efd │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 4   │ Test_Tanmoy_SN       │ e0d855ec-4ec3-4dd3-9ac1-0ea69740cc8b │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 5   │ charvi               │ e59ef14d-3342-47ae-8b17-21cb37a705fd │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 6   │ AltoroMutual         │ 4111c5d9-d355-4b9d-95c7-25ee45351928 │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 7   │ AzureBoardsPluginGit │ 072732e0-61a9-4185-bca4-30166831e72e │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 8   │ Test_Vinod           │ 2e38956e-1dce-4742-8278-3ee80509a732 │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 9   │ test_vinod_mcp       │ 2bb503a1-72bb-4913-9acf-586f625d2027 │
+├─────┼──────────────────────┼──────────────────────────────────────┤
+│ 10  │ Bitbucket plugin     │ b106ec10-235a-42d6-aa0a-69c77bad4879 │
+└─────┴──────────────────────┴──────────────────────────────────────┘
+
+- Your earlier application: b2ec76ec-a0a3-468f-a80b-f1b2a0c2c1fb, the one used for the licenses call, isn't in this first page. It is probably among the other 13, but I haven't confirmed that.
+- The tool is asking you to pick an application. The output says to choose an existing application, create a new one, or enter another name or ID. This is a selection prompt for a later scan or create step. You haven't asked for either, and I haven't selected, created or scanned anything.
+
+Next steps:
+- See the remaining 13: I can page further, or use get-apps to look up a specific name or ID. I'd need to confirm how applications paginates first, because I haven't verified that it supports skip.
+- Identify your ID: I can look up b2ec76ec-… by ID to get its name.
+- Run a read against one of these: Tell me which application and which capability.
