@@ -1,1 +1,115 @@
 
+    // Dynamically register individual read-only AppScan capabilities.
+    try {
+        const [localResult, remoteResult] = await Promise.allSettled([
+            service.listProviderTools("local"),
+            service.listProviderTools("remote"),
+        ]);
+
+        const local =
+            localResult.status === "fulfilled"
+                ? localResult.value
+                : [];
+
+        const remote =
+            remoteResult.status === "fulfilled"
+                ? remoteResult.value
+                : [];
+
+        if (
+            localResult.status === "rejected" &&
+            remoteResult.status === "rejected"
+        ) {
+            throw new Error(
+                "Neither Local nor Remote AppScan provider is available.",
+            );
+        }
+
+        if (localResult.status === "rejected") {
+            console.error(
+                "[AppScan] Local provider discovery failed:",
+                localResult.reason instanceof Error
+                    ? localResult.reason.message
+                    : "Unknown error",
+            );
+        }
+
+        if (remoteResult.status === "rejected") {
+            console.error(
+                "[AppScan] Remote provider discovery failed:",
+                remoteResult.reason instanceof Error
+                    ? remoteResult.reason.message
+                    : "Unknown error",
+            );
+        }
+
+        const catalogue = buildToolCatalogue(local, remote);
+
+        let registeredCount = 0;
+
+        for (const item of catalogue) {
+            if (item.risk !== "read") {
+                continue;
+            }
+
+            const providers = [
+                item.local ? "Local" : undefined,
+                item.remote ? "Remote" : undefined,
+            ].filter(Boolean).join(", ");
+
+            const selectedTool = item.local ?? item.remote;
+
+            if (!selectedTool) {
+                continue;
+            }
+
+            const inputSchema = jsonSchemaToZod(
+                selectedTool.inputSchema,
+            );
+
+            server.registerTool(
+                `appscan-${item.capability}`,
+                {
+                    description: [
+                        `Execute the unified AppScan capability: ${item.capability}.`,
+                        `Available providers: ${providers}.`,
+                        "Local is preferred when available; otherwise Remote is used.",
+                        "This operation is read-only and does not change the active provider.",
+                        `Backend tool description: ${selectedTool.description ?? "No description provided."}`,
+                    ].join(" "),
+                    inputSchema,
+                },
+                async (args) => {
+                    try {
+                        const result = await service.callCapability(
+                            item.capability,
+                            args as Record<string, unknown>,
+                        );
+
+                        return textResult(result);
+                    } catch (error) {
+                        return messageResult(
+                            error instanceof Error
+                                ? error.message
+                                : `AppScan capability '${item.capability}' failed.`,
+                            true,
+                        );
+                    }
+                },
+            );
+
+            registeredCount++;
+        }
+
+        console.error(
+            `[AppScan] Registered ${registeredCount} unified read-only capability tools.`,
+        );
+    } catch (error) {
+        console.error(
+            "[AppScan] Could not register dynamic capability tools:",
+            error instanceof Error ? error.message : "Unknown error",
+        );
+
+        throw error;
+    }
+
