@@ -1,1 +1,30 @@
+/**
+ * Execute a tool against a specific provider without changing
+ * the currently active provider.
+ */
+async callProviderTool(
+    provider: AppScanProvider,
+    toolName: string,
+    args: Record<string, unknown> = {},
+): Promise<McpToolCallResult> {
+    return this.withLock(async () => {
+        // Reuse the active connector when possible.
+        if (provider === this.activeProvider) {
+            return this.connector.callTool(toolName, args);
+        }
 
+        // Connect temporarily to the requested inactive provider.
+        const temporaryConnector = this.connectorFactory(provider);
+
+        try {
+            await temporaryConnector.connect();
+
+            return await temporaryConnector.callTool(
+                toolName,
+                args,
+            );
+        } finally {
+            await temporaryConnector.disconnect();
+        }
+    });
+}
