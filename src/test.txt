@@ -1,14 +1,1 @@
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run typecheck
-
-> ai-coding-assistants-claude-poc@1.0.0 typecheck
-> tsc --noEmit
-
-src/services/appscan-service.ts:12:32 - error TS2351: This expression is not constructable.
-  Type 'typeof import("C:/Users/ankur.raina/ai-coding-assistants-claude-poc/node_modules/ajv/dist/ajv")' has no construct signatures.
-
-12     private readonly ajv = new Ajv({
-                                  ~~~
-
-
-Found 1 error in src/services/appscan-service.ts:12
