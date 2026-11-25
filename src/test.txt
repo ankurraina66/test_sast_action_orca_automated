@@ -1,1 +1,8 @@
+Use the AppScan MCP integration to call "compare-provider-tools".
 
+Then call "list-provider-tools" separately for:
+
+- "local"
+- "remote"
+
+Return the complete tool names, descriptions, and input schemas for both providers. Do not switch the active provider or execute any state-changing operation.
