@@ -1,1 +1,33 @@
 
+    /**
+     * Execute a previously prepared write capability.
+     * The provider and backend tool must match the approved preview.
+     */
+    async callApprovedCapability(
+        capability: string,
+        args: Record<string, unknown>,
+        expectedProvider: AppScanProvider,
+        expectedToolName: string,
+    ): Promise<McpToolCallResult> {
+        const preview = await this.prepareApprovedCapability(
+            capability,
+            args,
+        );
+
+        if (
+            preview.provider !== expectedProvider ||
+            preview.toolName !== expectedToolName
+        ) {
+            throw new Error(
+                "The AppScan provider or backend tool has changed since approval. " +
+                "The operation was not executed. Prepare it again and obtain approval.",
+            );
+        }
+
+        return this.callProviderTool(
+            expectedProvider,
+            expectedToolName,
+            preview.normalizedArgs,
+        );
+    }
+
