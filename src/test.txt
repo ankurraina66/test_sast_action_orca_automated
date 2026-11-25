@@ -1,1 +1,11 @@
+execute-appscan-read
+capability: "licenses"
+arguments: {"scope":"Application","scopeId":"YOUR_APPLICATION_ID"}
 
+execute-appscan-read
+capability: "policies"
+arguments: {"top":10}
+
+execute-appscan-read
+capability: "applications"
+arguments: {"top":10}
