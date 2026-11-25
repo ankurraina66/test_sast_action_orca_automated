@@ -1,1 +1,60 @@
 
+    server.registerTool(
+        "prepare-appscan-write",
+        {
+            description:
+                "Prepare a supported AppScan write operation for explicit user approval. This tool validates arguments and returns an execution preview with a one-time confirmation token. It never modifies AppScan.",
+            inputSchema: {
+                capability: z.enum([
+                    "create-application",
+                    "update-issues",
+                    "update-fix-groups",
+                ]),
+                arguments: z.record(z.string(), z.unknown()).default({}),
+            },
+        },
+        async ({ capability, arguments: writeArguments }) => {
+            try {
+                const preview = await service.prepareApprovedCapability(
+                    capability,
+                    writeArguments,
+                );
+
+                const token = crypto.randomUUID();
+
+                const approvedWrite: ApprovedWrite = {
+                    capability,
+                    args: writeArguments,
+                    provider: preview.provider,
+                    toolName: preview.toolName,
+                    createdAt: Date.now(),
+                };
+
+                pendingWrites.set(token, approvedWrite);
+
+                return messageResult(
+                    [
+                        "AppScan write operation prepared. Nothing has been modified.",
+                        `Capability: ${capability}`,
+                        `Provider: ${preview.provider}`,
+                        `Backend tool: ${preview.toolName}`,
+                        `Confirmation token: ${token}`,
+                        `Expires in: ${WRITE_APPROVAL_TTL_MS / 60000} minutes`,
+                        "",
+                        "Execution arguments:",
+                        JSON.stringify(preview.normalizedArgs, null, 2),
+                        "",
+                        "Show the complete operation preview to the user and obtain explicit approval before executing it.",
+                    ].join("\n"),
+                );
+            } catch (error) {
+                return messageResult(
+                    error instanceof Error
+                        ? error.message
+                        : "Could not prepare the AppScan write operation.",
+                    true,
+                );
+            }
+        },
+    );
+
