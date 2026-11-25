@@ -1,10 +1,1 @@
-const request: CapabilityRequest = {
-    ...args,
-    capability,
-};
 
-const normalizedArgs = normalizeCapabilityArguments(
-    capability,
-    resolved.provider,
-    request,
-);
