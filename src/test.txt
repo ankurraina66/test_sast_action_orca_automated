@@ -1,1 +1,110 @@
 
+    /**
+     * Execute a read-only unified capability.
+     * Discovers Local and Remote independently, so one unavailable
+     * provider does not prevent execution through the other.
+     * Arguments are normalized and validated against the selected
+     * provider's actual MCP tool schema.
+     */
+    async callCapability(
+        capability: string,
+        args: Record<string, unknown> = {},
+    ): Promise<McpToolCallResult> {
+        // Discover both providers independently.
+        const [localResult, remoteResult] = await Promise.allSettled([
+            this.listProviderTools("local"),
+            this.listProviderTools("remote"),
+        ]);
+
+        const local =
+            localResult.status === "fulfilled"
+                ? localResult.value
+                : [];
+
+        const remote =
+            remoteResult.status === "fulfilled"
+                ? remoteResult.value
+                : [];
+
+        // Neither provider could be discovered.
+        if (
+            localResult.status === "rejected" &&
+            remoteResult.status === "rejected"
+        ) {
+            throw new Error(
+                "Unable to discover AppScan tools from either provider. " +
+                "Check the Local and Remote provider configurations and connections.",
+            );
+        }
+
+        // Build the catalogue from whichever providers are available.
+        const catalogue = buildToolCatalogue(local, remote);
+
+        const selected = catalogue.find(
+            (item) => item.capability === capability,
+        );
+
+        if (!selected) {
+            const failures: string[] = [];
+
+            if (localResult.status === "rejected") {
+                failures.push("Local provider discovery failed.");
+            }
+
+            if (remoteResult.status === "rejected") {
+                failures.push("Remote provider discovery failed.");
+            }
+
+            throw new Error(
+                `Unsupported or unavailable AppScan capability: ${capability}. ` +
+                (failures.length > 0 ? failures.join(" ") : ""),
+            );
+        }
+
+        if (selected.risk !== "read") {
+            throw new Error(
+                `Capability '${capability}' is not read-only. Explicit approval is required.`,
+            );
+        }
+
+        // Prefer Local when available; otherwise use Remote.
+        const resolved = resolveToolProvider(selected, "local");
+
+        // Normalize unified arguments into provider-specific arguments.
+        const request: CapabilityRequest = {
+            ...args,
+            capability,
+        };
+
+        const normalizedArgs = normalizeCapabilityArguments(
+            capability,
+            resolved.provider,
+            request,
+        );
+
+        // Validate against the selected backend's actual MCP schema.
+        const validate = this.ajv.compile(
+            resolved.tool.inputSchema,
+        );
+
+        if (!validate(normalizedArgs)) {
+            const errors = (validate.errors ?? [])
+                .map(
+                    (error: ErrorObject) =>
+                        `${error.instancePath || "/"}: ${error.message ?? "Invalid value"}`,
+                )
+                .join("; ");
+
+            throw new Error(
+                `Invalid arguments for ${resolved.tool.name}: ${errors}`,
+            );
+        }
+
+        // Execute without changing the active provider.
+        return this.callProviderTool(
+            resolved.provider,
+            resolved.tool.name,
+            normalizedArgs,
+        );
+    }
+
