@@ -1,1 +1,56 @@
 
+server.registerTool(
+    "list-appscan-capabilities",
+    {
+        description:
+            "List the unified AppScan capabilities available across Local and Remote providers. Shows the backend tool names, descriptions, input schemas, and operation risk. Read-only; does not switch providers.",
+        inputSchema: {},
+    },
+    async () => {
+        try {
+            const { local, remote } =
+                await service.compareProviderTools();
+
+            const catalogue = buildToolCatalogue(local, remote);
+
+            const details = catalogue.map((item) => {
+                const providers = [
+                    item.local ? "Local" : undefined,
+                    item.remote ? "Remote" : undefined,
+                ].filter(Boolean).join(", ");
+
+                const backendDetails = [
+                    item.local
+                        ? `Local tool: ${item.local.name}\nLocal schema: ${JSON.stringify(item.local.inputSchema)}`
+                        : undefined,
+                    item.remote
+                        ? `Remote tool: ${item.remote.name}\nRemote schema: ${JSON.stringify(item.remote.inputSchema)}`
+                        : undefined,
+                ].filter(Boolean);
+
+                return [
+                    `Capability: ${item.capability}`,
+                    `Supported by: ${providers}`,
+                    `Risk: ${item.risk}`,
+                    ...backendDetails,
+                ].join("\n");
+            });
+
+            return messageResult([
+                `Unified AppScan capabilities: ${catalogue.length}`,
+                `Local tools discovered: ${local.length}`,
+                `Remote tools discovered: ${remote.length}`,
+                `Active provider remains: ${service.getProvider()}`,
+                "",
+                ...details,
+            ].join("\n\n"));
+        } catch (error) {
+            return messageResult(
+                error instanceof Error
+                    ? error.message
+                    : "Could not build the unified AppScan catalogue.",
+                true,
+            );
+        }
+    },
+);
