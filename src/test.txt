@@ -1,3 +1,13 @@
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm audit fix
+
+changed 5 packages, and audited 138 packages in 5s
+
+46 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm audit
+found 0 vulnerabilities
 PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm ls ajv
 ai-coding-assistants-claude-poc@1.0.0 C:\Users\ankur.raina\ai-coding-assistants-claude-poc
 +-- @modelcontextprotocol/sdk@1.32.1
@@ -6,48 +16,56 @@ ai-coding-assistants-claude-poc@1.0.0 C:\Users\ankur.raina\ai-coding-assistants-
 | `-- ajv@8.20.0 deduped
 `-- ajv@8.20.0
 
-PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm audit
-# npm audit report
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm test
 
-@hono/node-server  2.0.0 - 2.1.5
-Severity: moderate
-@hono/node-server: Unhandled `ECONNRESET` on the socket during an asynchronous WebSocket upgrade crashes the process - https://github.com/advisories/GHSA-qv5m-9pm6-hqp3
-@hono/node-server: Backslash in the request path is parsed as a path separator, bypassing path-based access control at a reverse proxy - https://github.com/advisories/GHSA-jpvv-r467-5p4w
-fix available via `npm audit fix`
-node_modules/@hono/node-server
+> ai-coding-assistants-claude-poc@1.0.0 test
+> vitest run
 
-body-parser  2.0.0 - 2.3.0
-Severity: high
-body-parser vulnerable to Denial of Service via trailing bytes after a compressed request body - https://github.com/advisories/GHSA-27r3-jxmh-p828
-fix available via `npm audit fix`
-node_modules/body-parser
 
-fast-uri  3.0.0 - 3.1.8
-Severity: moderate
-fast-uri vulnerable to URI scheme spoofing via percent-encoded scheme decoding - https://github.com/advisories/GHSA-w74x-v6f9-j3xg
-fast-uri vulnerable to improper path equivalence in relative reference normalization - https://github.com/advisories/GHSA-xhq7-xmqj-769h
-fast-uri vulnerable to host confusion via unchecked WHATWG host canonicalization - https://github.com/advisories/GHSA-wjr9-j795-jxcr
-fast-uri vulnerable to scheme injection via an unescaped first-segment colon in suffix references - https://github.com/advisories/GHSA-333x-w4r6-6crp
-fix available via `npm audit fix`
-node_modules/fast-uri
+ RUN  v5.0.3 C:/Users/ankur.raina/ai-coding-assistants-claude-poc
 
-hono  <=4.13.15
-Severity: moderate
-Hono: `mount()` and `app.mount()` can forward a path that bypasses middleware scoped inside the mount prefix - https://github.com/advisories/GHSA-4m76-xfj5-7975
-Hono: RegExpRouter skips wildcard middleware for some route sets and for paths with an encoded line terminator - https://github.com/advisories/GHSA-h7mg-cq63-vhpq
-Hono: `css` helper does not escape a closing tag split between the template and an interpolated value, allowing HTML injection - https://github.com/advisories/GHSA-3gg2-335m-rxc6
-Hono: `csrf()` does not check requests sent by hyperlink auditing (`text/ping`) - https://github.com/advisories/GHSA-46wx-v44x-9hh2
-Hono: `validator('form')` skips validation for `multipart/form-data` requests with extra parameters - https://github.com/advisories/GHSA-4h7h-rv7c-7m2v
-fix available via `npm audit fix`
-node_modules/hono
+ ✓ tests/unit/config.test.ts (15 tests) 8ms
+ ✓ tests/unit/local-stdio-connector.test.ts (11 tests) 11ms
+ ✓ tests/unit/appscan-service.test.ts (26 tests) 24ms
+ ✓ tests/unit/index.test.ts (1 test) 3ms
+ ✓ tests/unit/scan-lifecycle.test.ts (42 tests) 24ms
+stderr | tests/unit/appscan-service-factory.test.ts > createAppScanService > loads configuration and creates the connector
+[AppScan MCP] Startup configuration: {
+  provider: 'remote (default)',
+  remoteEndpointConfigured: false,
+  remoteApiKeyConfigured: false
+}
 
-qs  6.7.0 - 6.16.0
-Severity: moderate
-qs : qs.stringify with arrayFormat 'comma' throws an uncaught TypeError on array elements carrying a non-callable own toString (DoS) - https://github.com/advisories/GHSA-6pq8-jhm2-2vcw
-fix available via `npm audit fix`
-node_modules/qs
+stderr | tests/unit/appscan-service-factory.test.ts > createAppScanService > constructs the service with the created connector
+[AppScan MCP] Startup configuration: {
+  provider: 'remote (default)',
+  remoteEndpointConfigured: false,
+  remoteApiKeyConfigured: false
+}
 
-5 vulnerabilities (4 moderate, 1 high)
+ ✓ tests/unit/tool-catalogue.test.ts (5 tests) 6ms
+stderr | tests/unit/appscan-service-factory.test.ts > createAppScanService > supports local provider configuration
+[AppScan MCP] Startup configuration: {
+  provider: 'remote (default)',
+  remoteEndpointConfigured: false,
+  remoteApiKeyConfigured: false
+}
 
-To address all issues, run:
-  npm audit fix
+ ✓ tests/unit/connector-factory.test.ts (4 tests) 7ms
+ ✓ tests/unit/appscan-service-factory.test.ts (3 tests) 8ms
+ ✓ tests/unit/remote-http-connector.test.ts (12 tests) 70ms
+
+ Test Files  9 passed (9)
+      Tests  119 passed (119)
+   Start at  11:19:06
+   Duration  638ms (transform 71%, import 17%, tests 9%, worker 4%)
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run typecheck
+
+> ai-coding-assistants-claude-poc@1.0.0 typecheck
+> tsc --noEmit
+
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm run build
+
+> ai-coding-assistants-claude-poc@1.0.0 build
+> tsc
