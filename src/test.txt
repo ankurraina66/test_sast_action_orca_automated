@@ -1,56 +1,66 @@
+list-appscan-capabilities
 
-server.registerTool(
-    "list-appscan-capabilities",
-    {
-        description:
-            "List the unified AppScan capabilities available across Local and Remote providers. Shows the backend tool names, descriptions, input schemas, and operation risk. Read-only; does not switch providers.",
-        inputSchema: {},
-    },
-    async () => {
-        try {
-            const { local, remote } =
-                await service.compareProviderTools();
+  Called hcl-appscan-ai-coding-assistants
 
-            const catalogue = buildToolCatalogue(local, remote);
+The AppScan MCP server reports 20 capabilities. The active provider is local. It found 14 local tools and 12 remote tools.
 
-            const details = catalogue.map((item) => {
-                const providers = [
-                    item.local ? "Local" : undefined,
-                    item.remote ? "Remote" : undefined,
-                ].filter(Boolean).join(", ");
+Read-only
 
-                const backendDetails = [
-                    item.local
-                        ? `Local tool: ${item.local.name}\nLocal schema: ${JSON.stringify(item.local.inputSchema)}`
-                        : undefined,
-                    item.remote
-                        ? `Remote tool: ${item.remote.name}\nRemote schema: ${JSON.stringify(item.remote.inputSchema)}`
-                        : undefined,
-                ].filter(Boolean);
+┌─────────────────────────┬───────────────┬────────────────────────────────────────────┐
+│       Capability        │   Provider    │                  Purpose                   │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ server-info             │ Local         │ Server details                             │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ tenant-info             │ Local         │ Tenant details                             │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ applications            │ Local, Remote │ List apps (OData filter/top)               │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ scans                   │ Local, Remote │ List scans                                 │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ issues                  │ Local, Remote │ Issues for an app (appId required locally) │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ scan-issues             │ Local, Remote │ Issues for one scan                        │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ fix-groups              │ Local, Remote │ Fix groups by scope and scope ID           │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ issue-details           │ Local, Remote │ Details for one issue ID                   │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ asset-groups            │ Local         │ List asset groups                          │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ licenses                │ Remote        │ Library licenses by scope                  │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ os-libraries            │ Remote        │ Open-source libraries by scope             │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ organization-libraries  │ Remote        │ Libraries across the org                   │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ applications-by-library │ Remote        │ Apps that use a given library package      │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ policies                │ Remote        │ List policies                              │
+├─────────────────────────┼───────────────┼────────────────────────────────────────────┤
+│ edm-metadata            │ Remote        │ OData metadata                             │
+└─────────────────────────┴───────────────┴────────────────────────────────────────────┘
 
-                return [
-                    `Capability: ${item.capability}`,
-                    `Supported by: ${providers}`,
-                    `Risk: ${item.risk}`,
-                    ...backendDetails,
-                ].join("\n");
-            });
+Write or mixed
 
-            return messageResult([
-                `Unified AppScan capabilities: ${catalogue.length}`,
-                `Local tools discovered: ${local.length}`,
-                `Remote tools discovered: ${remote.length}`,
-                `Active provider remains: ${service.getProvider()}`,
-                "",
-                ...details,
-            ].join("\n\n"));
-        } catch (error) {
-            return messageResult(
-                error instanceof Error
-                    ? error.message
-                    : "Could not build the unified AppScan catalogue.",
-                true,
-            );
-        }
-    },
-);
+┌────────────────────┬───────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│     Capability     │   Provider    │                                                   Purpose                                                    │
+├────────────────────┼───────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ create-application │ Local         │ Create an app (needs a confirm token)                                                                        │
+├────────────────────┼───────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ create-scan        │ Local         │ Start a SAST, SCA or DAST scan                                                                               │
+├────────────────────┼───────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ update-issues      │ Local, Remote │ Change issue status, comment or external ID                                                                  │
+├────────────────────┼───────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ update-fix-groups  │ Local         │ Change fix-group status, optionally sticky                                                                   │
+├────────────────────┼───────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ reports            │ Local         │ List, create or download Security, Issues, Regulation, License and SBOM reports (PDF, HTML, XML, CSV, SARIF) │
+└────────────────────┴───────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Notes
+
+- Write actions: create-application, create-scan, update-issues, update-fix-groups and report creation use a preview and confirm flow. I'll confirm with you before running any of them.
+- SAST scans: these don't build the project. Build output must be prepared separately.
+- DAST scans: these return immediately and don't wait for completion.
+- Connection problem: the separate appscan-connector server failed to connect ("Connection closed"). The tools above came through hcl-appscan-ai-coding-assistants, so they are unaffected. Anything that depends on appscan-connector will need a retry or a fix on your side.
+
+I can list your apps, scans or issues next, or review findings against this workspace with the appscan skill.
