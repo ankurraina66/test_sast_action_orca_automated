@@ -1,1 +1,152 @@
 
+function jsonSchemaToZod(schema: unknown): z.ZodTypeAny {
+    if (!schema || typeof schema !== "object") {
+        return z.unknown();
+    }
+
+    const definition = schema as Record<string, unknown>;
+
+    if (definition.const !== undefined) {
+        return z.literal(
+            definition.const as string | number | boolean,
+        );
+    }
+
+    if (Array.isArray(definition.enum)) {
+        const values = definition.enum;
+
+        if (
+            values.length > 0 &&
+            values.every((value) => typeof value === "string")
+        ) {
+            return z.enum(values as [string, ...string[]]);
+        }
+
+        if (values.length === 1) {
+            return z.literal(values[0]);
+        }
+
+        if (values.length > 1) {
+            const literals = values.map((value) => z.literal(value));
+
+            return z.union(
+                literals as unknown as [
+                    z.ZodTypeAny,
+                    z.ZodTypeAny,
+                    ...z.ZodTypeAny[],
+                ],
+            );
+        }
+    }
+
+    if (
+        Array.isArray(definition.anyOf) ||
+        Array.isArray(definition.oneOf)
+    ) {
+        const variants = (definition.anyOf ?? definition.oneOf) as unknown[];
+
+        if (variants.length === 1) {
+            return jsonSchemaToZod(variants[0]);
+        }
+
+        if (variants.length >= 2) {
+            const schemas = variants.map(jsonSchemaToZod);
+
+            return z.union(
+                schemas as unknown as [
+                    z.ZodTypeAny,
+                    z.ZodTypeAny,
+                    ...z.ZodTypeAny[],
+                ],
+            );
+        }
+    }
+
+    const type = definition.type;
+    let result: z.ZodTypeAny;
+
+    if (type === "string") {
+        let value = z.string();
+
+        if (typeof definition.minLength === "number") {
+            value = value.min(definition.minLength);
+        }
+
+        if (typeof definition.maxLength === "number") {
+            value = value.max(definition.maxLength);
+        }
+
+        if (typeof definition.pattern === "string") {
+            value = value.regex(new RegExp(definition.pattern));
+        }
+
+        result = value;
+    } else if (type === "integer") {
+        let value = z.number().int();
+
+        if (typeof definition.minimum === "number") {
+            value = value.min(definition.minimum);
+        }
+
+        if (typeof definition.maximum === "number") {
+            value = value.max(definition.maximum);
+        }
+
+        result = value;
+    } else if (type === "number") {
+        let value = z.number();
+
+        if (typeof definition.minimum === "number") {
+            value = value.min(definition.minimum);
+        }
+
+        if (typeof definition.maximum === "number") {
+            value = value.max(definition.maximum);
+        }
+
+        result = value;
+    } else if (type === "boolean") {
+        result = z.boolean();
+    } else if (type === "array") {
+        result = z.array(
+            jsonSchemaToZod(definition.items),
+        );
+    } else if (type === "object" || definition.properties) {
+        const properties = (
+            definition.properties ?? {}
+        ) as Record<string, unknown>;
+
+        const required = new Set(
+            Array.isArray(definition.required)
+                ? definition.required.filter(
+                    (item): item is string => typeof item === "string",
+                )
+                : [],
+        );
+
+        const shape: Record<string, z.ZodTypeAny> = {};
+
+        for (const [key, propertySchema] of Object.entries(properties)) {
+            const property = jsonSchemaToZod(propertySchema);
+
+            shape[key] = required.has(key)
+                ? property
+                : property.optional();
+        }
+
+        result = z.object(shape);
+    } else {
+        result = z.unknown();
+    }
+
+    if (definition.nullable === true) {
+        result = result.nullable();
+    }
+
+    if (definition.default !== undefined) {
+        result = result.default(definition.default);
+    }
+
+    return result;
+}
+
