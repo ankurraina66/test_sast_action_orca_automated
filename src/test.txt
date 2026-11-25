@@ -1,80 +1,154 @@
-import {
-  buildToolCatalogue,
-  resolveToolProvider,
-  normalizeCapabilityArguments,
-} from "../../src/services/tool-catalogue.js";
+please review test-catalogue.test.ts
 
+import { describe, expect, it } from "vitest";
+import { buildToolCatalogue, resolveToolProvider, normalizeCapabilityArguments,  } from "../../src/services/tool-catalogue.js";
+import type { McpTool } from "../../src/mcp/connector.js";
 
-describe("normalizeCapabilityArguments", () => {
-  it("maps scan-issues arguments for Local provider using scanId", () => {
-    const result = normalizeCapabilityArguments(
-      "scan-issues",
-      "local",
-      {
-        capability: "scan-issues",
-        scanId: "scan-123",
-        top: 10,
-      }
-    );
+function tool(name: string): McpTool {
+    return {
+        name,
+        description: `${name} description`,
+        inputSchema: {
+            type: "object",
+            properties: {},
+        },
+    };
+}
 
-    expect(result).toEqual({
-      top: 10,
-      scanId: "scan-123",
+describe("tool catalogue", () => {
+    it("merges Local and Remote capabilities", () => {
+        const catalogue = buildToolCatalogue(
+                [tool("get-apps"), tool("create-scan")],
+                [tool("get_apps"), tool("get_licenses")], );
+
+        expect(catalogue).toHaveLength(3);
+
+        const applications = catalogue.find(
+                (item) => item.capability === "applications", );
+
+        expect(applications?.local?.name).toBe("get-apps");
+        expect(applications?.remote?.name).toBe("get_apps");
     });
-  });
 
-  it("maps scan-issues arguments for Remote provider using Scan scope", () => {
-    const result = normalizeCapabilityArguments(
-      "scan-issues",
-      "remote",
-      {
-        capability: "scan-issues",
-        scanId: "scan-123",
-        top: 10,
-      }
-    );
+    it("preserves the original backend schemas", () => {
+        const local = tool("get-apps");
+        local.inputSchema = {
+            type: "object",
+            properties: {
+                top: {
+                    type: "number"
+                },
+            },
+        };
 
-    expect(result).toEqual({
-      top: 10,
-      scope: "Scan",
-      scopeId: "scan-123",
+        const catalogue = buildToolCatalogue(
+                [local],
+                [], );
+
+        expect(
+            catalogue[0].local?.inputSchema, ).toBe(local.inputSchema);
     });
-  });
 
-  it("requires appId for Local issues", () => {
-    expect(() =>
-      normalizeCapabilityArguments("issues", "local", {
-        capability: "issues",
-        top: 10,
-      })
-    ).toThrow(/appId/i);
-  });
+    it("prefers Local when both providers support a capability", () => {
+        const catalogue = buildToolCatalogue(
+                [tool("get-apps")],
+                [tool("get_apps")], );
 
-  it("allows Remote organization-wide issues without a scope", () => {
-    const result = normalizeCapabilityArguments(
-      "issues",
-      "remote",
-      {
-        capability: "issues",
-        top: 10,
-        filter: "status eq 'New'",
-      }
-    );
+        const result = resolveToolProvider(
+                catalogue[0],
+                "local", );
 
-    expect(result).toEqual({
-      top: 10,
-      filter: "status eq 'New'",
+        expect(result.provider).toBe("local");
+        expect(result.tool.name).toBe("get-apps");
     });
-  });
 
-  it("rejects issue-details when issueId is missing", () => {
-    expect(() =>
-      normalizeCapabilityArguments("issue-details", "local", {
-        capability: "issue-details",
-      })
-    ).toThrow(/issueId/i);
-  });
+    it("uses Remote when Local does not support a capability", () => {
+        const catalogue = buildToolCatalogue(
+                [],
+                [tool("get_licenses")], );
+
+        const result = resolveToolProvider(
+                catalogue[0],
+                "local", );
+
+        expect(result.provider).toBe("remote");
+        expect(result.tool.name).toBe("get_licenses");
+    });
+
+    it("classifies write operations correctly", () => {
+        const catalogue = buildToolCatalogue(
+                [tool("update-issues"), tool("create-scan")],
+                [tool("update_issues")], );
+
+        expect(
+            catalogue.find(
+                (item) => item.capability === "update-issues", )?.risk, ).toBe("write");
+
+        expect(
+            catalogue.find(
+                (item) => item.capability === "create-scan", )?.risk, ).toBe("write");
+    });
 });
 
+describe("normalizeCapabilityArguments", () => {
+    it("maps scan-issues arguments for Local provider using scanId", () => {
+        const result = normalizeCapabilityArguments(
+                "scan-issues",
+                "local", {
+                capability: "scan-issues",
+                scanId: "scan-123",
+                top: 10,
+            });
 
+        expect(result).toEqual({
+            top: 10,
+            scanId: "scan-123",
+        });
+    });
 
+    it("maps scan-issues arguments for Remote provider using Scan scope", () => {
+        const result = normalizeCapabilityArguments(
+                "scan-issues",
+                "remote", {
+                capability: "scan-issues",
+                scanId: "scan-123",
+                top: 10,
+            });
+
+        expect(result).toEqual({
+            top: 10,
+            scope: "Scan",
+            scopeId: "scan-123",
+        });
+    });
+
+    it("requires appId for Local issues", () => {
+        expect(() =>
+            normalizeCapabilityArguments("issues", "local", {
+                capability: "issues",
+                top: 10,
+            })).toThrow(/appId/i);
+    });
+
+    it("allows Remote organization-wide issues without a scope", () => {
+        const result = normalizeCapabilityArguments(
+                "issues",
+                "remote", {
+                capability: "issues",
+                top: 10,
+                filter: "status eq 'New'",
+            });
+
+        expect(result).toEqual({
+            top: 10,
+            filter: "status eq 'New'",
+        });
+    });
+
+    it("rejects issue-details when issueId is missing", () => {
+        expect(() =>
+            normalizeCapabilityArguments("issue-details", "local", {
+                capability: "issue-details",
+            })).toThrow(/issueId/i);
+    });
+});
