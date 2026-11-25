@@ -1,1 +1,192 @@
 
+import type { AppScanMcpConnector, McpTool } from "../mcp/connector.js";
+import type { AppScanProvider } from "../config/config.js";
+
+export type ToolRisk =
+    | "read"
+    | "write"
+    | "mixed";
+
+export interface ToolCapability {
+    capability: string;
+    risk: ToolRisk;
+    local?: McpTool;
+    remote?: McpTool;
+}
+
+const TOOL_MAPPINGS: Record<
+    string,
+    { local?: string; remote?: string; risk: ToolRisk }
+> = {
+    "server-info": {
+        local: "get-server-info",
+        risk: "read",
+    },
+    "tenant-info": {
+        local: "get-tenant-info",
+        risk: "read",
+    },
+    "applications": {
+        local: "get-apps",
+        remote: "get_apps",
+        risk: "read",
+    },
+    "create-application": {
+        local: "create-app",
+        risk: "write",
+    },
+    "scans": {
+        local: "get-scans",
+        remote: "get_scans",
+        risk: "read",
+    },
+    "issues": {
+        local: "get-issues",
+        remote: "get_issues",
+        risk: "read",
+    },
+    "scan-issues": {
+        local: "get-scan-issues",
+        remote: "get_issues",
+        risk: "read",
+    },
+    "fix-groups": {
+        local: "get-fix-groups",
+        remote: "get_fixgroups",
+        risk: "read",
+    },
+    "issue-details": {
+        local: "get-issue-details",
+        remote: "get_issue_details",
+        risk: "read",
+    },
+    "update-issues": {
+        local: "update-issues",
+        remote: "update_issues",
+        risk: "write",
+    },
+    "update-fix-groups": {
+        local: "update-fix-groups",
+        risk: "write",
+    },
+    "reports": {
+        local: "get-reports",
+        risk: "mixed",
+    },
+    "asset-groups": {
+        local: "get-asset-groups",
+        risk: "read",
+    },
+    "create-scan": {
+        local: "create-scan",
+        risk: "write",
+    },
+    "licenses": {
+        remote: "get_licenses",
+        risk: "read",
+    },
+    "edm-metadata": {
+        remote: "get_edm_metadata",
+        risk: "read",
+    },
+    "os-libraries": {
+        remote: "get_os_libraries",
+        risk: "read",
+    },
+    "organization-libraries": {
+        remote: "get_org_libraries",
+        risk: "read",
+    },
+    "applications-by-library": {
+        remote: "get_apps_by_library",
+        risk: "read",
+    },
+    "policies": {
+        remote: "get_policies",
+        risk: "read",
+    },
+};
+
+export function buildToolCatalogue(
+    localTools: McpTool[],
+    remoteTools: McpTool[],
+): ToolCapability[] {
+    const localByName = new Map(
+        localTools.map((tool) => [tool.name, tool]),
+    );
+
+    const remoteByName = new Map(
+        remoteTools.map((tool) => [tool.name, tool]),
+    );
+
+    return Object.entries(TOOL_MAPPINGS).flatMap(
+        ([capability, mapping]) => {
+            const local = mapping.local
+                ? localByName.get(mapping.local)
+                : undefined;
+
+            const remote = mapping.remote
+                ? remoteByName.get(mapping.remote)
+                : undefined;
+
+            // Do not advertise capabilities absent from both providers.
+            if (!local && !remote) {
+                return [];
+            }
+
+            return [{
+                capability,
+                risk: mapping.risk,
+                ...(local ? { local } : {}),
+                ...(remote ? { remote } : {}),
+            }];
+        },
+    );
+}
+
+export function resolveToolProvider(
+    capability: ToolCapability,
+    preferredProvider: AppScanProvider,
+): {
+    provider: AppScanProvider;
+    tool: McpTool;
+} {
+    if (
+        preferredProvider === "local" &&
+        capability.local
+    ) {
+        return {
+            provider: "local",
+            tool: capability.local,
+        };
+    }
+
+    if (
+        preferredProvider === "remote" &&
+        capability.remote
+    ) {
+        return {
+            provider: "remote",
+            tool: capability.remote,
+        };
+    }
+
+    if (capability.local) {
+        return {
+            provider: "local",
+            tool: capability.local,
+        };
+    }
+
+    if (capability.remote) {
+        return {
+            provider: "remote",
+            tool: capability.remote,
+        };
+    }
+
+    throw new Error(
+        `No provider supports capability: ${capability.capability}`,
+    );
+}
+
