@@ -1,453 +1,95 @@
-
-import type {
-    AppScanMcpConnector,
-    McpTool,
-    McpToolCallResult,
-} from "../mcp/connector.js";
-import type { AppScanProvider } from "../config/config.js";
-import { Ajv } from "ajv";
-import type { ErrorObject } from "ajv";
-import {
-    buildToolCatalogue,
-    resolveToolProvider,
-    normalizeCapabilityArguments,
-} from "./tool-catalogue.js";
-import type { CapabilityRequest } from "./tool-catalogue.js";
-
-type ConnectorFactory = (
-    provider: AppScanProvider,
-) => AppScanMcpConnector;
-
-export class AppScanService {
-    private activeProvider: AppScanProvider;
-    private operationQueue: Promise<void> = Promise.resolve();
-
-    private readonly ajv = new Ajv({
-        allErrors: true,
-        strict: false,
-    });
-
-    constructor(
-        private connector: AppScanMcpConnector,
-        initialProvider: AppScanProvider,
-        private readonly connectorFactory: ConnectorFactory,
-    ) {
-        this.activeProvider = initialProvider;
-    }
-
-    getProvider(): AppScanProvider {
-        return this.activeProvider;
-    }
-
-    private async withLock<T>(
-        operation: () => Promise<T>,
-    ): Promise<T> {
-        const previous = this.operationQueue;
-        let release!: () => void;
-
-        this.operationQueue = new Promise<void>((resolve) => {
-            release = resolve;
-        });
-
-        await previous;
-
-        try {
-            return await operation();
-        } finally {
-            release();
-        }
-    }
-
-    async connect(): Promise<void> {
-        await this.withLock(() => this.connector.connect());
-    }
-
-    async listTools(): Promise<McpTool[]> {
-        return this.withLock(() => this.connector.listTools());
-    }
-
-    /**
-     * Discover tools from either provider without changing the active provider.
-     * An inactive provider is connected temporarily and always disconnected.
-     */
-    async listProviderTools(
-        provider: AppScanProvider,
-    ): Promise<McpTool[]> {
-        return this.withLock(async () => {
-            if (provider === this.activeProvider) {
-                return this.connector.listTools();
-            }
-
-            const temporaryConnector = this.connectorFactory(provider);
-
-            try {
-                await temporaryConnector.connect();
-                return await temporaryConnector.listTools();
-            } finally {
-                await temporaryConnector.disconnect();
-            }
-        });
-    }
-
-    /**
-     * Discover both backend tool catalogs without switching the active provider.
-     */
-    async compareProviderTools(): Promise<{
-        local: McpTool[];
-        remote: McpTool[];
-    }> {
-        return this.withLock(async () => {
-            const getTools = async (
-                provider: AppScanProvider,
-            ): Promise<McpTool[]> => {
-                if (provider === this.activeProvider) {
-                    return this.connector.listTools();
-                }
-
-                const temporaryConnector = this.connectorFactory(provider);
-
-                try {
-                    await temporaryConnector.connect();
-                    return await temporaryConnector.listTools();
-                } finally {
-                    await temporaryConnector.disconnect();
-                }
-            };
-
-            const local = await getTools("local");
-            const remote = await getTools("remote");
-
-            return {
-                local,
-                remote,
-            };
-        });
-    }
-
-    /**
-     * Execute a tool against a specific provider without changing
-     * the currently active provider.
-     */
-    async callProviderTool(
-        provider: AppScanProvider,
-        toolName: string,
-        args: Record<string, unknown> = {},
-    ): Promise<McpToolCallResult> {
-        return this.withLock(async () => {
-            // Reuse the active connector when possible.
-            if (provider === this.activeProvider) {
-                return this.connector.callTool(toolName, args);
-            }
-
-            // Connect temporarily to the requested inactive provider.
-            const temporaryConnector = this.connectorFactory(provider);
-
-            try {
-                await temporaryConnector.connect();
-
-                return await temporaryConnector.callTool(
-                    toolName,
-                    args,
-                );
-            } finally {
-                await temporaryConnector.disconnect();
-            }
-        });
-    }
-
-    /**
-     * Execute a read-only unified capability.
-     * Arguments are normalized for the selected provider and then
-     * validated against that provider's actual MCP tool schema.
-     */
-    async callCapability(
-        capability: string,
-        args: Record<string, unknown> = {},
-    ): Promise<McpToolCallResult> {
-        const { local, remote } = await this.compareProviderTools();
-
-        const catalogue = buildToolCatalogue(local, remote);
-
-        const selected = catalogue.find(
-            (item) => item.capability === capability,
-        );
-
-        if (!selected) {
-            throw new Error(
-                `Unsupported AppScan capability: ${capability}`,
-            );
-        }
-
-        if (selected.risk !== "read") {
-            throw new Error(
-                `Capability '${capability}' is not read-only. Explicit approval is required.`,
-            );
-        }
-
-        // Prefer Local when available; otherwise resolve to Remote.
-        const resolved = resolveToolProvider(selected, "local");
-
-        // Normalize the unified request into provider-specific arguments.
-        const normalizedArgs = normalizeCapabilityArguments(
-            capability,
-            resolved.provider,
-            {
-                ...args,
-                capability,
-            } as CapabilityRequest,
-        );
-
-        // Validate the normalized arguments against the actual backend schema.
-        const validate = this.ajv.compile(
-            resolved.tool.inputSchema,
-        );
-
-        if (!validate(normalizedArgs)) {
-            const errors = (validate.errors ?? [])
-                .map(
-                    (error: ErrorObject) =>
-                        `${error.instancePath || "/"}: ${error.message ?? "Invalid value"}`,
-                )
-                .join("; ");
-
-            throw new Error(
-                `Invalid arguments for ${resolved.tool.name}: ${errors}`,
-            );
-        }
-
-        // Execute against the resolved provider without changing active provider.
-        return this.callProviderTool(
-            resolved.provider,
-            resolved.tool.name,
-            normalizedArgs,
-        );
-    }
-
-    async callTool(
-        name: string,
-        args: Record<string, unknown> = {},
-    ): Promise<McpToolCallResult> {
-        return this.withLock(() => this.connector.callTool(name, args));
-    }
-
-    async switchProvider(
-        provider: AppScanProvider,
-    ): Promise<{
-        provider: AppScanProvider;
-        toolCount: number;
-    }> {
-        return this.withLock(async () => {
-            if (provider === this.activeProvider) {
-                return {
-                    provider: this.activeProvider,
-                    toolCount: (await this.connector.listTools()).length,
-                };
-            }
-
-            const previousConnector = this.connector;
-            let nextConnector: AppScanMcpConnector | undefined;
-
-            try {
-                nextConnector = this.connectorFactory(provider);
-                await nextConnector.connect();
-
-                const tools = await nextConnector.listTools();
-
-                if (tools.length === 0) {
-                    throw new Error(
-                        `The ${provider} AppScan provider returned no tools.`,
-                    );
-                }
-
-                // Activate only after connecting and validating the new provider.
-                this.connector = nextConnector;
-                this.activeProvider = provider;
-
-                try {
-                    await previousConnector.disconnect();
-                } catch (error) {
-                    // The new provider is active; report cleanup failure without
-                    // incorrectly rolling back a successful switch.
-                    console.error(
-                        "The previous AppScan connector could not be cleanly disconnected.",
-                        error instanceof Error
-                            ? error.message
-                            : "Unknown error",
-                    );
-                }
-
-                return {
-                    provider,
-                    toolCount: tools.length,
-                };
-            } catch (error) {
-                if (nextConnector && nextConnector !== this.connector) {
-                    try {
-                        await nextConnector.disconnect();
-                    } catch {
-                        // Preserve the original connection or validation error.
-                    }
-                }
-
-                throw new Error(
-                    `Could not switch to the ${provider} AppScan provider: ${
-                        error instanceof Error
-                            ? error.message
-                            : "Unknown error"
-                    }`,
-                );
-            }
-        });
-    }
-
-    async findToolByNames(
-        names: string[],
-    ): Promise<McpTool | undefined> {
-        return this.withLock(async () => {
-            const tools = await this.connector.listTools();
-
-            const normalizedNames = new Set(
-                names.map((name) => name.toLowerCase()),
-            );
-
-            return tools.find((tool) =>
-                normalizedNames.has(tool.name.toLowerCase()),
-            );
-        });
-    }
-
-    async hasAvailableTool(
-        names: string[],
-        expectedProvider?: AppScanProvider,
-    ): Promise<boolean> {
-        return this.withLock(async () => {
-            if (
-                expectedProvider !== undefined &&
-                this.activeProvider !== expectedProvider
-            ) {
-                throw new Error(
-                    `Provider mismatch: expected ${expectedProvider}, ` +
-                    `but active provider is ${this.activeProvider}.`,
-                );
-            }
-
-            const tools = await this.connector.listTools();
-
-            const normalizedNames = new Set(
-                names.map((name) => name.toLowerCase()),
-            );
-
-            return tools.some((tool) =>
-                normalizedNames.has(tool.name.toLowerCase()),
-            );
-        });
-    }
-
-    async callFirstAvailableTool(
-        names: string[],
-        args: Record<string, unknown> = {},
-        expectedProvider?: AppScanProvider,
-    ): Promise<McpToolCallResult> {
-        return this.withLock(async () => {
-            if (
-                expectedProvider !== undefined &&
-                this.activeProvider !== expectedProvider
-            ) {
-                throw new Error(
-                    `Provider mismatch: this operation was prepared for ${expectedProvider}, but the active provider is ${this.activeProvider}. The operation was not executed.`,
-                );
-            }
-
-            // Discovery and execution use the same connector while holding the lock.
-            const tools = await this.connector.listTools();
-
-            const normalizedNames = new Set(
-                names.map((name) => name.toLowerCase()),
-            );
-
-            const tool = tools.find((item) =>
-                normalizedNames.has(item.name.toLowerCase()),
-            );
-
-            if (!tool) {
-                throw new Error(
-                    `The active ${this.activeProvider} AppScan provider does not support this operation. Expected one of: ${names.join(", ")}.`,
-                );
-            }
-
-            return this.connector.callTool(tool.name, args);
-        });
-    }
-
-    async callFirstAvailableToolIfSupported(
-        names: string[],
-        args: Record<string, unknown> = {},
-        expectedProvider?: AppScanProvider,
-    ): Promise<McpToolCallResult> {
-        return this.withLock(async () => {
-            if (
-                expectedProvider !== undefined &&
-                this.activeProvider !== expectedProvider
-            ) {
-                throw new Error(
-                    `Provider mismatch: this operation was prepared for ${expectedProvider}, ` +
-                    `but the active provider is ${this.activeProvider}. The operation was not executed.`,
-                );
-            }
-
-            const tools = await this.connector.listTools();
-
-            const normalizedNames = new Set(
-                names.map((name) => name.toLowerCase()),
-            );
-
-            const tool = tools.find((item) =>
-                normalizedNames.has(item.name.toLowerCase()),
-            );
-
-            if (!tool) {
-                throw new Error(
-                    `The active ${this.activeProvider} AppScan provider does not support this operation. ` +
-                    `Expected one of: ${names.join(", ")}.`,
-                );
-            }
-
-            return this.connector.callTool(tool.name, args);
-        });
-    }
-
-    async disconnect(): Promise<void> {
-        await this.withLock(() => this.connector.disconnect());
-    }
-
-    async findApplicationDiscoveryTool(): Promise<McpTool | undefined> {
-        return this.withLock(async () => {
-            const tools = await this.connector.listTools();
-
-            return tools.find((tool) =>
-                /^(get[_-]apps|list[_-]applications)$/i.test(tool.name),
-            );
-        });
-    }
-
-    async discoverApplications(
-        args: Record<string, unknown> = {},
-    ): Promise<McpToolCallResult> {
-        return this.withLock(async () => {
-            const tools = await this.connector.listTools();
-
-            const tool = tools.find((item) =>
-                /^(get[_-]apps|list[_-]applications)$/i.test(item.name),
-            );
-
-            if (!tool) {
-                throw new Error(
-                    "The configured AppScan MCP server does not expose a recognized application discovery tool.",
-                );
-            }
-
-            return this.connector.callTool(tool.name, args);
-        });
-    }
+PS C:\Users\ankur.raina\ai-coding-assistants-claude-poc> npm test
+
+> ai-coding-assistants-claude-poc@1.0.0 test
+> vitest run
+
+
+ RUN  v5.0.3 C:/Users/ankur.raina/ai-coding-assistants-claude-poc
+
+ ❯ tests/unit/appscan-service.test.ts (0 test)
+ ✓ tests/unit/index.test.ts (1 test) 2ms
+ ❯ tests/unit/scan-lifecycle.test.ts (0 test)
+ ✓ tests/unit/config.test.ts (15 tests) 6ms
+ ✓ tests/unit/tool-catalogue.test.ts (10 tests) 7ms
+ ✓ tests/unit/remote-http-connector.test.ts (12 tests) 57ms
+stderr | tests/unit/appscan-service-factory.test.ts > createAppScanService > loads configuration and creates the connector
+[AppScan MCP] Startup configuration: {
+  provider: 'remote (default)',
+  remoteEndpointConfigured: false,
+  remoteApiKeyConfigured: false
 }
 
+stderr | tests/unit/appscan-service-factory.test.ts > createAppScanService > constructs the service with the created connector
+[AppScan MCP] Startup configuration: {
+  provider: 'remote (default)',
+  remoteEndpointConfigured: false,
+  remoteApiKeyConfigured: false
+}
+
+stderr | tests/unit/appscan-service-factory.test.ts > createAppScanService > supports local provider configuration
+[AppScan MCP] Startup configuration: {
+  provider: 'remote (default)',
+  remoteEndpointConfigured: false,
+  remoteApiKeyConfigured: false
+}
+
+ ✓ tests/unit/connector-factory.test.ts (4 tests) 6ms
+ ✓ tests/unit/appscan-service-factory.test.ts (3 tests) 6ms
+ ✓ tests/unit/local-stdio-connector.test.ts (11 tests) 9ms
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/appscan-service.test.ts [ tests/unit/appscan-service.test.ts ]
+Error: Transform failed with 1 error:
+
+[PARSE_ERROR] Expected `,` or `)` but found `as`
+     ╭─[ src/services/appscan-service.ts:178:17 ]
+     │
+ 172 │         const normalizedArgs = normalizeCapabilityArguments(
+     │                                                            ┬
+     │                                                            ╰── Opened here
+     │
+ 178 │                 as CapabilityRequest, );
+     │                 ─┬
+     │                  ╰── `,` or `)` expected
+─────╯
+
+  Plugin: vite:oxc
+  File: C:/Users/ankur.raina/ai-coding-assistants-claude-poc/src/services/appscan-service.ts
+ ❯ transformWithOxc node_modules/vite/dist/node/chunks/node.js:7581:19
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:7653:26
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:8545:51
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:20184:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/scan-lifecycle.test.ts [ tests/unit/scan-lifecycle.test.ts ]
+Error: Transform failed with 1 error:
+
+[PARSE_ERROR] Expected `,` or `)` but found `as`
+     ╭─[ src/services/appscan-service.ts:178:17 ]
+     │
+ 172 │         const normalizedArgs = normalizeCapabilityArguments(
+     │                                                            ┬
+     │                                                            ╰── Opened here
+     │
+ 178 │                 as CapabilityRequest, );
+     │                 ─┬
+     │                  ╰── `,` or `)` expected
+─────╯
+
+  Plugin: vite:oxc
+  File: C:/Users/ankur.raina/ai-coding-assistants-claude-poc/src/services/appscan-service.ts
+ ❯ transformWithOxc node_modules/vite/dist/node/chunks/node.js:7581:19
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/node.js:7653:26
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/node.js:8545:51
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/node.js:20184:26
+ ❯ fetchModule node_modules/vite/dist/node/chunks/node.js:36165:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 7 passed (9)
+      Tests  56 passed (56)
+   Start at  12:12:30
+   Duration  532ms (transform 73%, import 16%, tests 7%, worker 4%)
