@@ -1,1 +1,69 @@
 
+    server.registerTool(
+        "execute-approved-appscan-write",
+        {
+            description:
+                "Execute an AppScan write operation using a previously generated confirmation token. Only call after the user explicitly approves the exact prepared operation. Tokens are single-use and expire after ten minutes.",
+            inputSchema: {
+                confirmationToken: z.string().uuid(),
+            },
+        },
+        async ({ confirmationToken }) => {
+            const prepared = pendingWrites.get(confirmationToken);
+
+            if (!prepared) {
+                return messageResult(
+                    "No pending write approval matches this token. Prepare the operation again and obtain explicit approval.",
+                    true,
+                );
+            }
+
+            if (executingWriteTokens.has(confirmationToken)) {
+                return messageResult(
+                    "This write operation is already being executed. Do not submit it again.",
+                    true,
+                );
+            }
+
+            if (
+                Date.now() - prepared.createdAt >
+                WRITE_APPROVAL_TTL_MS
+            ) {
+                pendingWrites.delete(confirmationToken);
+
+                return messageResult(
+                    "The approval token has expired. Prepare the operation again and obtain fresh user approval.",
+                    true,
+                );
+            }
+
+            // Claim and consume the token before executing.
+            executingWriteTokens.add(confirmationToken);
+            pendingWrites.delete(confirmationToken);
+
+            try {
+                const result = await service.callApprovedCapability(
+                    prepared.capability,
+                    prepared.args,
+                    prepared.provider,
+                    prepared.toolName,
+                );
+
+                return textResult(result);
+            } catch (error) {
+                return messageResult(
+                    [
+                        "The approved AppScan write operation did not return a confirmed success.",
+                        error instanceof Error
+                            ? error.message
+                            : "Unknown error",
+                        "The confirmation token has been consumed. Verify the AppScan backend before preparing another operation.",
+                    ].join("\n"),
+                    true,
+                );
+            } finally {
+                executingWriteTokens.delete(confirmationToken);
+            }
+        },
+    );
+
