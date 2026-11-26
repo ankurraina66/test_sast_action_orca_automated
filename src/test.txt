@@ -1,30 +1,117 @@
 Please retrieve the raw input schemas for the following AppScan backend tools. Do not summarize, interpret, or omit any fields.
 
-Use "list-provider-tools" for each provider.
+  Use "list-provider-tools" for each provider.
 
-1. Local provider
+  1. Local provider
 
-Retrieve the complete "inputSchema" JSON for:
+  Retrieve the complete "inputSchema" JSON for:
 
-- "update-issues"
-- "update-fix-groups"
-- "create-app"
+  - "update-issues"
+  - "update-fix-groups"
+  - "create-app"
 
-2. Remote provider
+  2. Remote provider
 
-Retrieve the complete "inputSchema" JSON for:
+  Retrieve the complete "inputSchema" JSON for:
 
-- "update_issues"
+  - "update_issues"
 
-For every tool, include:
+  For every tool, include:
 
-- Exact tool name
-- Complete "inputSchema" JSON
-- All required fields
-- All optional fields
-- Any "confirmToken" or other confirmation-related fields
-- Any default values and validation constraints
+  - Exact tool name
+  - Complete "inputSchema" JSON
+  - All required fields
+  - All optional fields
+  - Any "confirmToken" or other confirmation-related fields
+  - Any default values and validation constraints
 
-Return the schemas exactly as exposed by the backend. Do not execute any write operation, modify AppScan data, or switch the active provider.
+  Return the schemas exactly as exposed by the backend. Do not execute any write operation, modify AppScan data, or switch the active provider.
 
-If the schema output is too long, return the tools individually rather than truncating it.
+  If the schema output is too long, return the tools individually rather than truncating it.
+
+  Called MCP
+
+Calling the read-only list-provider-tools for both providers.
+
+  Called hcl-appscan-ai-coding-assistants 2 times
+
+Both calls were read-only. The active provider was not changed and no write operation was run. Each schema below is copied as the backend returned it.
+
+Local provider
+
+update-issues
+
+{"type":"object","properties":{"scope":{"description":"Issue scope. Optional when appId or scanId is provided.","type":"string","enum":["Application","Scan","ScanExecution"]},"scopeId":{"description":"Scope ID (UUID).","type":"string"},"appId":{"description":"Application ID (UUID). Shorthand for scope=Application and scopeId=appId.","type":"string"},"scanId":{"description":"Scan ID (UUID). Shorthand for scope=Scan and scopeId=scanId.","type":"string"},"issueId":{"description":"Issue ID (UUID). Optional single-issue targeting.","type":"string"},"status":{"description":"New issue status.","type":"string","enum":["Open","InProgress","Reopened","Noise","Passed","Fixed","New"]},"comment":{"description":"Optional comment to add to issue updates.","type":"string"},"externalId":{"description":"Optional external ID to set on updated issues.","type":"string"},"odataFilter":{"description":"Optional OData filter to target matching issues in scope.","type":"string"},"applyPolicies":{"description":"Policy application mode. Defaults to None.","type":"string","enum":["None","All","Select"]},"selectPolicyIds":{"description":"Policy IDs to apply when applyPolicies is Select.","type":"array","items":{"type":"string"}},"confirmToken":{"description":"One-time token returned by this tool preview flow when client elicitation is unavailable.","type":"string"},"allowDuplicate":{"description":"Set true only when the user explicitly asks to apply the same update (for example the same comment) a second time. Otherwise an identical repeat call is suppressed.","type":"boolean"}},"$schema":"http://json-schema.org/draft-07/schema#"}
+- Required fields: none. The schema has no required array.
+- Optional fields: all of them: scope, scopeId, appId, scanId, issueId, status, comment, externalId, odataFilter, applyPolicies, selectPolicyIds, confirmToken, allowDuplicate.
+- Confirmation fields:
+  - confirmToken is a one-time token from the tool's preview flow, used when client elicitation is unavailable.
+  - allowDuplicate suppresses identical repeat calls unless it is set to true.
+- Defaults: the schema declares none. The applyPolicies description says "Defaults to None".
+- Constraints:
+  - status accepts Open, InProgress, Reopened, Noise, Passed, Fixed or New.
+  - scope accepts Application, Scan or ScanExecution.
+  - applyPolicies accepts None, All or Select.
+- Behavior notes in the tool description:
+  - Approval is required before changes.
+  - A comment-only request must send the issue's current status.
+  - A returned count of 0 must not trigger a retry.
+  - Don't send conflicting scope, appId and scanId values.
+
+update-fix-groups
+
+{"type":"object","properties":{"scope":{"type":"string","enum":["Application","Scan","ScanExecution"],"description":"Fix group scope."},"scopeId":{"type":"string","description":"Scope ID (UUID)."},"fixGroupId":{"type":"string","description":"Fix group ID (UUID)."},"status":{"type":"string","enum":["Open","InProgress","Reopened","Noise","Passed","Fixed","New"],"description":"New fix group status."},"stickyStatus":{"type":"boolean","description":"When true, status applies to all issues in the fix group including future issues."},"comment":{"description":"Optional comment for the update.","type":"string"},"applyPolicies":{"description":"Policy application mode. Defaults to None.","type":"string","enum":["None","All","Select"]},"selectPolicyIds":{"description":"Policy IDs to apply when applyPolicies is Select.","type":"array","items":{"type":"string"}},"confirmToken":{"description":"One-time token returned by this tool preview flow when client elicitation is unavailable.","type":"string"}},"required":["scope","scopeId","fixGroupId","status","stickyStatus"],"$schema":"http://json-schema.org/draft-07/schema#"}
+- Required fields: scope, scopeId, fixGroupId, status, stickyStatus.
+- Optional fields: comment, applyPolicies, selectPolicyIds, confirmToken.
+- Confirmation fields: confirmToken, same meaning as above.
+- Defaults: none declared. The applyPolicies description says "Defaults to None".
+- Constraints:
+  - status and scope use the same enums as update-issues.
+  - applyPolicies accepts None, All or Select.
+
+create-app
+
+{"type":"object","properties":{"name":{"type":"string","description":"Application name"},"description":{"description":"Application description","type":"string"},"assetGroupId":{"description":"Asset group ID","type":"string"},"confirmToken":{"description":"One-time token returned by this tool preview flow when client elicitation is unavailable.","type":"string"}},"required":["name"],"$schema":"http://json-schema.org/draft-07/schema#"}
+- Required fields: name.
+- Optional fields: description, assetGroupId, confirmToken.
+- Confirmation fields: confirmToken.
+- Defaults and constraints: none declared. The tool description says to use it only after the user explicitly approves creation.
+
+Remote provider
+
+update_issues
+
+{"type":"object","properties":{"scope":{"description":"Scope type for the results. Valid values: Application, Scan, or ScanExecution.","type":"string","enum":["Application","Scan","ScanExecution","Applications"]},"scopeId":{"description":"Identifier of the scoped entity. Provide Application ID when scope is Application, Scan ID when scope is Scan, or Scan Execution ID when scope is ScanExecution.","type":"string","format":"uuid"},"odataFilter":{"description":"An Odata V4 filter that will be applied on the IssueModel objects. Only issues that match the filter will be affected","type":["string","null"]},"newStatus":{"description":"New issue status. If not provided, the existing value will remain unchanged.","type":["string","null"],"enum":["Open","InProgress","Reopened","Noise","Passed","Fixed","New",null],"default":null},"externalId":{"description":"External ID to be associated with the issue. It is used to associate the issue with a ticket in an external system (like Jira). If not provided, the existing value will remain unchanged.","type":["string","null"],"default":null},"comment":{"description":"Comment that will be associated with the change (string)","type":["string","null"],"default":null},"applyPolicies":{"description":"Policy application mode determining which issues are returned: None - ignore policies and return all issues in scope; All - apply all policies associated with the application containing the scope and return only issues that violate those policies; Select - apply only policies whose IDs are provided via selectPolicyIds (if Select is chosen and no IDs are provided, behavior is equivalent to None).","type":"string","enum":["None","All","Select"],"default":"None"},"selectPolicyIds":{"type":["array","null"],"items":{"type":"string","format":"uuid"},"default":null}},"required":["scope","scopeId","odataFilter"]}
+- Required fields: scope, scopeId, odataFilter.
+- Optional fields: newStatus, externalId, comment, applyPolicies, selectPolicyIds.
+- Confirmation fields: none. The remote schema has no confirmToken or similar field.
+- Defaults:
+  - null for newStatus, externalId, comment and selectPolicyIds.
+  - "None" for applyPolicies.
+- Constraints:
+  - scopeId must be a UUID (format: uuid).
+  - selectPolicyIds items must be UUIDs.
+  - scope accepts Application, Scan, ScanExecution or Applications. The local provider's enum does not include Applications.
+  - newStatus also accepts null.
+  - odataFilter is required but nullable. The tool description says that if it is omitted, updates may apply to all issues in scope.
+  - The tool description lists 400, 403 and 409 as possible errors.
+
+Differences between providers
+
+┌─────────────────────────────────────┬──────────────────────────────┬─────────────────────────────┐
+│               Aspect                │     Local update-issues      │    Remote update_issues     │
+├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
+│ Required fields                     │ none                         │ scope, scopeId, odataFilter │
+├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
+│ Status field name                   │ status                       │ newStatus (nullable)        │
+├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
+│ Confirmation                        │ confirmToken, allowDuplicate │ none in the schema          │
+├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
+│ Single-issue or shorthand targeting │ issueId, appId, scanId       │ not available               │
+├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
+│ ID format validation                │ none (plain string)          │ format: uuid                │
+└─────────────────────────────────────┴──────────────────────────────┴─────────────────────────────┘
+
+The remote tool exposes no schema-level confirmation. Any approval step for it would have to come from the caller, such as prepare-appscan-write or execute-approved-appscan-write. I haven't inspected those tools.
+
+I also saw that the appscan-connector MCP server failed to connect (CONNECTION_CLOSED). I didn't use it, and the data above came from hcl-appscan-ai-coding-assistants.
