@@ -1,1 +1,30 @@
+Please retrieve the raw input schemas for the following AppScan backend tools. Do not summarize, interpret, or omit any fields.
 
+Use "list-provider-tools" for each provider.
+
+1. Local provider
+
+Retrieve the complete "inputSchema" JSON for:
+
+- "update-issues"
+- "update-fix-groups"
+- "create-app"
+
+2. Remote provider
+
+Retrieve the complete "inputSchema" JSON for:
+
+- "update_issues"
+
+For every tool, include:
+
+- Exact tool name
+- Complete "inputSchema" JSON
+- All required fields
+- All optional fields
+- Any "confirmToken" or other confirmation-related fields
+- Any default values and validation constraints
+
+Return the schemas exactly as exposed by the backend. Do not execute any write operation, modify AppScan data, or switch the active provider.
+
+If the schema output is too long, return the tools individually rather than truncating it.
