@@ -1,117 +1,556 @@
-Please retrieve the raw input schemas for the following AppScan backend tools. Do not summarize, interpret, or omit any fields.
+appscan-service.ts
 
-  Use "list-provider-tools" for each provider.
+import type { AppScanMcpConnector, McpTool, McpToolCallResult,  } from "../mcp/connector.js";
+import type { AppScanProvider } from "../config/config.js";
+import { Ajv } from "ajv";
+import type { ErrorObject } from "ajv";
+import { buildToolCatalogue, resolveToolProvider, normalizeCapabilityArguments,  } from "./tool-catalogue.js";
+import type { CapabilityRequest } from "./tool-catalogue.js";
 
-  1. Local provider
+type ConnectorFactory = (
+    provider: AppScanProvider, ) => AppScanMcpConnector;
 
-  Retrieve the complete "inputSchema" JSON for:
+export class AppScanService {
+    private activeProvider: AppScanProvider;
+    private operationQueue: Promise < void >  = Promise.resolve();
 
-  - "update-issues"
-  - "update-fix-groups"
-  - "create-app"
+    private readonly ajv = new Ajv({
+        allErrors: true,
+        strict: false,
+    });
 
-  2. Remote provider
+    constructor(
+        private connector: AppScanMcpConnector,
+        initialProvider: AppScanProvider,
+        private readonly connectorFactory: ConnectorFactory, ) {
+        this.activeProvider = initialProvider;
+    }
 
-  Retrieve the complete "inputSchema" JSON for:
+    getProvider(): AppScanProvider {
+        return this.activeProvider;
+    }
 
-  - "update_issues"
+    private async withLock < T > (
+        operation: () => Promise < T > , ): Promise < T > {
+        const previous = this.operationQueue;
+        let release!: () => void;
 
-  For every tool, include:
+        this.operationQueue = new Promise < void > ((resolve) => {
+            release = resolve;
+        });
 
-  - Exact tool name
-  - Complete "inputSchema" JSON
-  - All required fields
-  - All optional fields
-  - Any "confirmToken" or other confirmation-related fields
-  - Any default values and validation constraints
+        await previous;
 
-  Return the schemas exactly as exposed by the backend. Do not execute any write operation, modify AppScan data, or switch the active provider.
+        try {
+            return await operation();
+        } finally {
+            release();
+        }
+    }
 
-  If the schema output is too long, return the tools individually rather than truncating it.
+    async connect(): Promise < void > {
+        await this.withLock(() => this.connector.connect());
+    }
 
-  Called MCP
+    async listTools(): Promise < McpTool[] > {
+        return this.withLock(() => this.connector.listTools());
+    }
 
-Calling the read-only list-provider-tools for both providers.
+    /**
+     * Discover tools from either provider without changing the active provider.
+     * An inactive provider is connected temporarily and always disconnected.
+     */
+    async listProviderTools(
+        provider: AppScanProvider, ): Promise < McpTool[] > {
+        return this.withLock(async() => {
+            if (provider === this.activeProvider) {
+                return this.connector.listTools();
+            }
 
-  Called hcl-appscan-ai-coding-assistants 2 times
+            const temporaryConnector = this.connectorFactory(provider);
 
-Both calls were read-only. The active provider was not changed and no write operation was run. Each schema below is copied as the backend returned it.
+            try {
+                await temporaryConnector.connect();
+                return await temporaryConnector.listTools();
+            } finally {
+                await temporaryConnector.disconnect();
+            }
+        });
+    }
 
-Local provider
+    /**
+     * Discover both backend tool catalogs without switching the active provider.
+     */
+    async compareProviderTools(): Promise < {
+        local: McpTool[];
+        remote: McpTool[];
+    }
+     > {
+        return this.withLock(async() => {
+            const getTools = async(
+                    provider: AppScanProvider, ): Promise < McpTool[] >  => {
+                if (provider === this.activeProvider) {
+                    return this.connector.listTools();
+                }
 
-update-issues
+                const temporaryConnector = this.connectorFactory(provider);
 
-{"type":"object","properties":{"scope":{"description":"Issue scope. Optional when appId or scanId is provided.","type":"string","enum":["Application","Scan","ScanExecution"]},"scopeId":{"description":"Scope ID (UUID).","type":"string"},"appId":{"description":"Application ID (UUID). Shorthand for scope=Application and scopeId=appId.","type":"string"},"scanId":{"description":"Scan ID (UUID). Shorthand for scope=Scan and scopeId=scanId.","type":"string"},"issueId":{"description":"Issue ID (UUID). Optional single-issue targeting.","type":"string"},"status":{"description":"New issue status.","type":"string","enum":["Open","InProgress","Reopened","Noise","Passed","Fixed","New"]},"comment":{"description":"Optional comment to add to issue updates.","type":"string"},"externalId":{"description":"Optional external ID to set on updated issues.","type":"string"},"odataFilter":{"description":"Optional OData filter to target matching issues in scope.","type":"string"},"applyPolicies":{"description":"Policy application mode. Defaults to None.","type":"string","enum":["None","All","Select"]},"selectPolicyIds":{"description":"Policy IDs to apply when applyPolicies is Select.","type":"array","items":{"type":"string"}},"confirmToken":{"description":"One-time token returned by this tool preview flow when client elicitation is unavailable.","type":"string"},"allowDuplicate":{"description":"Set true only when the user explicitly asks to apply the same update (for example the same comment) a second time. Otherwise an identical repeat call is suppressed.","type":"boolean"}},"$schema":"http://json-schema.org/draft-07/schema#"}
-- Required fields: none. The schema has no required array.
-- Optional fields: all of them: scope, scopeId, appId, scanId, issueId, status, comment, externalId, odataFilter, applyPolicies, selectPolicyIds, confirmToken, allowDuplicate.
-- Confirmation fields:
-  - confirmToken is a one-time token from the tool's preview flow, used when client elicitation is unavailable.
-  - allowDuplicate suppresses identical repeat calls unless it is set to true.
-- Defaults: the schema declares none. The applyPolicies description says "Defaults to None".
-- Constraints:
-  - status accepts Open, InProgress, Reopened, Noise, Passed, Fixed or New.
-  - scope accepts Application, Scan or ScanExecution.
-  - applyPolicies accepts None, All or Select.
-- Behavior notes in the tool description:
-  - Approval is required before changes.
-  - A comment-only request must send the issue's current status.
-  - A returned count of 0 must not trigger a retry.
-  - Don't send conflicting scope, appId and scanId values.
+                try {
+                    await temporaryConnector.connect();
+                    return await temporaryConnector.listTools();
+                } finally {
+                    await temporaryConnector.disconnect();
+                }
+            };
 
-update-fix-groups
+            const local = await getTools("local");
+            const remote = await getTools("remote");
 
-{"type":"object","properties":{"scope":{"type":"string","enum":["Application","Scan","ScanExecution"],"description":"Fix group scope."},"scopeId":{"type":"string","description":"Scope ID (UUID)."},"fixGroupId":{"type":"string","description":"Fix group ID (UUID)."},"status":{"type":"string","enum":["Open","InProgress","Reopened","Noise","Passed","Fixed","New"],"description":"New fix group status."},"stickyStatus":{"type":"boolean","description":"When true, status applies to all issues in the fix group including future issues."},"comment":{"description":"Optional comment for the update.","type":"string"},"applyPolicies":{"description":"Policy application mode. Defaults to None.","type":"string","enum":["None","All","Select"]},"selectPolicyIds":{"description":"Policy IDs to apply when applyPolicies is Select.","type":"array","items":{"type":"string"}},"confirmToken":{"description":"One-time token returned by this tool preview flow when client elicitation is unavailable.","type":"string"}},"required":["scope","scopeId","fixGroupId","status","stickyStatus"],"$schema":"http://json-schema.org/draft-07/schema#"}
-- Required fields: scope, scopeId, fixGroupId, status, stickyStatus.
-- Optional fields: comment, applyPolicies, selectPolicyIds, confirmToken.
-- Confirmation fields: confirmToken, same meaning as above.
-- Defaults: none declared. The applyPolicies description says "Defaults to None".
-- Constraints:
-  - status and scope use the same enums as update-issues.
-  - applyPolicies accepts None, All or Select.
+            return {
+                local,
+                remote,
+            };
+        });
+    }
 
-create-app
+    /**
+     * Execute a tool against a specific provider without changing
+     * the currently active provider.
+     */
+    async callProviderTool(
+        provider: AppScanProvider,
+        toolName: string,
+        args: Record < string, unknown >  = {}, ): Promise < McpToolCallResult > {
+        return this.withLock(async() => {
+            // Reuse the active connector when possible.
+            if (provider === this.activeProvider) {
+                return this.connector.callTool(toolName, args);
+            }
 
-{"type":"object","properties":{"name":{"type":"string","description":"Application name"},"description":{"description":"Application description","type":"string"},"assetGroupId":{"description":"Asset group ID","type":"string"},"confirmToken":{"description":"One-time token returned by this tool preview flow when client elicitation is unavailable.","type":"string"}},"required":["name"],"$schema":"http://json-schema.org/draft-07/schema#"}
-- Required fields: name.
-- Optional fields: description, assetGroupId, confirmToken.
-- Confirmation fields: confirmToken.
-- Defaults and constraints: none declared. The tool description says to use it only after the user explicitly approves creation.
+            // Connect temporarily to the requested inactive provider.
+            const temporaryConnector = this.connectorFactory(provider);
 
-Remote provider
+            try {
+                await temporaryConnector.connect();
 
-update_issues
+                return await temporaryConnector.callTool(
+                    toolName,
+                    args, );
+            } finally {
+                await temporaryConnector.disconnect();
+            }
+        });
+    }
 
-{"type":"object","properties":{"scope":{"description":"Scope type for the results. Valid values: Application, Scan, or ScanExecution.","type":"string","enum":["Application","Scan","ScanExecution","Applications"]},"scopeId":{"description":"Identifier of the scoped entity. Provide Application ID when scope is Application, Scan ID when scope is Scan, or Scan Execution ID when scope is ScanExecution.","type":"string","format":"uuid"},"odataFilter":{"description":"An Odata V4 filter that will be applied on the IssueModel objects. Only issues that match the filter will be affected","type":["string","null"]},"newStatus":{"description":"New issue status. If not provided, the existing value will remain unchanged.","type":["string","null"],"enum":["Open","InProgress","Reopened","Noise","Passed","Fixed","New",null],"default":null},"externalId":{"description":"External ID to be associated with the issue. It is used to associate the issue with a ticket in an external system (like Jira). If not provided, the existing value will remain unchanged.","type":["string","null"],"default":null},"comment":{"description":"Comment that will be associated with the change (string)","type":["string","null"],"default":null},"applyPolicies":{"description":"Policy application mode determining which issues are returned: None - ignore policies and return all issues in scope; All - apply all policies associated with the application containing the scope and return only issues that violate those policies; Select - apply only policies whose IDs are provided via selectPolicyIds (if Select is chosen and no IDs are provided, behavior is equivalent to None).","type":"string","enum":["None","All","Select"],"default":"None"},"selectPolicyIds":{"type":["array","null"],"items":{"type":"string","format":"uuid"},"default":null}},"required":["scope","scopeId","odataFilter"]}
-- Required fields: scope, scopeId, odataFilter.
-- Optional fields: newStatus, externalId, comment, applyPolicies, selectPolicyIds.
-- Confirmation fields: none. The remote schema has no confirmToken or similar field.
-- Defaults:
-  - null for newStatus, externalId, comment and selectPolicyIds.
-  - "None" for applyPolicies.
-- Constraints:
-  - scopeId must be a UUID (format: uuid).
-  - selectPolicyIds items must be UUIDs.
-  - scope accepts Application, Scan, ScanExecution or Applications. The local provider's enum does not include Applications.
-  - newStatus also accepts null.
-  - odataFilter is required but nullable. The tool description says that if it is omitted, updates may apply to all issues in scope.
-  - The tool description lists 400, 403 and 409 as possible errors.
+    /**
+     * Execute a read-only unified capability.
+     * Discovers Local and Remote independently, so one unavailable
+     * provider does not prevent execution through the other.
+     * Arguments are normalized and validated against the selected
+     * provider's actual MCP tool schema.
+     */
+    async callCapability(
+        capability: string,
+        args: Record < string, unknown >  = {}, ): Promise < McpToolCallResult > {
+        // Discover both providers independently.
+        const [localResult, remoteResult] = await Promise.allSettled([
+                    this.listProviderTools("local"),
+                    this.listProviderTools("remote"),
+                ]);
 
-Differences between providers
+        const local =
+            localResult.status === "fulfilled"
+             ? localResult.value
+             : [];
 
-┌─────────────────────────────────────┬──────────────────────────────┬─────────────────────────────┐
-│               Aspect                │     Local update-issues      │    Remote update_issues     │
-├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
-│ Required fields                     │ none                         │ scope, scopeId, odataFilter │
-├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
-│ Status field name                   │ status                       │ newStatus (nullable)        │
-├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
-│ Confirmation                        │ confirmToken, allowDuplicate │ none in the schema          │
-├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
-│ Single-issue or shorthand targeting │ issueId, appId, scanId       │ not available               │
-├─────────────────────────────────────┼──────────────────────────────┼─────────────────────────────┤
-│ ID format validation                │ none (plain string)          │ format: uuid                │
-└─────────────────────────────────────┴──────────────────────────────┴─────────────────────────────┘
+        const remote =
+            remoteResult.status === "fulfilled"
+             ? remoteResult.value
+             : [];
 
-The remote tool exposes no schema-level confirmation. Any approval step for it would have to come from the caller, such as prepare-appscan-write or execute-approved-appscan-write. I haven't inspected those tools.
+        // Neither provider could be discovered.
+        if (
+            localResult.status === "rejected" &&
+            remoteResult.status === "rejected") {
+            throw new Error(
+                "Unable to discover AppScan tools from either provider. " +
+                "Check the Local and Remote provider configurations and connections.", );
+        }
 
-I also saw that the appscan-connector MCP server failed to connect (CONNECTION_CLOSED). I didn't use it, and the data above came from hcl-appscan-ai-coding-assistants.
+        // Build the catalogue from whichever providers are available.
+        const catalogue = buildToolCatalogue(local, remote);
+
+        const selected = catalogue.find(
+                (item) => item.capability === capability, );
+
+        if (!selected) {
+            const failures: string[] = [];
+
+            if (localResult.status === "rejected") {
+                failures.push("Local provider discovery failed.");
+            }
+
+            if (remoteResult.status === "rejected") {
+                failures.push("Remote provider discovery failed.");
+            }
+
+            throw new Error(
+`Unsupported or unavailable AppScan capability: ${capability}. ` +
+                (failures.length > 0 ? failures.join(" ") : ""), );
+        }
+
+        if (selected.risk !== "read") {
+            throw new Error(
+`Capability '${capability}' is not read-only. Explicit approval is required.`, );
+        }
+
+        // Prefer Local when available; otherwise use Remote.
+        const resolved = resolveToolProvider(selected, "local");
+
+        // Normalize unified arguments into provider-specific arguments.
+        const request: CapabilityRequest = {
+            ...args,
+            capability,
+        };
+
+        const normalizedArgs = normalizeCapabilityArguments(
+                capability,
+                resolved.provider,
+                request, );
+
+        // Validate against the selected backend's actual MCP schema.
+        const validate = this.ajv.compile(
+                resolved.tool.inputSchema, );
+
+        if (!validate(normalizedArgs)) {
+            const errors = (validate.errors ?? [])
+            .map(
+                (error: ErrorObject) =>
+`${error.instancePath || "/"}: ${error.message ?? "Invalid value"}`, )
+            .join("; ");
+
+            throw new Error(
+`Invalid arguments for ${resolved.tool.name}: ${errors}`, );
+        }
+
+        // Execute without changing the active provider.
+        return this.callProviderTool(
+            resolved.provider,
+            resolved.tool.name,
+            normalizedArgs, );
+    }
+	
+	/**
+     * Validate a write capability and return the exact execution preview.
+     * No AppScan operation is executed here.
+     */
+    async prepareApprovedCapability(
+        capability: string,
+        args: Record<string, unknown> = {},
+    ): Promise<{
+        provider: AppScanProvider;
+        toolName: string;
+        normalizedArgs: Record<string, unknown>;
+    }> {
+        const [localResult, remoteResult] = await Promise.allSettled([
+            this.listProviderTools("local"),
+            this.listProviderTools("remote"),
+        ]);
+
+        const local =
+            localResult.status === "fulfilled" ? localResult.value : [];
+        const remote =
+            remoteResult.status === "fulfilled" ? remoteResult.value : [];
+
+        if (
+            localResult.status === "rejected" &&
+            remoteResult.status === "rejected"
+        ) {
+            throw new Error(
+                "Unable to discover AppScan tools from either provider.",
+            );
+        }
+
+        const catalogue = buildToolCatalogue(local, remote);
+        const selected = catalogue.find(
+            (item) => item.capability === capability,
+        );
+
+        if (!selected) {
+            throw new Error(
+                `Unsupported or unavailable AppScan capability: ${capability}.`,
+            );
+        }
+
+        if (selected.risk !== "write") {
+            throw new Error(
+                `Capability '${capability}' is not a write operation.`,
+            );
+        }
+
+        const resolved = resolveToolProvider(selected, "local");
+
+        const request: CapabilityRequest = {
+            ...args,
+            capability,
+        };
+
+        const normalizedArgs = normalizeCapabilityArguments(
+            capability,
+            resolved.provider,
+            request,
+        );
+
+        const validate = this.ajv.compile(resolved.tool.inputSchema);
+
+        if (!validate(normalizedArgs)) {
+            const errors = (validate.errors ?? [])
+                .map(
+                    (error: ErrorObject) =>
+                        `${error.instancePath || "/"}: ${error.message ?? "Invalid value"}`,
+                )
+                .join("; ");
+
+            throw new Error(
+                `Invalid arguments for ${resolved.tool.name}: ${errors}`,
+            );
+        }
+
+        return {
+            provider: resolved.provider,
+            toolName: resolved.tool.name,
+            normalizedArgs,
+        };
+    }
+
+    /**
+     * Execute a previously prepared write capability.
+     * The provider and backend tool must match the approved preview.
+     */
+    async callApprovedCapability(
+        capability: string,
+        args: Record<string, unknown>,
+        expectedProvider: AppScanProvider,
+        expectedToolName: string,
+    ): Promise<McpToolCallResult> {
+        const preview = await this.prepareApprovedCapability(
+            capability,
+            args,
+        );
+
+        if (
+            preview.provider !== expectedProvider ||
+            preview.toolName !== expectedToolName
+        ) {
+            throw new Error(
+                "The AppScan provider or backend tool has changed since approval. " +
+                "The operation was not executed. Prepare it again and obtain approval.",
+            );
+        }
+
+        return this.callProviderTool(
+            expectedProvider,
+            expectedToolName,
+            preview.normalizedArgs,
+        );
+    }
+
+    async callTool(
+        name: string,
+        args: Record < string, unknown >  = {}, ): Promise < McpToolCallResult > {
+        return this.withLock(() => this.connector.callTool(name, args));
+    }
+
+    async switchProvider(
+        provider: AppScanProvider, ): Promise < {
+        provider: AppScanProvider;
+        toolCount: number;
+    }
+     > {
+        return this.withLock(async() => {
+            if (provider === this.activeProvider) {
+                return {
+                    provider: this.activeProvider,
+                    toolCount: (await this.connector.listTools()).length,
+                };
+            }
+
+            const previousConnector = this.connector;
+            let nextConnector: AppScanMcpConnector | undefined;
+
+            try {
+                nextConnector = this.connectorFactory(provider);
+                await nextConnector.connect();
+
+                const tools = await nextConnector.listTools();
+
+                if (tools.length === 0) {
+                    throw new Error(
+`The ${provider} AppScan provider returned no tools.`, );
+                }
+
+                // Activate only after connecting and validating the new provider.
+                this.connector = nextConnector;
+                this.activeProvider = provider;
+
+                try {
+                    await previousConnector.disconnect();
+                } catch (error) {
+                    // The new provider is active; report cleanup failure without
+                    // incorrectly rolling back a successful switch.
+                    console.error(
+                        "The previous AppScan connector could not be cleanly disconnected.",
+                        error instanceof Error
+                         ? error.message
+                         : "Unknown error", );
+                }
+
+                return {
+                    provider,
+                    toolCount: tools.length,
+                };
+            } catch (error) {
+                if (nextConnector && nextConnector !== this.connector) {
+                    try {
+                        await nextConnector.disconnect();
+                    } catch {
+                        // Preserve the original connection or validation error.
+                    }
+                }
+
+                throw new Error(
+`Could not switch to the ${provider} AppScan provider: ${
+                    error instanceof Error
+                     ? error.message
+                     : "Unknown error"
+}`, );
+            }
+        });
+    }
+
+    async findToolByNames(
+        names: string[], ): Promise < McpTool | undefined > {
+        return this.withLock(async() => {
+            const tools = await this.connector.listTools();
+
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+
+            return tools.find((tool) =>
+                normalizedNames.has(tool.name.toLowerCase()), );
+        });
+    }
+
+    async hasAvailableTool(
+        names: string[],
+        expectedProvider ?  : AppScanProvider, ): Promise < boolean > {
+        return this.withLock(async() => {
+            if (
+                expectedProvider !== undefined &&
+                this.activeProvider !== expectedProvider) {
+                throw new Error(
+                    `Provider mismatch: expected ${expectedProvider}, ` + 
+`but active provider is ${this.activeProvider}.`, );
+            }
+
+            const tools = await this.connector.listTools();
+
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+
+            return tools.some((tool) =>
+                normalizedNames.has(tool.name.toLowerCase()), );
+        });
+    }
+
+    async callFirstAvailableTool(
+        names: string[],
+        args: Record < string, unknown >  = {},
+        expectedProvider ?  : AppScanProvider, ): Promise < McpToolCallResult > {
+        return this.withLock(async() => {
+            if (
+                expectedProvider !== undefined &&
+                this.activeProvider !== expectedProvider) {
+                throw new Error(
+`Provider mismatch: this operation was prepared for ${expectedProvider}, but the active provider is ${this.activeProvider}. The operation was not executed.`, );
+            }
+
+            // Discovery and execution use the same connector while holding the lock.
+            const tools = await this.connector.listTools();
+
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+
+            const tool = tools.find((item) =>
+                    normalizedNames.has(item.name.toLowerCase()), );
+
+            if (!tool) {
+                throw new Error(
+`The active ${this.activeProvider} AppScan provider does not support this operation. Expected one of: ${names.join(", ")}.`, );
+            }
+
+            return this.connector.callTool(tool.name, args);
+        });
+    }
+
+    async callFirstAvailableToolIfSupported(
+        names: string[],
+        args: Record < string, unknown >  = {},
+        expectedProvider ?  : AppScanProvider, ): Promise < McpToolCallResult > {
+        return this.withLock(async() => {
+            if (
+                expectedProvider !== undefined &&
+                this.activeProvider !== expectedProvider) {
+                throw new Error(
+                    `Provider mismatch: this operation was prepared for ${expectedProvider}, ` + 
+`but the active provider is ${this.activeProvider}. The operation was not executed.`, );
+            }
+
+            const tools = await this.connector.listTools();
+
+            const normalizedNames = new Set(
+                    names.map((name) => name.toLowerCase()), );
+
+            const tool = tools.find((item) =>
+                    normalizedNames.has(item.name.toLowerCase()), );
+
+            if (!tool) {
+                throw new Error(
+                    `The active ${this.activeProvider} AppScan provider does not support this operation. ` + 
+`Expected one of: ${names.join(", ")}.`, );
+            }
+
+            return this.connector.callTool(tool.name, args);
+        });
+    }
+
+    async disconnect(): Promise < void > {
+        await this.withLock(() => this.connector.disconnect());
+    }
+
+    async findApplicationDiscoveryTool(): Promise < McpTool | undefined > {
+        return this.withLock(async() => {
+            const tools = await this.connector.listTools();
+
+            return tools.find((tool) =>
+                /^(get[_-]apps|list[_-]applications)$/i.test(tool.name), );
+        });
+    }
+
+    async discoverApplications(
+        args: Record < string, unknown >  = {}, ): Promise < McpToolCallResult > {
+        return this.withLock(async() => {
+            const tools = await this.connector.listTools();
+
+            const tool = tools.find((item) =>
+                    /^(get[_-]apps|list[_-]applications)$/i.test(item.name), );
+
+            if (!tool) {
+                throw new Error(
+                    "The configured AppScan MCP server does not expose a recognized application discovery tool.", );
+            }
+
+            return this.connector.callTool(tool.name, args);
+        });
+    }
+}
